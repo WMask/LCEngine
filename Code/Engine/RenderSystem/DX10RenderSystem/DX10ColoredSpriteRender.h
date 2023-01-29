@@ -18,7 +18,7 @@ class DX10ColoredSpriteRender : public ISpriteRender
 public:
 	/**
 	* Constructor */
-	DX10ColoredSpriteRender(IDX10RenderDevice* renderDevice);
+	DX10ColoredSpriteRender(IDX10RenderDevice& renderDevice);
 	/**
 	* Destructor */
 	~DX10ColoredSpriteRender();
@@ -37,7 +37,7 @@ public: // ISpriteRender interface implementation
 
 
 protected:
-	IDX10RenderDevice* renderDevice;
+	IDX10RenderDevice& renderDevice;
 	//
 	ID3D10Buffer* vertexBuffer;
 	//

@@ -138,7 +138,8 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 	blendStateDesc.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_ALL;
 
 	d3dDevice->CreateBlendState(&blendStateDesc, &blendState);
-	d3dDevice->OMSetBlendState(blendState, (FLOAT*)NULL, 0xffffffff);
+	float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	d3dDevice->OMSetBlendState(blendState, blendFactor, 0xffffffff);
 
 	// set up rasterizer
 	D3D10_RASTERIZER_DESC rasterizerDesc;
@@ -157,7 +158,7 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
-	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new DX10ColoredSpriteRender(this)));
+	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new DX10ColoredSpriteRender(*this)));
 	spriteRenders[0]->Setup();
 }
 

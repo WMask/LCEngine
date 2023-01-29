@@ -16,17 +16,16 @@ struct DX10COLOREDSPRITEDATA
 	unsigned int index;  // vertex index
 };
 
-DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice* inRenderDevice)
+DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice& inRenderDevice) : renderDevice(inRenderDevice)
 {
 	vs = nullptr;
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
-	renderDevice = inRenderDevice;
-	auto d3dDevice = renderDevice ? renderDevice->GetD3D10Device() : nullptr;
+	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("DX10ColoredSpriteRender(): Invalid arguments");
 
-	auto shaderCode = renderDevice->GetShaderCode(coloredSpriteShaderName);
+	auto shaderCode = renderDevice.GetShaderCode(coloredSpriteShaderName);
 
 	ID3D10Blob *vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, &vertexBlob, NULL)))
@@ -90,7 +89,6 @@ DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice* inRenderDevi
 
 DX10ColoredSpriteRender::~DX10ColoredSpriteRender()
 {
-	renderDevice = nullptr;
 	if (vertexBuffer) { vertexBuffer->Release(); vertexBuffer = nullptr; }
 	if (vertexLayout) { vertexLayout->Release(); vertexLayout = nullptr; }
 	if (vs) { vs->Release(); vs = nullptr; }
@@ -99,7 +97,7 @@ DX10ColoredSpriteRender::~DX10ColoredSpriteRender()
 
 void DX10ColoredSpriteRender::Setup()
 {
-	auto d3dDevice = renderDevice ? renderDevice->GetD3D10Device() : nullptr;
+	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("DX10ColoredSpriteRender::Setup(): Invalid render device");
 
 	d3dDevice->VSSetShader(vs);
@@ -114,11 +112,11 @@ void DX10ColoredSpriteRender::Setup()
 
 void DX10ColoredSpriteRender::Render(const SPRITE_DATA& sprite)
 {
-	auto d3dDevice = renderDevice ? renderDevice->GetD3D10Device() : nullptr;
-	auto transMatrix = renderDevice ? renderDevice->GetTransformBuffer() : nullptr;
+	auto d3dDevice = renderDevice.GetD3D10Device();
+	auto transMatrix = renderDevice.GetTransformBuffer();
 	if (!d3dDevice || !transMatrix) throw std::exception("DX10ColoredSpriteRender::Render(): Invalid render device");
 
-	Eigen::Vector2f offset = renderDevice->GetOffset();
+	Eigen::Vector2f offset = renderDevice.GetOffset();
 	Eigen::Vector3f pos(sprite.pos.x() + offset.x(), sprite.pos.y() + offset.y(), sprite.pos.z());
 
 	transData.trans = TransformMatrix(pos, sprite.size, sprite.rotZ).transpose();
