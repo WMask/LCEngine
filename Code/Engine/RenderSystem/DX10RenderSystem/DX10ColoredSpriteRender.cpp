@@ -15,7 +15,6 @@ const char* shaderCode = SHADER(
 	cbuffer VS_PROJ_BUFFER : register(b0)
 	{
 		float4x4 mProj;
-		float2 vOffset;
 	};
 
 	cbuffer VS_TRANS_BUFFER : register(b1)
@@ -142,36 +141,11 @@ DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice* inRenderDevi
 DX10ColoredSpriteRender::~DX10ColoredSpriteRender()
 {
 	renderDevice = nullptr;
-
-	if (rasterizerState)
-	{
-		rasterizerState->Release();
-		rasterizerState = nullptr;
-	}
-
-	if (vertexBuffer)
-	{
-		vertexBuffer->Release();
-		vertexBuffer = nullptr;
-	}
-
-	if (vertexLayout)
-	{
-		vertexLayout->Release();
-		vertexLayout = nullptr;
-	}
-
-	if (vs)
-	{
-		vs->Release();
-		vs = nullptr;
-	}
-
-	if (ps)
-	{
-		ps->Release();
-		ps = nullptr;
-	}
+	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
+	if (vertexBuffer) { vertexBuffer->Release(); vertexBuffer = nullptr; }
+	if (vertexLayout) { vertexLayout->Release(); vertexLayout = nullptr; }
+	if (vs) { vs->Release(); vs = nullptr; }
+	if (ps) { ps->Release(); ps = nullptr; }
 }
 
 void DX10ColoredSpriteRender::Setup()

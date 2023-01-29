@@ -21,31 +21,40 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto App = IApplication::GetPlatformApp();
         TWeakApp WeakApp(App);
 
-        LCFSize size(100, 100);
-        Eigen::Vector3f pos(100, 100, 0);
+        LCFSize size(200, 200);
+        Eigen::Vector3f pos(200, 200, 0);
         SPRITE_COLORS colors(LCColor4(1, 0, 0, 1), LCColor4(0, 0, 0, 1), LCColor4(1, 0, 1, 1), LCColor4(0, 1, 0, 1));
         auto Sprite = World.AddSprite(SPRITE_DATA(ESpriteType::Colored, pos, size, colors));
 
-        auto OnUpdateHandler = [WeakApp](float DeltaSeconds) {
+        BYTE keys[256];
+        memset(keys, 0, sizeof(keys));
+
+        auto OnUpdateHandler = [WeakApp, Sprite, &keys](float DeltaSeconds) {
             DebugMsg("FPS: %.3f\n", (1.0f / DeltaSeconds));
+
+            if (auto App = WeakApp.lock())
+            {
+                if (keys[VK_LEFT]) Sprite->pos.x() -= 200.0f * DeltaSeconds;
+                if (keys[VK_RIGHT]) Sprite->pos.x() += 200.0f * DeltaSeconds;
+
+                if (keys[VK_UP]) Sprite->rotZ -= 2.0f * DeltaSeconds;
+                if (keys[VK_DOWN]) Sprite->rotZ += 2.0f * DeltaSeconds;
+            }
         };
 
-        auto OnKeyboardHandler = [WeakApp, Sprite](int key, EInputKeyEvent keyEvent) {
+        auto OnKeyboardHandler = [WeakApp, &keys](int key, EInputKeyEvent keyEvent) {
+            keys[key] = (keyEvent == EInputKeyEvent::Down) ? 1 : 0;
+
             if (auto App = WeakApp.lock())
             {
                 if (key == 'Q') App->RequestQuit();
-
-                if (key == VK_LEFT) Sprite->pos.x() -= 10.0f;
-                if (key == VK_RIGHT) Sprite->pos.x() += 10.0f;
-
-                if (key == VK_UP) Sprite->rotZ -= 0.1f;
-                if (key == VK_DOWN) Sprite->rotZ += 0.1f;
             }
         };
 
         App->SetUpdateHandler(OnUpdateHandler);
         App->SetKeyboardHandler(OnKeyboardHandler);
         App->SetRenderSystemType(ERenderSystemType::DX10);
+        App->SetWindowSize(LCSize(1024, 768));
         App->Init(hInstance, lpCmdLine);
         App->Run();
     }

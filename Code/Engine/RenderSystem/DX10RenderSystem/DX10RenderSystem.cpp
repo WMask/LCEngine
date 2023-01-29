@@ -144,41 +144,12 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 
 void DX10RenderSystem::Shutdown()
 {
-	if (blendState)
-	{
-		blendState->Release();
-		blendState = nullptr;
-	}
-
-	if (transMatrixBuffer)
-	{
-		transMatrixBuffer->Release();
-		transMatrixBuffer = nullptr;
-	}
-
-	if (projMatrixBuffer)
-	{
-		projMatrixBuffer->Release();
-		projMatrixBuffer = nullptr;
-	}
-
-	if (renderTargetView)
-	{
-		renderTargetView->Release();
-		renderTargetView = nullptr;
-	}
-
-	if (swapChain)
-	{
-		swapChain->Release();
-		swapChain = nullptr;
-	}
-
-	if (d3dDevice)
-	{
-		d3dDevice->Release();
-		d3dDevice = nullptr;
-	}
+	if (blendState) { blendState->Release(); blendState = nullptr; }
+	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
+	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
+	if (renderTargetView) { renderTargetView->Release(); renderTargetView = nullptr; }
+	if (swapChain) { swapChain->Release(); swapChain = nullptr; }
+	if (d3dDevice) { d3dDevice->Release(); d3dDevice = nullptr; }
 }
 
 void DX10RenderSystem::Update(float deltaSeconds)
