@@ -108,8 +108,6 @@ public: // IDX10RenderDevice interface implementation
 
 
 protected:
-	class IApplication& app;
-	//
 	ID3D10Device* d3dDevice;
 	//
 	IDXGISwapChain* swapChain;

@@ -82,6 +82,12 @@ public:
 	* Set mouse handler */
 	virtual void SetMouseHandler(MouseHandler handler) noexcept = 0;
 	/**
+	* Set NoesisGUI flag */
+	virtual void SetUseNoesis(bool useNoesis) noexcept = 0;
+	/**
+	* Get NoesisGUI flag */
+	virtual bool GetUseNoesis() const noexcept = 0;
+	/**
 	* Run application main loop */
 	virtual void Run() = 0;
 	/**

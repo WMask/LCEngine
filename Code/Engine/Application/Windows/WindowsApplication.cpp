@@ -30,6 +30,7 @@ LCWindowsApplication::LCWindowsApplication()
     cmdsCount = 0;
     windowSize = LCSize(800, 600);
 	quit = false;
+    useNoesis = false;
     prevTick = 0;
 }
 

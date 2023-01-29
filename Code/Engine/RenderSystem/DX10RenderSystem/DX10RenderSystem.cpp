@@ -12,7 +12,7 @@
 #include "Core/LCUtils.h"
 
 
-DX10RenderSystem::DX10RenderSystem(IApplication& inApp) : app(inApp)
+DX10RenderSystem::DX10RenderSystem(IApplication& app) : IRenderSystem(app)
 {
 	d3dDevice = nullptr;
 	swapChain = nullptr;
@@ -160,10 +160,15 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 	// add sprite renders
 	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new DX10ColoredSpriteRender(*this)));
 	spriteRenders[0]->Setup();
+
+	// init render system
+	IRenderSystem::Create(this, viewportSize, windowed);
 }
 
 void DX10RenderSystem::Shutdown()
 {
+	IRenderSystem::Shutdown();
+
 	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
 	if (blendState) { blendState->Release(); blendState = nullptr; }
 	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }

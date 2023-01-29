@@ -26,15 +26,19 @@ enum class ERenderSystemType
 class RENDERSYSTEM_API IRenderSystem
 {
 public:
+	IRenderSystem(class IApplication& app);
+
+
+public:
 	/**
 	* Virtual destructor */
 	virtual ~IRenderSystem();
 	/**
 	* Create render system */
-	virtual void Create(void* Handle, LCSize viewportSize, bool windowed) = 0;
+	virtual void Create(void* Handle, LCSize viewportSize, bool windowed);
 	/**
 	* Shutdown render system */
-	virtual void Shutdown() = 0;
+	virtual void Shutdown();
 	/**
 	* Update world */
 	virtual void Update(float deltaSeconds) = 0;
@@ -53,5 +57,9 @@ protected:
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const SPRITE_DATA& sprite) = 0;
+
+
+protected:
+	class IApplication& app;
 
 };

@@ -54,6 +54,12 @@ public: // IApplication interface implementation
 	* Set mouse handler */
 	virtual void SetMouseHandler(MouseHandler handler) noexcept { mouseHandler = handler; }
 	/**
+	* Set NoesisGUI flag */
+	virtual void SetUseNoesis(bool inUseNoesis) noexcept { useNoesis = inUseNoesis; }
+	/**
+	* Get NoesisGUI flag */
+	virtual bool GetUseNoesis() const noexcept { return useNoesis; }
+	/**
 	* Run application main loop */
 	virtual void Run() override;
 	/**
@@ -85,6 +91,8 @@ protected:
 	LCSize windowSize;
 	//
 	bool quit;
+	//
+	bool useNoesis;
 	//
 	UpdateHandler updateHandler;
 	//

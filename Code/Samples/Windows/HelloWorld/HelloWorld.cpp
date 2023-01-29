@@ -17,47 +17,47 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     try
     {
-        auto& World = LCWorld::GetInstance();
-        auto App = IApplication::GetPlatformApp();
-        TWeakApp WeakApp(App);
+        auto& world = LCWorld::GetInstance();
+        auto app = IApplication::GetPlatformApp();
+        TWeakApp weakApp(app);
 
         LCFSize size(200, 200);
         Eigen::Vector3f pos(200, 200, 0);
         SPRITE_COLORS colors(LCColor4(1, 0, 0, 1), LCColor4(0, 0, 0, 1), LCColor4(1, 0, 1, 1), LCColor4(0, 1, 0, 1));
-        auto Sprite = World.AddSprite(SPRITE_DATA(ESpriteType::Colored, pos, size, colors));
+        auto sprite = world.AddSprite(SPRITE_DATA(ESpriteType::Colored, pos, size, colors));
 
         BYTE keys[256];
         memset(keys, 0, sizeof(keys));
 
-        auto OnUpdateHandler = [WeakApp, Sprite, &keys](float DeltaSeconds) {
+        auto onUpdateHandler = [weakApp, sprite, &keys](float DeltaSeconds) {
             DebugMsg("FPS: %.3f\n", (1.0f / DeltaSeconds));
 
-            if (auto App = WeakApp.lock())
+            if (auto app = weakApp.lock())
             {
-                if (keys[VK_LEFT]) Sprite->pos.x() -= 200.0f * DeltaSeconds;
-                if (keys[VK_RIGHT]) Sprite->pos.x() += 200.0f * DeltaSeconds;
+                if (keys[VK_LEFT]) sprite->pos.x() -= 200.0f * DeltaSeconds;
+                if (keys[VK_RIGHT]) sprite->pos.x() += 200.0f * DeltaSeconds;
 
-                if (keys[VK_UP]) Sprite->rotZ -= 2.0f * DeltaSeconds;
-                if (keys[VK_DOWN]) Sprite->rotZ += 2.0f * DeltaSeconds;
+                if (keys[VK_UP]) sprite->rotZ -= 2.0f * DeltaSeconds;
+                if (keys[VK_DOWN]) sprite->rotZ += 2.0f * DeltaSeconds;
             }
         };
 
-        auto OnKeyboardHandler = [WeakApp, &keys](int key, EInputKeyEvent keyEvent) {
+        auto onKeyboardHandler = [weakApp, &keys](int key, EInputKeyEvent keyEvent) {
             keys[key] = (keyEvent == EInputKeyEvent::Down) ? 1 : 0;
 
-            if (auto App = WeakApp.lock())
+            if (auto app = weakApp.lock())
             {
-                if (key == 'Q') App->RequestQuit();
+                if (key == 'Q') app->RequestQuit();
             }
         };
 
-        App->SetUpdateHandler(OnUpdateHandler);
-        App->SetKeyboardHandler(OnKeyboardHandler);
-        App->SetRenderSystemType(ERenderSystemType::DX10);
-        App->SetWindowSize(LCSize(1024, 768));
-        App->LoadShaders("../../../Shaders/HLSL/");
-        App->Init(hInstance, lpCmdLine);
-        App->Run();
+        app->SetUpdateHandler(onUpdateHandler);
+        app->SetKeyboardHandler(onKeyboardHandler);
+        app->SetRenderSystemType(ERenderSystemType::DX10);
+        app->SetWindowSize(LCSize(1024, 768));
+        app->LoadShaders("../../../Shaders/HLSL/");
+        app->Init(hInstance, lpCmdLine);
+        app->Run();
     }
     catch (const std::exception& ex)
     {

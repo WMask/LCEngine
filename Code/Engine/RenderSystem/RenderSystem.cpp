@@ -6,11 +6,27 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
+#include "Application/Application.h"
+#include "GUI/GUIManager.h"
 #include "World/World.h"
 
 
+IRenderSystem::IRenderSystem(IApplication& inApp) : app(inApp)
+{
+}
+
 IRenderSystem::~IRenderSystem()
 {
+}
+
+void IRenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
+{
+	LCGUIManager::GetInstance().Init(app.GetUseNoesis());
+}
+
+void IRenderSystem::Shutdown()
+{
+	LCGUIManager::GetInstance().Shutdown();
 }
 
 void IRenderSystem::Render()
