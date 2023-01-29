@@ -7,7 +7,7 @@
 #pragma once
 
 #include "RenderSystemModule.h"
-#include "Core/LCTypes.h"
+#include "World/World.h"
 
 
 /**
@@ -40,12 +40,18 @@ public:
 	virtual void Update(float deltaSeconds) = 0;
 	/**
 	* Render world */
-	virtual void Render(float deltaSeconds) = 0;
+	virtual void Render();
 	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
 	* Return render system type */
 	virtual ERenderSystemType GetType() const = 0;
+
+
+protected:
+	/**
+	* Render sprite */
+	virtual void RenderSprite(const SPRITE_DATA& sprite) = 0;
 
 };

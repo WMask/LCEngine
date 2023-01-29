@@ -77,7 +77,10 @@ public: // IRenderSystem interface implementation
 	virtual void Update(float deltaSeconds) override;
 	/**
 	* Render world */
-	virtual void Render(float deltaSeconds) override;
+	virtual void Render() override;
+	/**
+	* Render world */
+	virtual void RenderSprite(const SPRITE_DATA& sprite) override;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }

@@ -49,7 +49,7 @@ const char* shaderCode = SHADER(
 struct DX10COLOREDSPRITEDATA
 {
 	Eigen::Vector3f pos; // position
-	int index;           // vertex index
+	unsigned int index;  // vertex index
 };
 
 DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice* inRenderDevice)

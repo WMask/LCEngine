@@ -135,7 +135,7 @@ void LCWindowsApplication::OnUpdate()
         if (renderSystem)
         {
             renderSystem->Update(deltaSeconds);
-            renderSystem->Render(deltaSeconds);
+            renderSystem->Render();
         }
 
         if (updateHandler) updateHandler(deltaSeconds);

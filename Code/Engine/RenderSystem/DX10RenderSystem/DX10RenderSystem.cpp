@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
 #include "RenderSystem/DX10RenderSystem/DX10ColoredSpriteRender.h"
+#include "World/World.h"
 #include "Core/LCUtils.h"
 
 
@@ -184,7 +185,7 @@ void DX10RenderSystem::Update(float deltaSeconds)
 {
 }
 
-void DX10RenderSystem::Render(float deltaSeconds)
+void DX10RenderSystem::Render()
 {
 	if (!d3dDevice || !swapChain)
 	{
@@ -194,11 +195,19 @@ void DX10RenderSystem::Render(float deltaSeconds)
 	LCColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView, color.data());
 
-	for (auto& sprite : spriteRenders)
-	{
-		sprite->Render(SPRITE_DATA(Eigen::Vector3f(100, 100, 0), LCFSize(100, 100), SPRITE_COLORS(
-			LCColor4(1, 0, 0, 1), LCColor4(0, 0, 0, 1), LCColor4(1, 0, 1, 1), LCColor4(0, 1, 0, 1))));
-	}
+	IRenderSystem::Render();
 
 	swapChain->Present(0, 0);
+}
+
+void DX10RenderSystem::RenderSprite(const SPRITE_DATA& sprite)
+{
+	for (auto& render : spriteRenders)
+	{
+		if (render->GetType() == sprite.type)
+		{
+			render->Render(sprite);
+			break;
+		}
+	}
 }
