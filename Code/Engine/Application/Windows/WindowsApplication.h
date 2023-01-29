@@ -33,6 +33,12 @@ public: // IApplication interface implementation
 	* Set app parameters */
 	virtual void Init(void* Handle, LCSTR cmds) noexcept override;
 	/**
+	* Load shaders */
+	virtual void LoadShaders(const std::string& folderPath) override;
+	/**
+	* Get shaders */
+	virtual const SHADERS_MAP& GetShaders() const noexcept override { return shaders; }
+	/**
 	* Set app parameters */
 	virtual void SetRenderSystemType(ERenderSystemType inType) noexcept { type = inType; }
 	/**
@@ -69,6 +75,8 @@ protected:
 	std::shared_ptr<class IRenderSystem> renderSystem;
 	//
 	ERenderSystemType type;
+	//
+	SHADERS_MAP shaders;
 	//
 	LCSTR* cmds;
 	//

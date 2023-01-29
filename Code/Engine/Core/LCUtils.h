@@ -25,9 +25,13 @@ CORE_API Eigen::Matrix4f TransformMatrix(Eigen::Vector3f pos, Eigen::Vector2f sc
 
 
 /**
+* Read text file */
+CORE_API std::string ReadTextFile(const std::string& filePath);
+
+
+/**
 * Print debug string */
 CORE_API void DebugMsg(const char* fmt, ...);
 /**
 * Print debug string */
 CORE_API void DebugMsgW(const wchar_t* fmt, ...);
-

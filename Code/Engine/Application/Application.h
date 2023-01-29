@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <functional>
+#include <map>
 
 #include "ApplicationModule.h"
 #include "RenderSystem/RenderSystem.h"
@@ -45,6 +46,8 @@ public:
 	/**
 	* Returns platform-specific application */
 	static std::shared_ptr<IApplication> GetPlatformApp();
+	//
+	typedef std::map<std::string, std::string> SHADERS_MAP;
 
 
 public:
@@ -57,6 +60,12 @@ public:
 	/**
 	* Set app parameters */
 	virtual void Init(void* Handle, LCSTR cmds) noexcept = 0;
+	/**
+	* Load shaders */
+	virtual void LoadShaders(const std::string& folderPath) = 0;
+	/**
+	* Get shaders */
+	virtual const SHADERS_MAP& GetShaders() const noexcept = 0;
 	/**
 	* Set render system type */
 	virtual void SetRenderSystemType(ERenderSystemType type) noexcept = 0;

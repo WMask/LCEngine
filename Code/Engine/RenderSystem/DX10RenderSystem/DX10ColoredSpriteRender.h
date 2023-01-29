@@ -43,8 +43,6 @@ protected:
 	//
 	ID3D10InputLayout* vertexLayout;
 	//
-	ID3D10RasterizerState* rasterizerState;
-	//
 	ID3D10VertexShader* vs;
 	//
 	ID3D10PixelShader* ps;

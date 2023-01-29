@@ -54,6 +54,21 @@ Eigen::Matrix4f TransformMatrix(Eigen::Vector3f pos, Eigen::Vector2f scale, floa
 	return result;
 }
 
+std::string ReadTextFile(const std::string& filePath)
+{
+	using namespace std::filesystem;
+
+	path path;
+	path.assign(filePath);
+	std::ifstream stream(path, std::ios::in | std::ios::binary);
+
+	const auto sz = file_size(path);
+	std::string result(sz, '\0');
+	stream.read(result.data(), sz);
+
+	return result;
+}
+
 #ifdef _WINDOWS
 
 #include <windows.h>

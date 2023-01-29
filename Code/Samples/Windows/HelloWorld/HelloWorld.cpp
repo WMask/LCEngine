@@ -55,6 +55,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         App->SetKeyboardHandler(OnKeyboardHandler);
         App->SetRenderSystemType(ERenderSystemType::DX10);
         App->SetWindowSize(LCSize(1024, 768));
+        App->LoadShaders("../../../Shaders/HLSL/");
         App->Init(hInstance, lpCmdLine);
         App->Run();
     }

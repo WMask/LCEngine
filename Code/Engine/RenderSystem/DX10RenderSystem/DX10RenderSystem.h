@@ -29,6 +29,9 @@ public:
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const = 0;
 	/**
+	* Get shader code */
+	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
+	/**
 	* Return initial sprite offset */
 	virtual Eigen::Vector2f GetOffset() const = 0;
 
@@ -59,7 +62,7 @@ class DX10RENDERSYSTEM_API DX10RenderSystem
 	, public IDX10RenderDevice
 {
 public:
-	DX10RenderSystem();
+	DX10RenderSystem(class IApplication& app);
 
 
 public: // IRenderSystem interface implementation
@@ -97,11 +100,16 @@ public: // IDX10RenderDevice interface implementation
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer; }
 	/**
+	* Get shader code */
+	virtual std::string GetShaderCode(const std::string& shaderName) const override;
+	/**
 	* Return initial sprite offset */
 	virtual Eigen::Vector2f GetOffset() const override { return initialOffset; }
 
 
 protected:
+	class IApplication& app;
+	//
 	ID3D10Device* d3dDevice;
 	//
 	IDXGISwapChain* swapChain;
@@ -113,6 +121,8 @@ protected:
 	ID3D10Buffer* transMatrixBuffer;
 	//
 	ID3D10BlendState* blendState;
+	//
+	ID3D10RasterizerState* rasterizerState;
 	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//

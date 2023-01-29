@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
+#include "Core/LCUtils.h"
 
 
 static const WCHAR* LCWindowClassName = L"LCGameWindowClass";
@@ -60,6 +61,24 @@ void LCWindowsApplication::Init(void* Handle, LCSTR inCmds) noexcept
     Init(Handle, inCmds ? &inCmds : nullptr, inCmds ? 1 : 0);
 }
 
+void LCWindowsApplication::LoadShaders(const std::string& folderPath)
+{
+    using namespace std::filesystem;
+
+    for (auto& entry : directory_iterator(folderPath))
+    {
+        if (entry.is_regular_file())
+        {
+            auto name = entry.path().filename().string();
+            auto content = ReadTextFile(entry.path().string());
+            if (!name.empty() && !content.empty())
+            {
+                shaders[name] = content;
+            }
+        }
+    }
+}
+
 void LCWindowsApplication::Run()
 {
 	if (!hInstance) throw std::exception("LCWindowsApplication::Run(): Invalid platform handle");
@@ -100,7 +119,7 @@ void LCWindowsApplication::Run()
 
     if (type == ERenderSystemType::DX10)
     {
-        renderSystem.reset(new DX10RenderSystem());
+        renderSystem.reset(new DX10RenderSystem(*this));
         renderSystem->Create(hWnd, windowSize, true);
     }
 

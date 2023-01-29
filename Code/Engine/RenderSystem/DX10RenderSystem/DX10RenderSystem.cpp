@@ -7,11 +7,12 @@
 #include "pch.h"
 #include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
 #include "RenderSystem/DX10RenderSystem/DX10ColoredSpriteRender.h"
+#include "Application/Application.h"
 #include "World/World.h"
 #include "Core/LCUtils.h"
 
 
-DX10RenderSystem::DX10RenderSystem()
+DX10RenderSystem::DX10RenderSystem(IApplication& inApp) : app(inApp)
 {
 	d3dDevice = nullptr;
 	swapChain = nullptr;
@@ -19,6 +20,7 @@ DX10RenderSystem::DX10RenderSystem()
 	projMatrixBuffer = nullptr;
 	transMatrixBuffer = nullptr;
 	blendState = nullptr;
+	rasterizerState = nullptr;
 }
 
 DX10RenderSystem::~DX10RenderSystem()
@@ -123,6 +125,7 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 	d3dDevice->VSSetConstantBuffers(0, 1, &projMatrixBuffer);
 	d3dDevice->VSSetConstantBuffers(1, 1, &transMatrixBuffer);
 
+	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
 	ZeroMemory(&blendStateDesc, sizeof(D3D10_BLEND_DESC));
 	blendStateDesc.BlendEnable[0] = TRUE;
@@ -135,7 +138,23 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 	blendStateDesc.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_ALL;
 
 	d3dDevice->CreateBlendState(&blendStateDesc, &blendState);
-	d3dDevice->OMSetBlendState(blendState, NULL, 0xffffffff);
+	d3dDevice->OMSetBlendState(blendState, (FLOAT*)NULL, 0xffffffff);
+
+	// set up rasterizer
+	D3D10_RASTERIZER_DESC rasterizerDesc;
+	rasterizerDesc.CullMode = D3D10_CULL_NONE;
+	rasterizerDesc.FillMode = D3D10_FILL_SOLID;
+	rasterizerDesc.FrontCounterClockwise = true;
+	rasterizerDesc.DepthBias = false;
+	rasterizerDesc.DepthBiasClamp = 0;
+	rasterizerDesc.SlopeScaledDepthBias = 0;
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.ScissorEnable = false;
+	rasterizerDesc.MultisampleEnable = false;
+	rasterizerDesc.AntialiasedLineEnable = true;
+
+	d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
 	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new DX10ColoredSpriteRender(this)));
@@ -144,6 +163,7 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 
 void DX10RenderSystem::Shutdown()
 {
+	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
 	if (blendState) { blendState->Release(); blendState = nullptr; }
 	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
 	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
@@ -181,4 +201,9 @@ void DX10RenderSystem::RenderSprite(const SPRITE_DATA& sprite)
 			break;
 		}
 	}
+}
+
+std::string DX10RenderSystem::GetShaderCode(const std::string& shaderName) const
+{
+	return app.GetShaders().at(shaderName);
 }

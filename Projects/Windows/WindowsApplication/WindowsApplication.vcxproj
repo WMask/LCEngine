@@ -115,12 +115,13 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(SolutionDir)x64\Debug\Application.lib;$(SolutionDir)x64\Debug\RenderSystem.lib;$(SolutionDir)x64\Debug\DX10RenderSystem.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)x64\Debug\Core.lib;$(SolutionDir)x64\Debug\Application.lib;$(SolutionDir)x64\Debug\RenderSystem.lib;$(SolutionDir)x64\Debug\DX10RenderSystem.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
