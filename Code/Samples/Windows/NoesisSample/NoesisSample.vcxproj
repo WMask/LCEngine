@@ -71,7 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\..\Code\Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\Engine;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\Providers\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -111,7 +112,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)x64\Debug\Core.lib;$(SolutionDir)x64\Debug\World.lib;$(SolutionDir)x64\Debug\Application.lib;$(SolutionDir)x64\Debug\WindowsApplication.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)x64\Debug\Core.lib;$(SolutionDir)x64\Debug\GUI.lib;$(SolutionDir)x64\Debug\World.lib;$(SolutionDir)x64\Debug\Application.lib;$(SolutionDir)x64\Debug\WindowsApplication.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,6 +146,14 @@
   <ItemGroup>
     <Image Include="NoesisSample.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="NoesisSample_Blend\MainMenu.xaml">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Engine\GUI\NoesisGUI\Src\Tools\Bin2h\bin2h.exe "%(FullPath)" &gt; "$(IntermediateOutputPath)%(Filename)%(Extension).bin.h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntermediateOutputPath)%(Filename)%(Extension).bin.h</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

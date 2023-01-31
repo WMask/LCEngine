@@ -10,6 +10,8 @@
 #include "RenderSystem/RenderSystem.h"
 #include "Core/LCTypes.h"
 
+#include <NsGui/XamlProvider.h>
+
 
 /**
 * GUI manager */
@@ -31,6 +33,9 @@ public:
 	/**
 	* Shutdown GUI manager */
 	void Shutdown();
+	/**
+	* Add XAML provider */
+	void AddXamlProvider(Noesis::Ptr<Noesis::XamlProvider> inXamlProvider) { xamlProvider = inXamlProvider; }
 
 
 protected:
@@ -42,6 +47,8 @@ protected:
 
 
 protected:
+	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
+	//
 	bool useNoesis;
 
 };

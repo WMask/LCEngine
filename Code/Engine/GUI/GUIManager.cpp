@@ -60,9 +60,9 @@ void LCGUIManager::Init(bool inUseNoesis)
 
         Noesis::GUI::SetLicense(NS_LICENSE_NAME, NS_LICENSE_KEY);
         Noesis::GUI::Init();
+        Noesis::GUI::SetXamlProvider(xamlProvider);
 
-        auto file = ReadTextFile("NoesisSample_Blend/MainMenu.xaml");
-        auto xaml = Noesis::GUI::ParseXaml(file.c_str());
+        auto xaml = Noesis::GUI::LoadXaml("MainMenu.xaml");
         auto control = Noesis::DynamicCast<Noesis::UserControl*>(xaml.GetPtr());
         auto grid = Noesis::DynamicCast<Noesis::Grid*>(control->GetContent());
         for (int i = 0; i < grid->GetChildren()->Count(); i++)

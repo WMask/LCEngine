@@ -9,6 +9,10 @@
 #include "Application/Application.h"
 #include "Core/LCUtils.h"
 #include "World/World.h"
+#include "GUI/GUIManager.h"
+
+#include "x64/Debug/MainMenu.xaml.bin.h"
+#include "NsApp/EmbeddedXamlProvider.h"
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
@@ -50,6 +54,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
                 if (key == 'Q') app->RequestQuit();
             }
         };
+
+        NoesisApp::EmbeddedXaml xamls[] =
+        {
+            { "MainMenu.xaml", MainMenu_xaml }
+        };
+        LCGUIManager::GetInstance().AddXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
 
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);

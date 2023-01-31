@@ -7,8 +7,16 @@
       mc:Ignorable="d" 
       d:DesignWidth="800" d:DesignHeight="600"
       Title="MainMenu">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="SampleDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <Grid>
         <Rectangle Fill="Black" />
         <Rectangle Fill="Gray" Width="200" />
+        <Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="0, 0, 0, 300" />
     </Grid>
 </Page>
