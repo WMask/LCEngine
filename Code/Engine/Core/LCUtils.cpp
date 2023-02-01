@@ -8,9 +8,9 @@
 #include "LCUtils.h"
 
 
-Eigen::Matrix4f OrthoMatrix(float left, float right, float bottom, float top, float near_plane, float far_plane)
+LcMatrix4 OrthoMatrix(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {
-	Eigen::Matrix4f result = Eigen::Matrix4f::Zero();
+	LcMatrix4 result = LcMatrix4::Zero();
 
 	result(0, 0) = 2.0f / (right - left);
 	result(1, 1) = 2.0f / (top - bottom);
@@ -23,14 +23,14 @@ Eigen::Matrix4f OrthoMatrix(float left, float right, float bottom, float top, fl
 	return result;
 }
 
-Eigen::Matrix4f OrthoMatrix(LCSize vp, float nearPlane, float farPlane)
+LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane)
 {
 	return OrthoMatrix(-vp.x() / 2.0f, vp.x() / 2.0f, vp.y() / 2.0f, -vp.y() / 2.0f, nearPlane, farPlane);
 }
 
-Eigen::Matrix4f TranslationMatrix(Eigen::Vector3f pos)
+LcMatrix4 TranslationMatrix(LcVector3 pos)
 {
-	Eigen::Matrix4f result = Eigen::Matrix4f::Identity();
+	LcMatrix4 result = LcMatrix4::Identity();
 
 	result(0, 3) = pos.x();
 	result(1, 3) = pos.y();
@@ -39,9 +39,9 @@ Eigen::Matrix4f TranslationMatrix(Eigen::Vector3f pos)
 	return result;
 }
 
-Eigen::Matrix4f TransformMatrix(Eigen::Vector3f pos, Eigen::Vector2f scale, float rotZ)
+LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
 {
-	Eigen::Matrix4f result = Eigen::Matrix4f::Identity();
+	LcMatrix4 result = LcMatrix4::Identity();
 
 	result(0, 0) = scale.x() * cos(rotZ);
 	result(0, 1) = scale.x() * -sin(rotZ);

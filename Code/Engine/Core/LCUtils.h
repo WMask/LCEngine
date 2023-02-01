@@ -12,16 +12,16 @@
 
 /**
 * Create ortho matrix */
-CORE_API Eigen::Matrix4f OrthoMatrix(float left, float right, float bottom, float top, float nearPlane, float farPlane);
+CORE_API LcMatrix4 OrthoMatrix(float left, float right, float bottom, float top, float nearPlane, float farPlane);
 /**
 * Create ortho matrix */
-CORE_API Eigen::Matrix4f OrthoMatrix(LCSize viewportSize, float nearPlane, float farPlane);
+CORE_API LcMatrix4 OrthoMatrix(LcSize viewportSize, float nearPlane, float farPlane);
 /**
 * Create translation matrix */
-CORE_API Eigen::Matrix4f TranslationMatrix(Eigen::Vector3f pos);
+CORE_API LcMatrix4 TranslationMatrix(LcVector3 pos);
 /**
 * Create rotation matrix */
-CORE_API Eigen::Matrix4f TransformMatrix(Eigen::Vector3f pos, Eigen::Vector2f scale, float rotZ = 0.0f);
+CORE_API LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ = 0.0f);
 
 
 /**

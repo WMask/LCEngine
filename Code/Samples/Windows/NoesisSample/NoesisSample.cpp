@@ -32,9 +32,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto app = IApplication::GetPlatformApp();
         TWeakApp weakApp(app);
 
-        LCFSize size(200, 200);
-        Eigen::Vector3f pos(200, 200, 0);
-        SPRITE_COLORS colors(LCColor4(1, 0, 0, 1), LCColor4(0, 0, 0, 1), LCColor4(1, 0, 1, 1), LCColor4(0, 1, 0, 1));
+        LcSizef size(200, 200);
+        LcVector3 pos(200, 200, 0);
+        SPRITE_COLORS colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
         auto sprite = world.AddSprite(SPRITE_DATA(ESpriteType::Colored, pos, size, colors));
 
         BYTE keys[256];
@@ -76,7 +76,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetRenderSystemType(ERenderSystemType::DX10);
-        app->SetWindowSize(LCSize(1024, 768));
+        app->SetWindowSize(LcSize(1024, 768));
         app->SetUseNoesis(true);
         app->LoadShaders("../../../Shaders/HLSL/");
         app->Init(hInstance, lpCmdLine);

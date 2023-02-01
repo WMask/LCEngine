@@ -28,10 +28,10 @@ DX10RenderSystem::~DX10RenderSystem()
 	Shutdown();
 }
 
-void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
+void DX10RenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 {
 	int width = viewportSize.x(), height = viewportSize.y();
-	initialOffset = Eigen::Vector2f(width / -2.0f, height / -2.0f);
+	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
@@ -112,10 +112,10 @@ void DX10RenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
 	cbDesc.ByteWidth = sizeof(VS_TRANS_BUFFER);
 	InitData.pSysMem = &transData;
 	transData.trans = Eigen::Matrix4f::Identity();
-	transData.colors[0] = Eigen::Vector4f::Ones();
-	transData.colors[1] = Eigen::Vector4f::Ones();
-	transData.colors[2] = Eigen::Vector4f::Ones();
-	transData.colors[3] = Eigen::Vector4f::Ones();
+	transData.colors[0] = LcVector4::Ones();
+	transData.colors[1] = LcVector4::Ones();
+	transData.colors[2] = LcVector4::Ones();
+	transData.colors[3] = LcVector4::Ones();
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &InitData, &transMatrixBuffer)))
 	{
 		throw std::exception("DX10RenderSystem(): Cannot create constant buffer");
@@ -189,7 +189,7 @@ void DX10RenderSystem::Render()
 		throw std::exception("DX10RenderSystem::Render(): Invalid render device");
 	}
 
-	LCColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
+	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView, color.data());
 
 	IRenderSystem::Render();

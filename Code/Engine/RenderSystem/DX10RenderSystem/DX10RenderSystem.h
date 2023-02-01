@@ -33,7 +33,7 @@ public:
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 	/**
 	* Return initial sprite offset */
-	virtual Eigen::Vector2f GetOffset() const = 0;
+	virtual LcVector2 GetOffset() const = 0;
 
 };
 
@@ -42,15 +42,15 @@ public:
 * Transform buffer */
 struct VS_TRANS_BUFFER
 {
-	Eigen::Matrix4f trans;      // scale * rotation * translation
-	Eigen::Vector4f colors[4];  // colors
+	LcMatrix4 trans;      // scale * rotation * translation
+	LcVector4 colors[4]; // colors
 	//
 	VS_TRANS_BUFFER()
 	{
-		colors[0] = Eigen::Vector4f::Ones();
-		colors[1] = Eigen::Vector4f::Ones();
-		colors[2] = Eigen::Vector4f::Ones();
-		colors[3] = Eigen::Vector4f::Ones();
+		colors[0] = LcVector4::Ones();
+		colors[1] = LcVector4::Ones();
+		colors[2] = LcVector4::Ones();
+		colors[3] = LcVector4::Ones();
 	}
 };
 
@@ -71,7 +71,7 @@ public: // IRenderSystem interface implementation
 	virtual ~DX10RenderSystem() override;
 	/**
 	* Create render system */
-	virtual void Create(void* Handle, LCSize viewportSize, bool windowed) override;
+	virtual void Create(void* Handle, LcSize viewportSize, bool windowed) override;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() override;
@@ -104,7 +104,7 @@ public: // IDX10RenderDevice interface implementation
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 	/**
 	* Return initial sprite offset */
-	virtual Eigen::Vector2f GetOffset() const override { return initialOffset; }
+	virtual LcVector2 GetOffset() const override { return initialOffset; }
 
 
 protected:
@@ -124,6 +124,6 @@ protected:
 	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//
-	Eigen::Vector2f initialOffset;
+	LcVector2 initialOffset;
 
 };

@@ -116,8 +116,8 @@ void DX10ColoredSpriteRender::Render(const SPRITE_DATA& sprite)
 	auto transMatrix = renderDevice.GetTransformBuffer();
 	if (!d3dDevice || !transMatrix) throw std::exception("DX10ColoredSpriteRender::Render(): Invalid render device");
 
-	Eigen::Vector2f offset = renderDevice.GetOffset();
-	Eigen::Vector3f pos(sprite.pos.x() + offset.x(), sprite.pos.y() + offset.y(), sprite.pos.z());
+	LcVector2 offset = renderDevice.GetOffset();
+	LcVector3 pos(sprite.pos.x() + offset.x(), sprite.pos.y() + offset.y(), sprite.pos.z());
 
 	transData.trans = TransformMatrix(pos, sprite.size, sprite.rotZ).transpose();
 	transData.colors[0] = sprite.colors.rightTop;

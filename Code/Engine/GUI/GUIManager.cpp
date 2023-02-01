@@ -47,8 +47,9 @@ LCGUIManager& LCGUIManager::operator=(const LCGUIManager&)
 	return *this;
 }
 
-void LCGUIManager::Init(bool inUseNoesis)
+void LCGUIManager::Init(LcSize inViewportSize, bool inUseNoesis)
 {
+    viewportSize = inViewportSize;
     useNoesis = inUseNoesis;
 
     if (useNoesis)
@@ -66,7 +67,7 @@ void LCGUIManager::Init(bool inUseNoesis)
 
         auto xaml = Noesis::GUI::LoadXaml<Noesis::FrameworkElement>("MainMenu.xaml");
         view = Noesis::GUI::CreateView(xaml);
-        view->SetSize(800, 600);
+        view->SetSize(inViewportSize.x(), inViewportSize.y());
     }
 }
 

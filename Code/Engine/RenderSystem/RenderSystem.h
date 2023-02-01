@@ -35,7 +35,7 @@ public:
 	virtual ~IRenderSystem();
 	/**
 	* Create render system */
-	virtual void Create(void* Handle, LCSize viewportSize, bool windowed);
+	virtual void Create(void* Handle, LcSize viewportSize, bool windowed);
 	/**
 	* Shutdown render system */
 	virtual void Shutdown();

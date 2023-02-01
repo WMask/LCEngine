@@ -56,10 +56,10 @@ public:
 	virtual ~IApplication();
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, LCSTR* cmds, int cmdsCount) noexcept = 0;
+	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, LCSTR cmds) noexcept = 0;
+	virtual void Init(void* Handle, const std::wstring& cmds) noexcept = 0;
 	/**
 	* Load shaders */
 	virtual void LoadShaders(const std::string& folderPath) = 0;
@@ -71,7 +71,7 @@ public:
 	virtual void SetRenderSystemType(ERenderSystemType type) noexcept = 0;
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(LCSize windowSize) noexcept = 0;
+	virtual void SetWindowSize(LcSize windowSize) noexcept = 0;
 	/**
 	* Set update handler */
 	virtual void SetUpdateHandler(UpdateHandler handler) noexcept = 0;

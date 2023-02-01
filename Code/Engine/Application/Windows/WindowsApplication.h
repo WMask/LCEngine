@@ -28,10 +28,10 @@ public: // IApplication interface implementation
 	virtual ~LCWindowsApplication() override;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, LCSTR* cmds, int cmdsCount) noexcept override;
+	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount) noexcept override;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, LCSTR cmds) noexcept override;
+	virtual void Init(void* Handle, const std::wstring& cmds) noexcept override;
 	/**
 	* Load shaders */
 	virtual void LoadShaders(const std::string& folderPath) override;
@@ -43,7 +43,7 @@ public: // IApplication interface implementation
 	virtual void SetRenderSystemType(ERenderSystemType inType) noexcept { type = inType; }
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(LCSize inWindowSize) noexcept { windowSize = inWindowSize; }
+	virtual void SetWindowSize(LcSize inWindowSize) noexcept { windowSize = inWindowSize; }
 	/**
 	* Set update handler */
 	virtual void SetUpdateHandler(UpdateHandler handler) noexcept { updateHandler = handler; }
@@ -84,11 +84,11 @@ protected:
 	//
 	SHADERS_MAP shaders;
 	//
-	LCSTR* cmds;
+	std::wstring cmds;
 	//
 	int cmdsCount;
 	//
-	LCSize windowSize;
+	LcSize windowSize;
 	//
 	bool quit;
 	//

@@ -30,7 +30,7 @@ public:
 	~LCGUIManager();
 	/**
 	* Init GUI manager */
-	void Init(bool useNoesis);
+	void Init(LcSize viewportSize, bool useNoesis);
 	/**
 	* Shutdown GUI manager */
 	void Shutdown();
@@ -53,6 +53,8 @@ protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
 	//
 	Noesis::Ptr<Noesis::IView> view;
+	//
+	LcSize viewportSize;
 	//
 	bool useNoesis;
 

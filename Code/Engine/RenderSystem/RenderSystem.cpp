@@ -19,9 +19,9 @@ IRenderSystem::~IRenderSystem()
 {
 }
 
-void IRenderSystem::Create(void* Handle, LCSize viewportSize, bool windowed)
+void IRenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 {
-	LCGUIManager::GetInstance().Init(app.GetUseNoesis());
+	LCGUIManager::GetInstance().Init(viewportSize, app.GetUseNoesis());
 }
 
 void IRenderSystem::Shutdown()

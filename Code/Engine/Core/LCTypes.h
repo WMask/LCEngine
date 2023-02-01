@@ -9,11 +9,11 @@
 #include "Eigen/Dense"
 
 
-/** Types */
-typedef wchar_t *LCSTR;
-
-
 /** Geometry */
-typedef Eigen::Vector2i LCSize;
-typedef Eigen::Vector2f LCFSize;
-typedef Eigen::Vector4f LCColor4;
+typedef Eigen::Vector2i LcSize;
+typedef Eigen::Vector2f LcSizef;
+typedef Eigen::Vector2f LcVector2;
+typedef Eigen::Vector3f LcVector3;
+typedef Eigen::Vector4f LcVector4;
+typedef Eigen::Vector4f LcColor4;
+typedef Eigen::Matrix4f LcMatrix4;

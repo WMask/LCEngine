@@ -27,9 +27,9 @@ LCWindowsApplication::LCWindowsApplication()
     hWnd = nullptr;
     renderSystem = nullptr;
     type = ERenderSystemType::Null;
-    cmds = nullptr;
+    cmds.clear();
     cmdsCount = 0;
-    windowSize = LCSize(800, 600);
+    windowSize = LcSize(800, 600);
 	quit = false;
     useNoesis = false;
     prevTick = 0;
@@ -51,16 +51,16 @@ LCWindowsApplication::~LCWindowsApplication()
     }
 }
 
-void LCWindowsApplication::Init(void* Handle, LCSTR* inCmds, int inCmdsCount) noexcept
+void LCWindowsApplication::Init(void* Handle, const std::wstring& inCmds, int inCmdsCount) noexcept
 {
 	hInstance = (HINSTANCE)Handle;
     cmds = inCmds;
     cmdsCount = inCmdsCount;
 }
 
-void LCWindowsApplication::Init(void* Handle, LCSTR inCmds) noexcept
+void LCWindowsApplication::Init(void* Handle, const std::wstring& inCmds) noexcept
 {
-    Init(Handle, inCmds ? &inCmds : nullptr, inCmds ? 1 : 0);
+    Init(Handle, inCmds, 1);
 }
 
 void LCWindowsApplication::LoadShaders(const std::string& folderPath)
