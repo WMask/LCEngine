@@ -143,15 +143,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10RenderSystem.h" />
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10RenderSystemModule.h" />
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10ColoredSpriteRender.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemModuleDX10.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10RenderSystem.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10ColoredSpriteRender.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

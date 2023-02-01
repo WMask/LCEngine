@@ -1,5 +1,5 @@
 /**
-* DX10RenderSystem.h
+* RenderSystemDX10.h
 * 28.01.2023
 * (c) Denis Romakhov
 */
@@ -9,7 +9,7 @@
 #include <deque>
 #include <d3d10.h>
 
-#include "DX10RenderSystemModule.h"
+#include "RenderSystemModuleDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "Core/LCTypes.h"
@@ -19,7 +19,7 @@
 
 /**
 * Render device */
-class DX10RENDERSYSTEM_API IDX10RenderDevice
+class DX10RENDERSYSTEM_API IRenderDeviceDX10
 {
 public:
 	/**
@@ -57,18 +57,18 @@ struct VS_TRANS_BUFFER
 
 /**
 * DirectX 10 render system */
-class DX10RENDERSYSTEM_API DX10RenderSystem
+class DX10RENDERSYSTEM_API LcRenderSystemDX10
 	: public IRenderSystem
-	, public IDX10RenderDevice
+	, public IRenderDeviceDX10
 {
 public:
-	DX10RenderSystem(class IApplication& app);
+	LcRenderSystemDX10(class IApplication& app);
 
 
 public: // IRenderSystem interface implementation
 	/**
 	* Virtual destructor */
-	virtual ~DX10RenderSystem() override;
+	virtual ~LcRenderSystemDX10() override;
 	/**
 	* Create render system */
 	virtual void Create(void* Handle, LcSize viewportSize, bool windowed) override;
@@ -83,13 +83,13 @@ public: // IRenderSystem interface implementation
 	virtual void Render() override;
 	/**
 	* Render world */
-	virtual void RenderSprite(const SPRITE_DATA& sprite) override;
+	virtual void RenderSprite(const LcSpriteData& sprite) override;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
 	/**
 	* Return render system type */
-	virtual ERenderSystemType GetType() const override { return ERenderSystemType::DX10; }
+	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
 
 
 public: // IDX10RenderDevice interface implementation

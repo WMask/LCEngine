@@ -12,7 +12,7 @@
 std::shared_ptr<IApplication> IApplication::GetPlatformApp()
 {
 #ifdef _WINDOWS
-	return std::shared_ptr<IApplication>(new LCWindowsApplication());
+	return std::shared_ptr<IApplication>(new LcWindowsApplication());
 #endif
 
 	return std::shared_ptr<IApplication>();

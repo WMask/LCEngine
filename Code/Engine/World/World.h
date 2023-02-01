@@ -17,35 +17,35 @@
 
 /**
 * Game world */
-class WORLD_API LCWorld
+class WORLD_API LcWorld
 {
 public:
-	typedef std::deque<SPRITE_DATA> SPRITE_LIST;
+	typedef std::deque<LcSpriteData> SPRITE_LIST;
 
 
 public:
 	/**
 	* Get singleton */
-	static LCWorld& GetInstance();
+	static LcWorld& GetInstance();
 	/**
 	* Add sprite */
-	SPRITE_DATA* AddSprite(const SPRITE_DATA& sprite);
+	LcSpriteData* AddSprite(const LcSpriteData& sprite);
 	/**
 	* Remove sprite */
-	void RemoveSprite(SPRITE_DATA* sprite);
+	void RemoveSprite(LcSpriteData* sprite);
 	/**
 	* Get sprites */
 	SPRITE_LIST& GetSprites() { return sprites; }
 
 
 protected:
-	LCWorld();
-	LCWorld(const LCWorld&);
-	LCWorld& operator=(const LCWorld&);
-	~LCWorld();
+	LcWorld();
+	LcWorld(const LcWorld&);
+	LcWorld& operator=(const LcWorld&);
+	~LcWorld();
 
 
 protected:
-	std::deque<SPRITE_DATA> sprites;
+	std::deque<LcSpriteData> sprites;
 
 };

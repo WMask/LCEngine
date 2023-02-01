@@ -1,11 +1,11 @@
 /**
-* DX10ColoredSpriteRender.cpp
+* ColoredSpriteRenderDX10.cpp
 * 28.01.2023
 * (c) Denis Romakhov
 */
 
 #include "pch.h"
-#include "RenderSystem/DX10RenderSystem/DX10ColoredSpriteRender.h"
+#include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "Core/LCUtils.h"
 
 
@@ -16,39 +16,39 @@ struct DX10COLOREDSPRITEDATA
 	unsigned int index;  // vertex index
 };
 
-DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice& inRenderDevice) : renderDevice(inRenderDevice)
+LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
 {
 	vs = nullptr;
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
 	auto d3dDevice = renderDevice.GetD3D10Device();
-	if (!d3dDevice) throw std::exception("DX10ColoredSpriteRender(): Invalid arguments");
+	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10(): Invalid arguments");
 
 	auto shaderCode = renderDevice.GetShaderCode(coloredSpriteShaderName);
 
 	ID3D10Blob *vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, &vertexBlob, NULL)))
 	{
-		throw std::exception("DX10ColoredSpriteRender(): Cannot compile vertex shader");
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile vertex shader");
 	}
 
 	if (FAILED(d3dDevice->CreateVertexShader((DWORD*)vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &vs)))
 	{
 		vertexBlob->Release();
-		throw std::exception("DX10ColoredSpriteRender(): Cannot create vertex shader");
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create vertex shader");
 	}
 
 	ID3D10Blob *pixelBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "PShader", "ps_4_0", 0, &pixelBlob, NULL)))
 	{
-		throw std::exception("DX10ColoredSpriteRender(): Cannot compile pixel shader");
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile pixel shader");
 	}
 
 	if (FAILED(d3dDevice->CreatePixelShader((DWORD*)pixelBlob->GetBufferPointer(), pixelBlob->GetBufferSize(), &ps)))
 	{
 		pixelBlob->Release();
-		throw std::exception("DX10ColoredSpriteRender(): Cannot create pixel shader");
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create pixel shader");
 	}
 
 	pixelBlob->Release();
@@ -61,7 +61,7 @@ DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice& inRenderDevi
 
 	if (FAILED(d3dDevice->CreateInputLayout(layout, 2, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &vertexLayout)))
 	{
-		throw std::exception("DX10ColoredSpriteRender(): Cannot create input layout");
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create input layout");
 	}
 	vertexBlob->Release();
 
@@ -74,7 +74,7 @@ DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice& inRenderDevi
 	bufferDesc.MiscFlags = 0;
 	if (FAILED(d3dDevice->CreateBuffer(&bufferDesc, NULL, &vertexBuffer)))
 	{
-		throw std::exception("DX10ColoredSpriteRender(): Cannot create vertex buffer");
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create vertex buffer");
 	}
 
 	// fill vertex buffer
@@ -87,7 +87,7 @@ DX10ColoredSpriteRender::DX10ColoredSpriteRender(IDX10RenderDevice& inRenderDevi
 	vertexBuffer->Unmap();
 }
 
-DX10ColoredSpriteRender::~DX10ColoredSpriteRender()
+LcColoredSpriteRenderDX10::~LcColoredSpriteRenderDX10()
 {
 	if (vertexBuffer) { vertexBuffer->Release(); vertexBuffer = nullptr; }
 	if (vertexLayout) { vertexLayout->Release(); vertexLayout = nullptr; }
@@ -95,10 +95,10 @@ DX10ColoredSpriteRender::~DX10ColoredSpriteRender()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void DX10ColoredSpriteRender::Setup()
+void LcColoredSpriteRenderDX10::Setup()
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
-	if (!d3dDevice) throw std::exception("DX10ColoredSpriteRender::Setup(): Invalid render device");
+	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10::Setup(): Invalid render device");
 
 	d3dDevice->VSSetShader(vs);
 	d3dDevice->PSSetShader(ps);
@@ -110,11 +110,11 @@ void DX10ColoredSpriteRender::Setup()
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void DX10ColoredSpriteRender::Render(const SPRITE_DATA& sprite)
+void LcColoredSpriteRenderDX10::Render(const LcSpriteData& sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transMatrix = renderDevice.GetTransformBuffer();
-	if (!d3dDevice || !transMatrix) throw std::exception("DX10ColoredSpriteRender::Render(): Invalid render device");
+	if (!d3dDevice || !transMatrix) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render device");
 
 	LcVector2 offset = renderDevice.GetOffset();
 	LcVector3 pos(sprite.pos.x() + offset.x(), sprite.pos.y() + offset.y(), sprite.pos.z());

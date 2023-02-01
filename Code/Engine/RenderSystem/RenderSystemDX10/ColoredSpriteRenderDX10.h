@@ -1,5 +1,5 @@
 /**
-* DX10ColoredSpriteRender.h
+* ColoredSpriteRenderDX10.h
 * 28.01.2023
 * (c) Denis Romakhov
 */
@@ -8,20 +8,20 @@
 
 #include "Core/LCTypes.h"
 #include "RenderSystem/SpriteRender.h"
-#include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
+#include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
 
 /**
 * Render system interface */
-class DX10ColoredSpriteRender : public ISpriteRender
+class LcColoredSpriteRenderDX10 : public ISpriteRender
 {
 public:
 	/**
 	* Constructor */
-	DX10ColoredSpriteRender(IDX10RenderDevice& renderDevice);
+	LcColoredSpriteRenderDX10(IRenderDeviceDX10& renderDevice);
 	/**
 	* Destructor */
-	~DX10ColoredSpriteRender();
+	~LcColoredSpriteRenderDX10();
 
 
 public: // ISpriteRender interface implementation
@@ -30,14 +30,14 @@ public: // ISpriteRender interface implementation
 	virtual void Setup() override;
 	/**
 	* Render sprite */
-	virtual void Render(const SPRITE_DATA& sprite) override;
+	virtual void Render(const LcSpriteData& sprite) override;
 	/**
 	* Return sprite type */
-	virtual ESpriteType GetType() const override { return ESpriteType::Colored; }
+	virtual LcSpriteType GetType() const override { return LcSpriteType::Colored; }
 
 
 protected:
-	IDX10RenderDevice& renderDevice;
+	IRenderDeviceDX10& renderDevice;
 	//
 	ID3D10Buffer* vertexBuffer;
 	//

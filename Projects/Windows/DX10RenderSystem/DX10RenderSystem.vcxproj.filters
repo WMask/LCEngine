@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\DX10RenderSystem">
-      <UniqueIdentifier>{4d8c53ab-c249-4261-94c9-bb4c3a94a35a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\DX10RenderSystem">
+    <Filter Include="Source Files\RenderSystemDX10">
       <UniqueIdentifier>{e5f2c5ad-457f-4616-a033-bec92c7cb5b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\RenderSystemDX10">
+      <UniqueIdentifier>{4d8c53ab-c249-4261-94c9-bb4c3a94a35a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,14 +27,14 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10RenderSystem.h">
-      <Filter>Header Files\DX10RenderSystem</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h">
+      <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10RenderSystemModule.h">
-      <Filter>Header Files\DX10RenderSystem</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h">
+      <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10ColoredSpriteRender.h">
-      <Filter>Header Files\DX10RenderSystem</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemModuleDX10.h">
+      <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -44,11 +44,11 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10RenderSystem.cpp">
-      <Filter>Source Files\DX10RenderSystem</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp">
+      <Filter>Source Files\RenderSystemDX10</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\DX10RenderSystem\DX10ColoredSpriteRender.cpp">
-      <Filter>Header Files\DX10RenderSystem</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp">
+      <Filter>Source Files\RenderSystemDX10</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -14,18 +14,18 @@
 
 /**
 * Win32 Application class */
-class WINDOWSAPPLICATION_API LCWindowsApplication : public IApplication
+class WINDOWSAPPLICATION_API LcWindowsApplication : public IApplication
 {
 public:
 	/**
 	* Default constructor */
-	LCWindowsApplication();
+	LcWindowsApplication();
 
 
 public: // IApplication interface implementation
 	/**
 	* Virtual destructor */
-	virtual ~LCWindowsApplication() override;
+	virtual ~LcWindowsApplication() override;
 	/**
 	* Set app parameters */
 	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount) noexcept override;
@@ -40,19 +40,19 @@ public: // IApplication interface implementation
 	virtual const SHADERS_MAP& GetShaders() const noexcept override { return shaders; }
 	/**
 	* Set app parameters */
-	virtual void SetRenderSystemType(ERenderSystemType inType) noexcept { type = inType; }
+	virtual void SetRenderSystemType(LcRenderSystemType inType) noexcept { type = inType; }
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(LcSize inWindowSize) noexcept { windowSize = inWindowSize; }
 	/**
 	* Set update handler */
-	virtual void SetUpdateHandler(UpdateHandler handler) noexcept { updateHandler = handler; }
+	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept { updateHandler = handler; }
 	/**
 	* Set keyboard handler */
-	virtual void SetKeyboardHandler(KeyboardHandler handler) noexcept { keyboardHandler = handler; }
+	virtual void SetKeyboardHandler(LcKeyboardHandler handler) noexcept { keyboardHandler = handler; }
 	/**
 	* Set mouse handler */
-	virtual void SetMouseHandler(MouseHandler handler) noexcept { mouseHandler = handler; }
+	virtual void SetMouseHandler(LcMouseHandler handler) noexcept { mouseHandler = handler; }
 	/**
 	* Set NoesisGUI flag */
 	virtual void SetUseNoesis(bool inUseNoesis) noexcept { useNoesis = inUseNoesis; }
@@ -80,7 +80,7 @@ protected:
 	//
 	std::shared_ptr<class IRenderSystem> renderSystem;
 	//
-	ERenderSystemType type;
+	LcRenderSystemType type;
 	//
 	SHADERS_MAP shaders;
 	//
@@ -94,11 +94,11 @@ protected:
 	//
 	bool useNoesis;
 	//
-	UpdateHandler updateHandler;
+	LcUpdateHandler updateHandler;
 	//
-	KeyboardHandler keyboardHandler;
+	LcKeyboardHandler keyboardHandler;
 	//
-	MouseHandler mouseHandler;
+	LcMouseHandler mouseHandler;
 	//
 	ULONGLONG prevTick;
 

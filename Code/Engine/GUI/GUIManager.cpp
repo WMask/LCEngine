@@ -22,32 +22,32 @@
 #include <NsDrawing/Color.h>
 
 
-LCGUIManager& LCGUIManager::GetInstance()
+LcGUIManager& LcGUIManager::GetInstance()
 {
-	static LCGUIManager instance;
+	static LcGUIManager instance;
 	return instance;
 }
 
-LCGUIManager::~LCGUIManager()
+LcGUIManager::~LcGUIManager()
 {
 }
 
-LCGUIManager::LCGUIManager()
-{
-    useNoesis = false;
-}
-
-LCGUIManager::LCGUIManager(const LCGUIManager&)
+LcGUIManager::LcGUIManager()
 {
     useNoesis = false;
 }
 
-LCGUIManager& LCGUIManager::operator=(const LCGUIManager&)
+LcGUIManager::LcGUIManager(const LcGUIManager&)
+{
+    useNoesis = false;
+}
+
+LcGUIManager& LcGUIManager::operator=(const LcGUIManager&)
 {
 	return *this;
 }
 
-void LCGUIManager::Init(LcSize inViewportSize, bool inUseNoesis)
+void LcGUIManager::Init(LcSize inViewportSize, bool inUseNoesis)
 {
     viewportSize = inViewportSize;
     useNoesis = inUseNoesis;
@@ -71,7 +71,7 @@ void LCGUIManager::Init(LcSize inViewportSize, bool inUseNoesis)
     }
 }
 
-void LCGUIManager::Shutdown()
+void LcGUIManager::Shutdown()
 {
     if (useNoesis)
     {
@@ -81,12 +81,12 @@ void LCGUIManager::Shutdown()
     }
 }
 
-void LCGUIManager::MouseButtonDown(int x, int y)
+void LcGUIManager::MouseButtonDown(LcMouseBtn btn, int x, int y)
 {
     if (view) view->MouseButtonDown(x, y, Noesis::MouseButton_Left);
 }
 
-void LCGUIManager::MouseButtonUp(int x, int y)
+void LcGUIManager::MouseButtonUp(LcMouseBtn btn, int x, int y)
 {
     if (view) view->MouseButtonUp(x, y, Noesis::MouseButton_Left);
 }

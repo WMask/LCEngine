@@ -21,17 +21,17 @@ IRenderSystem::~IRenderSystem()
 
 void IRenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 {
-	LCGUIManager::GetInstance().Init(viewportSize, app.GetUseNoesis());
+	LcGUIManager::GetInstance().Init(viewportSize, app.GetUseNoesis());
 }
 
 void IRenderSystem::Shutdown()
 {
-	LCGUIManager::GetInstance().Shutdown();
+	LcGUIManager::GetInstance().Shutdown();
 }
 
 void IRenderSystem::Render()
 {
-	const auto& sprites = LCWorld::GetInstance().GetSprites();
+	const auto& sprites = LcWorld::GetInstance().GetSprites();
 
 	for (const auto& sprite : sprites)
 	{

@@ -28,14 +28,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     try
     {
-        auto& world = LCWorld::GetInstance();
+        auto& world = LcWorld::GetInstance();
         auto app = IApplication::GetPlatformApp();
         TWeakApp weakApp(app);
 
         LcSizef size(200, 200);
         LcVector3 pos(200, 200, 0);
-        SPRITE_COLORS colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
-        auto sprite = world.AddSprite(SPRITE_DATA(ESpriteType::Colored, pos, size, colors));
+        LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
+        auto sprite = world.AddSprite(LcSpriteData(LcSpriteType::Colored, pos, size, colors));
 
         BYTE keys[256];
         memset(keys, 0, sizeof(keys));
@@ -53,8 +53,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             }
         };
 
-        auto onKeyboardHandler = [weakApp, &keys](int key, EInputKeyEvent keyEvent) {
-            keys[key] = (keyEvent == EInputKeyEvent::Down) ? 1 : 0;
+        auto onKeyboardHandler = [weakApp, &keys](int key, LcKeyState keyEvent) {
+            keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
 
             if (auto app = weakApp.lock())
             {
@@ -67,7 +67,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             { "MainMenu.xaml", MainMenu_xaml },
             { "SampleDictionary.xaml", SampleDictionary_xaml }
         };
-        LCGUIManager::GetInstance().AddXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
+        LcGUIManager::GetInstance().AddXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
         Noesis::RegisterComponent<MainMenuViewModel>();
         Noesis::RegisterComponent<ClickMoveBehavior>();
         Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
@@ -75,7 +75,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetRenderSystemType(ERenderSystemType::DX10);
+        app->SetRenderSystemType(LcRenderSystemType::DX10);
         app->SetWindowSize(LcSize(1024, 768));
         app->SetUseNoesis(true);
         app->LoadShaders("../../../Shaders/HLSL/");

@@ -10,37 +10,37 @@
 #include "World/World.h"
 
 
-LCWorld& LCWorld::GetInstance()
+LcWorld& LcWorld::GetInstance()
 {
-	static LCWorld instance;
+	static LcWorld instance;
 	return instance;
 }
 
-LCWorld::LCWorld()
+LcWorld::LcWorld()
 {
 }
 
-LCWorld::LCWorld(const LCWorld&)
+LcWorld::LcWorld(const LcWorld&)
 {
 }
 
-LCWorld& LCWorld::operator=(const LCWorld&)
+LcWorld& LcWorld::operator=(const LcWorld&)
 {
 	return *this;
 }
 
-LCWorld::~LCWorld()
+LcWorld::~LcWorld()
 {
 }
 
-SPRITE_DATA* LCWorld::AddSprite(const SPRITE_DATA& sprite)
+LcSpriteData* LcWorld::AddSprite(const LcSpriteData& sprite)
 {
 	sprites.push_back(sprite);
 	return &sprites.back();
 }
 
-void LCWorld::RemoveSprite(SPRITE_DATA* sprite)
+void LcWorld::RemoveSprite(LcSpriteData* sprite)
 {
-	auto it = std::find_if(sprites.begin(), sprites.end(), [sprite](SPRITE_DATA& data) { return &data == sprite; });
+	auto it = std::find_if(sprites.begin(), sprites.end(), [sprite](LcSpriteData& data) { return &data == sprite; });
 	if (it != sprites.end()) sprites.erase(it);
 }

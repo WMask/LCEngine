@@ -1,18 +1,18 @@
 /**
-* DX10RenderSystem.cpp
+* RenderSystemDX10.cpp
 * 28.01.2023
 * (c) Denis Romakhov
 */
 
 #include "pch.h"
-#include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
-#include "RenderSystem/DX10RenderSystem/DX10ColoredSpriteRender.h"
+#include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "Application/Application.h"
 #include "World/World.h"
 #include "Core/LCUtils.h"
 
 
-DX10RenderSystem::DX10RenderSystem(IApplication& app) : IRenderSystem(app)
+LcRenderSystemDX10::LcRenderSystemDX10(IApplication& app) : IRenderSystem(app)
 {
 	d3dDevice = nullptr;
 	swapChain = nullptr;
@@ -23,12 +23,12 @@ DX10RenderSystem::DX10RenderSystem(IApplication& app) : IRenderSystem(app)
 	rasterizerState = nullptr;
 }
 
-DX10RenderSystem::~DX10RenderSystem()
+LcRenderSystemDX10::~LcRenderSystemDX10()
 {
 	Shutdown();
 }
 
-void DX10RenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
+void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed)
 {
 	int width = viewportSize.x(), height = viewportSize.y();
 	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
@@ -52,20 +52,20 @@ void DX10RenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 	if (FAILED(D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0,
 		D3D10_SDK_VERSION, &swapChainDesc, &swapChain, &d3dDevice)))
 	{
-		throw std::exception("DX10RenderSystem::Create(): Cannot create D3D device");
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create D3D device");
 	}
 
 	// get back buffer
 	ID3D10Texture2D* backBuffer;
 	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)&backBuffer)))
 	{
-		throw std::exception("DX10RenderSystem::Create(): Cannot create back buffer");
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
 	}
 
 	// create render target
 	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer, NULL, &renderTargetView)))
 	{
-		throw std::exception("DX10RenderSystem::Create(): Cannot create render target");
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
 	}
 
 	backBuffer->Release();
@@ -106,7 +106,7 @@ void DX10RenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 	projData.matrix = OrthoMatrix(viewportSize, -1.0f, 2.0f);
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &InitData, &projMatrixBuffer)))
 	{
-		throw std::exception("DX10RenderSystem(): Cannot create constant buffer");
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
 	cbDesc.ByteWidth = sizeof(VS_TRANS_BUFFER);
@@ -118,7 +118,7 @@ void DX10RenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 	transData.colors[3] = LcVector4::Ones();
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &InitData, &transMatrixBuffer)))
 	{
-		throw std::exception("DX10RenderSystem(): Cannot create constant buffer");
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
 	// set buffers
@@ -158,14 +158,14 @@ void DX10RenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
-	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new DX10ColoredSpriteRender(*this)));
+	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new LcColoredSpriteRenderDX10(*this)));
 	spriteRenders[0]->Setup();
 
 	// init render system
 	IRenderSystem::Create(this, viewportSize, windowed);
 }
 
-void DX10RenderSystem::Shutdown()
+void LcRenderSystemDX10::Shutdown()
 {
 	IRenderSystem::Shutdown();
 
@@ -178,15 +178,15 @@ void DX10RenderSystem::Shutdown()
 	if (d3dDevice) { d3dDevice->Release(); d3dDevice = nullptr; }
 }
 
-void DX10RenderSystem::Update(float deltaSeconds)
+void LcRenderSystemDX10::Update(float deltaSeconds)
 {
 }
 
-void DX10RenderSystem::Render()
+void LcRenderSystemDX10::Render()
 {
 	if (!d3dDevice || !swapChain)
 	{
-		throw std::exception("DX10RenderSystem::Render(): Invalid render device");
+		throw std::exception("LcRenderSystemDX10::Render(): Invalid render device");
 	}
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
@@ -197,7 +197,7 @@ void DX10RenderSystem::Render()
 	swapChain->Present(0, 0);
 }
 
-void DX10RenderSystem::RenderSprite(const SPRITE_DATA& sprite)
+void LcRenderSystemDX10::RenderSprite(const LcSpriteData& sprite)
 {
 	for (auto& render : spriteRenders)
 	{
@@ -209,7 +209,7 @@ void DX10RenderSystem::RenderSprite(const SPRITE_DATA& sprite)
 	}
 }
 
-std::string DX10RenderSystem::GetShaderCode(const std::string& shaderName) const
+std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const
 {
 	return app.GetShaders().at(shaderName);
 }

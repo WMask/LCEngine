@@ -16,18 +16,18 @@
 
 /**
 * GUI manager */
-class GUI_API LCGUIManager
+class GUI_API LcGUIManager
 {
 public:
 	/**
 	* Returns GUI manager */
-	static LCGUIManager& GetInstance();
+	static LcGUIManager& GetInstance();
 
 
 public:
 	/**
 	* Destructor */
-	~LCGUIManager();
+	~LcGUIManager();
 	/**
 	* Init GUI manager */
 	void Init(LcSize viewportSize, bool useNoesis);
@@ -37,16 +37,20 @@ public:
 	/**
 	* Add XAML provider */
 	void AddXamlProvider(Noesis::Ptr<Noesis::XamlProvider> inXamlProvider) { xamlProvider = inXamlProvider; }
-	void MouseButtonDown(int x, int y);
-	void MouseButtonUp(int x, int y);
+	/**
+	* Add XAML provider */
+	void MouseButtonDown(LcMouseBtn btn, int x, int y);
+	/**
+	* Add XAML provider */
+	void MouseButtonUp(LcMouseBtn btn, int x, int y);
 
 
 protected:
-	LCGUIManager();
+	LcGUIManager();
 	//
-	LCGUIManager(const LCGUIManager&);
+	LcGUIManager(const LcGUIManager&);
 	//
-	LCGUIManager& operator=(const LCGUIManager&);
+	LcGUIManager& operator=(const LcGUIManager&);
 
 
 protected:

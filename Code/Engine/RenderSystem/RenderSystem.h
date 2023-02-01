@@ -12,7 +12,7 @@
 
 /**
 * Render system type */
-enum class ERenderSystemType
+enum class LcRenderSystemType
 {
 	Null,
 	DX7,
@@ -50,13 +50,13 @@ public:
 	virtual bool CanRender() const = 0;
 	/**
 	* Return render system type */
-	virtual ERenderSystemType GetType() const = 0;
+	virtual LcRenderSystemType GetType() const = 0;
 
 
 protected:
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const SPRITE_DATA& sprite) = 0;
+	virtual void RenderSprite(const LcSpriteData& sprite) = 0;
 
 
 protected:

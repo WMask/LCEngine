@@ -19,23 +19,15 @@
 
 /**
 * Update handler */
-typedef std::function<void(float)> UpdateHandler;
-
-/**
-* Input key event type */
-enum class EInputKeyEvent
-{
-	Down,
-	Up
-};
+typedef std::function<void(float)> LcUpdateHandler;
 
 /**
 * Keyboard events handler */
-typedef std::function<void(int, EInputKeyEvent)> KeyboardHandler;
+typedef std::function<void(int, LcKeyState)> LcKeyboardHandler;
 
 /**
 * Mouse events handler */
-typedef std::function<void(int, EInputKeyEvent, float, float)> MouseHandler;
+typedef std::function<void(LcMouseBtn, LcKeyState, float, float)> LcMouseHandler;
 
 
 /**
@@ -68,19 +60,19 @@ public:
 	virtual const SHADERS_MAP& GetShaders() const noexcept = 0;
 	/**
 	* Set render system type */
-	virtual void SetRenderSystemType(ERenderSystemType type) noexcept = 0;
+	virtual void SetRenderSystemType(LcRenderSystemType type) noexcept = 0;
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(LcSize windowSize) noexcept = 0;
 	/**
 	* Set update handler */
-	virtual void SetUpdateHandler(UpdateHandler handler) noexcept = 0;
+	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept = 0;
 	/**
 	* Set keyboard handler */
-	virtual void SetKeyboardHandler(KeyboardHandler handler) noexcept = 0;
+	virtual void SetKeyboardHandler(LcKeyboardHandler handler) noexcept = 0;
 	/**
 	* Set mouse handler */
-	virtual void SetMouseHandler(MouseHandler handler) noexcept = 0;
+	virtual void SetMouseHandler(LcMouseHandler handler) noexcept = 0;
 	/**
 	* Set NoesisGUI flag */
 	virtual void SetUseNoesis(bool useNoesis) noexcept = 0;

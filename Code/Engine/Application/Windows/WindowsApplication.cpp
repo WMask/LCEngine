@@ -6,27 +6,27 @@
 
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
-#include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
+#include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCUtils.h"
 
 
-static const WCHAR* LCWindowClassName = L"LCGameWindowClass";
+static const WCHAR* LcWindowClassName = L"LcWindowClassName";
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-struct LCWin32Handles
+struct LcWin32Handles
 {
-    KeyboardHandler keyboardHandler;
-    MouseHandler mouseHandler;
+    LcKeyboardHandler keyboardHandler;
+    LcMouseHandler mouseHandler;
 };
 
 
-LCWindowsApplication::LCWindowsApplication()
+LcWindowsApplication::LcWindowsApplication()
 {
 	hInstance = nullptr;
     hWnd = nullptr;
     renderSystem = nullptr;
-    type = ERenderSystemType::Null;
+    type = LcRenderSystemType::Null;
     cmds.clear();
     cmdsCount = 0;
     windowSize = LcSize(800, 600);
@@ -35,7 +35,7 @@ LCWindowsApplication::LCWindowsApplication()
     prevTick = 0;
 }
 
-LCWindowsApplication::~LCWindowsApplication()
+LcWindowsApplication::~LcWindowsApplication()
 {
     if (renderSystem)
     {
@@ -46,24 +46,24 @@ LCWindowsApplication::~LCWindowsApplication()
     if (hWnd)
     {
         DestroyWindow(hWnd);
-        UnregisterClassW(LCWindowClassName, hInstance);
+        UnregisterClassW(LcWindowClassName, hInstance);
         hWnd = nullptr;
     }
 }
 
-void LCWindowsApplication::Init(void* Handle, const std::wstring& inCmds, int inCmdsCount) noexcept
+void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds, int inCmdsCount) noexcept
 {
 	hInstance = (HINSTANCE)Handle;
     cmds = inCmds;
     cmdsCount = inCmdsCount;
 }
 
-void LCWindowsApplication::Init(void* Handle, const std::wstring& inCmds) noexcept
+void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds) noexcept
 {
     Init(Handle, inCmds, 1);
 }
 
-void LCWindowsApplication::LoadShaders(const std::string& folderPath)
+void LcWindowsApplication::LoadShaders(const std::string& folderPath)
 {
     using namespace std::filesystem;
 
@@ -81,9 +81,9 @@ void LCWindowsApplication::LoadShaders(const std::string& folderPath)
     }
 }
 
-void LCWindowsApplication::Run()
+void LcWindowsApplication::Run()
 {
-	if (!hInstance) throw std::exception("LCWindowsApplication::Run(): Invalid platform handle");
+	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
 
     WNDCLASSEXW wcex;
     wcex.cbSize = sizeof(WNDCLASSEXW);
@@ -96,32 +96,32 @@ void LCWindowsApplication::Run()
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName = NULL;
-    wcex.lpszClassName = LCWindowClassName;
+    wcex.lpszClassName = LcWindowClassName;
     wcex.hIconSm = NULL;
     if (0 == RegisterClassExW(&wcex))
     {
-        throw std::exception("LCWindowsApplication::Run(): Cannot register window class");
+        throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
     }
 
     RECT clientRect{ 0, 0, windowSize.x(), windowSize .y() };
     AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-    hWnd = CreateWindowW(LCWindowClassName, L"Game Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+    hWnd = CreateWindowW(LcWindowClassName, L"Game Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
         clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, nullptr, nullptr, hInstance, nullptr);
     if (!hWnd)
     {
-        throw std::exception("LCWindowsApplication::Run(): Cannot create window");
+        throw std::exception("LcWindowsApplication::Run(): Cannot create window");
     }
 
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    LCWin32Handles handles{ keyboardHandler, mouseHandler };
+    LcWin32Handles handles{ keyboardHandler, mouseHandler };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
-    if (type == ERenderSystemType::DX10)
+    if (type == LcRenderSystemType::DX10)
     {
-        renderSystem.reset(new DX10RenderSystem(*this));
+        renderSystem.reset(new LcRenderSystemDX10(*this));
         renderSystem->Create(hWnd, windowSize, true);
     }
 
@@ -143,7 +143,7 @@ void LCWindowsApplication::Run()
 	}
 }
 
-void LCWindowsApplication::OnUpdate()
+void LcWindowsApplication::OnUpdate()
 {
     auto curTick = GetTickCount64();
     auto ticksCount = (double)curTick - (double)prevTick;
@@ -163,9 +163,20 @@ void LCWindowsApplication::OnUpdate()
     }
 }
 
+LcMouseBtn MapMouseKeys(WPARAM wParam)
+{
+    switch (wParam)
+    {
+    case MK_RBUTTON: return LcMouseBtn::Right;
+    case MK_MBUTTON: return LcMouseBtn::Middle;
+    }
+
+    return LcMouseBtn::Left;
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LCWin32Handles* handles = reinterpret_cast<LCWin32Handles*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    LcWin32Handles* handles = reinterpret_cast<LcWin32Handles*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
     switch (message)
     {
@@ -176,25 +187,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     case WM_KEYDOWN:
-        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, EInputKeyEvent::Down);
+        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down);
         break;
     case WM_KEYUP:
-        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, EInputKeyEvent::Up);
+        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up);
         break;
     case WM_LBUTTONDOWN:
         {
             int x = GET_X_LPARAM(lParam);
             int y = GET_Y_LPARAM(lParam);
-            if (handles && handles->mouseHandler) handles->mouseHandler((int)wParam, EInputKeyEvent::Down, (float)x, (float)y);
-            LCGUIManager::GetInstance().MouseButtonDown(x, y);
+            if (handles && handles->mouseHandler) handles->mouseHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y);
+            LcGUIManager::GetInstance().MouseButtonDown(LcMouseBtn::Left, x, y);
         }
         break;
     case WM_LBUTTONUP:
         {
             int x = GET_X_LPARAM(lParam);
             int y = GET_Y_LPARAM(lParam);
-            if (handles && handles->mouseHandler) handles->mouseHandler((int)wParam, EInputKeyEvent::Down, (float)x, (float)y);
-            LCGUIManager::GetInstance().MouseButtonUp(x, y);
+            if (handles && handles->mouseHandler) handles->mouseHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y);
+            LcGUIManager::GetInstance().MouseButtonUp(LcMouseBtn::Left, x, y);
         }
         break;
     default:

@@ -10,8 +10,8 @@
 #include <NsGui/DependencyData.h>
 
 
-const Noesis::DependencyProperty* MainMenuViewModel::PosXProperty = nullptr;
-const Noesis::DependencyProperty* MainMenuViewModel::PosYProperty = nullptr;
+const Noesis::DependencyProperty* MainMenuViewModel::PosXProperty;
+const Noesis::DependencyProperty* MainMenuViewModel::PosYProperty;
 
 MainMenuViewModel::MainMenuViewModel()
 {
