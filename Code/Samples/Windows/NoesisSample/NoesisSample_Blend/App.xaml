@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:NoesisSample_Blend"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary Source="SampleDictionary.xaml" />
     </Application.Resources>
 </Application>

@@ -14,16 +14,19 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NoesisSample_Blend
+namespace common
 {
-    /// <summary>
-    /// Interaction logic for MainMenu.xaml
-    /// </summary>
-    public partial class MainMenu : UserControl
+    public partial class MainMenuViewModel : INotifyPropertyChanged
     {
-        public MainMenu()
+        public MainMenuViewModel()
         {
-            InitializeComponent();
+            PosX = 100.0f;
+            PosY = 100.0f;
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public float PosX { get; set; }
+        public float PosY { get; set; }
     }
 }

@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\..\..\Engine;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\Providers\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\..\..\Engine;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\Providers\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\ApplicationLauncher\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Lib\windows_x86_64;x64\Debug;$(ProjectDir)..\..\..\..\Projects\Windows\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)x64\Debug\Core.lib;$(SolutionDir)x64\Debug\GUI.lib;$(SolutionDir)x64\Debug\World.lib;$(SolutionDir)x64\Debug\Application.lib;$(SolutionDir)x64\Debug\WindowsApplication.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;GUI.lib;World.lib;Application.lib;WindowsApplication.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,12 +132,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ClickMoveBehavior.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="MainMenuViewModel.h" />
     <ClInclude Include="NoesisSample.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ClickMoveBehavior.cpp" />
+    <ClCompile Include="MainMenuViewModel.cpp" />
     <ClCompile Include="NoesisSample.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +153,14 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="NoesisSample_Blend\MainMenu.xaml">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Engine\GUI\NoesisGUI\Src\Tools\Bin2h\bin2h.exe "%(FullPath)" &gt; "$(IntermediateOutputPath)%(Filename)%(Extension).bin.h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntermediateOutputPath)%(Filename)%(Extension).bin.h</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="NoesisSample_Blend\SampleDictionary.xaml">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Engine\GUI\NoesisGUI\Src\Tools\Bin2h\bin2h.exe "%(FullPath)" &gt; "$(IntermediateOutputPath)%(Filename)%(Extension).bin.h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>

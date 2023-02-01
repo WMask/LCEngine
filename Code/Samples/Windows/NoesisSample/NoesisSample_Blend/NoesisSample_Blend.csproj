@@ -7,4 +7,25 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Page Remove="SampleDictionary.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="SampleDictionary.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ClickMoveBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="MainMenuViewModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

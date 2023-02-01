@@ -10,9 +10,16 @@
 #include "Core/LCUtils.h"
 #include "World/World.h"
 #include "GUI/GUIManager.h"
+#include "MainMenuViewModel.h"
+#include "ClickMoveBehavior.h"
 
 #include "x64/Debug/MainMenu.xaml.bin.h"
-#include "NsApp/EmbeddedXamlProvider.h"
+#include "x64/Debug/SampleDictionary.xaml.bin.h"
+#include <NsCore/RegisterComponent.h>
+#include <NsApp/EmbeddedXamlProvider.h>
+#include <NsApp/BehaviorCollection.h>
+#include <NsApp/AttachableObject.h>
+#include <NsApp/Interaction.h>
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
@@ -57,9 +64,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
         NoesisApp::EmbeddedXaml xamls[] =
         {
-            { "MainMenu.xaml", MainMenu_xaml }
+            { "MainMenu.xaml", MainMenu_xaml },
+            { "SampleDictionary.xaml", SampleDictionary_xaml }
         };
         LCGUIManager::GetInstance().AddXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
+        Noesis::RegisterComponent<MainMenuViewModel>();
+        Noesis::RegisterComponent<ClickMoveBehavior>();
+        Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
+        Noesis::TypeOf<NoesisApp::Interaction>();
 
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);

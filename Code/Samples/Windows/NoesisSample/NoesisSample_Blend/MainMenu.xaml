@@ -1,22 +1,24 @@
-﻿<Page x:Class="NoesisSample_Blend.MainMenu"
+﻿<UserControl x:Class="NoesisSample_Blend.MainMenu"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:NoesisSample_Blend"
-      mc:Ignorable="d" 
-      d:DesignWidth="800" d:DesignHeight="600"
-      Title="MainMenu">
-    <Page.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="SampleDictionary.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Page.Resources>
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:common ="clr-namespace:common"
+      mc:Ignorable="d"
+      d:DesignWidth="800" d:DesignHeight="600">
+    <UserControl.DataContext>
+        <common:MainMenuViewModel />
+    </UserControl.DataContext>
     <Grid>
-        <Rectangle Fill="Black" />
-        <Rectangle Fill="Gray" Width="200" />
-        <Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="0, 0, 0, 300" />
+        <Rectangle Fill="{StaticResource GreenBrush}" />
+        <Canvas>
+            <Rectangle Fill="{StaticResource RedBrush}" Canvas.Left="{Binding PosX}" Canvas.Top="{Binding PosY}" Width="100" Height="100">
+                <b:Interaction.Behaviors>
+                    <common:ClickMoveBehavior />
+                </b:Interaction.Behaviors>
+            </Rectangle>
+        </Canvas>
+        <!--Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="0, 0, 0, 300" /-->
     </Grid>
-</Page>
+</UserControl>

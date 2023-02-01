@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/DX10RenderSystem/DX10RenderSystem.h"
+#include "GUI/GuiManager.h"
 #include "Core/LCUtils.h"
 
 
@@ -179,6 +180,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KEYUP:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, EInputKeyEvent::Up);
+        break;
+    case WM_LBUTTONDOWN:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+            if (handles && handles->mouseHandler) handles->mouseHandler((int)wParam, EInputKeyEvent::Down, (float)x, (float)y);
+            LCGUIManager::GetInstance().MouseButtonDown(x, y);
+        }
+        break;
+    case WM_LBUTTONUP:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+            if (handles && handles->mouseHandler) handles->mouseHandler((int)wParam, EInputKeyEvent::Down, (float)x, (float)y);
+            LCGUIManager::GetInstance().MouseButtonUp(x, y);
+        }
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

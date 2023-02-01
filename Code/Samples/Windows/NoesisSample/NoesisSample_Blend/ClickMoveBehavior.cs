@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xaml.Behaviors;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,16 +15,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NoesisSample_Blend
+namespace common
 {
-    /// <summary>
-    /// Interaction logic for MainMenu.xaml
-    /// </summary>
-    public partial class MainMenu : UserControl
+    public partial class ClickMoveBehavior : Behavior<FrameworkElement>
     {
-        public MainMenu()
+        public ClickMoveBehavior()
         {
-            InitializeComponent();
         }
     }
 }

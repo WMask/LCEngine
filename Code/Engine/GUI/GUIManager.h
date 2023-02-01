@@ -11,6 +11,7 @@
 #include "Core/LCTypes.h"
 
 #include <NsGui/XamlProvider.h>
+#include <NsGui/IView.h>
 
 
 /**
@@ -36,6 +37,8 @@ public:
 	/**
 	* Add XAML provider */
 	void AddXamlProvider(Noesis::Ptr<Noesis::XamlProvider> inXamlProvider) { xamlProvider = inXamlProvider; }
+	void MouseButtonDown(int x, int y);
+	void MouseButtonUp(int x, int y);
 
 
 protected:
@@ -48,6 +51,8 @@ protected:
 
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
+	//
+	Noesis::Ptr<Noesis::IView> view;
 	//
 	bool useNoesis;
 

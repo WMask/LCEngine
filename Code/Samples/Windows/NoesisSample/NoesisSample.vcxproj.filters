@@ -30,9 +30,21 @@
     <ClInclude Include="NoesisSample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MainMenuViewModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClickMoveBehavior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoesisSample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuViewModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClickMoveBehavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="NoesisSample_Blend\MainMenu.xaml">
+      <Filter>Data</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NoesisSample_Blend\SampleDictionary.xaml">
       <Filter>Data</Filter>
     </CustomBuild>
   </ItemGroup>

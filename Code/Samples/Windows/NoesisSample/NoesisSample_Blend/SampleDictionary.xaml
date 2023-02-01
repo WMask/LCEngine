@@ -1,6 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <BitmapImage x:Key="Icon1" UriSource="Media/338.jpg" />
+    <!--BitmapImage x:Key="Icon1" UriSource="Media/338.jpg" /-->
+    <SolidColorBrush x:Key="RedBrush" Color="Red" />
+    <SolidColorBrush x:Key="GreenBrush" Color="Green" />
 
 </ResourceDictionary>

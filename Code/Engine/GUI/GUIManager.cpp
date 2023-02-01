@@ -8,6 +8,7 @@
 #include "GUI/GUIManager.h"
 #include "Core/LCUtils.h"
 
+#include <NsGui/IntegrationAPI.h>
 #include <NsGui/UIElementCollection.h>
 #include <NsGui/FontProperties.h>
 #include <NsGui/IntegrationAPI.h>
@@ -61,18 +62,11 @@ void LCGUIManager::Init(bool inUseNoesis)
         Noesis::GUI::SetLicense(NS_LICENSE_NAME, NS_LICENSE_KEY);
         Noesis::GUI::Init();
         Noesis::GUI::SetXamlProvider(xamlProvider);
+        Noesis::GUI::LoadApplicationResources("SampleDictionary.xaml");
 
-        auto xaml = Noesis::GUI::LoadXaml("MainMenu.xaml");
-        auto control = Noesis::DynamicCast<Noesis::UserControl*>(xaml.GetPtr());
-        auto grid = Noesis::DynamicCast<Noesis::Grid*>(control->GetContent());
-        for (int i = 0; i < grid->GetChildren()->Count(); i++)
-        {
-            auto rect = Noesis::DynamicCast<Noesis::Rectangle*>(grid->GetChildren()->Get(i));
-            auto brush = Noesis::DynamicCast<Noesis::SolidColorBrush*>(rect->GetFill());
-            auto color = brush->GetColor();
-            auto node = grid->GetChildren()->Get(i);
-            node = nullptr;
-        }
+        auto xaml = Noesis::GUI::LoadXaml<Noesis::FrameworkElement>("MainMenu.xaml");
+        view = Noesis::GUI::CreateView(xaml);
+        view->SetSize(800, 600);
     }
 }
 
@@ -81,6 +75,17 @@ void LCGUIManager::Shutdown()
     if (useNoesis)
     {
         useNoesis = false;
+        view.Reset();
         Noesis::GUI::Shutdown();
     }
+}
+
+void LCGUIManager::MouseButtonDown(int x, int y)
+{
+    if (view) view->MouseButtonDown(x, y, Noesis::MouseButton_Left);
+}
+
+void LCGUIManager::MouseButtonUp(int x, int y)
+{
+    if (view) view->MouseButtonUp(x, y, Noesis::MouseButton_Left);
 }
