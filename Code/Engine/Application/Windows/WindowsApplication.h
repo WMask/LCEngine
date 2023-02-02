@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#include "WindowsApplicationModule.h"
+#include "Module.h"
 #include "Application/Application.h"
 
 
@@ -33,14 +33,11 @@ public: // IApplication interface implementation
 	* Set app parameters */
 	virtual void Init(void* Handle, const std::wstring& cmds) noexcept override;
 	/**
-	* Load shaders */
-	virtual void LoadShaders(const std::string& folderPath) override;
+	* Set render system */
+	virtual void SetRenderSystem(std::shared_ptr<class IRenderSystem> render) noexcept { renderSystem = std::shared_ptr<class IRenderSystem>(render); }
 	/**
-	* Get shaders */
-	virtual const SHADERS_MAP& GetShaders() const noexcept override { return shaders; }
-	/**
-	* Set app parameters */
-	virtual void SetRenderSystemType(LcRenderSystemType inType) noexcept { type = inType; }
+	* Set GUI manager */
+	virtual void SetGuiManager(std::shared_ptr<class IGuiManager> manager) noexcept { guiManager = std::shared_ptr<class IGuiManager>(manager); }
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(LcSize inWindowSize) noexcept { windowSize = inWindowSize; }
@@ -51,14 +48,11 @@ public: // IApplication interface implementation
 	* Set keyboard handler */
 	virtual void SetKeyboardHandler(LcKeyboardHandler handler) noexcept { keyboardHandler = handler; }
 	/**
-	* Set mouse handler */
-	virtual void SetMouseHandler(LcMouseHandler handler) noexcept { mouseHandler = handler; }
+	* Set mouse move handler */
+	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept { mouseMoveHandler = handler; }
 	/**
-	* Set NoesisGUI flag */
-	virtual void SetUseNoesis(bool inUseNoesis) noexcept { useNoesis = inUseNoesis; }
-	/**
-	* Get NoesisGUI flag */
-	virtual bool GetUseNoesis() const noexcept { return useNoesis; }
+	* Set mouse button handler */
+	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept { mouseButtonHandler = handler; }
 	/**
 	* Run application main loop */
 	virtual void Run() override;
@@ -68,8 +62,6 @@ public: // IApplication interface implementation
 
 
 protected:
-	/**
-	* Update application */
 	void OnUpdate();
 
 
@@ -80,9 +72,7 @@ protected:
 	//
 	std::shared_ptr<class IRenderSystem> renderSystem;
 	//
-	LcRenderSystemType type;
-	//
-	SHADERS_MAP shaders;
+	std::shared_ptr<class IGuiManager> guiManager;
 	//
 	std::wstring cmds;
 	//
@@ -92,13 +82,13 @@ protected:
 	//
 	bool quit;
 	//
-	bool useNoesis;
-	//
 	LcUpdateHandler updateHandler;
 	//
 	LcKeyboardHandler keyboardHandler;
 	//
-	LcMouseHandler mouseHandler;
+	LcMouseMoveHandler mouseMoveHandler;
+	//
+	LcMouseButtonHandler mouseButtonHandler;
 	//
 	ULONGLONG prevTick;
 

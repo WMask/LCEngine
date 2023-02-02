@@ -6,10 +6,11 @@
 
 #include "framework.h"
 #include "NoesisSample.h"
-#include "Application/Application.h"
+#include "Application/Windows/Module.h"
+#include "RenderSystem/RenderSystemDX10/Module.h"
 #include "Core/LCUtils.h"
 #include "World/World.h"
-#include "GUI/GUIManager.h"
+#include "GUI/LCNoesisGUI/NoesisGUIManager.h"
 #include "MainMenuViewModel.h"
 #include "ClickMoveBehavior.h"
 
@@ -29,7 +30,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     try
     {
         auto& world = LcWorld::GetInstance();
-        auto app = IApplication::GetPlatformApp();
+        auto app = GetApp();
         TWeakApp weakApp(app);
 
         LcSizef size(200, 200);
@@ -67,18 +68,20 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             { "MainMenu.xaml", MainMenu_xaml },
             { "SampleDictionary.xaml", SampleDictionary_xaml }
         };
-        LcGUIManager::GetInstance().AddXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
+        auto gui = GetGuiManager();
+        gui->SetXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
         Noesis::RegisterComponent<MainMenuViewModel>();
         Noesis::RegisterComponent<ClickMoveBehavior>();
         Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
         Noesis::TypeOf<NoesisApp::Interaction>();
 
+        auto render = GetRenderSystem();
+        render->LoadShaders("../../../Shaders/HLSL/");
+        app->SetRenderSystem(render);
+        app->SetGuiManager(gui);
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetRenderSystemType(LcRenderSystemType::DX10);
         app->SetWindowSize(LcSize(1024, 768));
-        app->SetUseNoesis(true);
-        app->LoadShaders("../../../Shaders/HLSL/");
         app->Init(hInstance, lpCmdLine);
         app->Run();
     }

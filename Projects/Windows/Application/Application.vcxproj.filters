@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\..\Code\Engine\Application\Application.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\ApplicationModule.h">
+    <ClInclude Include="..\..\..\Code\Engine\Application\Module.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,7 @@
 #include <deque>
 #include <d3d10.h>
 
-#include "RenderSystemModuleDX10.h"
+#include "Module.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "Core/LCTypes.h"
@@ -62,7 +62,7 @@ class DX10RENDERSYSTEM_API LcRenderSystemDX10
 	, public IRenderDeviceDX10
 {
 public:
-	LcRenderSystemDX10(class IApplication& app);
+	LcRenderSystemDX10();
 
 
 public: // IRenderSystem interface implementation

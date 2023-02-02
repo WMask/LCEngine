@@ -11,6 +11,5 @@
 #include "framework.h"
 
 #include <Windowsx.h>
-#include <filesystem>
 
 #endif //PCH_H

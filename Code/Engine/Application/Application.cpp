@@ -6,17 +6,7 @@
 
 #include "pch.h"
 #include "Application/Application.h"
-#include "Application/Windows/WindowsApplication.h"
 
-
-std::shared_ptr<IApplication> IApplication::GetPlatformApp()
-{
-#ifdef _WINDOWS
-	return std::shared_ptr<IApplication>(new LcWindowsApplication());
-#endif
-
-	return std::shared_ptr<IApplication>();
-}
 
 IApplication::IApplication()
 {

@@ -6,60 +6,32 @@
 
 #pragma once
 
-#include "GUIModule.h"
-#include "RenderSystem/RenderSystem.h"
+#include "Module.h"
 #include "Core/LCTypes.h"
-
-#include <NsGui/XamlProvider.h>
-#include <NsGui/IView.h>
 
 
 /**
 * GUI manager */
-class GUI_API LcGUIManager
+class GUI_API IGuiManager
 {
 public:
 	/**
-	* Returns GUI manager */
-	static LcGUIManager& GetInstance();
-
-
-public:
-	/**
 	* Destructor */
-	~LcGUIManager();
+	virtual ~IGuiManager();
 	/**
 	* Init GUI manager */
-	void Init(LcSize viewportSize, bool useNoesis);
+	virtual void Init(LcSize viewportSize) = 0;
 	/**
 	* Shutdown GUI manager */
-	void Shutdown();
+	virtual void Shutdown() = 0;
 	/**
-	* Add XAML provider */
-	void AddXamlProvider(Noesis::Ptr<Noesis::XamlProvider> inXamlProvider) { xamlProvider = inXamlProvider; }
+	* Keyboard key event */
+	virtual void OnKeyboard(LcMouseBtn btn, int x, int y) = 0;
 	/**
-	* Add XAML provider */
-	void MouseButtonDown(LcMouseBtn btn, int x, int y);
+	* Mouse button event */
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
 	/**
-	* Add XAML provider */
-	void MouseButtonUp(LcMouseBtn btn, int x, int y);
-
-
-protected:
-	LcGUIManager();
-	//
-	LcGUIManager(const LcGUIManager&);
-	//
-	LcGUIManager& operator=(const LcGUIManager&);
-
-
-protected:
-	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
-	//
-	Noesis::Ptr<Noesis::IView> view;
-	//
-	LcSize viewportSize;
-	//
-	bool useNoesis;
+	* Mouse move event */
+	virtual void OnMouseMove(int x, int y) = 0;
 
 };

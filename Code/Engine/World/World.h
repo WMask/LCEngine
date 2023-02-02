@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "WorldModule.h"
+#include "Module.h"
 #include "Sprites.h"
 
 #include <deque>
@@ -20,13 +20,14 @@
 class WORLD_API LcWorld
 {
 public:
+	/**
+	* Get singleton */
+	static LcWorld& GetInstance();
+	//
 	typedef std::deque<LcSpriteData> SPRITE_LIST;
 
 
 public:
-	/**
-	* Get singleton */
-	static LcWorld& GetInstance();
 	/**
 	* Add sprite */
 	LcSpriteData* AddSprite(const LcSpriteData& sprite);

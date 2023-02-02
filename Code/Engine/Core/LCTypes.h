@@ -6,6 +6,7 @@
 
 #pragma once
 
+// copy Eigen code to LCEngine/Code/Engine/Core/Eigen
 #include "Eigen/Dense"
 
 
@@ -33,4 +34,15 @@ enum class LcKeyState
 {
 	Down,
 	Up
+};
+
+
+/**
+* Render system type */
+enum class LcRenderSystemType
+{
+	Null,
+	DX7,
+	DX9,
+	DX10
 };

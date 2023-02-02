@@ -8,14 +8,12 @@
 
 #include <memory>
 #include <functional>
-#include <map>
 
-#include "ApplicationModule.h"
-#include "RenderSystem/RenderSystem.h"
+#include "Module.h"
 #include "Core/LCTypes.h"
 
-
 #pragma warning(disable : 4251)
+
 
 /**
 * Update handler */
@@ -26,22 +24,18 @@ typedef std::function<void(float)> LcUpdateHandler;
 typedef std::function<void(int, LcKeyState)> LcKeyboardHandler;
 
 /**
-* Mouse events handler */
-typedef std::function<void(LcMouseBtn, LcKeyState, float, float)> LcMouseHandler;
+* Mouse move handler */
+typedef std::function<void(float, float)> LcMouseMoveHandler;
+
+/**
+* Mouse button handler */
+typedef std::function<void(LcMouseBtn, LcKeyState, float, float)> LcMouseButtonHandler;
 
 
 /**
 * Application interface */
 class APPLICATION_API IApplication
 {
-public:
-	/**
-	* Returns platform-specific application */
-	static std::shared_ptr<IApplication> GetPlatformApp();
-	//
-	typedef std::map<std::string, std::string> SHADERS_MAP;
-
-
 public:
 	/**
 	* Virtual destructor */
@@ -53,14 +47,11 @@ public:
 	* Set app parameters */
 	virtual void Init(void* Handle, const std::wstring& cmds) noexcept = 0;
 	/**
-	* Load shaders */
-	virtual void LoadShaders(const std::string& folderPath) = 0;
+	* Set render system */
+	virtual void SetRenderSystem(std::shared_ptr<class IRenderSystem> render) noexcept = 0;
 	/**
-	* Get shaders */
-	virtual const SHADERS_MAP& GetShaders() const noexcept = 0;
-	/**
-	* Set render system type */
-	virtual void SetRenderSystemType(LcRenderSystemType type) noexcept = 0;
+	* Set GUI manager */
+	virtual void SetGuiManager(std::shared_ptr<class IGuiManager> manager) noexcept = 0;
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(LcSize windowSize) noexcept = 0;
@@ -71,14 +62,11 @@ public:
 	* Set keyboard handler */
 	virtual void SetKeyboardHandler(LcKeyboardHandler handler) noexcept = 0;
 	/**
-	* Set mouse handler */
-	virtual void SetMouseHandler(LcMouseHandler handler) noexcept = 0;
+	* Set mouse move handler */
+	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept = 0;
 	/**
-	* Set NoesisGUI flag */
-	virtual void SetUseNoesis(bool useNoesis) noexcept = 0;
-	/**
-	* Get NoesisGUI flag */
-	virtual bool GetUseNoesis() const noexcept = 0;
+	* Set mouse button handler */
+	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept = 0;
 	/**
 	* Run application main loop */
 	virtual void Run() = 0;

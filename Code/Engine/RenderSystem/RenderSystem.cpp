@@ -6,27 +6,38 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
-#include "Application/Application.h"
-#include "GUI/GUIManager.h"
 #include "World/World.h"
+#include "Core/LCUtils.h"
 
-
-IRenderSystem::IRenderSystem(IApplication& inApp) : app(inApp)
-{
-}
 
 IRenderSystem::~IRenderSystem()
 {
 }
 
+void IRenderSystem::LoadShaders(const std::string& folderPath)
+{
+    using namespace std::filesystem;
+
+    for (auto& entry : directory_iterator(folderPath))
+    {
+        if (entry.is_regular_file())
+        {
+            auto name = entry.path().filename().string();
+            auto content = ReadTextFile(entry.path().string());
+            if (!name.empty() && !content.empty())
+            {
+                shaders[name] = content;
+            }
+        }
+    }
+}
+
 void IRenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
 {
-	LcGUIManager::GetInstance().Init(viewportSize, app.GetUseNoesis());
 }
 
 void IRenderSystem::Shutdown()
 {
-	LcGUIManager::GetInstance().Shutdown();
 }
 
 void IRenderSystem::Render()

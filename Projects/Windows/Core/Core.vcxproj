@@ -143,7 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Code\Engine\Core\CoreModule.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Core\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCUtils.h" />
     <ClInclude Include="framework.h" />

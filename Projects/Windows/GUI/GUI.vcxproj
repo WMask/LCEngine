@@ -145,7 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\GUI\GUIManager.h" />
-    <ClInclude Include="..\..\..\Code\Engine\GUI\GUIModule.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\Module.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

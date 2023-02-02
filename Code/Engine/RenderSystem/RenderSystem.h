@@ -6,19 +6,12 @@
 
 #pragma once
 
-#include "RenderSystemModule.h"
-#include "World/World.h"
+#include "Core/LcTypes.h"
+#include "Module.h"
 
+#include <map>
 
-/**
-* Render system type */
-enum class LcRenderSystemType
-{
-	Null,
-	DX7,
-	DX9,
-	DX10
-};
+#pragma warning(disable : 4251)
 
 
 /**
@@ -26,13 +19,16 @@ enum class LcRenderSystemType
 class RENDERSYSTEM_API IRenderSystem
 {
 public:
-	IRenderSystem(class IApplication& app);
+	typedef std::map<std::string, std::string> SHADERS_MAP;
 
 
 public:
 	/**
 	* Virtual destructor */
 	virtual ~IRenderSystem();
+	/**
+	* Load shaders */
+	virtual void LoadShaders(const std::string& folderPath);
 	/**
 	* Create render system */
 	virtual void Create(void* Handle, LcSize viewportSize, bool windowed);
@@ -56,10 +52,10 @@ public:
 protected:
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const LcSpriteData& sprite) = 0;
+	virtual void RenderSprite(const struct LcSpriteData& sprite) = 0;
 
 
 protected:
-	class IApplication& app;
+	SHADERS_MAP shaders;
 
 };

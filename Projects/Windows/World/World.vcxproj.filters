@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\..\Code\Engine\World\World.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\World\WorldModule.h">
+    <ClInclude Include="..\..\..\Code\Engine\World\Module.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\World\Sprites.h">

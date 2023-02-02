@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystem.h">
       <Filter>Header Files\RenderSystem</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemModule.h">
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\Module.h">
       <Filter>Header Files\RenderSystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\SpriteRender.h">

@@ -144,7 +144,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\World\Sprites.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\World.h" />
-    <ClInclude Include="..\..\..\Code\Engine\World\WorldModule.h" />
+    <ClInclude Include="..\..\..\Code\Engine\World\Module.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

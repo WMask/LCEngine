@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Core\CoreModule.h">
+    <ClInclude Include="..\..\..\Code\Engine\Core\Module.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\Core\LCUtils.h">

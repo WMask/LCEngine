@@ -12,7 +12,7 @@
 #include "Core/LCUtils.h"
 
 
-LcRenderSystemDX10::LcRenderSystemDX10(IApplication& app) : IRenderSystem(app)
+LcRenderSystemDX10::LcRenderSystemDX10()
 {
 	d3dDevice = nullptr;
 	swapChain = nullptr;
@@ -211,5 +211,10 @@ void LcRenderSystemDX10::RenderSprite(const LcSpriteData& sprite)
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const
 {
-	return app.GetShaders().at(shaderName);
+	return shaders.at(shaderName);
+}
+
+std::shared_ptr<IRenderSystem> GetRenderSystem()
+{
+	return std::shared_ptr<IRenderSystem>(new LcRenderSystemDX10());
 }

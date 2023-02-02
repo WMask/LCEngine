@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "CoreModule.h"
+#include "Module.h"
 #include "LCTypes.h"
 
 
