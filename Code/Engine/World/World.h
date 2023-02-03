@@ -13,29 +13,54 @@
 
 /**
 * Game world manager */
-class WORLD_API LcWorld : public IWorld
+class LcWorld : public IWorld
 {
 public: // IWorld interface implementation
 	/**
+	* Set sprite factory */
+	virtual void SetSpriteFactory(ISpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
+	/**
 	* Add sprite */
-	virtual LcSpriteData* AddSprite(const LcSpriteData& sprite) override;
+	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
 	/**
 	* Remove sprite */
-	virtual void RemoveSprite(LcSpriteData* sprite) override;
+	virtual void RemoveSprite(ISprite* sprite) override;
 	/**
 	* Get sprites */
 	virtual SPRITE_LIST& GetSprites() override { return sprites; }
+	/**
+	* Set widget factory */
+	virtual void SetWidgetFactory(IWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
+	/**
+	* Add widget */
+	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
+	/**
+	* Remove widget */
+	virtual void RemoveWidget(IWidget* widget) override;
+	/**
+	* Get widgets */
+	virtual WIDGET_LIST& GetWidgets() override { return widgets; }
 
 
 protected:
 	LcWorld();
+	//
 	~LcWorld();
+	//
 	LcWorld(const LcWorld&);
+	//
 	LcWorld& operator=(const LcWorld&);
-	friend WORLD_API IWorld& GetWorld();
+	//
+	friend WORLD_API IWorld* GetWorld();
 
 
 protected:
-	std::deque<LcSpriteData> sprites;
+	SPRITE_LIST sprites;
+	//
+	WIDGET_LIST widgets;
+	//
+	ISpriteFactoryPtr spriteFactory;
+	//
+	IWidgetFactoryPtr widgetFactory;
 
 };

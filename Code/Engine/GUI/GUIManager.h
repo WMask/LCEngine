@@ -26,7 +26,7 @@ public:
 	virtual void Shutdown() = 0;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(LcMouseBtn btn, int x, int y) = 0;
+	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
 	/**
 	* Mouse button event */
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;

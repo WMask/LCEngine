@@ -1,5 +1,5 @@
 /**
-* NoesisGUIManager.h
+* NoesisGuiManager.h
 * 02.02.2023
 * (c) Denis Romakhov
 */
@@ -9,6 +9,8 @@
 #include "Module.h"
 #include "Core/LCTypes.h"
 
+// copy NoesisGUI code to LCEngine/Code/Engine/GUI/NoesisGUI
+#include <NsGui/XamlProvider.h>
 #include <NsGui/IView.h>
 
 #pragma warning(disable : 4251)
@@ -27,7 +29,7 @@ public:
 public: // INoesisGuiManager interface implementation
 	/**
 	* Set XAML provider */
-	virtual void SetXamlProvider(Noesis::Ptr<Noesis::XamlProvider> provider) { xamlProvider = provider; }
+	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& inResources) override;
 
 
 public: // IGuiManager interface implementation
@@ -42,7 +44,7 @@ public: // IGuiManager interface implementation
 	virtual void Shutdown() override;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(LcMouseBtn btn, int x, int y) override;
+	virtual void OnKeyboard(int btn, LcKeyState state) override;
 	/**
 	* Mouse button event */
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
@@ -54,8 +56,10 @@ public: // IGuiManager interface implementation
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
 	//
-	Noesis::Ptr<Noesis::IView> view;
+	std::string resources;
 	//
 	LcSize viewportSize;
+	//
+	bool isInit;
 
 };

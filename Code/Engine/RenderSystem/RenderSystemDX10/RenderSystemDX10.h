@@ -83,7 +83,7 @@ public: // IRenderSystem interface implementation
 	virtual void Render() override;
 	/**
 	* Render world */
-	virtual void RenderSprite(const LcSpriteData& sprite) override;
+	virtual void RenderSprite(const ISprite* sprite) override;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }

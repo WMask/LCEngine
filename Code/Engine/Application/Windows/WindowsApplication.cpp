@@ -173,9 +173,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KEYDOWN:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down);
+        if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Down);
         break;
     case WM_KEYUP:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up);
+        if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up);
         break;
     case WM_LBUTTONDOWN:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y);

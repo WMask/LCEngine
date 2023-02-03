@@ -8,7 +8,7 @@
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "Application/Application.h"
-#include "World/World.h"
+#include "World/Module.h"
 #include "Core/LCUtils.h"
 
 
@@ -197,11 +197,13 @@ void LcRenderSystemDX10::Render()
 	swapChain->Present(0, 0);
 }
 
-void LcRenderSystemDX10::RenderSprite(const LcSpriteData& sprite)
+void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 {
+	if (!sprite) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
+
 	for (auto& render : spriteRenders)
 	{
-		if (render->GetType() == sprite.type)
+		if (render->GetType() == sprite->GetType())
 		{
 			render->Render(sprite);
 			break;

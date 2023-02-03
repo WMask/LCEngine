@@ -7,9 +7,9 @@
 #pragma once
 
 #include "GUI/GUIManager.h"
+#include "World/Module.h"
 
-// copy NoesisGUI code to LCEngine/Code/Engine/GUI/NoesisGUI
-#include <NsGui/XamlProvider.h>
+#include <NsCore/Ptr.h>
 
 
 #ifndef NOESISGUI_EXPORTS
@@ -19,6 +19,9 @@
 #endif
 
 
+namespace Noesis { class XamlProvider; }
+
+
 /**
 * Noesis GUI manager */
 class NOESISGUI_API INoesisGuiManager : public IGuiManager
@@ -26,9 +29,18 @@ class NOESISGUI_API INoesisGuiManager : public IGuiManager
 public:
 	/**
 	* Set XAML provider */
-	virtual void SetXamlProvider(Noesis::Ptr<Noesis::XamlProvider> provider) = 0;
+	virtual void NoesisInit(Noesis::Ptr<class Noesis::XamlProvider> provider, const std::string& inResources) = 0;
 
 };
 
+/**
+* Noesis GUI manager pointer */
+typedef std::shared_ptr<INoesisGuiManager> INoesisGuiManagerPtr;
 
-NOESISGUI_API std::shared_ptr<INoesisGuiManager> GetGuiManager();
+/**
+* Get Noesis GUI manager */
+NOESISGUI_API INoesisGuiManagerPtr GetGuiManager();
+
+/**
+* Get Noesis widget factory */
+NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory();

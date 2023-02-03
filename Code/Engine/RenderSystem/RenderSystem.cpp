@@ -6,7 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
-#include "World/World.h"
+#include "World/Module.h"
 #include "Core/LCUtils.h"
 
 
@@ -42,10 +42,10 @@ void IRenderSystem::Shutdown()
 
 void IRenderSystem::Render()
 {
-	const auto& sprites = GetWorld().GetSprites();
+	const auto& sprites = GetWorld()->GetSprites();
 
 	for (const auto& sprite : sprites)
 	{
-		if (sprite.visible) RenderSprite(sprite);
+		if (sprite->IsVisible()) RenderSprite(sprite.get());
 	}
 }

@@ -14,13 +14,11 @@
 #include "MainMenuViewModel.h"
 #include "ClickMoveBehavior.h"
 
+#include <NsApp/EmbeddedXamlProvider.h>
+#include <NsCore/RegisterComponent.h>
+
 #include "x64/Debug/MainMenu.xaml.bin.h"
 #include "x64/Debug/SampleDictionary.xaml.bin.h"
-#include <NsCore/RegisterComponent.h>
-#include <NsApp/EmbeddedXamlProvider.h>
-#include <NsApp/BehaviorCollection.h>
-#include <NsApp/AttachableObject.h>
-#include <NsApp/Interaction.h>
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
@@ -29,14 +27,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     try
     {
-        auto& world = GetWorld();
+        auto world = GetWorld();
         auto app = GetApp();
         TWeakApp weakApp(app);
 
         LcSizef size(200, 200);
         LcVector3 pos(200, 200, 0);
         LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
-        auto sprite = world.AddSprite(LcSpriteData(LcSpriteType::Colored, pos, size, colors));
+        auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, pos, size, colors));
 
         BYTE keys[256];
         memset(keys, 0, sizeof(keys));
@@ -46,11 +44,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
             if (auto app = weakApp.lock())
             {
-                if (keys[VK_LEFT]) sprite->pos.x() -= 200.0f * DeltaSeconds;
-                if (keys[VK_RIGHT]) sprite->pos.x() += 200.0f * DeltaSeconds;
+                if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200.0f * DeltaSeconds, 0.0f, 0.0f));
+                if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200.0f * DeltaSeconds, 0.0f, 0.0f));
 
-                if (keys[VK_UP]) sprite->rotZ -= 2.0f * DeltaSeconds;
-                if (keys[VK_DOWN]) sprite->rotZ += 2.0f * DeltaSeconds;
+                if (keys[VK_UP]) sprite->AddRotZ(-2.0f * DeltaSeconds);
+                if (keys[VK_DOWN]) sprite->AddRotZ(2.0f * DeltaSeconds);
             }
         };
 
@@ -69,11 +67,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             { "SampleDictionary.xaml", SampleDictionary_xaml }
         };
         auto guiManager = GetGuiManager();
-        guiManager->SetXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
+        guiManager->NoesisInit(*new NoesisApp::EmbeddedXamlProvider(xamls), "SampleDictionary.xaml");
         Noesis::RegisterComponent<MainMenuViewModel>();
         Noesis::RegisterComponent<ClickMoveBehavior>();
-        Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
-        Noesis::TypeOf<NoesisApp::Interaction>();
+
+        world->SetWidgetFactory(GetWidgetFactory());
+        auto widget = world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3()));
 
         auto render = GetRenderSystem();
         render->LoadShaders("../../../Shaders/HLSL/");

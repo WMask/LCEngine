@@ -30,7 +30,7 @@ public: // ISpriteRender interface implementation
 	virtual void Setup() override;
 	/**
 	* Render sprite */
-	virtual void Render(const LcSpriteData& sprite) override;
+	virtual void Render(const ISprite* sprite) override;
 	/**
 	* Return sprite type */
 	virtual LcSpriteType GetType() const override { return LcSpriteType::Colored; }

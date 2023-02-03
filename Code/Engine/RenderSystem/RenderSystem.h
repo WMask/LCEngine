@@ -52,7 +52,7 @@ public:
 protected:
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const struct LcSpriteData& sprite) = 0;
+	virtual void RenderSprite(const class ISprite* sprite) = 0;
 
 
 protected:

@@ -110,20 +110,21 @@ void LcColoredSpriteRenderDX10::Setup()
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcColoredSpriteRenderDX10::Render(const LcSpriteData& sprite)
+void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transMatrix = renderDevice.GetTransformBuffer();
-	if (!d3dDevice || !transMatrix) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render device");
+	if (!d3dDevice || !transMatrix || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render device");
 
 	LcVector2 offset = renderDevice.GetOffset();
-	LcVector3 pos(sprite.pos.x() + offset.x(), sprite.pos.y() + offset.y(), sprite.pos.z());
+	LcVector3 pos(sprite->GetPos().x() + offset.x(), sprite->GetPos().y() + offset.y(), sprite->GetPos().z());
+	LcSpriteColors colors = sprite->GetColors();
 
-	transData.trans = TransformMatrix(pos, sprite.size, sprite.rotZ).transpose();
-	transData.colors[0] = sprite.colors.rightTop;
-	transData.colors[1] = sprite.colors.rightBottom;
-	transData.colors[2] = sprite.colors.leftTop;
-	transData.colors[3] = sprite.colors.leftBottom;
+	transData.trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ()).transpose();
+	transData.colors[0] = colors.rightTop;
+	transData.colors[1] = colors.rightBottom;
+	transData.colors[2] = colors.leftTop;
+	transData.colors[3] = colors.leftBottom;
 
 	d3dDevice->UpdateSubresource(transMatrix, 0, NULL, &transData, 0, 0);
 	d3dDevice->Draw(4, 0);

@@ -17,4 +17,4 @@
 
 /**
 * Get game world manager */
-WORLD_API IWorld& GetWorld();
+WORLD_API IWorld* GetWorld();

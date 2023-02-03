@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Core/LCTypes.h"
+#include "Visual.h"
 
 
 /**
@@ -57,4 +57,22 @@ struct LcSpriteData
 		: type(inType), pos(inPos), size(inSize), colors(inColors), rotZ(inRotZ), visible(inVisible)
 	{
 	}
+};
+
+
+/**
+* Sprite interface */
+class ISprite : public IVisual
+{
+public:
+	/**
+	* Sprite colors */
+	virtual void SetColors(LcSpriteColors colors) = 0;
+	/**
+	* Sprite colors */
+	virtual LcSpriteColors GetColors() const = 0;
+	/**
+	* Sprite type */
+	virtual LcSpriteType GetType() const = 0;
+
 };

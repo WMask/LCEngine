@@ -19,7 +19,7 @@ public:
 	virtual void Setup() = 0;
 	/**
 	* Render sprite */
-	virtual void Render(const LcSpriteData& sprite) = 0;
+	virtual void Render(const ISprite* sprite) = 0;
 	/**
 	* Return sprite type */
 	virtual LcSpriteType GetType() const = 0;
