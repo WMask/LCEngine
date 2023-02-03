@@ -42,7 +42,7 @@ void IRenderSystem::Shutdown()
 
 void IRenderSystem::Render()
 {
-	const auto& sprites = LcWorld::GetInstance().GetSprites();
+	const auto& sprites = GetWorld().GetSprites();
 
 	for (const auto& sprite : sprites)
 	{

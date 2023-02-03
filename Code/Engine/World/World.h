@@ -6,44 +6,33 @@
 
 #pragma once
 
-
 #include "Module.h"
-#include "Sprites.h"
-
-#include <deque>
 
 #pragma warning(disable : 4251)
 
 
 /**
-* Game world */
-class WORLD_API LcWorld
+* Game world manager */
+class WORLD_API LcWorld : public IWorld
 {
-public:
-	/**
-	* Get singleton */
-	static LcWorld& GetInstance();
-	//
-	typedef std::deque<LcSpriteData> SPRITE_LIST;
-
-
-public:
+public: // IWorld interface implementation
 	/**
 	* Add sprite */
-	LcSpriteData* AddSprite(const LcSpriteData& sprite);
+	virtual LcSpriteData* AddSprite(const LcSpriteData& sprite) override;
 	/**
 	* Remove sprite */
-	void RemoveSprite(LcSpriteData* sprite);
+	virtual void RemoveSprite(LcSpriteData* sprite) override;
 	/**
 	* Get sprites */
-	SPRITE_LIST& GetSprites() { return sprites; }
+	virtual SPRITE_LIST& GetSprites() override { return sprites; }
 
 
 protected:
 	LcWorld();
+	~LcWorld();
 	LcWorld(const LcWorld&);
 	LcWorld& operator=(const LcWorld&);
-	~LcWorld();
+	friend WORLD_API IWorld& GetWorld();
 
 
 protected:

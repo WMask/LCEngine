@@ -10,13 +10,11 @@
 #include "World/World.h"
 
 
-LcWorld& LcWorld::GetInstance()
+LcWorld::LcWorld()
 {
-	static LcWorld instance;
-	return instance;
 }
 
-LcWorld::LcWorld()
+LcWorld::~LcWorld()
 {
 }
 
@@ -29,10 +27,6 @@ LcWorld& LcWorld::operator=(const LcWorld&)
 	return *this;
 }
 
-LcWorld::~LcWorld()
-{
-}
-
 LcSpriteData* LcWorld::AddSprite(const LcSpriteData& sprite)
 {
 	sprites.push_back(sprite);
@@ -43,4 +37,10 @@ void LcWorld::RemoveSprite(LcSpriteData* sprite)
 {
 	auto it = std::find_if(sprites.begin(), sprites.end(), [sprite](LcSpriteData& data) { return &data == sprite; });
 	if (it != sprites.end()) sprites.erase(it);
+}
+
+IWorld& GetWorld()
+{
+	static LcWorld world;
+	return world;
 }

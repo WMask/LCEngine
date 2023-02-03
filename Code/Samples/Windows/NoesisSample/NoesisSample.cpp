@@ -29,7 +29,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     try
     {
-        auto& world = LcWorld::GetInstance();
+        auto& world = GetWorld();
         auto app = GetApp();
         TWeakApp weakApp(app);
 
