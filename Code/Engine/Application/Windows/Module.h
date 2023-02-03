@@ -16,4 +16,6 @@
 #endif
 
 
+/**
+* Windows application */
 WINDOWSAPPLICATION_API std::shared_ptr<IApplication> GetApp();

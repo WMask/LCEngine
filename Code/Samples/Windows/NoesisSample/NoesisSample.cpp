@@ -68,8 +68,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             { "MainMenu.xaml", MainMenu_xaml },
             { "SampleDictionary.xaml", SampleDictionary_xaml }
         };
-        auto gui = GetGuiManager();
-        gui->SetXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
+        auto guiManager = GetGuiManager();
+        guiManager->SetXamlProvider(*new NoesisApp::EmbeddedXamlProvider(xamls));
         Noesis::RegisterComponent<MainMenuViewModel>();
         Noesis::RegisterComponent<ClickMoveBehavior>();
         Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
@@ -78,7 +78,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto render = GetRenderSystem();
         render->LoadShaders("../../../Shaders/HLSL/");
         app->SetRenderSystem(render);
-        app->SetGuiManager(gui);
+        app->SetGuiManager(guiManager);
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(LcSize(1024, 768));

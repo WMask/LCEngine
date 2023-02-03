@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\RenderSystemDX10">
-      <UniqueIdentifier>{e5f2c5ad-457f-4616-a033-bec92c7cb5b3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\RenderSystemDX10">
-      <UniqueIdentifier>{4d8c53ab-c249-4261-94c9-bb4c3a94a35a}</UniqueIdentifier>
+      <UniqueIdentifier>{1f39a10c-4851-4a5e-ab42-3347fbb30c20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RenderSystemDX10">
+      <UniqueIdentifier>{e7f67248-aa14-4025-b013-ee5e7376942e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,13 +27,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h">
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h">
       <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h">
       <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h">
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h">
       <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
   </ItemGroup>

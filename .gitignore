@@ -22,7 +22,7 @@ Projects/Windows/Core/x64/*
 Projects/Windows/Application/x64/*
 Projects/Windows/WindowsApplication/x64/*
 Projects/Windows/RenderSystem/x64/*
-Projects/Windows/DX10RenderSystem/x64/*
+Projects/Windows/RenderSystemDX10/x64/*
 Projects/Windows/World/x64/*
 Projects/Windows/GUI/x64/*
 Projects/Windows/x64/*

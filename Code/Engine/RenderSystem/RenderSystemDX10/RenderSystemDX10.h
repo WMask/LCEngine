@@ -19,7 +19,7 @@
 
 /**
 * Render device */
-class DX10RENDERSYSTEM_API IRenderDeviceDX10
+class RENDERSYSTEMDX10_API IRenderDeviceDX10
 {
 public:
 	/**
@@ -57,7 +57,7 @@ struct VS_TRANS_BUFFER
 
 /**
 * DirectX 10 render system */
-class DX10RENDERSYSTEM_API LcRenderSystemDX10
+class RENDERSYSTEMDX10_API LcRenderSystemDX10
 	: public IRenderSystem
 	, public IRenderDeviceDX10
 {

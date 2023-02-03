@@ -9,11 +9,13 @@
 #include "RenderSystem/RenderSystem.h"
 
 
-#ifndef DX10RENDERSYSTEM_EXPORTS
-#define DX10RENDERSYSTEM_API __declspec (dllimport)
+#ifndef RENDERSYSTEMDX10_EXPORTS
+#define RENDERSYSTEMDX10_API __declspec (dllimport)
 #else
-#define DX10RENDERSYSTEM_API __declspec (dllexport)
+#define RENDERSYSTEMDX10_API __declspec (dllexport)
 #endif
 
 
-DX10RENDERSYSTEM_API std::shared_ptr<IRenderSystem> GetRenderSystem();
+/**
+* DirectX 10 render system */
+RENDERSYSTEMDX10_API std::shared_ptr<IRenderSystem> GetRenderSystem();

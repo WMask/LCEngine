@@ -10,7 +10,4 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
-#include <stdexcept>
-#include <d3d10misc.h>
-
 #endif //PCH_H
