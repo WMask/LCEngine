@@ -43,6 +43,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "World", "World\World.vcxpro
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI", "GUI\GUI.vcxproj", "{0D2C470E-0FA2-4C46-B6D1-76AB5226E25B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E255FFE-5706-49E6-B987-EFB7F7DA2E48} = {4E255FFE-5706-49E6-B987-EFB7F7DA2E48}
+		{C331D31E-C620-4930-94AD-9CE863549626} = {C331D31E-C620-4930-94AD-9CE863549626}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NoesisSample", "..\..\Code\Samples\Windows\NoesisSample\NoesisSample.vcxproj", "{39D1E7E6-B96F-42E7-9700-07EC7AC9D36A}"
 	ProjectSection(ProjectDependencies) = postProject

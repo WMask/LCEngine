@@ -12,7 +12,7 @@
 
 
 /**
-* Game world manager */
+* Game world manager. Contains default sprite implementation */
 class LcWorld : public IWorld
 {
 public: // IWorld interface implementation

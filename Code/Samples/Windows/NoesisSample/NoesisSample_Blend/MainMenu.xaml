@@ -10,13 +10,13 @@
         <common:MainMenuViewModel />
     </UserControl.DataContext>
     <Grid>
-        <Rectangle Fill="{StaticResource GreenBrush}" />
-        <Canvas>
-            <Rectangle Fill="{StaticResource RedBrush}" Canvas.Left="{Binding PosX}" Canvas.Top="{Binding PosY}" Width="100" Height="100">
-                <b:Interaction.Behaviors>
-                    <common:ClickMoveBehavior />
-                </b:Interaction.Behaviors>
-            </Rectangle>
+        <Rectangle Fill="{StaticResource GreenBrush}" Margin="100">
+            <b:Interaction.Behaviors>
+                <common:ClickMoveBehavior MoveTarget="{Binding ElementName=RedBox}" />
+            </b:Interaction.Behaviors>
+        </Rectangle>
+        <Canvas Margin="100">
+            <Rectangle x:Name="RedBox" Fill="{StaticResource RedBrush}" Canvas.Left="{Binding PosX}" Canvas.Top="{Binding PosY}" Width="100" Height="100" />
         </Canvas>
         <!--Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="0, 0, 0, 300" /-->
     </Grid>

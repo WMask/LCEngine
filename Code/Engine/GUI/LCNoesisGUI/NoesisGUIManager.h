@@ -42,21 +42,10 @@ public: // IGuiManager interface implementation
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override;
-	/**
-	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state) override;
-	/**
-	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
-	/**
-	* Mouse move event */
-	virtual void OnMouseMove(int x, int y) override;
 
 
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
-	//
-	std::string resources;
 	//
 	LcSize viewportSize;
 	//

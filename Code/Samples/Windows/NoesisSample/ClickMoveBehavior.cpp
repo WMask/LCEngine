@@ -8,6 +8,11 @@
 #include "ClickMoveBehavior.h"
 #include "MainMenuViewModel.h"
 
+#include <NsGui/DependencyData.h>
+#include <NsGui/Canvas.h>
+
+
+const Noesis::DependencyProperty* ClickMoveBehavior::MoveTargetProperty;
 
 Noesis::Ptr<Noesis::Freezable> ClickMoveBehavior::CreateInstanceCore() const
 {
@@ -16,28 +21,64 @@ Noesis::Ptr<Noesis::Freezable> ClickMoveBehavior::CreateInstanceCore() const
 
 void ClickMoveBehavior::OnAttached()
 {
-    Noesis::FrameworkElement* obj = GetAssociatedObject();
-    obj->MouseLeftButtonDown() += MakeDelegate(this, &ClickMoveBehavior::OnMouseLeftButtonDown);
+    if (Noesis::FrameworkElement* obj = GetAssociatedObject())
+    {
+        obj->MouseLeftButtonDown() += MakeDelegate(this, &ClickMoveBehavior::OnMouseLeftButtonDown);
+    }
 }
 
 void ClickMoveBehavior::OnDetaching()
 {
-    Noesis::FrameworkElement* obj = GetAssociatedObject();
-    obj->MouseLeftButtonDown() -= MakeDelegate(this, &ClickMoveBehavior::OnMouseLeftButtonDown);
+    if (Noesis::FrameworkElement* obj = GetAssociatedObject())
+    {
+        obj->MouseLeftButtonDown() -= MakeDelegate(this, &ClickMoveBehavior::OnMouseLeftButtonDown);
+    }
 }
 
 void ClickMoveBehavior::OnMouseLeftButtonDown(BaseComponent*, const Noesis::MouseButtonEventArgs& args)
 {
-    Noesis::FrameworkElement* obj = GetAssociatedObject();
-    MainMenuViewModel* viewModel = Noesis::DynamicCast<MainMenuViewModel*>(obj->GetParent()->GetParent()->GetParent()->GetDataContext());
-    if (viewModel)
+    if (Noesis::FrameworkElement* obj = GetAssociatedObject())
     {
-        viewModel->SetPosX(args.position.x);
-        viewModel->SetPosY(args.position.y);
+        MainMenuViewModel* viewModel = Noesis::DynamicCast<MainMenuViewModel*>(obj->GetDataContext());
+        if (viewModel)
+        {
+            viewModel->SetPosX(args.position.x);
+            viewModel->SetPosY(args.position.y);
+        }
     }
+
+    if (auto redBox = GetMoveTarget())
+    {
+        redBox->SetValue<float>(Noesis::Canvas::LeftProperty, args.position.x);
+        redBox->SetValue<float>(Noesis::Canvas::TopProperty, args.position.y);
+    }
+}
+
+bool ClickMoveBehavior::OnPropertyChanged(const Noesis::DependencyPropertyChangedEventArgs& e)
+{
+    bool handled = ParentClass::OnPropertyChanged(e);
+
+    if (!handled)
+    {
+        if (e.prop == MoveTargetProperty)
+        {
+            Noesis::FrameworkElement* elem = GetMoveTarget();
+            return true;
+        }
+    }
+
+    return handled;
+}
+
+Noesis::FrameworkElement* ClickMoveBehavior::GetMoveTarget() const
+{
+    return GetValue<Noesis::FrameworkElement*>(MoveTargetProperty);
 }
 
 NS_IMPLEMENT_REFLECTION(ClickMoveBehavior, "common.ClickMoveBehavior")
 {
-    NS_UNUSED(helper);
+    Noesis::DependencyData* data = NsMeta<Noesis::DependencyData>(Noesis::TypeOf<SelfClass>());
+
+    data->RegisterProperty<Noesis::Ptr<Noesis::FrameworkElement>>(MoveTargetProperty, "MoveTarget",
+        Noesis::PropertyMetadata::Create(Noesis::Ptr<Noesis::FrameworkElement>()));
 }

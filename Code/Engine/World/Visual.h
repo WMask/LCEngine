@@ -47,5 +47,11 @@ public:
 	/**
 	* Visual state */
 	virtual bool IsVisible() const = 0;
+	/**
+	* Mouse button event */
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
+	/**
+	* Mouse move event */
+	virtual void OnMouseMove(int x, int y) = 0;
 
 };

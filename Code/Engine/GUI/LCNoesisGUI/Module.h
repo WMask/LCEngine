@@ -28,7 +28,7 @@ class NOESISGUI_API INoesisGuiManager : public IGuiManager
 {
 public:
 	/**
-	* Set XAML provider */
+	* Initialize Noesis */
 	virtual void NoesisInit(Noesis::Ptr<class Noesis::XamlProvider> provider, const std::string& inResources) = 0;
 
 };

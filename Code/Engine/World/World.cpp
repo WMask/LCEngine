@@ -10,6 +10,8 @@
 #include "World/World.h"
 
 
+/**
+* Default Sprite implementation */
 class LcSprite : public ISprite
 {
 public:
@@ -48,10 +50,16 @@ public: // IVisual interface implementation
 	virtual void SetVisible(bool inVisible) override { sprite.visible = inVisible; }
 	//
 	virtual bool IsVisible() const override { return sprite.visible; }
+	//
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) {}
+	//
+	virtual void OnMouseMove(int x, int y) {}
 
 };
 
 
+/**
+* Default Sprite factory implementation */
 class LcSpriteFactory : public TWorldFactory<ISprite, LcSpriteData>
 {
 public:

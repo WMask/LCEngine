@@ -29,10 +29,12 @@ bool MainMenuViewModel::OnPropertyChanged(const Noesis::DependencyPropertyChange
     {
         if (e.prop == PosXProperty)
         {
+            float x = GetPosX();
             return true;
         }
         if (e.prop == PosYProperty)
         {
+            float y = GetPosY();
             return true;
         }
     }
@@ -65,5 +67,5 @@ NS_IMPLEMENT_REFLECTION(MainMenuViewModel, "common.MainMenuViewModel")
     Noesis::DependencyData* data = NsMeta<Noesis::DependencyData>(Noesis::TypeOf<SelfClass>());
 
     data->RegisterProperty<float>(PosXProperty, "PosX", Noesis::PropertyMetadata::Create(100.0f));
-    data->RegisterProperty<float>(PosXProperty, "PosY", Noesis::PropertyMetadata::Create(100.0f));
+    data->RegisterProperty<float>(PosYProperty, "PosY", Noesis::PropertyMetadata::Create(100.0f));
 }

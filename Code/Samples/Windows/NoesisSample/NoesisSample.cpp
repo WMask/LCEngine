@@ -16,6 +16,7 @@
 
 #include <NsApp/EmbeddedXamlProvider.h>
 #include <NsCore/RegisterComponent.h>
+#include <NsGui/IntegrationAPI.h>
 
 #include "x64/Debug/MainMenu.xaml.bin.h"
 #include "x64/Debug/SampleDictionary.xaml.bin.h"
@@ -61,6 +62,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             }
         };
 
+        Noesis::RegisterComponent<MainMenuViewModel>();
+        Noesis::RegisterComponent<ClickMoveBehavior>();
         NoesisApp::EmbeddedXaml xamls[] =
         {
             { "MainMenu.xaml", MainMenu_xaml },
@@ -68,16 +71,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         };
         auto guiManager = GetGuiManager();
         guiManager->NoesisInit(*new NoesisApp::EmbeddedXamlProvider(xamls), "SampleDictionary.xaml");
-        Noesis::RegisterComponent<MainMenuViewModel>();
-        Noesis::RegisterComponent<ClickMoveBehavior>();
 
         world->SetWidgetFactory(GetWidgetFactory());
-        auto widget = world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3()));
+        auto widget = world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3::Zero()));
+        widget->SetActive(true);
 
         auto render = GetRenderSystem();
         render->LoadShaders("../../../Shaders/HLSL/");
-        app->SetRenderSystem(render);
-        app->SetGuiManager(guiManager);
+        app->SetRenderSystem(std::move(render));
+        app->SetGuiManager(std::move(guiManager));
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(LcSize(1024, 768));

@@ -18,6 +18,8 @@ typedef Eigen::Vector3f LcVector3;
 typedef Eigen::Vector4f LcVector4;
 typedef Eigen::Vector4f LcColor4;
 typedef Eigen::Matrix4f LcMatrix4;
+typedef Eigen::AlignedBox<int, 2>	LcRect;
+typedef Eigen::AlignedBox<float, 2>	LcRectf;
 
 
 /** Mouse buttons */

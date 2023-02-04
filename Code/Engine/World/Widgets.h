@@ -16,11 +16,12 @@ struct LcWidgetData
 	std::string name;
 	LcVector3 pos;
 	bool visible;
+	bool active;
 	//
-	LcWidgetData() : visible(true) {}
+	LcWidgetData() : visible(true), active(false) {}
 	//
-	LcWidgetData(const std::string& inName, LcVector3 inPos, bool inVisible = true)
-		: name(inName), pos(inPos), visible(inVisible)
+	LcWidgetData(const std::string& inName, LcVector3 inPos, bool inVisible = true, bool inActive = false)
+		: name(inName), pos(inPos), visible(inVisible), active(inActive)
 	{
 	}
 };
@@ -34,5 +35,14 @@ public:
 	/**
 	* Widget name */
 	virtual const std::string& GetName() const = 0;
+	/**
+	* Active state */
+	virtual void SetActive(bool active) = 0;
+	/**
+	* Active state */
+	virtual bool IsActive() const = 0;
+	/**
+	* Keyboard key event */
+	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
 
 };

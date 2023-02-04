@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine\GUI\NoesisGUI\Include;..\..\..\Code\Engine;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\..\Code\Engine\GUI\NoesisGUI\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>;$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Noesis.lib;$(SolutionDir)x64\Debug\Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>World.lib;Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

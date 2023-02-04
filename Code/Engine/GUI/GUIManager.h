@@ -17,7 +17,7 @@ class GUI_API IGuiManager
 public:
 	/**
 	* Destructor */
-	virtual ~IGuiManager();
+	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
 	virtual void Init(LcSize viewportSize) = 0;
@@ -26,12 +26,12 @@ public:
 	virtual void Shutdown() = 0;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
+	virtual void OnKeyboard(int btn, LcKeyState state);
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y);
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y) = 0;
+	virtual void OnMouseMove(int x, int y);
 
 };

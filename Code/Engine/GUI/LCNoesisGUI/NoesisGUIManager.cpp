@@ -18,22 +18,43 @@
 #include <NsGui/IView.h>
 
 
+Noesis::Key MapKeyboardKeys(int btn);
+Noesis::MouseButton MapMouseKeys(LcMouseBtn btn);
+
 class LcNoesisWidget : public IWidget
 {
 public:
     LcNoesisWidget(LcWidgetData inWidget) : widget(inWidget) {}
     //
-    ~LcNoesisWidget() { if (view) view.Reset(); }
+    ~LcNoesisWidget() {}
     //
     LcWidgetData widget;
     //
     LcSizef size;
+    //
+    Noesis::Ptr<Noesis::UserControl> control;
     //
     Noesis::Ptr<Noesis::IView> view;
 
 
 public: // IWidget interface implementation
     virtual const std::string& GetName() const override { return widget.name; }
+    //
+    virtual void OnKeyboard(int btn, LcKeyState state) override
+    {
+        if (view)
+        {
+            switch (state)
+            {
+            case LcKeyState::Down:
+                view->KeyDown(MapKeyboardKeys(btn));
+                break;
+            case LcKeyState::Up:
+                view->KeyUp(MapKeyboardKeys(btn));
+                break;
+            }
+        }
+    }
 
 
 public: // IVisual interface implementation
@@ -56,6 +77,31 @@ public: // IVisual interface implementation
     virtual void SetVisible(bool inVisible) override { widget.visible = inVisible; }
     //
     virtual bool IsVisible() const override { return widget.visible; }
+    //
+    virtual void SetActive(bool inActive) override { widget.active = inActive; }
+    //
+    virtual bool IsActive() const override { return widget.active; }
+    //
+    virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override
+    {
+        if (view)
+        {
+            switch (state)
+            {
+            case LcKeyState::Down:
+                view->MouseButtonDown(x, y, MapMouseKeys(btn));
+                break;
+            case LcKeyState::Up:
+                view->MouseButtonUp(x, y, MapMouseKeys(btn));
+                break;
+            }
+        }
+    }
+    //
+    virtual void OnMouseMove(int x, int y) override
+    {
+        if (view) view->MouseMove(x, y);
+    }
 
 };
 
@@ -70,18 +116,21 @@ public:
         LcNoesisWidget* newWidget = new LcNoesisWidget(data);
         std::shared_ptr<IWidget> newWidgetPtr(newWidget);
 
-        auto xaml = Noesis::GUI::LoadXaml<Noesis::UserControl>(data.name.c_str());
-        newWidget->view = Noesis::GUI::CreateView(xaml);
-        newWidget->SetSize(LcSizef(xaml->GetWidth(), xaml->GetHeight()));
+        if (newWidget->control = Noesis::GUI::LoadXaml<Noesis::UserControl>(data.name.c_str()))
+        {
+            newWidget->view = Noesis::GUI::CreateView(newWidget->control);
+            newWidget->SetSize(LcSizef(newWidget->control->GetWidth(), newWidget->control->GetHeight()));
+        }
+        else
+        {
+            throw std::exception("LcNoesisWidgetFactory::Build(): Cannot create widget");
+        }
 
         return newWidgetPtr;
     }
 
 };
 
-
-Noesis::Key MapKeyboardKeys(int btn);
-Noesis::MouseButton MapMouseKeys(LcMouseBtn btn);
 
 LcNoesisGuiManager::LcNoesisGuiManager()
 {
@@ -97,12 +146,11 @@ LcNoesisGuiManager::~LcNoesisGuiManager()
     }
 }
 
-void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& inResources)
+void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& resources)
 {
     if (isInit) throw std::exception("LcNoesisGuiManager::NoesisInit(): Already initialized");
 
     xamlProvider = provider;
-    resources = inResources;
 
     Noesis::SetLogHandler([](const char*, uint32_t, uint32_t level, const char*, const char* msg)
     {
@@ -113,8 +161,12 @@ void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, 
     Noesis::GUI::SetLicense(NS_LICENSE_NAME, NS_LICENSE_KEY);
     Noesis::GUI::Init();
 
-    if (xamlProvider) Noesis::GUI::SetXamlProvider(xamlProvider);
-    if (!resources.empty()) Noesis::GUI::LoadApplicationResources(resources.c_str());
+    if (xamlProvider)
+    {
+        Noesis::GUI::SetXamlProvider(xamlProvider);
+
+        if (!resources.empty()) Noesis::GUI::LoadApplicationResources(resources.c_str());
+    }
 
     Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
     Noesis::TypeOf<NoesisApp::Interaction>();
@@ -131,74 +183,11 @@ void LcNoesisGuiManager::Shutdown()
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
+    widgetList.clear();
 
-    for (auto& widget : widgetList)
-    {
-        if (auto noesisWidget = static_cast<LcNoesisWidget*>(widget.get()))
-        {
-            if (noesisWidget->view) noesisWidget->view.Reset();
-        }
-    }
+    xamlProvider.Reset();
 
-    Noesis::GUI::Shutdown();
-}
-
-void LcNoesisGuiManager::OnKeyboard(int btn, LcKeyState state)
-{
-    auto world = GetWorld();
-    auto& widgetList = world->GetWidgets();
-
-    for (auto& widget : widgetList)
-    {
-        if (auto noesisWidget = static_cast<LcNoesisWidget*>(widget.get()))
-        {
-            switch (state)
-            {
-            case LcKeyState::Down:
-                if (noesisWidget->view) noesisWidget->view->KeyDown(MapKeyboardKeys(btn));
-                break;
-            case LcKeyState::Up:
-                if (noesisWidget->view) noesisWidget->view->KeyUp(MapKeyboardKeys(btn));
-                break;
-            }
-        }
-    }
-}
-
-void LcNoesisGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
-{
-    auto world = GetWorld();
-    auto& widgetList = world->GetWidgets();
-
-    for (auto& widget : widgetList)
-    {
-        if (auto noesisWidget = static_cast<LcNoesisWidget*>(widget.get()))
-        {
-            switch (state)
-            {
-            case LcKeyState::Down:
-                if (noesisWidget->view) noesisWidget->view->MouseButtonDown(x, y, MapMouseKeys(btn));
-                break;
-            case LcKeyState::Up:
-                if (noesisWidget->view) noesisWidget->view->MouseButtonUp(x, y, MapMouseKeys(btn));
-                break;
-            }
-        }
-    }
-}
-
-void LcNoesisGuiManager::OnMouseMove(int x, int y)
-{
-    auto world = GetWorld();
-    auto& widgetList = world->GetWidgets();
-
-    for (auto& widget : widgetList)
-    {
-        if (auto noesisWidget = static_cast<LcNoesisWidget*>(widget.get()))
-        {
-            if (noesisWidget->view) noesisWidget->view->MouseMove(x, y);
-        }
-    }
+    Noesis::GUI::Shutdown(); // default memory leak is 4112 bytes
 }
 
 Noesis::Key MapKeyboardKeys(int btn)
