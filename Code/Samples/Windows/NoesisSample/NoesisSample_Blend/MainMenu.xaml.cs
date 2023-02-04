@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NoesisSample_Blend
+namespace common
 {
     /// <summary>
     /// Interaction logic for MainMenu.xaml

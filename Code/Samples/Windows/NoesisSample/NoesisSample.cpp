@@ -14,12 +14,28 @@
 #include "MainMenuViewModel.h"
 #include "ClickMoveBehavior.h"
 
+#include <NsCore/ReflectionImplement.h>
 #include <NsApp/EmbeddedXamlProvider.h>
 #include <NsCore/RegisterComponent.h>
 #include <NsGui/IntegrationAPI.h>
+#include <NsGui/UserControl.h>
 
 #include "x64/Debug/MainMenu.xaml.bin.h"
 #include "x64/Debug/SampleDictionary.xaml.bin.h"
+
+
+class MainMenu : public Noesis::UserControl
+{
+public:
+    MainMenu() {}
+    //
+    ~MainMenu() {}
+    //
+    NS_IMPLEMENT_INLINE_REFLECTION(MainMenu, UserControl, "common.MainMenu")
+    {
+        NS_UNUSED(helper);
+    }
+};
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
@@ -62,6 +78,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             }
         };
 
+        Noesis::RegisterComponent<MainMenu>();
         Noesis::RegisterComponent<MainMenuViewModel>();
         Noesis::RegisterComponent<ClickMoveBehavior>();
         NoesisApp::EmbeddedXaml xamls[] =
