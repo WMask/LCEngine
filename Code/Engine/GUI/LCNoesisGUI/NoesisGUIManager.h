@@ -11,14 +11,13 @@
 
 // copy NoesisGUI code to LCEngine/Code/Engine/GUI/NoesisGUI
 #include <NsGui/XamlProvider.h>
-#include <NsGui/IView.h>
 
 #pragma warning(disable : 4251)
 
 
 /**
 * Noesis GUI manager */
-class NOESISGUI_API LcNoesisGuiManager : public INoesisGuiManager
+class LcNoesisGuiManager : public INoesisGuiManager
 {
 public:
 	/**
@@ -38,7 +37,10 @@ public: // IGuiManager interface implementation
 	virtual ~LcNoesisGuiManager() override;
 	/**
 	* Init GUI manager */
-	virtual void Init(LcSize viewportSize) override;
+	virtual void Init(void* window, LcSize viewportSize) override;
+	/**
+	* Render GUI */
+	virtual void Render();
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override;
@@ -47,8 +49,12 @@ public: // IGuiManager interface implementation
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
 	//
+	std::shared_ptr<class LcNoesisRenderContextD3D10> context;
+	//
 	LcSize viewportSize;
 	//
 	bool isInit;
+	//
+	friend NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory(INoesisGuiManager* gui);
 
 };

@@ -10,6 +10,8 @@
 
 #include <NsGui/IntegrationAPI.h>
 #include <NsApp/Interaction.h>
+#include <NsGui/IRenderer.h>
+#include <NsRender/RenderContext.h>
 
 
 Noesis::Key MapKeyboardKeys(int btn)
@@ -26,6 +28,24 @@ Noesis::MouseButton MapMouseKeys(LcMouseBtn btn)
     }
 
     return Noesis::MouseButton_Left;
+}
+
+
+LcNoesisWidget::LcNoesisWidget(LcWidgetData inWidget, class NoesisApp::RenderContext* inContext)
+    : widget(inWidget)
+    , context(inContext)
+    , deviceSet(false)
+{
+}
+
+LcNoesisWidget::~LcNoesisWidget()
+{
+    if (deviceSet && view)
+    {
+        deviceSet = false;
+        view->GetRenderer()->Shutdown();
+        view.Reset();
+    }
 }
 
 void LcNoesisWidget::OnKeyboard(int btn, LcKeyState state)
@@ -65,9 +85,36 @@ void LcNoesisWidget::OnMouseMove(int x, int y)
     if (view) view->MouseMove(x, y);
 }
 
+void LcNoesisWidget::Update(float DeltaSeconds)
+{
+    if (view && deviceSet) view->Update(DeltaSeconds);
+}
+
+void LcNoesisWidget::PreRender()
+{
+    if (view)
+    {
+        if (context && context->GetDevice() && !deviceSet)
+        {
+            deviceSet = true;
+            view->GetRenderer()->Init(context->GetDevice());
+        }
+
+        if (deviceSet && view->GetRenderer()->UpdateRenderTree())
+        {
+            view->GetRenderer()->RenderOffscreen();
+        }
+    }
+}
+
+void LcNoesisWidget::PostRender()
+{
+    if (view) view->GetRenderer()->Render();
+}
+
 std::shared_ptr<IWidget> LcNoesisWidgetFactory::Build(const LcWidgetData& data)
 {
-    LcNoesisWidget* newWidget = new LcNoesisWidget(data);
+    LcNoesisWidget* newWidget = new LcNoesisWidget(data, context);
     std::shared_ptr<IWidget> newWidgetPtr(newWidget);
 
     if (newWidget->control = Noesis::GUI::LoadXaml<Noesis::UserControl>(data.name.c_str()))
@@ -82,9 +129,4 @@ std::shared_ptr<IWidget> LcNoesisWidgetFactory::Build(const LcWidgetData& data)
     }
 
     return newWidgetPtr;
-}
-
-IWidgetFactoryPtr GetWidgetFactory()
-{
-    return IWidgetFactoryPtr(new LcNoesisWidgetFactory());
 }

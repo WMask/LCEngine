@@ -43,4 +43,4 @@ NOESISGUI_API INoesisGuiManagerPtr GetGuiManager();
 
 /**
 * Get Noesis widget factory */
-NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory();
+NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory(INoesisGuiManager* gui);

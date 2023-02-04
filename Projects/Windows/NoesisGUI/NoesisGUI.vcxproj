@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\GUI\NoesisGUI\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\GUI\NoesisGUI\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\GUI\NoesisGUI\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\App\Providers\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\Render\RenderContext\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;GUI.lib;World.lib;Noesis.lib;NoesisApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;GUI.lib;World.lib;Noesis.lib;NoesisApp.lib;D3D10.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,13 +146,17 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisGUIManager.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.h" />
     <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisGUIManager.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

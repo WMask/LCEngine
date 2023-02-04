@@ -89,13 +89,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto guiManager = GetGuiManager();
         guiManager->NoesisInit(*new NoesisApp::EmbeddedXamlProvider(xamls), "SampleDictionary.xaml");
 
-        world->SetWidgetFactory(GetWidgetFactory());
+        world->SetWidgetFactory(GetWidgetFactory(guiManager.get()));
         auto widget = world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3::Zero()));
         widget->SetActive(true);
 
-        auto render = GetRenderSystem();
-        render->LoadShaders("../../../Shaders/HLSL/");
-        app->SetRenderSystem(std::move(render));
         app->SetGuiManager(std::move(guiManager));
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);

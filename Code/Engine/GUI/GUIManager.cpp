@@ -9,6 +9,39 @@
 #include "World/Module.h"
 
 
+void IGuiManager::Update(float DeltaSeconds)
+{
+    auto world = GetWorld();
+    auto& widgetList = world->GetWidgets();
+
+    for (auto& widget : widgetList)
+    {
+        if (widget->IsVisible()) widget->Update(DeltaSeconds);
+    }
+}
+
+void IGuiManager::PreRender()
+{
+    auto world = GetWorld();
+    auto& widgetList = world->GetWidgets();
+
+    for (auto& widget : widgetList)
+    {
+        if (widget->IsVisible()) widget->PreRender();
+    }
+}
+
+void IGuiManager::PostRender()
+{
+    auto world = GetWorld();
+    auto& widgetList = world->GetWidgets();
+
+    for (auto& widget : widgetList)
+    {
+        if (widget->IsVisible()) widget->PostRender();
+    }
+}
+
 void IGuiManager::OnKeyboard(int btn, LcKeyState state)
 {
     auto world = GetWorld();

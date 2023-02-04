@@ -20,7 +20,13 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(LcSize viewportSize) = 0;
+	virtual void Init(void* window, LcSize viewportSize) = 0;
+	/**
+	* Update GUI */
+	virtual void Update(float DeltaSeconds);
+	/**
+	* Render GUI */
+	virtual void Render() = 0;
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() = 0;
@@ -33,5 +39,14 @@ public:
 	/**
 	* Mouse move event */
 	virtual void OnMouseMove(int x, int y);
+
+
+protected:
+	/**
+	* Render GUI */
+	virtual void PreRender();
+	/**
+	* Render GUI */
+	virtual void PostRender();
 
 };

@@ -106,7 +106,7 @@ void LcWindowsApplication::Run()
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     if (renderSystem) renderSystem->Create(hWnd, windowSize, true);
-    if (guiManager) guiManager->Init(windowSize);
+    if (guiManager) guiManager->Init(hWnd, windowSize);
 
 	prevTick = GetTickCount64();
     MSG msg;
@@ -140,6 +140,12 @@ void LcWindowsApplication::OnUpdate()
         {
             renderSystem->Update(deltaSeconds);
             renderSystem->Render();
+        }
+
+        if (guiManager)
+        {
+            guiManager->Update(deltaSeconds);
+            guiManager->Render();
         }
 
         if (updateHandler) updateHandler(deltaSeconds);

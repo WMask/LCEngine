@@ -14,12 +14,14 @@
 #include <NsGui/IView.h>
 
 
+namespace NoesisApp { class RenderContext; }
+
 class LcNoesisWidget : public IWidget
 {
 public:
-    LcNoesisWidget(LcWidgetData inWidget) : widget(inWidget) {}
+    LcNoesisWidget(LcWidgetData inWidget, class NoesisApp::RenderContext* inContext);
     //
-    ~LcNoesisWidget() {}
+    ~LcNoesisWidget();
     //
     LcWidgetData widget;
     //
@@ -28,6 +30,10 @@ public:
     Noesis::Ptr<Noesis::UserControl> control;
     //
     Noesis::Ptr<Noesis::IView> view;
+    //
+    class NoesisApp::RenderContext* context;
+    //
+    bool deviceSet;
 
 
 public: // IWidget interface implementation
@@ -37,6 +43,12 @@ public: // IWidget interface implementation
 
 
 public: // IVisual interface implementation
+    virtual void Update(float DeltaSeconds);
+    //
+    virtual void PreRender();
+    //
+    virtual void PostRender();
+    //
     virtual void SetSize(LcSizef inSize) override { if (view) view->SetSize((uint32_t)inSize.x(), (uint32_t)inSize.y()); size = inSize; }
     //
     virtual LcSizef GetSize() const override { return size; }
@@ -71,8 +83,12 @@ public: // IVisual interface implementation
 class LcNoesisWidgetFactory : public TWorldFactory<IWidget, LcWidgetData>
 {
 public:
-    LcNoesisWidgetFactory() {}
+    LcNoesisWidgetFactory(class NoesisApp::RenderContext* inContext) : context(inContext) {}
     //
     virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override;
+
+
+protected:
+    class NoesisApp::RenderContext* context;
 
 };

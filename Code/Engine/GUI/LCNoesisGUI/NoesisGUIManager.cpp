@@ -6,6 +6,9 @@
 
 #include "pch.h"
 #include "GUI/LCNoesisGUI/NoesisGUIManager.h"
+#include "GUI/LCNoesisGUI/NoesisRenderContextD3D10.h"
+#include "GUI/LCNoesisGUI/NoesisRenderDeviceD3D10.h"
+#include "GUI/LCNoesisGUI/NoesisWidget.h"
 #include "Core/LCUtils.h"
 
 #include <NsGui/IntegrationAPI.h>
@@ -16,6 +19,7 @@
 
 LcNoesisGuiManager::LcNoesisGuiManager()
 {
+    context.reset(new LcNoesisRenderContextD3D10());
     isInit = false;
 }
 
@@ -56,9 +60,27 @@ void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, 
     isInit = true;
 }
 
-void LcNoesisGuiManager::Init(LcSize inViewportSize)
+void LcNoesisGuiManager::Init(void* window, LcSize inViewportSize)
 {
     viewportSize = inViewportSize;
+
+    uint32_t samples;
+    context->Init(window, samples, true, false);
+    context->Resize();
+    context->SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+void LcNoesisGuiManager::Render()
+{
+    if (!context) return;
+
+    PreRender();
+
+    context->SetDefaultRenderTarget(0, 0, true);
+
+    PostRender();
+
+    context->Swap();
 }
 
 void LcNoesisGuiManager::Shutdown()
@@ -69,10 +91,22 @@ void LcNoesisGuiManager::Shutdown()
 
     xamlProvider.Reset();
 
+    if (context)
+    {
+        context->Shutdown();
+        context.reset();
+    }
+
     Noesis::GUI::Shutdown(); // default memory leak is 4112 bytes
 }
 
 INoesisGuiManagerPtr GetGuiManager()
 {
     return INoesisGuiManagerPtr(new LcNoesisGuiManager());
+}
+
+IWidgetFactoryPtr GetWidgetFactory(INoesisGuiManager* gui)
+{
+    LcNoesisGuiManager* guiManager = (LcNoesisGuiManager*)gui;
+    return IWidgetFactoryPtr(new LcNoesisWidgetFactory(guiManager->context.get()));
 }

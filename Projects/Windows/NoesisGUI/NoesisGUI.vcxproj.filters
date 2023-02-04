@@ -36,6 +36,12 @@
     <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.h">
       <Filter>Header Files\NoesisGUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.h">
+      <Filter>Header Files\NoesisGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.h">
+      <Filter>Header Files\NoesisGUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -48,6 +54,12 @@
       <Filter>Source Files\NoesisGUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.cpp">
+      <Filter>Source Files\NoesisGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.cpp">
+      <Filter>Source Files\NoesisGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.cpp">
       <Filter>Source Files\NoesisGUI</Filter>
     </ClCompile>
   </ItemGroup>

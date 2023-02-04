@@ -18,6 +18,15 @@ public:
 	* Virtual destructor */
 	virtual ~IVisual() {}
 	/**
+	* Update visual */
+	virtual void Update(float DeltaSeconds) {}
+	/**
+	* Render visual */
+	virtual void PreRender() {}
+	/**
+	* Render visual */
+	virtual void PostRender() {}
+	/**
 	* Visual size in pixels */
 	virtual void SetSize(LcSizef size) = 0;
 	/**
