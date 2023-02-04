@@ -19,11 +19,8 @@ namespace common
 {
     public partial class ClickMoveBehavior : Behavior<FrameworkElement>
     {
-        public static readonly DependencyProperty MoveTargetProperty;
-
-        static ClickMoveBehavior()
+        public ClickMoveBehavior()
         {
-            MoveTargetProperty = DependencyProperty.Register("MoveTarget", typeof(FrameworkElement), typeof(ClickMoveBehavior));
         }
 
         protected override void OnAttached()
@@ -40,17 +37,9 @@ namespace common
 
         private void AssociatedObject_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (MoveTarget != null)
-            {
-                MoveTarget.SetValue(Canvas.LeftProperty, e.GetPosition(AssociatedObject).X);
-                MoveTarget.SetValue(Canvas.TopProperty, e.GetPosition(AssociatedObject).Y);
-            }
-        }
-
-        public FrameworkElement MoveTarget
-        {
-            get { return (FrameworkElement)GetValue(MoveTargetProperty); }
-            set { SetValue(MoveTargetProperty, value); }
+            MainMenuViewModel dataContext = (MainMenuViewModel)AssociatedObject.DataContext;
+            dataContext.PosX = e.GetPosition(AssociatedObject).X;
+            dataContext.PosY = e.GetPosition(AssociatedObject).Y;
         }
     }
 }

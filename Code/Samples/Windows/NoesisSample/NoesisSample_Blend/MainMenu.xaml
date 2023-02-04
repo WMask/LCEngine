@@ -12,7 +12,7 @@
     <Grid>
         <Rectangle Fill="{StaticResource GreenBrush}" Margin="100">
             <b:Interaction.Behaviors>
-                <common:ClickMoveBehavior MoveTarget="{Binding ElementName=RedBox}" />
+                <common:ClickMoveBehavior />
             </b:Interaction.Behaviors>
         </Rectangle>
         <Canvas Margin="100">

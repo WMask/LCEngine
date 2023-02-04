@@ -19,11 +19,6 @@ class ClickMoveBehavior final : public NoesisApp::BehaviorT<Noesis::FrameworkEle
 public:
     ClickMoveBehavior() {}
     ~ClickMoveBehavior() {}
-    Noesis::FrameworkElement* GetMoveTarget() const;
-
-
-public:
-    static const Noesis::DependencyProperty* MoveTargetProperty;
 
 
 protected:
@@ -31,10 +26,6 @@ protected:
     virtual void OnDetaching() override;
     virtual Noesis::Ptr<Noesis::Freezable> CreateInstanceCore() const;
     void OnMouseLeftButtonDown(BaseComponent*, const Noesis::MouseButtonEventArgs&);
-
-
-protected:
-    bool OnPropertyChanged(const Noesis::DependencyPropertyChangedEventArgs& e);
 
 
 private:
