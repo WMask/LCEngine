@@ -12,6 +12,7 @@
 #include <NsApp/Interaction.h>
 #include <NsGui/IRenderer.h>
 #include <NsRender/RenderContext.h>
+#include <NsRender/RenderDevice.h>
 
 
 Noesis::Key MapKeyboardKeys(int btn)
@@ -97,7 +98,9 @@ void LcNoesisWidget::PreRender()
         if (context && context->GetDevice() && !deviceSet)
         {
             deviceSet = true;
+            size = LcSizef(context->GetDevice()->GetOffscreenWidth(), context->GetDevice()->GetOffscreenHeight());
             view->GetRenderer()->Init(context->GetDevice());
+            view->SetSize((uint32_t)size.x(), (uint32_t)size.y());
         }
 
         if (deviceSet && view->GetRenderer()->UpdateRenderTree())
@@ -121,7 +124,6 @@ std::shared_ptr<IWidget> LcNoesisWidgetFactory::Build(const LcWidgetData& data)
     {
         newWidget->view = Noesis::GUI::CreateView(newWidget->control);
         newWidget->view->SetFlags(Noesis::RenderFlags_PPAA | Noesis::RenderFlags_LCD);
-        newWidget->SetSize(LcSizef(newWidget->control->GetWidth(), newWidget->control->GetHeight()));
     }
     else
     {

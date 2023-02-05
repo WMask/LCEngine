@@ -5,7 +5,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:common ="clr-namespace:common"
-      mc:Ignorable="d" Width="800" Height="600">
+      mc:Ignorable="d" Width="800" Height="600"
+      HorizontalAlignment="Left" VerticalAlignment="Top">
     <UserControl.DataContext>
         <common:MainMenuViewModel />
     </UserControl.DataContext>

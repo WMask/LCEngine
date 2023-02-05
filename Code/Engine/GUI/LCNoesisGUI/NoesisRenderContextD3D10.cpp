@@ -78,6 +78,13 @@ void LcNoesisRenderContextD3D10::Init(void* window, uint32_t& samples, bool vsyn
 
     mVSync = vsync;
     mRenderer = *new LcNoesisRenderDeviceD3D10(mDevice, sRGB);
+
+    DXGI_SWAP_CHAIN_DESC desc;
+    if (SUCCEEDED(mSwapChain->GetDesc(&desc)))
+    {
+        mRenderer->SetOffscreenWidth(desc.BufferDesc.Width);
+        mRenderer->SetOffscreenHeight(desc.BufferDesc.Height);
+    }
 }
 
 void LcNoesisRenderContextD3D10::Shutdown()
@@ -299,7 +306,7 @@ void LcNoesisRenderContextD3D10::CreateSwapChain(void* window, uint32_t& samples
     desc.BufferDesc.Height = 0;
     desc.BufferDesc.RefreshRate.Numerator = 0;
     desc.BufferDesc.RefreshRate.Denominator = 0;
-    desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.BufferDesc.Format = mRenderTargetFormat;
     desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
     desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
     desc.SampleDesc.Count = 1;

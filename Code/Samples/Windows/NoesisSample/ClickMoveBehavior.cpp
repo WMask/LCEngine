@@ -10,6 +10,7 @@
 
 #include <NsGui/DependencyData.h>
 #include <NsGui/Canvas.h>
+#include <NsDrawing/Thickness.h>
 
 
 Noesis::Ptr<Noesis::Freezable> ClickMoveBehavior::CreateInstanceCore() const
@@ -40,8 +41,9 @@ void ClickMoveBehavior::OnMouseLeftButtonDown(BaseComponent*, const Noesis::Mous
         MainMenuViewModel* viewModel = Noesis::DynamicCast<MainMenuViewModel*>(obj->GetDataContext());
         if (viewModel)
         {
-            viewModel->SetPosX(args.position.x);
-            viewModel->SetPosY(args.position.y);
+            auto margin = obj->GetMargin();
+            viewModel->SetPosX(args.position.x - margin.left);
+            viewModel->SetPosY(args.position.y - margin.top);
         }
     }
 }

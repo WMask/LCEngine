@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:common="clr-namespace:common"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800">
+        mc:Ignorable="d" Title="MainWindow"
+        Width="1024" Height="768" Background="Blue">
     <common:MainMenu />
 </Window>

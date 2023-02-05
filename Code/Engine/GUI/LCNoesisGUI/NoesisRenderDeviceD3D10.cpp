@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "GUI/LCNoesisGUI/NoesisRenderDeviceD3D10.h"
+#include "Core/LCUtils.h"
 
 #include <NsCore/Log.h>
 #include <NsCore/Ptr.h>
@@ -18,6 +19,7 @@
 #include <NsApp/FastLZ.h>
 
 #include <stdio.h>
+#include <vector>
 
 
 using namespace Noesis;
@@ -1049,59 +1051,72 @@ void LcNoesisRenderDeviceD3D10::DestroyStateObjects()
 }
 
 void LcNoesisRenderDeviceD3D10::CreateShaders()
-{/*
-    uint8_t* shaders = (uint8_t*)Alloc(FastLZ::DecompressBufferSize(Shaders));
-    FastLZ::Decompress(Shaders, sizeof(Shaders), shaders);
-
-#define SHADER(n) shaders + n##_Start, n##_Size
-#define VSHADER(n) case Shader::Vertex::n: return ShaderVS { #n, SHADER(n##_VS) };
-#define VSHADER_SRGB(n) case Shader::Vertex::n: return sRGB ? \
-    ShaderVS{ #n, SHADER(n##_SRGB_VS) } : ShaderVS{ #n, SHADER(n##_VS) };
-
+{
     struct ShaderVS
     {
-        const char* label;
         const BYTE* code;
         uint32_t size;
     };
 
-    auto vsShaders = [&](uint32_t shader, bool sRGB)
+    auto vsShaders = [&](uint32_t shader)
     {
+        ShaderVS vsShader{0};
+        vsShader.code = (BYTE*)"struct In {float2 pos: POSITION;}; struct Out {float4 pos: SV_POSITION;}; cbuffer Cb0: register(b0) {float4x4 m;} void main(in In i, out Out o) {o.pos = mul(float4(i.pos, 0, 1), m);}";
+
         switch (shader)
         {
-            VSHADER(Pos)
-            VSHADER_SRGB(PosColor)
-            VSHADER(PosTex0)
-            VSHADER(PosTex0Rect)
-            VSHADER(PosTex0RectTile)
-            VSHADER_SRGB(PosColorCoverage)
-            VSHADER(PosTex0Coverage)
-            VSHADER(PosTex0CoverageRect)
-            VSHADER(PosTex0CoverageRectTile)
-            VSHADER_SRGB(PosColorTex1_SDF)
-            VSHADER(PosTex0Tex1_SDF)
-            VSHADER(PosTex0Tex1Rect_SDF)
-            VSHADER(PosTex0Tex1RectTile_SDF)
-            VSHADER_SRGB(PosColorTex1)
-            VSHADER(PosTex0Tex1)
-            VSHADER(PosTex0Tex1Rect)
-            VSHADER(PosTex0Tex1RectTile)
-            VSHADER_SRGB(PosColorTex0Tex1)
-            VSHADER(PosTex0Tex1_Downsample)
-            VSHADER_SRGB(PosColorTex1Rect)
-            VSHADER_SRGB(PosColorTex0RectImagePos)
-
-            default: NS_ASSERT_UNREACHABLE;
+        case Noesis::Shader::Vertex::Pos:
+        case Noesis::Shader::Vertex::PosColor:
+        case Noesis::Shader::Vertex::PosTex0:
+        case Noesis::Shader::Vertex::PosTex0Rect:
+        case Noesis::Shader::Vertex::PosTex0RectTile:
+            break;
+        case Noesis::Shader::Vertex::PosColorCoverage:
+            vsShader.code = (BYTE*)"struct In {float2 pos: POSITION; half4 clr: COLOR; half cv: COVERAGE;}; struct Out {float4 pos: SV_POSITION; nointerpolation half4 clr: COLOR; half cv: COVERAGE;}; cbuffer Cb0: register(b0) {float4x4 m;} void main(in In i, out Out o) {o.pos = mul(float4(i.pos, 0, 1), m); o.clr = i.clr; o.cv = i.cv;}";
+            break;
+        case Noesis::Shader::Vertex::PosTex0Coverage:
+        case Noesis::Shader::Vertex::PosTex0CoverageRect:
+        case Noesis::Shader::Vertex::PosTex0CoverageRectTile:
+        case Noesis::Shader::Vertex::PosColorTex1_SDF:
+        case Noesis::Shader::Vertex::PosTex0Tex1_SDF:
+        case Noesis::Shader::Vertex::PosTex0Tex1Rect_SDF:
+        case Noesis::Shader::Vertex::PosTex0Tex1RectTile_SDF:
+        case Noesis::Shader::Vertex::PosColorTex1:
+        case Noesis::Shader::Vertex::PosTex0Tex1:
+        case Noesis::Shader::Vertex::PosTex0Tex1Rect:
+        case Noesis::Shader::Vertex::PosTex0Tex1RectTile:
+        case Noesis::Shader::Vertex::PosColorTex0Tex1:
+        case Noesis::Shader::Vertex::PosTex0Tex1_Downsample:
+        case Noesis::Shader::Vertex::PosColorTex1Rect:
+        case Noesis::Shader::Vertex::PosColorTex0RectImagePos:
+            break;
         }
+
+        if (vsShader.code != 0) vsShader.size = (uint32_t)strlen((char*)vsShader.code);
+        return vsShader;
     };
 
     memset(mLayouts, 0, sizeof(mLayouts));
+    std::vector<char> shCompiled;
 
     for (uint32_t i = 0; i < Shader::Vertex::Count; i++)
     {
-        const ShaderVS& vsShader = vsShaders(i, mCaps.linearRendering);
-        V(mDevice->CreateVertexShader(vsShader.code, vsShader.size, 0, &mVertexShaders[i].shader));
-        DX_NAME(mVertexShaders[i].shader, "Noesis_%s", vsShader.label);
+        ShaderVS vsShader = vsShaders(i);
+
+        ID3D10Blob* vertexBlob;
+        if (FAILED(D3D10CompileShader((LPCSTR)vsShader.code, vsShader.size, NULL, NULL, NULL, "main", "vs_4_0", 0, &vertexBlob, NULL)))
+        {
+            throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile vertex shader");
+        }
+
+        shCompiled.resize(vertexBlob->GetBufferSize());
+        memcpy(shCompiled.data(), vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize());
+        vertexBlob->Release();
+
+        if (FAILED(mDevice->CreateVertexShader(shCompiled.data(), shCompiled.size(), &mVertexShaders[i].shader)))
+        {
+            throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create vertex shader");
+        }
 
         uint32_t format = FormatForVertex[i];
         NS_ASSERT(format < NS_COUNTOF(mLayouts));
@@ -1109,127 +1124,184 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         if (mLayouts[format] == 0)
         {
             uint32_t attributes = AttributesForFormat[format];
-            mLayouts[format] = CreateLayout(attributes, vsShader.code, vsShader.size);
-            DX_NAME(mLayouts[format], "Noesis_%sL", vsShader.label);
+            mLayouts[format] = CreateLayout(attributes, shCompiled.data(), (uint32_t)shCompiled.size());
         }
 
         mVertexShaders[i].layout = mLayouts[format];
         mVertexShaders[i].stride = SizeForFormat[format];
     }
 
-#define PSHADER(n) case Shader::n: return ShaderPS { #n, SHADER(n##_PS) };
-
     struct ShaderPS
     {
-        const char* label;
         const BYTE* code;
         uint32_t size;
     };
 
     auto psShaders = [&](uint32_t shader)
     {
+        ShaderPS psShader{0};
+
         switch (shader)
         {
-            PSHADER(RGBA)
-            PSHADER(Mask)
-            PSHADER(Clear)
+        case Noesis::Shader::RGBA:
+        case Noesis::Shader::Mask:
+        case Noesis::Shader::Clear:
 
-            PSHADER(Path_Solid)
-            PSHADER(Path_Linear)
-            PSHADER(Path_Radial)
-            PSHADER(Path_Pattern)
-            PSHADER(Path_Pattern_Clamp)
-            PSHADER(Path_Pattern_Repeat)
-            PSHADER(Path_Pattern_MirrorU)
-            PSHADER(Path_Pattern_MirrorV)
-            PSHADER(Path_Pattern_Mirror)
+        case Noesis::Shader::Path_Solid:
+        case Noesis::Shader::Path_Linear:
+        case Noesis::Shader::Path_Radial:
+        case Noesis::Shader::Path_Pattern:
+        case Noesis::Shader::Path_Pattern_Clamp:
+        case Noesis::Shader::Path_Pattern_Repeat:
+        case Noesis::Shader::Path_Pattern_MirrorU:
+        case Noesis::Shader::Path_Pattern_MirrorV:
+        case Noesis::Shader::Path_Pattern_Mirror:
 
-            PSHADER(Path_AA_Solid)
-            PSHADER(Path_AA_Linear)
-            PSHADER(Path_AA_Radial)
-            PSHADER(Path_AA_Pattern)
-            PSHADER(Path_AA_Pattern_Clamp)
-            PSHADER(Path_AA_Pattern_Repeat)
-            PSHADER(Path_AA_Pattern_MirrorU)
-            PSHADER(Path_AA_Pattern_MirrorV)
-            PSHADER(Path_AA_Pattern_Mirror)
+        case Noesis::Shader::Path_AA_Solid:
+        case Noesis::Shader::Path_AA_Linear:
+        case Noesis::Shader::Path_AA_Radial:
+        case Noesis::Shader::Path_AA_Pattern:
+        case Noesis::Shader::Path_AA_Pattern_Clamp:
+        case Noesis::Shader::Path_AA_Pattern_Repeat:
+        case Noesis::Shader::Path_AA_Pattern_MirrorU:
+        case Noesis::Shader::Path_AA_Pattern_MirrorV:
+        case Noesis::Shader::Path_AA_Pattern_Mirror:
 
-            PSHADER(SDF_Solid)
-            PSHADER(SDF_Linear)
-            PSHADER(SDF_Radial)
-            PSHADER(SDF_Pattern)
-            PSHADER(SDF_Pattern_Clamp)
-            PSHADER(SDF_Pattern_Repeat)
-            PSHADER(SDF_Pattern_MirrorU)
-            PSHADER(SDF_Pattern_MirrorV)
-            PSHADER(SDF_Pattern_Mirror)
+        case Noesis::Shader::SDF_Solid:
+        case Noesis::Shader::SDF_Linear:
+        case Noesis::Shader::SDF_Radial:
+        case Noesis::Shader::SDF_Pattern:
+        case Noesis::Shader::SDF_Pattern_Clamp:
+        case Noesis::Shader::SDF_Pattern_Repeat:
+        case Noesis::Shader::SDF_Pattern_MirrorU:
+        case Noesis::Shader::SDF_Pattern_MirrorV:
+        case Noesis::Shader::SDF_Pattern_Mirror:
 
-            PSHADER(SDF_LCD_Solid)
-            PSHADER(SDF_LCD_Linear)
-            PSHADER(SDF_LCD_Radial)
-            PSHADER(SDF_LCD_Pattern)
-            PSHADER(SDF_LCD_Pattern_Clamp)
-            PSHADER(SDF_LCD_Pattern_Repeat)
-            PSHADER(SDF_LCD_Pattern_MirrorU)
-            PSHADER(SDF_LCD_Pattern_MirrorV)
-            PSHADER(SDF_LCD_Pattern_Mirror)
+        case Noesis::Shader::SDF_LCD_Solid:
+        case Noesis::Shader::SDF_LCD_Linear:
+        case Noesis::Shader::SDF_LCD_Radial:
+        case Noesis::Shader::SDF_LCD_Pattern:
+        case Noesis::Shader::SDF_LCD_Pattern_Clamp:
+        case Noesis::Shader::SDF_LCD_Pattern_Repeat:
+        case Noesis::Shader::SDF_LCD_Pattern_MirrorU:
+        case Noesis::Shader::SDF_LCD_Pattern_MirrorV:
+        case Noesis::Shader::SDF_LCD_Pattern_Mirror:
 
-            PSHADER(Opacity_Solid)
-            PSHADER(Opacity_Linear)
-            PSHADER(Opacity_Radial)
-            PSHADER(Opacity_Pattern)
-            PSHADER(Opacity_Pattern_Clamp)
-            PSHADER(Opacity_Pattern_Repeat)
-            PSHADER(Opacity_Pattern_MirrorU)
-            PSHADER(Opacity_Pattern_MirrorV)
-            PSHADER(Opacity_Pattern_Mirror)
+        case Noesis::Shader::Opacity_Solid:
+        case Noesis::Shader::Opacity_Linear:
+        case Noesis::Shader::Opacity_Radial:
+        case Noesis::Shader::Opacity_Pattern:
+        case Noesis::Shader::Opacity_Pattern_Clamp:
+        case Noesis::Shader::Opacity_Pattern_Repeat:
+        case Noesis::Shader::Opacity_Pattern_MirrorU:
+        case Noesis::Shader::Opacity_Pattern_MirrorV:
+        case Noesis::Shader::Opacity_Pattern_Mirror:
 
-            PSHADER(Upsample)
-            PSHADER(Downsample)
+        case Noesis::Shader::Upsample:
+        case Noesis::Shader::Downsample:
 
-            PSHADER(Shadow)
-            PSHADER(Blur)
-
-            default: return ShaderPS{};
+        case Noesis::Shader::Shadow:
+        case Noesis::Shader::Blur:
+        case Noesis::Shader::Custom_Effect:
+            psShader.code = (BYTE*)"struct In {float4 pos: SV_POSITION; nointerpolation half4 clr: COLOR; half cv: COVERAGE;}; struct Out {half4 clr: SV_TARGET0;}; Out main(in In i) {Out o; o.clr = (1.0 * i.cv) * i.clr; return o;}";
+            break;
         }
+
+        if (psShader.code != 0) psShader.size = (uint32_t)strlen((char*)psShader.code);
+        return psShader;
     };
 
     for (uint32_t i = 0; i < Shader::Count; i++)
     {
-        const ShaderPS& psShader = psShaders(i);
+        ShaderPS psShader = psShaders(i);
 
-        mPixelShaders[i].shader = nullptr;
-
-        if (psShader.label != nullptr)
+        ID3D10Blob* pixelBlob;
+        if (FAILED(D3D10CompileShader((LPCSTR)psShader.code, psShader.size, NULL, NULL, NULL, "main", "ps_4_0", 0, &pixelBlob, 0)))
         {
-            V(mDevice->CreatePixelShader(psShader.code, psShader.size, 0, &mPixelShaders[i].shader));
-            DX_NAME(mPixelShaders[i].shader, "Noesis_%s", psShader.label);
+            throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile pixel shader");
+        }
+
+        shCompiled.resize(pixelBlob->GetBufferSize());
+        memcpy(shCompiled.data(), pixelBlob->GetBufferPointer(), pixelBlob->GetBufferSize());
+        pixelBlob->Release();
+
+        if (FAILED(mDevice->CreatePixelShader(shCompiled.data(), shCompiled.size(), &mPixelShaders[i].shader)))
+        {
+            throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create pixel shader");
         }
 
         mPixelShaders[i].vsShader = VertexForShader[i];
     }
 
-    V(mDevice->CreateVertexShader(SHADER(Quad_VS), 0, &mQuadVS));
-    DX_NAME(mQuadVS, "Noesis_Quad_VS");
+    ID3D10Blob* shBlob;
+    const char* quadVS = "float4 main(in uint id: SV_VertexID): SV_Position {float4 o = 0.0f; if(id == 0) {o = float4(-1.0f, 1.0f, 1.0f, 1.0f);} else if(id == 1) {o = float4(3.0f, 1.0f, 1.0f, 1.0f);} else {o = float4(-1.0f, -3.0f, 1.0f, 1.0f);} return o;}";
+    if (FAILED(D3D10CompileShader((LPCSTR)quadVS, strlen(quadVS), NULL, NULL, NULL, "main", "vs_4_0", 0, &shBlob, 0)))
+    {
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile Quad_VS shader");
+    }
 
-    V(mDevice->CreatePixelShader(SHADER(Resolve2_PS), 0, &mResolvePS[0]));
-    DX_NAME(mResolvePS[0], "Noesis_Resolve2_PS");
+    if (FAILED(mDevice->CreateVertexShader(shBlob->GetBufferPointer(), shBlob->GetBufferSize(), &mQuadVS)))
+    {
+        shBlob->Release();
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create Quad_VS shader");
+    }
 
-    V(mDevice->CreatePixelShader(SHADER(Resolve4_PS), 0, &mResolvePS[1]));
-    DX_NAME(mResolvePS[1], "Noesis_Resolve4_PS");
+    shBlob->Release();
+    char resolvePS[1024];
+    const char* resolve = "Texture2DMS<float4, %d> t; float4 main(in float4 pos: SV_Position): SV_Target {float4 o = 0.0f; [unroll]for (int s = 0; s < %d; s++) {o += t.Load(pos.xy, s);} return o / %d;}";
 
-    V(mDevice->CreatePixelShader(SHADER(Resolve8_PS), 0, &mResolvePS[2]));
-    DX_NAME(mResolvePS[2], "Noesis_Resolve8_PS");
+    sprintf_s(resolvePS, resolve, 2);
+    if (FAILED(D3D10CompileShader(resolvePS, strlen(resolvePS), NULL, NULL, NULL, "main", "ps_4_0", 0, &shBlob, 0)))
+    {
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile Resolve2_PS shader");
+    }
 
-    V(mDevice->CreatePixelShader(SHADER(Resolve16_PS), 0, &mResolvePS[3]));
-    DX_NAME(mResolvePS[3], "Noesis_Resolve16_PS");
+    if (FAILED(mDevice->CreatePixelShader(shBlob->GetBufferPointer(), shBlob->GetBufferSize(), &mResolvePS[0])))
+    {
+        shBlob->Release();
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create Resolve2_PS shader");
+    }
 
-    Dealloc(shaders);
+    shBlob->Release();
+    sprintf_s(resolvePS, resolve, 4);
+    if (FAILED(D3D10CompileShader(resolvePS, strlen(resolvePS), NULL, NULL, NULL, "main", "ps_4_0", 0, &shBlob, 0)))
+    {
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile Resolve4_PS shader");
+    }
 
-#ifdef NS_PROFILE
-    NS_LOG_TRACE("Shaders compiled in %.0f ms", 1000.0 * HighResTimer::Seconds(
-        HighResTimer::Ticks() - t0));
-#endif*/
+    if (FAILED(mDevice->CreatePixelShader(shBlob->GetBufferPointer(), shBlob->GetBufferSize(), &mResolvePS[1])))
+    {
+        shBlob->Release();
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create Resolve4_PS shader");
+    }
+
+    shBlob->Release();
+    sprintf_s(resolvePS, resolve, 8);
+    if (FAILED(D3D10CompileShader(resolvePS, strlen(resolvePS), NULL, NULL, NULL, "main", "ps_4_0", 0, &shBlob, 0)))
+    {
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile Resolve8_PS shader");
+    }
+
+    if (FAILED(mDevice->CreatePixelShader(shBlob->GetBufferPointer(), shBlob->GetBufferSize(), &mResolvePS[2])))
+    {
+        shBlob->Release();
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create Resolve8_PS shader");
+    }
+
+    shBlob->Release();
+    sprintf_s(resolvePS, resolve, 16);
+    if (FAILED(D3D10CompileShader(resolvePS, strlen(resolvePS), NULL, NULL, NULL, "main", "ps_4_0", 0, &shBlob, 0)))
+    {
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile Resolve16_PS shader");
+    }
+
+    if (FAILED(mDevice->CreatePixelShader(shBlob->GetBufferPointer(), shBlob->GetBufferSize(), &mResolvePS[3])))
+    {
+        shBlob->Release();
+        throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot create Resolve16_PS shader");
+    }
+
+    shBlob->Release();
 }
 
 void LcNoesisRenderDeviceD3D10::DestroyShaders()
