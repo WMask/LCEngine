@@ -89,7 +89,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto guiManager = GetGuiManager();
         guiManager->NoesisInit(*new NoesisApp::EmbeddedXamlProvider(xamls), "SampleDictionary.xaml");
 
-        world->SetWidgetFactory(GetWidgetFactory(guiManager.get()));
+        world->SetWidgetFactory(GetWidgetFactory());
         auto widget = world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3::Zero()));
         widget->SetActive(true);
 

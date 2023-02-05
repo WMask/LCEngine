@@ -33,6 +33,9 @@ class IWidget : public IVisual
 {
 public:
 	/**
+	* Initialize widget */
+	virtual void Init(LcSize viewportSize) = 0;
+	/**
 	* Widget name */
 	virtual const std::string& GetName() const = 0;
 	/**

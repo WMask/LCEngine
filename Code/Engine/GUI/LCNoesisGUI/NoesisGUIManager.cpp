@@ -7,19 +7,19 @@
 #include "pch.h"
 #include "GUI/LCNoesisGUI/NoesisGUIManager.h"
 #include "GUI/LCNoesisGUI/NoesisRenderContextD3D10.h"
-#include "GUI/LCNoesisGUI/NoesisRenderDeviceD3D10.h"
 #include "GUI/LCNoesisGUI/NoesisWidget.h"
 #include "Core/LCUtils.h"
 
+// copy NoesisGUI code to LCEngine/Code/Engine/GUI/NoesisGUI
 #include <NsGui/IntegrationAPI.h>
 #include <NsCore/RegisterComponent.h>
 #include <NsApp/BehaviorCollection.h>
 #include <NsApp/Interaction.h>
 
 
-LcNoesisGuiManager::LcNoesisGuiManager()
+LcNoesisGuiManager::LcNoesisGuiManager(NoesisApp::RenderContext* inContext)
 {
-    context.reset(new LcNoesisRenderContextD3D10());
+    context = inContext;
     isInit = false;
 }
 
@@ -64,10 +64,15 @@ void LcNoesisGuiManager::Init(void* window, LcSize inViewportSize)
 {
     viewportSize = inViewportSize;
 
-    uint32_t samples;
-    context->Init(window, samples, true, false);
-    context->Resize();
-    context->SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+    if (context)
+    {
+        uint32_t samples;
+        context->Init(window, samples, true, false);
+        context->Resize();
+        context->SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+    }
+
+    IGuiManager::Init(window, inViewportSize);
 }
 
 void LcNoesisGuiManager::Render()
@@ -94,7 +99,7 @@ void LcNoesisGuiManager::Shutdown()
     if (context)
     {
         context->Shutdown();
-        context.reset();
+        context = nullptr;
     }
 
     Noesis::GUI::Shutdown(); // default memory leak is 4112 bytes
@@ -102,11 +107,5 @@ void LcNoesisGuiManager::Shutdown()
 
 INoesisGuiManagerPtr GetGuiManager()
 {
-    return INoesisGuiManagerPtr(new LcNoesisGuiManager());
-}
-
-IWidgetFactoryPtr GetWidgetFactory(INoesisGuiManager* gui)
-{
-    LcNoesisGuiManager* guiManager = (LcNoesisGuiManager*)gui;
-    return IWidgetFactoryPtr(new LcNoesisWidgetFactory(guiManager->context.get()));
+    return INoesisGuiManagerPtr(new LcNoesisGuiManager(GetContext()));
 }

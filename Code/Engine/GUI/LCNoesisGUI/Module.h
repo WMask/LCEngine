@@ -9,8 +9,6 @@
 #include "GUI/GUIManager.h"
 #include "World/Module.h"
 
-#include <NsCore/Ptr.h>
-
 
 #ifndef NOESISGUI_EXPORTS
 #define NOESISGUI_API __declspec (dllimport)
@@ -19,7 +17,11 @@
 #endif
 
 
-namespace Noesis { class XamlProvider; }
+namespace Noesis
+{
+	template<class T> class Ptr;
+	class XamlProvider;
+}
 
 
 /**
@@ -29,7 +31,7 @@ class NOESISGUI_API INoesisGuiManager : public IGuiManager
 public:
 	/**
 	* Initialize Noesis */
-	virtual void NoesisInit(Noesis::Ptr<class Noesis::XamlProvider> provider, const std::string& inResources) = 0;
+	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& inResources) = 0;
 
 };
 
@@ -43,4 +45,4 @@ NOESISGUI_API INoesisGuiManagerPtr GetGuiManager();
 
 /**
 * Get Noesis widget factory */
-NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory(INoesisGuiManager* gui);
+NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory();

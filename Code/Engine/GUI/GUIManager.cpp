@@ -9,6 +9,17 @@
 #include "World/Module.h"
 
 
+void IGuiManager::Init(void* window, LcSize viewportSize)
+{
+    auto world = GetWorld();
+    auto& widgetList = world->GetWidgets();
+
+    for (auto& widget : widgetList)
+    {
+        widget->Init(viewportSize);
+    }
+}
+
 void IGuiManager::Update(float DeltaSeconds)
 {
     auto world = GetWorld();

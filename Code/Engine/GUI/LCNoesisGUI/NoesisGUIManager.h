@@ -9,10 +9,14 @@
 #include "Module.h"
 #include "Core/LCTypes.h"
 
-// copy NoesisGUI code to LCEngine/Code/Engine/GUI/NoesisGUI
 #include <NsGui/XamlProvider.h>
 
 #pragma warning(disable : 4251)
+
+namespace NoesisApp
+{
+	class RenderContext;
+}
 
 
 /**
@@ -22,7 +26,7 @@ class LcNoesisGuiManager : public INoesisGuiManager
 public:
 	/**
 	* Default constructor */
-	LcNoesisGuiManager();
+	LcNoesisGuiManager(class NoesisApp::RenderContext* context);
 
 
 public: // INoesisGuiManager interface implementation
@@ -49,12 +53,10 @@ public: // IGuiManager interface implementation
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
 	//
-	std::shared_ptr<class LcNoesisRenderContextD3D10> context;
+	class NoesisApp::RenderContext* context;
 	//
 	LcSize viewportSize;
 	//
 	bool isInit;
-	//
-	friend NOESISGUI_API IWidgetFactoryPtr GetWidgetFactory(INoesisGuiManager* gui);
 
 };

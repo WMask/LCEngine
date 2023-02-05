@@ -20,7 +20,7 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(void* window, LcSize viewportSize) = 0;
+	virtual void Init(void* window, LcSize viewportSize);
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds);

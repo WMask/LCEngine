@@ -82,3 +82,7 @@ private:
     NS_DECLARE_REFLECTION(LcNoesisRenderContextD3D10, RenderContext)
 
 };
+
+/**
+* Get DirectX 10 context */
+LcNoesisRenderContextD3D10* GetContext();

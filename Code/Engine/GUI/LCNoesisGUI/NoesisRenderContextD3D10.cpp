@@ -78,13 +78,6 @@ void LcNoesisRenderContextD3D10::Init(void* window, uint32_t& samples, bool vsyn
 
     mVSync = vsync;
     mRenderer = *new LcNoesisRenderDeviceD3D10(mDevice, sRGB);
-
-    DXGI_SWAP_CHAIN_DESC desc;
-    if (SUCCEEDED(mSwapChain->GetDesc(&desc)))
-    {
-        mRenderer->SetOffscreenWidth(desc.BufferDesc.Width);
-        mRenderer->SetOffscreenHeight(desc.BufferDesc.Height);
-    }
 }
 
 void LcNoesisRenderContextD3D10::Shutdown()
@@ -459,3 +452,9 @@ NS_IMPLEMENT_REFLECTION(LcNoesisRenderContextD3D10)
 }
 
 NS_END_COLD_REGION
+
+LcNoesisRenderContextD3D10* GetContext()
+{
+    static LcNoesisRenderContextD3D10 context;
+    return &context;
+}

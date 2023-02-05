@@ -32,14 +32,14 @@ public:
     Noesis::Ptr<Noesis::IView> view;
     //
     class NoesisApp::RenderContext* context;
-    //
-    bool deviceSet;
 
 
 public: // IWidget interface implementation
-    virtual const std::string& GetName() const override { return widget.name; }
+    virtual void Init(LcSize viewportSize) override;
     //
     virtual void OnKeyboard(int btn, LcKeyState state) override;
+    //
+    virtual const std::string& GetName() const override { return widget.name; }
 
 
 public: // IVisual interface implementation

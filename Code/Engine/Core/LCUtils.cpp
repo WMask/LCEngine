@@ -8,6 +8,20 @@
 #include "LCUtils.h"
 
 
+LcRectf ToF(const LcRect& rect)
+{
+	Eigen::Vector2i lt(rect.corner(Eigen::AlignedBox2i::TopLeft));
+	Eigen::Vector2i rb(rect.corner(Eigen::AlignedBox2i::BottomRight));
+	return LcRectf(Eigen::Vector2f((float)lt.x(), (float)lt.y()), Eigen::Vector2f((float)rb.x(), (float)rb.y()));
+}
+
+LcRect ToI(const LcRectf& rect)
+{
+	Eigen::Vector2f lt(rect.corner(Eigen::AlignedBox2f::TopLeft));
+	Eigen::Vector2f rb(rect.corner(Eigen::AlignedBox2f::BottomRight));
+	return LcRect(Eigen::Vector2i((int)lt.x(), (int)lt.y()), Eigen::Vector2i((int)rb.x(), (int)rb.y()));
+}
+
 LcMatrix4 OrthoMatrix(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {
 	LcMatrix4 result = LcMatrix4::Zero();

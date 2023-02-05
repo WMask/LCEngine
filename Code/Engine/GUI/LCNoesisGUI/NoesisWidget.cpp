@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "GUI/LCNoesisGUI/NoesisWidget.h"
+#include "GUI/LCNoesisGUI/NoesisRenderContextD3D10.h"
 #include "Core/LCUtils.h"
 
 #include <NsGui/IntegrationAPI.h>
@@ -35,18 +36,27 @@ Noesis::MouseButton MapMouseKeys(LcMouseBtn btn)
 LcNoesisWidget::LcNoesisWidget(LcWidgetData inWidget, class NoesisApp::RenderContext* inContext)
     : widget(inWidget)
     , context(inContext)
-    , deviceSet(false)
 {
 }
 
 LcNoesisWidget::~LcNoesisWidget()
 {
-    if (deviceSet && view)
+    if (view)
     {
-        deviceSet = false;
         view->GetRenderer()->Shutdown();
         view.Reset();
     }
+}
+
+void LcNoesisWidget::Init(LcSize viewportSize)
+{
+    if (context && context->GetDevice())
+    {
+        size = ToF(viewportSize);
+        view->GetRenderer()->Init(context->GetDevice());
+        view->SetSize((uint32_t)size.x(), (uint32_t)size.y());
+    }
+
 }
 
 void LcNoesisWidget::OnKeyboard(int btn, LcKeyState state)
@@ -88,22 +98,14 @@ void LcNoesisWidget::OnMouseMove(int x, int y)
 
 void LcNoesisWidget::Update(float DeltaSeconds)
 {
-    if (view && deviceSet) view->Update(DeltaSeconds);
+    if (view) view->Update(DeltaSeconds);
 }
 
 void LcNoesisWidget::PreRender()
 {
-    if (view)
+    if (view && view->GetRenderer())
     {
-        if (context && context->GetDevice() && !deviceSet)
-        {
-            deviceSet = true;
-            size = LcSizef(context->GetDevice()->GetOffscreenWidth(), context->GetDevice()->GetOffscreenHeight());
-            view->GetRenderer()->Init(context->GetDevice());
-            view->SetSize((uint32_t)size.x(), (uint32_t)size.y());
-        }
-
-        if (deviceSet && view->GetRenderer()->UpdateRenderTree())
+        if (view->GetRenderer()->UpdateRenderTree())
         {
             view->GetRenderer()->RenderOffscreen();
         }
@@ -112,7 +114,7 @@ void LcNoesisWidget::PreRender()
 
 void LcNoesisWidget::PostRender()
 {
-    if (view) view->GetRenderer()->Render();
+    if (view && view->GetRenderer()) view->GetRenderer()->Render();
 }
 
 std::shared_ptr<IWidget> LcNoesisWidgetFactory::Build(const LcWidgetData& data)
@@ -131,4 +133,9 @@ std::shared_ptr<IWidget> LcNoesisWidgetFactory::Build(const LcWidgetData& data)
     }
 
     return newWidgetPtr;
+}
+
+IWidgetFactoryPtr GetWidgetFactory()
+{
+    return IWidgetFactoryPtr(new LcNoesisWidgetFactory(GetContext()));
 }

@@ -10,6 +10,13 @@
 #include "LCTypes.h"
 
 
+/** Convert */
+inline LcSizef ToF(const LcSize& size) { return LcSizef((float)size.x(), (float)size.y()); }
+inline LcSize  ToI(const LcSizef& size) { return LcSize((int)size.x(), (int)size.y()); }
+       LcRectf ToF(const LcRect& rect);
+       LcRect  ToI(const LcRectf& rect);
+
+
 /**
 * Create ortho matrix */
 CORE_API LcMatrix4 OrthoMatrix(float left, float right, float bottom, float top, float nearPlane, float farPlane);
