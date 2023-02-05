@@ -10,6 +10,7 @@
 #include <NsCore/Vector.h>
 
 #include <d3d10.h>
+#include <map>
 
 
 namespace Noesis { template<class T> class Ptr; }
@@ -34,8 +35,9 @@ struct MSAA
 class LcNoesisRenderDeviceD3D10 final: public Noesis::RenderDevice
 {
 public:
-    LcNoesisRenderDeviceD3D10(ID3D10Device* device, bool sRGB = false);
+    LcNoesisRenderDeviceD3D10(ID3D10Device* device, const char* folderPath, bool sRGB = false);
     ~LcNoesisRenderDeviceD3D10();
+    void LoadShaders(const char* folderPath);
 
     // Creates a Noesis texture from a D3D10 texture. Reference count is incremented by one
     static Noesis::Ptr<Noesis::Texture> WrapTexture(ID3D10Texture2D* texture, uint32_t width,
@@ -106,11 +108,42 @@ private:
     void SetRenderState(const Noesis::Batch& batch);
     void SetTextures(const Noesis::Batch& batch);
 
+
 private:
     ID3D10Device* mDevice = nullptr;
+    ID3D10InputLayout* mLayouts[Noesis::Shader::Vertex::Format::Count];
+
+    std::map<std::string, std::string> mShaderSource;
 
     DXGI_SAMPLE_DESC mSampleDescs[MSAA::Count];
     Noesis::DeviceCaps mCaps;
+
+    struct VertexShader
+    {
+        ID3D10VertexShader* shader;
+        ID3D10InputLayout* layout;
+        uint32_t stride;
+    };
+
+    struct PixelShader
+    {
+        ID3D10PixelShader* shader;
+        int8_t vsShader;
+    };
+
+    struct TextureSlot
+    {
+        enum Enum
+        {
+            Pattern,
+            Ramps,
+            Image,
+            Glyphs,
+            Shadow,
+
+            Count
+        };
+    };
 
     struct DynamicBuffer
     {
@@ -131,23 +164,7 @@ private:
     DynamicBuffer mPixelCB[2];
     uint32_t mPixelCBHash[2];
 
-    ID3D10InputLayout* mLayouts[Noesis::Shader::Vertex::Format::Count];
-
-    struct VertexShader
-    {
-        ID3D10VertexShader* shader;
-        ID3D10InputLayout* layout;
-        uint32_t stride;
-    };
-
     VertexShader mVertexShaders[Noesis::Shader::Vertex::Count];
-
-    struct PixelShader
-    {
-        ID3D10PixelShader* shader;
-        int8_t vsShader;
-    };
-
     PixelShader mPixelShaders[Noesis::Shader::Count];
 
     Noesis::Vector<ID3D10PixelShader*> mCustomShaders;
@@ -160,21 +177,6 @@ private:
     ID3D10BlendState* mBlendStateNoColor;
     ID3D10DepthStencilState* mDepthStencilStates[5];
     ID3D10SamplerState* mSamplerStates[64];
-
-    struct TextureSlot
-    {
-        enum Enum
-        {
-            Pattern,
-            Ramps,
-            Image,
-            Glyphs,
-            Shadow,
-
-            Count
-        };
-    };
-
     ID3D10Buffer* mIndexBuffer;
     ID3D10InputLayout* mLayout;
     ID3D10VertexShader* mVertexShader;

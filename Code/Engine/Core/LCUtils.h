@@ -33,7 +33,7 @@ CORE_API LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ = 
 
 /**
 * Read text file */
-CORE_API std::string ReadTextFile(const std::string& filePath);
+CORE_API std::string ReadTextFile(const char* filePath);
 
 
 /**

@@ -28,10 +28,10 @@ public: // IApplication interface implementation
 	virtual ~LcWindowsApplication() override;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount) noexcept override;
+	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds) noexcept override;
+	virtual void Init(void* Handle, const std::wstring& cmds, const char* shadersPath) noexcept override;
 	/**
 	* Set render system */
 	virtual void SetRenderSystem(std::shared_ptr<class IRenderSystem> render) noexcept { renderSystem = std::shared_ptr<class IRenderSystem>(render); }
@@ -77,6 +77,8 @@ protected:
 	std::wstring cmds;
 	//
 	int cmdsCount;
+	//
+	std::string shadersPath;
 	//
 	LcSize windowSize;
 	//

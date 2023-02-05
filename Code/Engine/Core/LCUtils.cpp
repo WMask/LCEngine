@@ -68,7 +68,7 @@ LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
 	return result;
 }
 
-std::string ReadTextFile(const std::string& filePath)
+std::string ReadTextFile(const char* filePath)
 {
 	using namespace std::filesystem;
 

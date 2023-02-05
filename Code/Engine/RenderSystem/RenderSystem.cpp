@@ -14,7 +14,7 @@ IRenderSystem::~IRenderSystem()
 {
 }
 
-void IRenderSystem::LoadShaders(const std::string& folderPath)
+void IRenderSystem::LoadShaders(const char* folderPath)
 {
     using namespace std::filesystem;
 
@@ -23,7 +23,7 @@ void IRenderSystem::LoadShaders(const std::string& folderPath)
         if (entry.is_regular_file())
         {
             auto name = entry.path().filename().string();
-            auto content = ReadTextFile(entry.path().string());
+            auto content = ReadTextFile(entry.path().string().c_str());
             if (!name.empty() && !content.empty())
             {
                 shaders[name] = content;

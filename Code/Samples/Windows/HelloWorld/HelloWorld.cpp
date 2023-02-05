@@ -52,13 +52,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             }
         };
 
-        auto render = GetRenderSystem();
-        render->LoadShaders("../../../Shaders/HLSL/");
-        app->SetRenderSystem(render);
+        app->SetRenderSystem(GetRenderSystem());
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(LcSize(1024, 768));
-        app->Init(hInstance, lpCmdLine);
+        app->Init(hInstance, lpCmdLine, "../../../Shaders/HLSL/");
         app->Run();
     }
     catch (const std::exception& ex)

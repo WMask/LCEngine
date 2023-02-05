@@ -42,17 +42,18 @@ using namespace NoesisApp;
     { \
         ULONG refs = o->Release(); \
         NS_ASSERT(refs == 0); \
+        o = nullptr; \
     }
 
 
-class D3D10Texture final: public Texture
+class TextureD3D10 final: public Texture
 {
 public:
-    D3D10Texture(ID3D10ShaderResourceView* view_, uint32_t width_, uint32_t height_,
+    TextureD3D10(ID3D10ShaderResourceView* view_, uint32_t width_, uint32_t height_,
         uint32_t levels_, bool isInverted_, bool hasAlpha_): view(view_), width(width_),
         height(height_), levels(levels_), isInverted(isInverted_), hasAlpha(hasAlpha_) {}
 
-    ~D3D10Texture()
+    ~TextureD3D10()
     {
         DX_DESTROY(view);
     }
@@ -73,14 +74,14 @@ public:
 };
 
 
-class D3D10RenderTarget final: public RenderTarget
+class RenderTargetD3D10 final: public RenderTarget
 {
 public:
-    D3D10RenderTarget(uint32_t width_, uint32_t height_, MSAA::Enum msaa_): width(width_),
+    RenderTargetD3D10(uint32_t width_, uint32_t height_, MSAA::Enum msaa_): width(width_),
         height(height_), msaa(msaa_), textureRTV(0), color(0), colorRTV(0), colorSRV(0),
         stencil(0), stencilDSV(0) {}
 
-    ~D3D10RenderTarget()
+    ~RenderTargetD3D10()
     {
         DX_DESTROY(textureRTV);
 
@@ -100,7 +101,7 @@ public:
     const uint32_t height;
     const MSAA::Enum msaa;
 
-    Ptr<D3D10Texture> texture;
+    Ptr<TextureD3D10> texture;
     ID3D10RenderTargetView* textureRTV;
 
     ID3D10Texture2D* color;
@@ -112,8 +113,17 @@ public:
 };
 
 
-LcNoesisRenderDeviceD3D10::LcNoesisRenderDeviceD3D10(ID3D10Device* device, bool sRGB)
+LcNoesisRenderDeviceD3D10::LcNoesisRenderDeviceD3D10(ID3D10Device* device, const char* folderPath, bool sRGB)
 {
+    LoadShaders(folderPath);
+
+    mLayout = nullptr;
+    mIndexBuffer = nullptr;
+    mVertexShader = nullptr;
+    mPixelShader = nullptr;
+    mBlendState = nullptr;
+    mRasterizerState = nullptr;
+    mDepthStencilState = nullptr;
     mDevice = device;
 
     FillCaps(sRGB);
@@ -132,6 +142,24 @@ LcNoesisRenderDeviceD3D10::~LcNoesisRenderDeviceD3D10()
     DestroyBuffers();
 
     mDevice = nullptr; // released in LcNoesisRenderContextD3D10
+}
+
+void LcNoesisRenderDeviceD3D10::LoadShaders(const char* folderPath)
+{
+    using namespace std::filesystem;
+
+    for (auto& entry : directory_iterator(folderPath))
+    {
+        if (entry.is_regular_file())
+        {
+            auto name = entry.path().filename().string();
+            auto content = ReadTextFile(entry.path().string().c_str());
+            if (!name.empty() && !content.empty())
+            {
+                mShaderSource[name] = content;
+            }
+        }
+    }
 }
 
 Ptr<Texture> LcNoesisRenderDeviceD3D10::WrapTexture(ID3D10Texture2D* texture, uint32_t width,
@@ -224,7 +252,7 @@ Ptr<Texture> LcNoesisRenderDeviceD3D10::WrapTexture(ID3D10Texture2D* texture, ui
 
         DX_RELEASE(device);
 
-        return *new D3D10Texture(view, width, height, levels, isInverted, hasAlpha);
+        return *new TextureD3D10(view, width, height, levels, isInverted, hasAlpha);
     }
 
     return 0;
@@ -232,13 +260,13 @@ Ptr<Texture> LcNoesisRenderDeviceD3D10::WrapTexture(ID3D10Texture2D* texture, ui
 
 void* LcNoesisRenderDeviceD3D10::CreatePixelShader(const char* label, const void* hlsl, uint32_t size)
 {
-    ID3D10PixelShader* shader = nullptr;//mCustomShaders.EmplaceBack();
+    ID3D10PixelShader*& shader = mCustomShaders.EmplaceBack();
     if (FAILED(mDevice->CreatePixelShader(hlsl, size, &shader)))
     {
         throw std::exception("LcNoesisRenderDeviceD3D10::CreatePixelShader(): Cannot create pixel shader");
     }
 
-    return (void*)(uintptr_t)0;//mCustomShaders.Size();
+    return (void*)(uintptr_t)mCustomShaders.Size();
 }
 
 void LcNoesisRenderDeviceD3D10::ClearPixelShaders()
@@ -322,7 +350,7 @@ Ptr<RenderTarget> LcNoesisRenderDeviceD3D10::CreateRenderTarget(const char* labe
 
 Ptr<RenderTarget> LcNoesisRenderDeviceD3D10::CloneRenderTarget(const char* label, RenderTarget* surface_)
 {
-    D3D10RenderTarget* surface = (D3D10RenderTarget*)surface_;
+    RenderTargetD3D10* surface = (RenderTargetD3D10*)surface_;
 
     ID3D10Texture2D* colorAA = 0;
     if (surface->msaa != MSAA::x1)
@@ -408,14 +436,14 @@ Ptr<Texture> LcNoesisRenderDeviceD3D10::CreateTexture(const char* label, uint32_
     DX_RELEASE(texture);
 
     bool hasAlpha = format_ == TextureFormat::RGBA8;
-    return *new D3D10Texture(view, width, height, numLevels, false, hasAlpha);
+    return *new TextureD3D10(view, width, height, numLevels, false, hasAlpha);
 }
 
 void LcNoesisRenderDeviceD3D10::UpdateTexture(Texture* texture_, uint32_t level, uint32_t x, uint32_t y,
     uint32_t width, uint32_t height, const void* data)
 {
     NS_ASSERT(level == 0);
-    D3D10Texture* texture = (D3D10Texture*)texture_;
+    TextureD3D10* texture = (TextureD3D10*)texture_;
 
     ID3D10Resource* resource;
     texture->view->GetResource(&resource);
@@ -452,7 +480,7 @@ void LcNoesisRenderDeviceD3D10::EndOnscreenRender()
 void LcNoesisRenderDeviceD3D10::SetRenderTarget(RenderTarget* surface_)
 {
     ClearTextures();
-    D3D10RenderTarget* surface = (D3D10RenderTarget*)surface_;
+    RenderTargetD3D10* surface = (RenderTargetD3D10*)surface_;
     mDevice->OMSetRenderTargets(1, &surface->colorRTV, surface->stencilDSV);
 
     D3D10_VIEWPORT viewport;
@@ -468,7 +496,7 @@ void LcNoesisRenderDeviceD3D10::SetRenderTarget(RenderTarget* surface_)
 
 void LcNoesisRenderDeviceD3D10::ResolveRenderTarget(RenderTarget* surface_, const Tile* tiles, uint32_t size)
 {
-    D3D10RenderTarget* surface = (D3D10RenderTarget*)surface_;
+    RenderTargetD3D10* surface = (RenderTargetD3D10*)surface_;
 
     if (surface->msaa != MSAA::x1)
     {
@@ -1052,16 +1080,9 @@ void LcNoesisRenderDeviceD3D10::DestroyStateObjects()
 
 void LcNoesisRenderDeviceD3D10::CreateShaders()
 {
-    struct ShaderVS
+    auto vsShaders = [this](uint32_t shader)
     {
-        const BYTE* code;
-        uint32_t size;
-    };
-
-    auto vsShaders = [&](uint32_t shader)
-    {
-        ShaderVS vsShader{0};
-        vsShader.code = (BYTE*)"struct In {float2 pos: POSITION;}; struct Out {float4 pos: SV_POSITION;}; cbuffer Cb0: register(b0) {float4x4 m;} void main(in In i, out Out o) {o.pos = mul(float4(i.pos, 0, 1), m);}";
+        const char* code = mShaderSource["Pos.shader"].c_str();
 
         switch (shader)
         {
@@ -1072,7 +1093,7 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         case Noesis::Shader::Vertex::PosTex0RectTile:
             break;
         case Noesis::Shader::Vertex::PosColorCoverage:
-            vsShader.code = (BYTE*)"struct In {float2 pos: POSITION; half4 clr: COLOR; half cv: COVERAGE;}; struct Out {float4 pos: SV_POSITION; nointerpolation half4 clr: COLOR; half cv: COVERAGE;}; cbuffer Cb0: register(b0) {float4x4 m;} void main(in In i, out Out o) {o.pos = mul(float4(i.pos, 0, 1), m); o.clr = i.clr; o.cv = i.cv;}";
+            code = mShaderSource["PosColorCoverage.shader"].c_str();
             break;
         case Noesis::Shader::Vertex::PosTex0Coverage:
         case Noesis::Shader::Vertex::PosTex0CoverageRect:
@@ -1092,8 +1113,7 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
             break;
         }
 
-        if (vsShader.code != 0) vsShader.size = (uint32_t)strlen((char*)vsShader.code);
-        return vsShader;
+        return code;
     };
 
     memset(mLayouts, 0, sizeof(mLayouts));
@@ -1101,10 +1121,10 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
 
     for (uint32_t i = 0; i < Shader::Vertex::Count; i++)
     {
-        ShaderVS vsShader = vsShaders(i);
+        const char* code = vsShaders(i);
 
         ID3D10Blob* vertexBlob;
-        if (FAILED(D3D10CompileShader((LPCSTR)vsShader.code, vsShader.size, NULL, NULL, NULL, "main", "vs_4_0", 0, &vertexBlob, NULL)))
+        if (FAILED(D3D10CompileShader(code, strlen(code), NULL, NULL, NULL, "main", "vs_4_0", 0, &vertexBlob, NULL)))
         {
             throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile vertex shader");
         }
@@ -1137,9 +1157,9 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         uint32_t size;
     };
 
-    auto psShaders = [&](uint32_t shader)
+    auto psShaders = [this](uint32_t shader)
     {
-        ShaderPS psShader{0};
+        const char* code = mShaderSource["Path_AA_Solid.shader"].c_str();
 
         switch (shader)
         {
@@ -1203,20 +1223,18 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         case Noesis::Shader::Shadow:
         case Noesis::Shader::Blur:
         case Noesis::Shader::Custom_Effect:
-            psShader.code = (BYTE*)"struct In {float4 pos: SV_POSITION; nointerpolation half4 clr: COLOR; half cv: COVERAGE;}; struct Out {half4 clr: SV_TARGET0;}; Out main(in In i) {Out o; o.clr = (1.0 * i.cv) * i.clr; return o;}";
             break;
         }
 
-        if (psShader.code != 0) psShader.size = (uint32_t)strlen((char*)psShader.code);
-        return psShader;
+        return code;
     };
 
     for (uint32_t i = 0; i < Shader::Count; i++)
     {
-        ShaderPS psShader = psShaders(i);
+        const char* code = psShaders(i);
 
         ID3D10Blob* pixelBlob;
-        if (FAILED(D3D10CompileShader((LPCSTR)psShader.code, psShader.size, NULL, NULL, NULL, "main", "ps_4_0", 0, &pixelBlob, 0)))
+        if (FAILED(D3D10CompileShader(code, strlen(code), NULL, NULL, NULL, "main", "ps_4_0", 0, &pixelBlob, 0)))
         {
             throw std::exception("LcNoesisRenderDeviceD3D10::CreateShaders(): Cannot compile pixel shader");
         }
@@ -1337,7 +1355,7 @@ void LcNoesisRenderDeviceD3D10::DestroyShaders()
 Ptr<RenderTarget> LcNoesisRenderDeviceD3D10::CreateRenderTarget(const char* label, uint32_t width,
     uint32_t height, MSAA::Enum msaa, ID3D10Texture2D* colorAA, ID3D10Texture2D* stencil)
 {
-    Ptr<D3D10RenderTarget> surface = *new D3D10RenderTarget(width, height, msaa);
+    Ptr<RenderTargetD3D10> surface = *new RenderTargetD3D10(width, height, msaa);
 
     bool sRGB = mCaps.linearRendering;
 
@@ -1368,7 +1386,7 @@ Ptr<RenderTarget> LcNoesisRenderDeviceD3D10::CreateRenderTarget(const char* labe
     }
     DX_RELEASE(colorTex);
 
-    surface->texture = *new D3D10Texture(viewTex, width, height, 1, false, true);
+    surface->texture = *new TextureD3D10(viewTex, width, height, 1, false, true);
 
     if (FAILED(mDevice->CreateRenderTargetView(colorTex, 0, &surface->textureRTV)))
     {
@@ -1638,35 +1656,35 @@ void LcNoesisRenderDeviceD3D10::SetTextures(const Batch& batch)
 {
     if (batch.pattern != 0)
     {
-        D3D10Texture* t = (D3D10Texture*)batch.pattern;
+        TextureD3D10* t = (TextureD3D10*)batch.pattern;
         SetTexture(TextureSlot::Pattern, t->view);
         SetSampler(TextureSlot::Pattern, mSamplerStates[batch.patternSampler.v]);
     }
 
     if (batch.ramps != 0)
     {
-        D3D10Texture* t = (D3D10Texture*)batch.ramps;
+        TextureD3D10* t = (TextureD3D10*)batch.ramps;
         SetTexture(TextureSlot::Ramps, t->view);
         SetSampler(TextureSlot::Ramps, mSamplerStates[batch.rampsSampler.v]);
     }
 
     if (batch.image != 0)
     {
-        D3D10Texture* t = (D3D10Texture*)batch.image;
+        TextureD3D10* t = (TextureD3D10*)batch.image;
         SetTexture(TextureSlot::Image, t->view);
         SetSampler(TextureSlot::Image, mSamplerStates[batch.imageSampler.v]);
     }
 
     if (batch.glyphs != 0)
     {
-        D3D10Texture* t = (D3D10Texture*)batch.glyphs;
+        TextureD3D10* t = (TextureD3D10*)batch.glyphs;
         SetTexture(TextureSlot::Glyphs, t->view);
         SetSampler(TextureSlot::Glyphs, mSamplerStates[batch.glyphsSampler.v]);
     }
 
     if (batch.shadow != 0)
     {
-        D3D10Texture* t = (D3D10Texture*)batch.shadow;
+        TextureD3D10* t = (TextureD3D10*)batch.shadow;
         SetTexture(TextureSlot::Shadow, t->view);
         SetSampler(TextureSlot::Shadow, mSamplerStates[batch.shadowSampler.v]);
     }

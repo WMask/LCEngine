@@ -17,7 +17,7 @@
 #include <NsApp/Interaction.h>
 
 
-LcNoesisGuiManager::LcNoesisGuiManager(NoesisApp::RenderContext* inContext)
+LcNoesisGuiManager::LcNoesisGuiManager(LcRenderContext* inContext)
 {
     context = inContext;
     isInit = false;
@@ -32,11 +32,12 @@ LcNoesisGuiManager::~LcNoesisGuiManager()
     }
 }
 
-void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& resources)
+void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const char* resources, const char* inShadersPath)
 {
     if (isInit) throw std::exception("LcNoesisGuiManager::NoesisInit(): Already initialized");
 
     xamlProvider = provider;
+    shadersPath = inShadersPath;
 
     Noesis::SetLogHandler([](const char*, uint32_t, uint32_t level, const char*, const char* msg)
     {
@@ -51,7 +52,7 @@ void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, 
     {
         Noesis::GUI::SetXamlProvider(xamlProvider);
 
-        if (!resources.empty()) Noesis::GUI::LoadApplicationResources(resources.c_str());
+        if (resources) Noesis::GUI::LoadApplicationResources(resources);
     }
 
     Noesis::RegisterComponent<NoesisApp::BehaviorCollection>();
@@ -67,6 +68,7 @@ void LcNoesisGuiManager::Init(void* window, LcSize inViewportSize)
     if (context)
     {
         uint32_t samples;
+        context->SetShadersPath(shadersPath.c_str());
         context->Init(window, samples, true, false);
         context->Resize();
         context->SetClearColor(0.0f, 0.0f, 1.0f, 1.0f);

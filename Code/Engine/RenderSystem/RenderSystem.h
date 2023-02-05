@@ -28,7 +28,7 @@ public:
 	virtual ~IRenderSystem();
 	/**
 	* Load shaders */
-	virtual void LoadShaders(const std::string& folderPath);
+	virtual void LoadShaders(const char* folderPath);
 	/**
 	* Create render system */
 	virtual void Create(void* Handle, LcSize viewportSize, bool windowed);

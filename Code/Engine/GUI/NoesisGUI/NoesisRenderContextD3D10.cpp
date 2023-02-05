@@ -77,7 +77,7 @@ void LcNoesisRenderContextD3D10::Init(void* window, uint32_t& samples, bool vsyn
     CreateQueries();
 
     mVSync = vsync;
-    mRenderer = *new LcNoesisRenderDeviceD3D10(mDevice, sRGB);
+    mRenderer = *new LcNoesisRenderDeviceD3D10(mDevice, mShadersPath.c_str(), sRGB);
 }
 
 void LcNoesisRenderContextD3D10::Shutdown()

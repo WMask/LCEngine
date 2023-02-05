@@ -10,19 +10,36 @@
 #include <NsCore/Ptr.h>
 #include <NsCore/Vector.h>
 #include <NsRender/RenderContext.h>
+#include <NsRender/RenderDevice.h>
 
 #include <d3d10.h>
 
-namespace Noesis { class RenderDevice; }
+
+/**
+* Custom render context */
+class LcRenderContext : public NoesisApp::RenderContext
+{
+public:
+    /**
+    * Set shaders path */
+    virtual void SetShadersPath(const char* shadersPath) = 0;
+
+};
 
 
 /**
 * Noesis render context for DirectX 10 */
-class LcNoesisRenderContextD3D10 final: public NoesisApp::RenderContext
+class LcNoesisRenderContextD3D10 final: public LcRenderContext
 {
 public:
     LcNoesisRenderContextD3D10();
     ~LcNoesisRenderContextD3D10();
+
+
+public: // LcRenderContext interface implementation
+    /**
+    * Set shaders path */
+    virtual void SetShadersPath(const char* shadersPath) override { mShadersPath = shadersPath; }
 
 
 public: // NoesisApp::RenderContext interface implementation
@@ -78,6 +95,7 @@ private:
     uint32_t mReadFrame = 0;
     uint32_t mWriteFrame = 0;
     float mGPUTime = 0.0f;
+    std::string mShadersPath;
 
     NS_DECLARE_REFLECTION(LcNoesisRenderContextD3D10, RenderContext)
 

@@ -42,10 +42,10 @@ public:
 	virtual ~IApplication();
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount) noexcept = 0;
+	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds) noexcept = 0;
+	virtual void Init(void* Handle, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set render system */
 	virtual void SetRenderSystem(std::shared_ptr<class IRenderSystem> render) noexcept = 0;

@@ -13,10 +13,7 @@
 
 #pragma warning(disable : 4251)
 
-namespace NoesisApp
-{
-	class RenderContext;
-}
+class LcRenderContext;
 
 
 /**
@@ -26,13 +23,13 @@ class LcNoesisGuiManager : public INoesisGuiManager
 public:
 	/**
 	* Default constructor */
-	LcNoesisGuiManager(class NoesisApp::RenderContext* context);
+	LcNoesisGuiManager(LcRenderContext* context);
 
 
 public: // INoesisGuiManager interface implementation
 	/**
 	* Set XAML provider */
-	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& inResources) override;
+	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const char* resources, const char* shadersPath) override;
 
 
 public: // IGuiManager interface implementation
@@ -53,9 +50,11 @@ public: // IGuiManager interface implementation
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
 	//
-	class NoesisApp::RenderContext* context;
+	LcRenderContext* context;
 	//
 	LcSize viewportSize;
+	//
+	std::string shadersPath;
 	//
 	bool isInit;
 

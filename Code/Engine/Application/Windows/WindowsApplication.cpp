@@ -55,16 +55,17 @@ LcWindowsApplication::~LcWindowsApplication()
     }
 }
 
-void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds, int inCmdsCount) noexcept
+void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
 {
 	hInstance = (HINSTANCE)Handle;
     cmds = inCmds;
     cmdsCount = inCmdsCount;
+    if (inShadersPath) shadersPath = inShadersPath;
 }
 
-void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds) noexcept
+void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds, const char* inShadersPath) noexcept
 {
-    Init(Handle, inCmds, 1);
+    Init(Handle, inCmds, 1, inShadersPath);
 }
 
 void LcWindowsApplication::Run()
@@ -105,7 +106,11 @@ void LcWindowsApplication::Run()
     LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
-    if (renderSystem) renderSystem->Create(hWnd, windowSize, true);
+    if (renderSystem)
+    {
+        if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
+        renderSystem->Create(hWnd, windowSize, true);
+    }
     if (guiManager) guiManager->Init(hWnd, windowSize);
 
 	prevTick = GetTickCount64();

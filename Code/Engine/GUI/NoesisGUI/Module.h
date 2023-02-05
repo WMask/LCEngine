@@ -31,7 +31,7 @@ class NOESISGUI_API INoesisGuiManager : public IGuiManager
 public:
 	/**
 	* Initialize Noesis */
-	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const std::string& inResources) = 0;
+	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const char* resources, const char* shadersPath) = 0;
 
 };
 
