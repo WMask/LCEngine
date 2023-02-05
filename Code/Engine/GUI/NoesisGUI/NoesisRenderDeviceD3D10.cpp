@@ -5,7 +5,7 @@
 */
 
 #include "pch.h"
-#include "GUI/LCNoesisGUI/NoesisRenderDeviceD3D10.h"
+#include "GUI/NoesisGUI/NoesisRenderDeviceD3D10.h"
 #include "Core/LCUtils.h"
 
 #include <NsCore/Log.h>

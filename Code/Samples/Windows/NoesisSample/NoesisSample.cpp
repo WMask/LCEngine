@@ -8,9 +8,9 @@
 #include "NoesisSample.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
+#include "GUI/NoesisGUI/NoesisGUIManager.h"
 #include "Core/LCUtils.h"
 #include "World/World.h"
-#include "GUI/LCNoesisGUI/NoesisGUIManager.h"
 #include "MainMenuViewModel.h"
 #include "ClickMoveBehavior.h"
 

@@ -5,9 +5,9 @@
 */
 
 #include "pch.h"
-#include "GUI/LCNoesisGUI/NoesisGUIManager.h"
-#include "GUI/LCNoesisGUI/NoesisRenderContextD3D10.h"
-#include "GUI/LCNoesisGUI/NoesisWidget.h"
+#include "GUI/NoesisGUI/NoesisGUIManager.h"
+#include "GUI/NoesisGUI/NoesisRenderContextD3D10.h"
+#include "GUI/NoesisGUI/NoesisWidget.h"
 #include "Core/LCUtils.h"
 
 // copy NoesisGUI code to LCEngine/Code/Engine/GUI/NoesisGUI

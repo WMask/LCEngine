@@ -5,8 +5,8 @@
 */
 
 #include "pch.h"
-#include "GUI/LCNoesisGUI/NoesisWidget.h"
-#include "GUI/LCNoesisGUI/NoesisRenderContextD3D10.h"
+#include "GUI/NoesisGUI/NoesisWidget.h"
+#include "GUI/NoesisGUI/NoesisRenderContextD3D10.h"
 #include "Core/LCUtils.h"
 
 #include <NsGui/IntegrationAPI.h>

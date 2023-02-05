@@ -27,19 +27,19 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\Module.h">
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\Module.h">
       <Filter>Header Files\NoesisGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisGUIManager.h">
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisGUIManager.h">
       <Filter>Header Files\NoesisGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.h">
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderContextD3D10.h">
       <Filter>Header Files\NoesisGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.h">
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderDeviceD3D10.h">
       <Filter>Header Files\NoesisGUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.h">
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisWidget.h">
       <Filter>Header Files\NoesisGUI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,16 +50,16 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisGUIManager.cpp">
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisGUIManager.cpp">
       <Filter>Source Files\NoesisGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.cpp">
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderContextD3D10.cpp">
       <Filter>Source Files\NoesisGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.cpp">
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderDeviceD3D10.cpp">
       <Filter>Source Files\NoesisGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.cpp">
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisWidget.cpp">
       <Filter>Source Files\NoesisGUI</Filter>
     </ClCompile>
   </ItemGroup>

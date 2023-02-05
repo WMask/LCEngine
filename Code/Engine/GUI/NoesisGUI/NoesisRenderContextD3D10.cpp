@@ -5,8 +5,8 @@
 */
 
 #include "pch.h"
-#include "GUI/LCNoesisGUI/NoesisRenderContextD3D10.h"
-#include "GUI/LCNoesisGUI/NoesisRenderDeviceD3D10.h"
+#include "GUI/NoesisGUI/NoesisRenderContextD3D10.h"
+#include "GUI/NoesisGUI/NoesisRenderDeviceD3D10.h"
 #include "Core/LCUtils.h"
 
 #include <NsCore/ReflectionImplement.h>

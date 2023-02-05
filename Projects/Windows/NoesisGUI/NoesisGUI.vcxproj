@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\GUI\NoesisGUI\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\GUI\NoesisGUI\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\App\Providers\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\Render\RenderContext\Include;..\..\..\Code\Engine\GUI\NoesisGUI\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\GUI\NoesisSDK\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\GUI\NoesisSDK\Include;..\..\..\Code\Engine\GUI\NoesisSDK\Src\Packages\App\Providers\Include;..\..\..\Code\Engine\GUI\NoesisSDK\Src\Packages\Render\RenderContext\Include;..\..\..\Code\Engine\GUI\NoesisSDK\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -144,19 +144,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\Module.h" />
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisGUIManager.h" />
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.h" />
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.h" />
-    <ClInclude Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\Module.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisGUIManager.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderContextD3D10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderDeviceD3D10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisWidget.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisGUIManager.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderContextD3D10.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisWidget.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\GUI\LCNoesisGUI\NoesisRenderDeviceD3D10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisGUIManager.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderContextD3D10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisRenderDeviceD3D10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\NoesisGUI\NoesisWidget.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

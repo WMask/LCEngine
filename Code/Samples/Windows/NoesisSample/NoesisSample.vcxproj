@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\..\..\Engine;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\Providers\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\ApplicationLauncher\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\..\..\Engine\GUI\NoesisGUI\Lib\windows_x86_64;x64\Debug;$(ProjectDir)..\..\..\..\Projects\Windows\x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\..\..\Engine;$(ProjectDir)..\..\..\Engine\GUI\NoesisSDK\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisSDK\Src\Packages\App\Providers\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisSDK\Src\Packages\App\ApplicationLauncher\Include;$(ProjectDir)..\..\..\Engine\GUI\NoesisSDK\Src\Packages\App\Interactivity\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>x64\Debug;$(ProjectDir)..\..\..\..\Projects\Windows\x64\Debug;$(ProjectDir)..\..\..\Engine\GUI\NoesisSDK\Lib\windows_x86_64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
