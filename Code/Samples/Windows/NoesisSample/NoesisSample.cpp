@@ -8,7 +8,7 @@
 #include "NoesisSample.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
-#include "GUI/NoesisGUI/NoesisGUIManager.h"
+#include "GUI/NoesisGUI/Module.h"
 #include "Core/LCUtils.h"
 #include "World/World.h"
 #include "MainMenuViewModel.h"
@@ -58,23 +58,18 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
         auto onUpdateHandler = [weakApp, sprite, &keys](float DeltaSeconds) {
             DebugMsg("FPS: %.3f\n", (1.0f / DeltaSeconds));
-
-            if (auto app = weakApp.lock())
-            {
-                if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200.0f * DeltaSeconds, 0.0f, 0.0f));
-                if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200.0f * DeltaSeconds, 0.0f, 0.0f));
-
-                if (keys[VK_UP]) sprite->AddRotZ(-2.0f * DeltaSeconds);
-                if (keys[VK_DOWN]) sprite->AddRotZ(2.0f * DeltaSeconds);
-            }
         };
 
-        auto onKeyboardHandler = [weakApp, &keys](int key, LcKeyState keyEvent) {
+        auto onKeyboardHandler = [weakApp, world, &keys](int key, LcKeyState keyEvent) {
             keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
 
             if (auto app = weakApp.lock())
             {
-                if (key == 'Q') app->RequestQuit();
+                if (keyEvent == LcKeyState::Down)
+                {
+                    if (key == 'Q') app->RequestQuit();
+                    if (key == 'N') world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3(600, 0, 0)));
+                }
             }
         };
 

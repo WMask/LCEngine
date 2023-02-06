@@ -76,8 +76,17 @@ void LcNoesisRenderContextD3D10::Init(void* window, uint32_t& samples, bool vsyn
     CreateSwapChain(window, samples, sRGB);
     CreateQueries();
 
+    Noesis::Ptr<LcNoesisRenderDeviceD3D10> renderer = *new LcNoesisRenderDeviceD3D10(mDevice, sRGB);
+    renderer->LoadShaders(mShadersPath.c_str());
+    mRenderer = renderer;
     mVSync = vsync;
-    mRenderer = *new LcNoesisRenderDeviceD3D10(mDevice, mShadersPath.c_str(), sRGB);
+
+    DXGI_SWAP_CHAIN_DESC desc;
+    if (SUCCEEDED(mSwapChain->GetDesc(&desc)) && mRenderer)
+    {
+        mRenderer->SetOffscreenWidth(desc.BufferDesc.Width);
+        mRenderer->SetOffscreenHeight(desc.BufferDesc.Height);
+    }
 }
 
 void LcNoesisRenderContextD3D10::Shutdown()
@@ -127,6 +136,13 @@ void LcNoesisRenderContextD3D10::Resize()
     }
 
     CreateBuffers();
+
+    DXGI_SWAP_CHAIN_DESC desc;
+    if (SUCCEEDED(mSwapChain->GetDesc(&desc)) && mRenderer)
+    {
+        mRenderer->SetOffscreenWidth(desc.BufferDesc.Width);
+        mRenderer->SetOffscreenHeight(desc.BufferDesc.Height);
+    }
 }
 
 float LcNoesisRenderContextD3D10::GetGPUTimeMs() const

@@ -35,7 +35,7 @@ public:
 
 
 public: // IWidget interface implementation
-    virtual void Init(LcSize viewportSize) override;
+    virtual void Init() override;
     //
     virtual void OnKeyboard(int btn, LcKeyState state) override;
     //
@@ -49,13 +49,13 @@ public: // IVisual interface implementation
     //
     virtual void PostRender();
     //
-    virtual void SetSize(LcSizef inSize) override { if (view) view->SetSize((uint32_t)inSize.x(), (uint32_t)inSize.y()); size = inSize; }
+    virtual void SetSize(LcSizef inSize) override;
     //
     virtual LcSizef GetSize() const override { return size; }
     //
-    virtual void SetPos(LcVector3 inPos) override { widget.pos = inPos; }
+    virtual void SetPos(LcVector3 inPos) override;
     //
-    virtual void AddPos(LcVector3 inPos) override { widget.pos += inPos; }
+    virtual void AddPos(LcVector3 inPos) override;
     //
     virtual LcVector3 GetPos() const override { return widget.pos; }
     //

@@ -11,10 +11,12 @@
 
 
 /** Convert */
-inline LcSizef ToF(const LcSize& size) { return LcSizef((float)size.x(), (float)size.y()); }
-inline LcSize  ToI(const LcSizef& size) { return LcSize((int)size.x(), (int)size.y()); }
-       LcRectf ToF(const LcRect& rect);
-       LcRect  ToI(const LcRectf& rect);
+inline LcSizef   ToF(const LcSize& size) { return LcSizef((float)size.x(), (float)size.y()); }
+inline LcSize    ToI(const LcSizef& size) { return LcSize((int)size.x(), (int)size.y()); }
+inline LcVector2 To2(const LcVector3& v) { return LcVector2(v.x(), v.y()); }
+inline LcVector3 To3(const LcVector2& v) { return LcVector3(v.x(), v.y(), 0.0f); }
+       LcRectf   ToF(const LcRect& rect);
+       LcRect    ToI(const LcRectf& rect);
 
 
 /**

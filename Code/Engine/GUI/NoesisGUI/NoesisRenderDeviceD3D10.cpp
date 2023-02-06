@@ -113,10 +113,8 @@ public:
 };
 
 
-LcNoesisRenderDeviceD3D10::LcNoesisRenderDeviceD3D10(ID3D10Device* device, const char* folderPath, bool sRGB)
+LcNoesisRenderDeviceD3D10::LcNoesisRenderDeviceD3D10(ID3D10Device* device, bool sRGB)
 {
-    LoadShaders(folderPath);
-
     mLayout = nullptr;
     mIndexBuffer = nullptr;
     mVertexShader = nullptr;
@@ -130,7 +128,6 @@ LcNoesisRenderDeviceD3D10::LcNoesisRenderDeviceD3D10(ID3D10Device* device, const
 
     CreateBuffers();
     CreateStateObjects();
-    CreateShaders();
 
     InvalidateStateCache();
 }
@@ -160,6 +157,8 @@ void LcNoesisRenderDeviceD3D10::LoadShaders(const char* folderPath)
             }
         }
     }
+
+    CreateShaders();
 }
 
 Ptr<Texture> LcNoesisRenderDeviceD3D10::WrapTexture(ID3D10Texture2D* texture, uint32_t width,

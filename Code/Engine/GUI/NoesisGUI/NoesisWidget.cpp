@@ -12,6 +12,7 @@
 #include <NsGui/IntegrationAPI.h>
 #include <NsApp/Interaction.h>
 #include <NsGui/IRenderer.h>
+#include <NsDrawing/Thickness.h>
 #include <NsRender/RenderContext.h>
 #include <NsRender/RenderDevice.h>
 
@@ -48,15 +49,52 @@ LcNoesisWidget::~LcNoesisWidget()
     }
 }
 
-void LcNoesisWidget::Init(LcSize viewportSize)
+void LcNoesisWidget::Init()
 {
-    if (context && context->GetDevice())
+    if (auto device = context ? context->GetDevice() : nullptr)
     {
-        size = ToF(viewportSize);
-        view->GetRenderer()->Init(context->GetDevice());
-        view->SetSize((uint32_t)size.x(), (uint32_t)size.y());
-    }
+        if (view)
+        {
+            view->GetRenderer()->Init(device);
 
+            LcSize viewportSize(device->GetOffscreenWidth(), device->GetOffscreenHeight());
+            view->SetSize(viewportSize.x(), viewportSize.y());
+            size = ToF(viewportSize);
+        }
+
+        SetPos(widget.pos);
+    }
+}
+
+void LcNoesisWidget::SetSize(LcSizef inSize)
+{
+    size = inSize;
+
+    if (view)
+    {
+        auto sizeI = ToI(size);
+        view->SetSize(sizeI.x(), sizeI.y());
+    }
+}
+
+void LcNoesisWidget::SetPos(LcVector3 inPos)
+{
+    widget.pos = inPos;
+
+    if (control)
+    {
+        control->SetMargin(Noesis::Thickness(widget.pos.x(), widget.pos.y(), 0.0f, 0.0f));
+    }
+}
+
+void LcNoesisWidget::AddPos(LcVector3 inPos)
+{
+    widget.pos += inPos;
+
+    if (control)
+    {
+        control->SetMargin(Noesis::Thickness(widget.pos.x(), widget.pos.y(), 0.0f, 0.0f));
+    }
 }
 
 void LcNoesisWidget::OnKeyboard(int btn, LcKeyState state)
@@ -126,6 +164,7 @@ std::shared_ptr<IWidget> LcNoesisWidgetFactory::Build(const LcWidgetData& data)
     {
         newWidget->view = Noesis::GUI::CreateView(newWidget->control);
         newWidget->view->SetFlags(Noesis::RenderFlags_PPAA | Noesis::RenderFlags_LCD);
+        newWidget->Init();
     }
     else
     {

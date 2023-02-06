@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "GUI/GUIManager.h"
 #include "World/Module.h"
+#include "Core/LCUtils.h"
 
 
 void IGuiManager::Init(void* window, LcSize viewportSize)
@@ -16,7 +17,7 @@ void IGuiManager::Init(void* window, LcSize viewportSize)
 
     for (auto& widget : widgetList)
     {
-        widget->Init(viewportSize);
+        widget->Init();
     }
 }
 
@@ -73,13 +74,13 @@ void IGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
     {
         if (!widget->IsVisible()) continue;
 
-        LcVector2 pos2d(widget->GetPos().x(), widget->GetPos().z());
-        LcRectf widgetBox(pos2d, pos2d + widget->GetSize());
-        if (widgetBox.contains(LcVector2((float)x, (float)y)))
+        LcVector2 clickPt((float)x, (float)y);
+        LcVector2 widgetPos = To2(widget->GetPos());
+        LcRectf widgetBox(widgetPos, widgetPos + widget->GetSize());
+        if (widgetBox.contains(clickPt))
         {
-            int localX = x - (int)round(pos2d.x());
-            int localY = y - (int)round(pos2d.y());
-            widget->OnMouseButton(btn, state, localX, localY);
+            auto result = ToI(clickPt);
+            widget->OnMouseButton(btn, state, result.x(), result.y());
         }
     }
 }
@@ -93,13 +94,13 @@ void IGuiManager::OnMouseMove(int x, int y)
     {
         if (!widget->IsVisible()) continue;
 
-        LcVector2 pos2d(widget->GetPos().x(), widget->GetPos().z());
-        LcRectf widgetBox(pos2d, pos2d + widget->GetSize());
-        if (widgetBox.contains(LcVector2((float)x, (float)y)))
+        LcVector2 clickPt((float)x, (float)y);
+        LcVector2 widgetPos = To2(widget->GetPos());
+        LcRectf widgetBox(widgetPos, widgetPos + widget->GetSize());
+        if (widgetBox.contains(clickPt))
         {
-            int localX = x - (int)round(pos2d.x());
-            int localY = y - (int)round(pos2d.y());
-            widget->OnMouseMove(localX, localY);
+            auto result = ToI(clickPt);
+            widget->OnMouseMove(result.x(), result.y());
         }
     }
 }

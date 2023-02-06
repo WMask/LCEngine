@@ -7,9 +7,9 @@
 #include "framework.h"
 #include "ClickMoveBehavior.h"
 #include "MainMenuViewModel.h"
+#include "GUI/NoesisGUI/NoesisUtils.h"
 
 #include <NsGui/DependencyData.h>
-#include <NsGui/Canvas.h>
 #include <NsDrawing/Thickness.h>
 
 
@@ -41,9 +41,9 @@ void ClickMoveBehavior::OnMouseLeftButtonDown(BaseComponent*, const Noesis::Mous
         MainMenuViewModel* viewModel = Noesis::DynamicCast<MainMenuViewModel*>(obj->GetDataContext());
         if (viewModel)
         {
-            auto margin = obj->GetMargin();
-            viewModel->SetPosX(args.position.x - margin.left);
-            viewModel->SetPosY(args.position.y - margin.top);
+            auto newPos = SkipMargin(args.position, obj);
+            viewModel->SetPosX(newPos.x);
+            viewModel->SetPosY(newPos.y);
         }
     }
 }

@@ -35,7 +35,7 @@ struct MSAA
 class LcNoesisRenderDeviceD3D10 final: public Noesis::RenderDevice
 {
 public:
-    LcNoesisRenderDeviceD3D10(ID3D10Device* device, const char* folderPath, bool sRGB = false);
+    LcNoesisRenderDeviceD3D10(ID3D10Device* device, bool sRGB = false);
     ~LcNoesisRenderDeviceD3D10();
     void LoadShaders(const char* folderPath);
 
