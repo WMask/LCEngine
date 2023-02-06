@@ -10,6 +10,7 @@
 #include "Core/LCTypes.h"
 
 #include <NsGui/XamlProvider.h>
+#include <NsGui/TextureProvider.h>
 
 #pragma warning(disable : 4251)
 
@@ -29,7 +30,10 @@ public:
 public: // INoesisGuiManager interface implementation
 	/**
 	* Set XAML provider */
-	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const char* resources, const char* shadersPath) override;
+	virtual void NoesisInit(
+		Noesis::Ptr<Noesis::XamlProvider> xamls,
+		Noesis::Ptr<Noesis::TextureProvider> textures,
+		const char* resources, const char* shadersPath) override;
 
 
 public: // IGuiManager interface implementation
@@ -49,6 +53,8 @@ public: // IGuiManager interface implementation
 
 protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
+	//
+	Noesis::Ptr<Noesis::TextureProvider> textureProvider;
 	//
 	LcRenderContext* context;
 	//

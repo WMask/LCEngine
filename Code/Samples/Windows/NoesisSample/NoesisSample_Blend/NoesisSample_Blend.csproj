@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Media\338.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Remove="SampleDictionary.xaml" />
   </ItemGroup>
 
@@ -16,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Media\338.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Resource Include="SampleDictionary.xaml" />
   </ItemGroup>
 

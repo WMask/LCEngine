@@ -83,6 +83,21 @@ std::string ReadTextFile(const char* filePath)
 	return result;
 }
 
+std::vector<char> ReadBinaryFile(const char* filePath)
+{
+	using namespace std::filesystem;
+
+	path path;
+	path.assign(filePath);
+	std::ifstream stream(path, std::ios::in | std::ios::binary);
+
+	const auto sz = file_size(path);
+	std::vector<char> result(sz);
+	stream.read(result.data(), sz);
+
+	return result;
+}
+
 #ifdef _WINDOWS
 
 #include <windows.h>

@@ -16,9 +16,9 @@
                 <common:ClickMoveBehavior />
             </b:Interaction.Behaviors>
         </Rectangle>
+        <Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="50" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Canvas Margin="100">
             <Rectangle x:Name="RedBox" Fill="{StaticResource RedBrush}" Canvas.Left="{Binding PosX}" Canvas.Top="{Binding PosY}" Width="100" Height="100" />
         </Canvas>
-        <!--Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="0, 0, 0, 300" /-->
     </Grid>
 </UserControl>

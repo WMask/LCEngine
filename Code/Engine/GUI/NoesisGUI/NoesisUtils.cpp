@@ -36,3 +36,8 @@ Noesis::Point SkipMargin(Noesis::Point pos, Noesis::FrameworkElement* element)
 
 	return result;
 }
+
+Noesis::ArrayRef<uint8_t> ToArray(const std::vector<char>& data)
+{
+	return Noesis::ArrayRef<uint8_t>((uint8_t*)data.data(), (uint32_t)data.size());
+}

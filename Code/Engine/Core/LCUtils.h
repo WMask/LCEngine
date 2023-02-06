@@ -9,6 +9,8 @@
 #include "Module.h"
 #include "LCTypes.h"
 
+#include <vector>
+
 
 /** Convert */
 inline LcSizef   ToF(const LcSize& size) { return LcSizef((float)size.x(), (float)size.y()); }
@@ -36,6 +38,11 @@ CORE_API LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ = 
 /**
 * Read text file */
 CORE_API std::string ReadTextFile(const char* filePath);
+
+
+/**
+* Read binary file */
+CORE_API std::vector<char> ReadBinaryFile(const char* filePath);
 
 
 /**

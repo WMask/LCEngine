@@ -32,11 +32,15 @@ LcNoesisGuiManager::~LcNoesisGuiManager()
     }
 }
 
-void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const char* resources, const char* inShadersPath)
+void LcNoesisGuiManager::NoesisInit(
+    Noesis::Ptr<Noesis::XamlProvider> xamls,
+    Noesis::Ptr<Noesis::TextureProvider> textures,
+    const char* resources, const char* inShadersPath)
 {
     if (isInit) throw std::exception("LcNoesisGuiManager::NoesisInit(): Already initialized");
 
-    xamlProvider = provider;
+    xamlProvider = xamls;
+    textureProvider = textures;
     shadersPath = inShadersPath;
 
     Noesis::SetLogHandler([](const char*, uint32_t, uint32_t level, const char*, const char* msg)
@@ -45,8 +49,13 @@ void LcNoesisGuiManager::NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, 
         DebugMsg("[NOESIS/%s] %s\n", prefixes[level], msg);
     });
 
-    Noesis::GUI::SetLicense(NS_LICENSE_NAME, NS_LICENSE_KEY);
+    Noesis::GUI::SetLicense("Denis Korablev", "iBt72mhQe9raMxzrGjLz5NT8sTp8LRrz4se3KToFhnr5kZ4K");
     Noesis::GUI::Init();
+
+    if (textureProvider)
+    {
+        Noesis::GUI::SetTextureProvider(textureProvider);
+    }
 
     if (xamlProvider)
     {

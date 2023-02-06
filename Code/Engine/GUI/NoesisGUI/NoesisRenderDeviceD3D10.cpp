@@ -1086,8 +1086,13 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         switch (shader)
         {
         case Noesis::Shader::Vertex::Pos:
+            break;
         case Noesis::Shader::Vertex::PosColor:
+            code = mShaderSource["PosColor.shader"].c_str();
+            break;
         case Noesis::Shader::Vertex::PosTex0:
+            code = mShaderSource["PosTex0.shader"].c_str();
+            break;
         case Noesis::Shader::Vertex::PosTex0Rect:
         case Noesis::Shader::Vertex::PosTex0RectTile:
             break;
@@ -1097,7 +1102,10 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         case Noesis::Shader::Vertex::PosTex0Coverage:
         case Noesis::Shader::Vertex::PosTex0CoverageRect:
         case Noesis::Shader::Vertex::PosTex0CoverageRectTile:
+            break;
         case Noesis::Shader::Vertex::PosColorTex1_SDF:
+            code = mShaderSource["PosColorTex1_SDF.shader"].c_str();
+            break;
         case Noesis::Shader::Vertex::PosTex0Tex1_SDF:
         case Noesis::Shader::Vertex::PosTex0Tex1Rect_SDF:
         case Noesis::Shader::Vertex::PosTex0Tex1RectTile_SDF:
@@ -1165,18 +1173,27 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         case Noesis::Shader::RGBA:
         case Noesis::Shader::Mask:
         case Noesis::Shader::Clear:
+            break;
 
         case Noesis::Shader::Path_Solid:
+            code = mShaderSource["Path_Solid.shader"].c_str();
+            break;
         case Noesis::Shader::Path_Linear:
         case Noesis::Shader::Path_Radial:
+            break;
         case Noesis::Shader::Path_Pattern:
+            code = mShaderSource["Path_Pattern.shader"].c_str();
+            break;
         case Noesis::Shader::Path_Pattern_Clamp:
         case Noesis::Shader::Path_Pattern_Repeat:
         case Noesis::Shader::Path_Pattern_MirrorU:
         case Noesis::Shader::Path_Pattern_MirrorV:
         case Noesis::Shader::Path_Pattern_Mirror:
+            break;
 
         case Noesis::Shader::Path_AA_Solid:
+            code = mShaderSource["Path_AA_Solid.shader"].c_str();
+            break;
         case Noesis::Shader::Path_AA_Linear:
         case Noesis::Shader::Path_AA_Radial:
         case Noesis::Shader::Path_AA_Pattern:
@@ -1185,8 +1202,11 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         case Noesis::Shader::Path_AA_Pattern_MirrorU:
         case Noesis::Shader::Path_AA_Pattern_MirrorV:
         case Noesis::Shader::Path_AA_Pattern_Mirror:
+            break;
 
-        case Noesis::Shader::SDF_Solid:
+        case Noesis::Shader::SDF_Solid: 
+            code = mShaderSource["SDF_Solid.shader"].c_str();
+            break;
         case Noesis::Shader::SDF_Linear:
         case Noesis::Shader::SDF_Radial:
         case Noesis::Shader::SDF_Pattern:

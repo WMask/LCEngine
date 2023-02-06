@@ -21,6 +21,7 @@ namespace Noesis
 {
 	template<class T> class Ptr;
 	class XamlProvider;
+	class TextureProvider;
 }
 
 
@@ -31,7 +32,10 @@ class NOESISGUI_API INoesisGuiManager : public IGuiManager
 public:
 	/**
 	* Initialize Noesis */
-	virtual void NoesisInit(Noesis::Ptr<Noesis::XamlProvider> provider, const char* resources, const char* shadersPath) = 0;
+	virtual void NoesisInit(
+		Noesis::Ptr<Noesis::XamlProvider> xamls,
+		Noesis::Ptr<Noesis::TextureProvider> textures,
+		const char* resources, const char* shadersPath) = 0;
 
 };
 

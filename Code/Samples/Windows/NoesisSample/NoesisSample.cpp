@@ -8,7 +8,7 @@
 #include "NoesisSample.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
-#include "GUI/NoesisGUI/Module.h"
+#include "GUI/NoesisGUI/NoesisUtils.h"
 #include "Core/LCUtils.h"
 #include "World/World.h"
 #include "MainMenuViewModel.h"
@@ -16,6 +16,7 @@
 
 #include <NsCore/ReflectionImplement.h>
 #include <NsApp/EmbeddedXamlProvider.h>
+#include <NsApp/EmbeddedTextureProvider.h>
 #include <NsCore/RegisterComponent.h>
 #include <NsGui/IntegrationAPI.h>
 #include <NsGui/UserControl.h>
@@ -76,13 +77,24 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         Noesis::RegisterComponent<MainMenu>();
         Noesis::RegisterComponent<MainMenuViewModel>();
         Noesis::RegisterComponent<ClickMoveBehavior>();
+
         NoesisApp::EmbeddedXaml xamls[] =
         {
             { "MainMenu.xaml", MainMenu_xaml },
             { "SampleDictionary.xaml", SampleDictionary_xaml }
         };
+
+        auto tex = ReadBinaryFile("Media/338.jpg");
+        NoesisApp::EmbeddedTexture textures[] =
+        {
+            { "Media/338.jpg", ToArray(tex) }
+        };
+
         auto guiManager = GetGuiManager();
-        guiManager->NoesisInit(*new NoesisApp::EmbeddedXamlProvider(xamls), "SampleDictionary.xaml", "../../../Shaders/NoesisSM4/");
+        guiManager->NoesisInit(
+            *new NoesisApp::EmbeddedXamlProvider(xamls),
+            *new NoesisApp::EmbeddedTextureProvider(textures),
+            "SampleDictionary.xaml", "../../../Shaders/NoesisSM4/");
 
         world->SetWidgetFactory(GetWidgetFactory());
         auto widget = world->AddWidget(LcWidgetData("MainMenu.xaml", LcVector3::Zero()));
