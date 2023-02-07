@@ -556,6 +556,8 @@ void LcNoesisRenderDeviceD3D10::DrawBatch(const Batch& batch)
     NS_ASSERT(psShader.vsShader < NS_COUNTOF(mVertexShaders));
     const VertexShader& vsShader = mVertexShaders[psShader.vsShader];
 
+    //DebugMsg("v: %d p: %d\n", psShader.vsShader, batch.shader.v);
+
     SetInputLayout(vsShader.layout);
     SetVertexShader(vsShader.shader);
 
@@ -1215,8 +1217,11 @@ void LcNoesisRenderDeviceD3D10::CreateShaders()
         case Noesis::Shader::SDF_Pattern_MirrorU:
         case Noesis::Shader::SDF_Pattern_MirrorV:
         case Noesis::Shader::SDF_Pattern_Mirror:
+            break;
 
         case Noesis::Shader::SDF_LCD_Solid:
+            code = mShaderSource["SDF_LCD_Solid.shader"].c_str();
+            break;
         case Noesis::Shader::SDF_LCD_Linear:
         case Noesis::Shader::SDF_LCD_Radial:
         case Noesis::Shader::SDF_LCD_Pattern:

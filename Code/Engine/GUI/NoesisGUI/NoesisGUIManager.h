@@ -11,6 +11,7 @@
 
 #include <NsGui/XamlProvider.h>
 #include <NsGui/TextureProvider.h>
+#include <NsGui/FontProvider.h>
 
 #pragma warning(disable : 4251)
 
@@ -33,6 +34,7 @@ public: // INoesisGuiManager interface implementation
 	virtual void NoesisInit(
 		Noesis::Ptr<Noesis::XamlProvider> xamls,
 		Noesis::Ptr<Noesis::TextureProvider> textures,
+		Noesis::Ptr<Noesis::FontProvider> fonts,
 		const char* resources, const char* shadersPath) override;
 
 
@@ -55,6 +57,8 @@ protected:
 	Noesis::Ptr<Noesis::XamlProvider> xamlProvider;
 	//
 	Noesis::Ptr<Noesis::TextureProvider> textureProvider;
+	//
+	Noesis::Ptr<Noesis::FontProvider> fontProvider;
 	//
 	LcRenderContext* context;
 	//

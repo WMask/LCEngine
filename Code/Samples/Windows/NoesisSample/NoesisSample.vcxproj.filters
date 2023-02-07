@@ -68,5 +68,8 @@
     <CustomBuild Include="NoesisSample_Blend\SampleDictionary.xaml">
       <Filter>Data</Filter>
     </CustomBuild>
+    <CustomBuild Include="NoesisSample_Blend\Media\calibri.ttf">
+      <Filter>Data</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

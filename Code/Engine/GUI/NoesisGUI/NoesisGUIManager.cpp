@@ -35,12 +35,14 @@ LcNoesisGuiManager::~LcNoesisGuiManager()
 void LcNoesisGuiManager::NoesisInit(
     Noesis::Ptr<Noesis::XamlProvider> xamls,
     Noesis::Ptr<Noesis::TextureProvider> textures,
+    Noesis::Ptr<Noesis::FontProvider> fonts,
     const char* resources, const char* inShadersPath)
 {
     if (isInit) throw std::exception("LcNoesisGuiManager::NoesisInit(): Already initialized");
 
     xamlProvider = xamls;
     textureProvider = textures;
+    fontProvider = fonts;
     shadersPath = inShadersPath;
 
     Noesis::SetLogHandler([](const char*, uint32_t, uint32_t level, const char*, const char* msg)
@@ -52,11 +54,8 @@ void LcNoesisGuiManager::NoesisInit(
     Noesis::GUI::SetLicense("Denis Korablev", "iBt72mhQe9raMxzrGjLz5NT8sTp8LRrz4se3KToFhnr5kZ4K");
     Noesis::GUI::Init();
 
-    if (textureProvider)
-    {
-        Noesis::GUI::SetTextureProvider(textureProvider);
-    }
-
+    if (textureProvider) Noesis::GUI::SetTextureProvider(textureProvider);
+    if (fontProvider) Noesis::GUI::SetFontProvider(fontProvider);
     if (xamlProvider)
     {
         Noesis::GUI::SetXamlProvider(xamlProvider);
@@ -105,6 +104,8 @@ void LcNoesisGuiManager::Shutdown()
     auto& widgetList = world->GetWidgets();
     widgetList.clear();
 
+    textureProvider.Reset();
+    fontProvider.Reset();
     xamlProvider.Reset();
 
     if (context)

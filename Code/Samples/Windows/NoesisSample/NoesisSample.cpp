@@ -17,12 +17,14 @@
 #include <NsCore/ReflectionImplement.h>
 #include <NsApp/EmbeddedXamlProvider.h>
 #include <NsApp/EmbeddedTextureProvider.h>
+#include <NsApp/EmbeddedFontProvider.h>
 #include <NsCore/RegisterComponent.h>
 #include <NsGui/IntegrationAPI.h>
 #include <NsGui/UserControl.h>
 
 #include "x64/Debug/MainMenu.xaml.bin.h"
 #include "x64/Debug/SampleDictionary.xaml.bin.h"
+#include "x64/Debug/calibri.ttf.bin.h"
 
 
 class MainMenu : public Noesis::UserControl
@@ -90,10 +92,16 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             { "Media/338.jpg", ToArray(tex) }
         };
 
+        NoesisApp::EmbeddedFont fonts[] =
+        {
+            { "Media", calibri_ttf }
+        };
+
         auto guiManager = GetGuiManager();
         guiManager->NoesisInit(
             *new NoesisApp::EmbeddedXamlProvider(xamls),
             *new NoesisApp::EmbeddedTextureProvider(textures),
+            *new NoesisApp::EmbeddedFontProvider(fonts),
             "SampleDictionary.xaml", "../../../Shaders/NoesisSM4/");
 
         world->SetWidgetFactory(GetWidgetFactory());

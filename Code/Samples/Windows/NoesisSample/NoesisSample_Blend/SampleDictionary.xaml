@@ -4,5 +4,12 @@
     <BitmapImage x:Key="Icon1" UriSource="Media/338.jpg" />
     <SolidColorBrush x:Key="RedBrush" Color="Red" />
     <SolidColorBrush x:Key="GreenBrush" Color="Green" />
+    <FontFamily x:Key="Calibri">./Media/#calibri</FontFamily>
+    <Style x:Key="SampleTextBlock" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontFamily" Value="{StaticResource Calibri}" />
+        <Setter Property="FontSize" Value="34" />
+    </Style>
 
 </ResourceDictionary>

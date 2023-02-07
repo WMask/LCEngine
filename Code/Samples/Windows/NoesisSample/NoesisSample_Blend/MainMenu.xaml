@@ -17,6 +17,7 @@
             </b:Interaction.Behaviors>
         </Rectangle>
         <Image Source="{StaticResource Icon1}" Width="180" Height="180" Margin="50" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <TextBlock Text="Widget" Margin="240, 50" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource SampleTextBlock}" />
         <Canvas Margin="100">
             <Rectangle x:Name="RedBox" Fill="{StaticResource RedBrush}" Canvas.Left="{Binding PosX}" Canvas.Top="{Binding PosY}" Width="100" Height="100" />
         </Canvas>

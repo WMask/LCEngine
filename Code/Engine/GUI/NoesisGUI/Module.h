@@ -22,6 +22,7 @@ namespace Noesis
 	template<class T> class Ptr;
 	class XamlProvider;
 	class TextureProvider;
+	class FontProvider;
 }
 
 
@@ -35,6 +36,7 @@ public:
 	virtual void NoesisInit(
 		Noesis::Ptr<Noesis::XamlProvider> xamls,
 		Noesis::Ptr<Noesis::TextureProvider> textures,
+		Noesis::Ptr<Noesis::FontProvider> fonts,
 		const char* resources, const char* shadersPath) = 0;
 
 };
