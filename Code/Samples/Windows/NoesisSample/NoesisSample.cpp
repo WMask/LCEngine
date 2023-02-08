@@ -51,15 +51,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto app = GetApp();
         TWeakApp weakApp(app);
 
-        LcSizef size(200, 200);
-        LcVector3 pos(200, 200, 0);
-        LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
-        auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, pos, size, colors));
-
         BYTE keys[256];
         memset(keys, 0, sizeof(keys));
 
-        auto onUpdateHandler = [weakApp, sprite, &keys](float DeltaSeconds) {
+        auto onUpdateHandler = [weakApp, &keys](float DeltaSeconds) {
             DebugMsg("FPS: %.3f\n", (1.0f / DeltaSeconds));
         };
 
