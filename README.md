@@ -1,2 +1,3 @@
 # LCEngine
- Left Coast game engine
+C++ game engine.
+Added DirectX 10 render system.
