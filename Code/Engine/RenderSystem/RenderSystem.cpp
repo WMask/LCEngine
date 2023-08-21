@@ -10,11 +10,7 @@
 #include "Core/LCUtils.h"
 
 
-IRenderSystem::~IRenderSystem()
-{
-}
-
-void IRenderSystem::LoadShaders(const char* folderPath)
+void LcRenderSystemBase::LoadShaders(const char* folderPath)
 {
     using namespace std::filesystem;
 
@@ -32,20 +28,24 @@ void IRenderSystem::LoadShaders(const char* folderPath)
     }
 }
 
-void IRenderSystem::Create(void* Handle, LcSize viewportSize, bool windowed)
+void LcRenderSystemBase::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed)
+{
+    world = worldPtr;
+}
+
+void LcRenderSystemBase::Shutdown()
 {
 }
 
-void IRenderSystem::Shutdown()
+void LcRenderSystemBase::Render()
 {
-}
+    if (auto weakWorld = world.lock())
+    {
+        const auto& sprites = weakWorld->GetSprites();
 
-void IRenderSystem::Render()
-{
-	const auto& sprites = GetWorld()->GetSprites();
-
-	for (const auto& sprite : sprites)
-	{
-		if (sprite->IsVisible()) RenderSprite(sprite.get());
-	}
+        for (const auto& sprite : sprites)
+        {
+            if (sprite->IsVisible()) RenderSprite(sprite.get());
+        }
+    }
 }

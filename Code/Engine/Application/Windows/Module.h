@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Application/Application.h"
+#include <memory>
 
 
 #ifndef WINDOWSAPPLICATION_EXPORTS
@@ -16,6 +16,10 @@
 #endif
 
 
+typedef std::shared_ptr<class IApplication> TAppPtr;
+typedef std::weak_ptr<class IApplication> TWeakApp;
+
+
 /**
 * Windows application */
-WINDOWSAPPLICATION_API std::shared_ptr<IApplication> GetApp();
+WINDOWSAPPLICATION_API TAppPtr GetApp();

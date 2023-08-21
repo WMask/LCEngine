@@ -28,16 +28,16 @@ public: // IApplication interface implementation
 	virtual ~LcWindowsApplication() override;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
+	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds, const char* shadersPath) noexcept override;
+	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, const char* shadersPath) noexcept override;
 	/**
 	* Set render system */
-	virtual void SetRenderSystem(std::shared_ptr<class IRenderSystem> render) noexcept { renderSystem = std::shared_ptr<class IRenderSystem>(render); }
+	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = std::move(render); }
 	/**
 	* Set GUI manager */
-	virtual void SetGuiManager(std::shared_ptr<class IGuiManager> manager) noexcept { guiManager = std::shared_ptr<class IGuiManager>(manager); }
+	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = std::move(gui); }
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(LcSize inWindowSize) noexcept { windowSize = inWindowSize; }
@@ -69,6 +69,8 @@ protected:
 	HINSTANCE hInstance;
 	//
 	HWND hWnd;
+	//
+	TWorldWeakPtr world;
 	//
 	std::shared_ptr<class IRenderSystem> renderSystem;
 	//

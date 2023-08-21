@@ -25,11 +25,11 @@ public:
 
 /**
 * Sprite factory pointer */
-typedef std::shared_ptr<TWorldFactory<ISprite, LcSpriteData>> ISpriteFactoryPtr;
+typedef std::shared_ptr<TWorldFactory<ISprite, LcSpriteData>> TSpriteFactoryPtr;
 
 /**
 * Widget factory pointer */
-typedef std::shared_ptr<TWorldFactory<IWidget, LcWidgetData>> IWidgetFactoryPtr;
+typedef std::shared_ptr<TWorldFactory<IWidget, LcWidgetData>> TWidgetFactoryPtr;
 
 
 /**
@@ -44,8 +44,11 @@ public:
 
 public:
 	/**
+	* Destructor */
+	virtual ~IWorld() {}
+	/**
 	* Set sprite factory */
-	virtual void SetSpriteFactory(ISpriteFactoryPtr inSpriteFactory) = 0;
+	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) = 0;
 	/**
 	* Add sprite */
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) = 0;
@@ -57,7 +60,7 @@ public:
 	virtual SPRITE_LIST& GetSprites() = 0;
 	/**
 	* Set widget factory */
-	virtual void SetWidgetFactory(IWidgetFactoryPtr inWidgetFactory) = 0;
+	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) = 0;
 	/**
 	* Add widget */
 	virtual IWidget* AddWidget(const LcWidgetData& widget) = 0;

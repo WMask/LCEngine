@@ -17,8 +17,14 @@ class LcWorld : public IWorld
 {
 public: // IWorld interface implementation
 	/**
+	* Constructor */
+	LcWorld();
+	/**
+	* Destructor */
+	~LcWorld();
+	/**
 	* Set sprite factory */
-	virtual void SetSpriteFactory(ISpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
+	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
 	/**
 	* Add sprite */
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
@@ -30,7 +36,7 @@ public: // IWorld interface implementation
 	virtual SPRITE_LIST& GetSprites() override { return sprites; }
 	/**
 	* Set widget factory */
-	virtual void SetWidgetFactory(IWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
+	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
 	/**
 	* Add widget */
 	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
@@ -43,15 +49,11 @@ public: // IWorld interface implementation
 
 
 protected:
-	LcWorld();
-	//
-	~LcWorld();
-	//
 	LcWorld(const LcWorld&);
 	//
 	LcWorld& operator=(const LcWorld&);
 	//
-	friend WORLD_API IWorld* GetWorld();
+	friend WORLD_API TWorldPtr GetWorld();
 
 
 protected:
@@ -59,8 +61,8 @@ protected:
 	//
 	WIDGET_LIST widgets;
 	//
-	ISpriteFactoryPtr spriteFactory;
+	TSpriteFactoryPtr spriteFactory;
 	//
-	IWidgetFactoryPtr widgetFactory;
+	TWidgetFactoryPtr widgetFactory;
 
 };

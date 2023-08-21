@@ -12,6 +12,7 @@
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
+#include "World/Module.h"
 #include "Core/LcUtils.h"
 
 
@@ -59,7 +60,7 @@ struct VS_TRANS_BUFFER
 /**
 * DirectX 10 render system */
 class RENDERSYSTEMDX10_API LcRenderSystemDX10
-	: public IRenderSystem
+	: public LcRenderSystemBase
 	, public IRenderDeviceDX10
 {
 public:
@@ -72,7 +73,7 @@ public: // IRenderSystem interface implementation
 	virtual ~LcRenderSystemDX10() override;
 	/**
 	* Create render system */
-	virtual void Create(void* Handle, LcSize viewportSize, bool windowed) override;
+	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed) override;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() override;

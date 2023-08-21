@@ -7,7 +7,9 @@
 #pragma once
 
 #include "Core/LcTypes.h"
+#include "World/Module.h"
 #include "Module.h"
+
 
 #include <map>
 #include <string>
@@ -20,34 +22,55 @@
 class RENDERSYSTEM_API IRenderSystem
 {
 public:
-	typedef std::map<std::string, std::string> SHADERS_MAP;
-
-
-public:
 	/**
 	* Virtual destructor */
-	virtual ~IRenderSystem();
+	virtual ~IRenderSystem() {}
 	/**
 	* Load shaders */
-	virtual void LoadShaders(const char* folderPath);
+	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(void* Handle, LcSize viewportSize, bool windowed);
+	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed) = 0;
 	/**
 	* Shutdown render system */
-	virtual void Shutdown();
+	virtual void Shutdown() = 0;
 	/**
 	* Update world */
 	virtual void Update(float deltaSeconds) = 0;
 	/**
 	* Render world */
-	virtual void Render();
+	virtual void Render() = 0;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
+
+};
+
+
+/**
+* Render system interface */
+class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
+{
+public:
+	typedef std::map<std::string, std::string> SHADERS_MAP;
+
+
+public:
+	/**
+	* Load shaders */
+	virtual void LoadShaders(const char* folderPath);
+	/**
+	* Create render system */
+	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed);
+	/**
+	* Shutdown render system */
+	virtual void Shutdown();
+	/**
+	* Render world */
+	virtual void Render();
 
 
 protected:
@@ -57,6 +80,8 @@ protected:
 
 
 protected:
+	TWorldWeakPtr world;
+	//
 	SHADERS_MAP shaders;
 
 };

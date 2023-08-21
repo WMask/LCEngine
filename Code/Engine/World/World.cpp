@@ -75,7 +75,7 @@ public:
 
 LcWorld::LcWorld()
 {
-	spriteFactory = ISpriteFactoryPtr(new LcSpriteFactory());
+	spriteFactory = TSpriteFactoryPtr(new LcSpriteFactory());
 }
 
 LcWorld::~LcWorld()
@@ -125,8 +125,7 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	if (it != widgets.end()) widgets.erase(it);
 }
 
-IWorld* GetWorld()
+TWorldPtr GetWorld()
 {
-	static LcWorld world;
-	return &world;
+	return std::make_shared<LcWorld>();
 }

@@ -55,17 +55,18 @@ LcWindowsApplication::~LcWindowsApplication()
     }
 }
 
-void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
 {
-	hInstance = (HINSTANCE)Handle;
+    world = worldPtr;
+	hInstance = (HINSTANCE)handle;
     cmds = inCmds;
     cmdsCount = inCmdsCount;
     if (inShadersPath) shadersPath = inShadersPath;
 }
 
-void LcWindowsApplication::Init(void* Handle, const std::wstring& inCmds, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& inCmds, const char* inShadersPath) noexcept
 {
-    Init(Handle, inCmds, 1, inShadersPath);
+    Init(worldPtr, handle, inCmds, 1, inShadersPath);
 }
 
 void LcWindowsApplication::Run()
@@ -109,9 +110,9 @@ void LcWindowsApplication::Run()
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
-        renderSystem->Create(hWnd, windowSize, true);
+        renderSystem->Create(world, hWnd, windowSize, true);
     }
-    if (guiManager) guiManager->Init(hWnd, windowSize);
+    if (guiManager) guiManager->Init(world, hWnd, windowSize);
 
 	prevTick = GetTickCount64();
     MSG msg;
@@ -205,7 +206,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-std::shared_ptr<IApplication> GetApp()
+TAppPtr GetApp()
 {
-    return std::shared_ptr<IApplication>(new LcWindowsApplication());
+    return std::make_shared<LcWindowsApplication>();
 }

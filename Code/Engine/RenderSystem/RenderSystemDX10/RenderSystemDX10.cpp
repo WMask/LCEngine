@@ -8,7 +8,6 @@
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "Application/Application.h"
-#include "World/Module.h"
 #include "Core/LCUtils.h"
 
 
@@ -28,7 +27,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed)
+void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed)
 {
 	int width = viewportSize.x, height = viewportSize.y;
 	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
@@ -45,7 +44,7 @@ void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.OutputWindow = (HWND)Handle;
+	swapChainDesc.OutputWindow = (HWND)windowHandle;
 	swapChainDesc.Windowed = true;
 
 	// create the D3D device
@@ -162,12 +161,12 @@ void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed
 	spriteRenders[0]->Setup();
 
 	// init render system
-	IRenderSystem::Create(this, viewportSize, windowed);
+	LcRenderSystemBase::Create(worldPtr, this, viewportSize, windowed);
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
-	IRenderSystem::Shutdown();
+	LcRenderSystemBase::Shutdown();
 
 	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
 	if (blendState) { blendState->Release(); blendState = nullptr; }
@@ -192,7 +191,7 @@ void LcRenderSystemDX10::Render()
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView, (FLOAT*)&color);
 
-	IRenderSystem::Render();
+	LcRenderSystemBase::Render();
 
 	swapChain->Present(0, 0);
 }
@@ -216,7 +215,7 @@ std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) con
 	return shaders.at(shaderName);
 }
 
-std::shared_ptr<IRenderSystem> GetRenderSystem()
+TRenderSystemPtr GetRenderSystem()
 {
-	return std::shared_ptr<IRenderSystem>(new LcRenderSystemDX10());
+	return std::make_unique<LcRenderSystemDX10>();
 }

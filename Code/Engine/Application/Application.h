@@ -11,6 +11,9 @@
 #include <functional>
 
 #include "Module.h"
+#include "GUI/Module.h"
+#include "World/Module.h"
+#include "RenderSystem/Module.h"
 #include "Core/LCTypes.h"
 
 #pragma warning(disable : 4251)
@@ -43,16 +46,16 @@ public:
 	virtual ~IApplication();
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
+	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* Handle, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
+	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set render system */
-	virtual void SetRenderSystem(std::shared_ptr<class IRenderSystem> render) noexcept = 0;
+	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept = 0;
 	/**
 	* Set GUI manager */
-	virtual void SetGuiManager(std::shared_ptr<class IGuiManager> manager) noexcept = 0;
+	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(LcSize windowSize) noexcept = 0;
@@ -84,7 +87,3 @@ protected:
 	IApplication& operator=(const IApplication&);
 
 };
-
-/**
-* Weak pointer for handlers */
-typedef std::weak_ptr<IApplication> TWeakApp;

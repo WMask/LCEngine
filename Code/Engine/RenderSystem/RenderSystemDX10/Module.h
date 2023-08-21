@@ -20,4 +20,4 @@
 
 /**
 * DirectX 10 render system */
-RENDERSYSTEMDX10_API std::shared_ptr<IRenderSystem> GetRenderSystem();
+RENDERSYSTEMDX10_API TRenderSystemPtr GetRenderSystem();

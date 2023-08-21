@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <memory>
+
+
 #ifndef WORLD_EXPORTS
 #define WORLD_API __declspec (dllimport)
 #else
@@ -13,6 +16,10 @@
 #endif
 
 
+typedef std::shared_ptr<class IWorld> TWorldPtr;
+typedef std::weak_ptr<class IWorld> TWorldWeakPtr;
+
+
 /**
 * Get game world manager */
-WORLD_API class IWorld* GetWorld();
+WORLD_API TWorldPtr GetWorld();
