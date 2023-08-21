@@ -130,6 +130,8 @@ void LcWindowsApplication::Run()
             OnUpdate();
         }
 	}
+
+    SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
 }
 
 void LcWindowsApplication::OnUpdate()
