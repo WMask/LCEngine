@@ -10,6 +10,7 @@
 #include "Module.h"
 
 #include <map>
+#include <string>
 
 #pragma warning(disable : 4251)
 

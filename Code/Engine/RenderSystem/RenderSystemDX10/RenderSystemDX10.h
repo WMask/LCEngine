@@ -12,7 +12,7 @@
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
-#include "Core/LCTypes.h"
+#include "Core/LcUtils.h"
 
 
 #pragma warning(disable : 4251)
@@ -42,15 +42,16 @@ public:
 * Transform buffer */
 struct VS_TRANS_BUFFER
 {
-	LcMatrix4 trans;      // scale * rotation * translation
-	LcVector4 colors[4]; // colors
+	LcMatrix4 trans;		// scale * rotation * translation
+	LcVector4 colors[4];	// colors
 	//
 	VS_TRANS_BUFFER()
 	{
-		colors[0] = LcVector4::Ones();
-		colors[1] = LcVector4::Ones();
-		colors[2] = LcVector4::Ones();
-		colors[3] = LcVector4::Ones();
+		trans = IdentityMatrix();
+		colors[0] = LcDefaults::OneVec4;
+		colors[1] = LcDefaults::OneVec4;
+		colors[2] = LcDefaults::OneVec4;
+		colors[3] = LcDefaults::OneVec4;
 	}
 };
 

@@ -6,21 +6,45 @@
 
 #pragma once
 
-// copy Eigen code to LCEngine/Code/Engine/Core/Eigen
-#include "Eigen/Dense"
+#ifdef _WINDOWS
+# include <directxmath.h>
+# include <dcommon.h>
+#endif
 
 
 /** Geometry */
-typedef Eigen::Vector2i LcSize;
-typedef Eigen::Vector2f LcSizef;
-typedef Eigen::Vector2f LcVector2;
-typedef Eigen::Vector3f LcVector3;
-typedef Eigen::Vector4f LcVector4;
-typedef Eigen::Vector4f LcColor4;
-typedef Eigen::Matrix4f LcMatrix4;
-typedef Eigen::AlignedBox<int, 2>	LcRect;
-typedef Eigen::AlignedBox<float, 2>	LcRectf;
+#ifdef _WINDOWS
+typedef DirectX::XMINT2		LcPoint;
+typedef DirectX::XMINT2		LcSize;
+typedef DirectX::XMFLOAT2	LcSizef;
+typedef DirectX::XMFLOAT2	LcVector2;
+typedef DirectX::XMFLOAT3	LcVector3;
+typedef DirectX::XMFLOAT4	LcColor4;
+typedef DirectX::XMVECTOR	LcVector4;
+typedef DirectX::XMMATRIX	LcMatrix4;
+typedef RECT				LcRect;
+typedef D2D_RECT_F			LcRectf;
 
+inline LcVector2 operator+(const LcVector2& a, const LcVector2& b)
+{
+	return LcVector2{ a.x + b.x, a.y + b.y };
+}
+
+inline LcVector3 operator+(const LcVector3& a, const LcVector3& b)
+{
+	return LcVector3{ a.x + b.x, a.y + b.y, a.z + b.z };
+}
+
+inline LcVector4 operator+(const LcVector4& a, const LcVector4& b)
+{
+#ifdef _WINDOWS
+	return DirectX::XMVectorAdd(a, b);
+#else
+	return LcVector4{};
+#endif
+}
+
+#endif
 
 /** Mouse buttons */
 enum class LcMouseBtn

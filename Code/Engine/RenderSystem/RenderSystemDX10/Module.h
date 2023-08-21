@@ -8,6 +8,8 @@
 
 #include "RenderSystem/RenderSystem.h"
 
+#include <memory>
+
 
 #ifndef RENDERSYSTEMDX10_EXPORTS
 #define RENDERSYSTEMDX10_API __declspec (dllimport)

@@ -76,11 +76,11 @@ void IGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
 
         LcVector2 clickPt((float)x, (float)y);
         LcVector2 widgetPos = To2(widget->GetPos());
-        LcRectf widgetBox(widgetPos, widgetPos + widget->GetSize());
-        if (widgetBox.contains(clickPt))
+        LcRectf widgetBox = ToF(widgetPos, widgetPos + widget->GetSize());
+        if (Contains(widgetBox, clickPt))
         {
             auto result = ToI(clickPt);
-            widget->OnMouseButton(btn, state, result.x(), result.y());
+            widget->OnMouseButton(btn, state, result.x, result.y);
         }
     }
 }
@@ -96,11 +96,11 @@ void IGuiManager::OnMouseMove(int x, int y)
 
         LcVector2 clickPt((float)x, (float)y);
         LcVector2 widgetPos = To2(widget->GetPos());
-        LcRectf widgetBox(widgetPos, widgetPos + widget->GetSize());
-        if (widgetBox.contains(clickPt))
+        LcRectf widgetBox = ToF(widgetPos, widgetPos + widget->GetSize());
+        if (Contains(widgetBox, clickPt))
         {
             auto result = ToI(clickPt);
-            widget->OnMouseMove(result.x(), result.y());
+            widget->OnMouseMove(result.x, result.y);
         }
     }
 }

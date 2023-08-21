@@ -27,15 +27,29 @@ struct LcSpriteColors
 	LcColor4 leftBottom;
 	LcColor4 rightBottom;
 	//
-	LcSpriteColors() {}
+	LcSpriteColors() : leftTop{}, rightTop{}, leftBottom{}, rightBottom{} {}
 	//
-	LcSpriteColors(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inLeftBottom, LcColor4 inRightBottom)
-		: leftTop(inLeftTop), rightTop(inRightTop), leftBottom(inLeftBottom), rightBottom(inRightBottom)
+	LcSpriteColors(const LcSpriteColors& colors) :
+		leftTop{ colors.leftTop }, rightTop{ colors.rightTop }, leftBottom{ colors.leftBottom }, rightBottom{ colors.rightBottom }
+	{
+	}
+	//
+	LcSpriteColors(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inLeftBottom, LcColor4 inRightBottom) :
+		leftTop(inLeftTop), rightTop(inRightTop), leftBottom(inLeftBottom), rightBottom(inRightBottom)
 	{
 	}
 	//
 	LcSpriteColors(LcColor4 tint) : leftTop(tint), rightTop(tint), leftBottom(tint), rightBottom(tint)
 	{
+	}
+	//
+	LcSpriteColors& operator=(const LcSpriteColors& colors)
+	{
+		leftTop = colors.leftTop;
+		leftTop = colors.leftTop;
+		leftTop = colors.leftTop;
+		leftTop = colors.leftTop;
+		return *this;
 	}
 };
 

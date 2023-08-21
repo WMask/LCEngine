@@ -37,7 +37,7 @@ public: // IVisual interface implementation
 	//
 	virtual void SetPos(LcVector3 inPos) override { sprite.pos = inPos; }
 	//
-	virtual void AddPos(LcVector3 inPos) override { sprite.pos += inPos; }
+	virtual void AddPos(LcVector3 inPos) override { sprite.pos = sprite.pos + inPos; }
 	//
 	virtual LcVector3 GetPos() const override { return sprite.pos; }
 	//

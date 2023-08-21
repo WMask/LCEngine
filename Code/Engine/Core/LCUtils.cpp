@@ -8,64 +8,110 @@
 #include "LCUtils.h"
 
 
+LcVector3 LcDefaults::OneVec3 = LcVector3(1.0f, 1.0f, 1.0f);
+LcVector3 LcDefaults::ZeroVec3 = LcVector3(0.0f, 0.0f, 0.0f);
+
+#ifdef _WINDOWS
+LcVector4 LcDefaults::OneVec4 = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+LcVector4 LcDefaults::ZeroVec4 = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+#endif
+
+
+LcVector4 ToV(const LcColor4& v)
+{
+#ifdef _WINDOWS
+	return DirectX::XMVectorSet(v.x, v.y, v.z, v.w);
+#else
+	return LcColor4{};
+#endif
+}
+
+LcColor4 ToC(const LcVector4& v)
+{
+#ifdef _WINDOWS
+	return LcColor4{ DirectX::XMVectorGetX(v), DirectX::XMVectorGetY(v), DirectX::XMVectorGetZ(v), DirectX::XMVectorGetW(v) };
+#else
+	return LcColor4{};
+#endif
+}
+
 LcRectf ToF(const LcRect& rect)
 {
-	Eigen::Vector2i lt(rect.corner(Eigen::AlignedBox2i::TopLeft));
-	Eigen::Vector2i rb(rect.corner(Eigen::AlignedBox2i::BottomRight));
-	return LcRectf(Eigen::Vector2f((float)lt.x(), (float)lt.y()), Eigen::Vector2f((float)rb.x(), (float)rb.y()));
+#ifdef _WINDOWS
+	return LcRectf{ (float)rect.left, (float)rect.top, (float)rect.right, (float)rect.bottom };
+#else
+	return LcRectf{};
+#endif
+}
+
+LcRectf ToF(const LcVector2& leftTop, const LcVector2& rightBottom)
+{
+#ifdef _WINDOWS
+	return LcRectf{ (float)leftTop.x, (float)leftTop.y, (float)rightBottom.x, (float)rightBottom.y };
+#else
+	return LcRectf{};
+#endif
 }
 
 LcRect ToI(const LcRectf& rect)
 {
-	Eigen::Vector2f lt(rect.corner(Eigen::AlignedBox2f::TopLeft));
-	Eigen::Vector2f rb(rect.corner(Eigen::AlignedBox2f::BottomRight));
-	return LcRect(Eigen::Vector2i((int)lt.x(), (int)lt.y()), Eigen::Vector2i((int)rb.x(), (int)rb.y()));
+#ifdef _WINDOWS
+	return LcRect{ (int)rect.left, (int)rect.top, (int)rect.right, (int)rect.bottom };
+#else
+	return LcRect{};
+#endif
 }
 
-LcMatrix4 OrthoMatrix(float left, float right, float bottom, float top, float near_plane, float far_plane)
+LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane)
 {
-	LcMatrix4 result = LcMatrix4::Zero();
-
-	result(0, 0) = 2.0f / (right - left);
-	result(1, 1) = 2.0f / (top - bottom);
-	result(2, 2) = -2.0f / (far_plane - near_plane);
-	result(3, 3) = 1.0f;
-	result(0, 3) = -((right + left) / (right - left));
-	result(1, 3) = -((top + bottom) / (top - bottom));
-	result(2, 3) = -((far_plane + near_plane) / (far_plane - near_plane));
-
-	return result;
+#ifdef _WINDOWS
+	return DirectX::XMMatrixOrthographicLH(widthPixels, heightPixels, nearPlane, farPlane);
+#else
+	return LcMatrix4{};
+#endif
 }
 
 LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane)
 {
-	return OrthoMatrix(-vp.x() / 2.0f, vp.x() / 2.0f, vp.y() / 2.0f, -vp.y() / 2.0f, nearPlane, farPlane);
+	return OrthoMatrix((float)vp.x, (float)vp.y, nearPlane, farPlane);
 }
 
 LcMatrix4 TranslationMatrix(LcVector3 pos)
 {
-	LcMatrix4 result = LcMatrix4::Identity();
-
-	result(0, 3) = pos.x();
-	result(1, 3) = pos.y();
-	result(2, 3) = pos.z();
-
-	return result;
+#ifdef _WINDOWS
+	return DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+#else
+	return LcMatrix4{};
+#endif
 }
 
 LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
 {
-	LcMatrix4 result = LcMatrix4::Identity();
+#ifdef _WINDOWS
+	return DirectX::XMMatrixTransformation(LcDefaults::ZeroVec4, LcDefaults::OneVec4, LcDefaults::OneVec4, LcDefaults::ZeroVec4,
+		DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), rotZ),
+		DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f));
+#else
+	return LcMatrix4{};
+#endif
+}
 
-	result(0, 0) = scale.x() * cos(rotZ);
-	result(0, 1) = scale.x() * -sin(rotZ);
-	result(1, 0) = scale.y() * sin(rotZ);
-	result(1, 1) = scale.y() * cos(rotZ);
-	result(0, 3) = pos.x();
-	result(1, 3) = pos.y();
-	result(2, 3) = pos.z();
+LcMatrix4 TransposeMatrix(const LcMatrix4& mat)
+{
+#ifdef _WINDOWS
+	return DirectX::XMMatrixTranspose(mat);
+#else
+	return LcMatrix4{};
+#endif
+}
 
-	return result;
+LcMatrix4 IdentityMatrix()
+{
+#ifdef _WINDOWS
+	return DirectX::XMMatrixIdentity();
+#else
+	return LcMatrix4{};
+#endif
 }
 
 std::string ReadTextFile(const char* filePath)

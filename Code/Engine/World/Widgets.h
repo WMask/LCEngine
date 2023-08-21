@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Visual.h"
+#include <string>
 
 
 /**

@@ -90,7 +90,7 @@ void LcWindowsApplication::Run()
         throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
     }
 
-    RECT clientRect{ 0, 0, windowSize.x(), windowSize .y() };
+    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
     AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
 
     hWnd = CreateWindowW(LcWindowClassName, L"Game Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,

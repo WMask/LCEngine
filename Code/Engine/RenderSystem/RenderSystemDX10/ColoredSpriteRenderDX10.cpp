@@ -12,8 +12,8 @@
 static const char* coloredSpriteShaderName = "ColoredSprite2d.shader";
 struct DX10COLOREDSPRITEDATA
 {
-	Eigen::Vector3f pos; // position
-	unsigned int index;  // vertex index
+	LcVector3 pos;		// position
+	unsigned int index;	// vertex index
 };
 
 LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
@@ -80,10 +80,10 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	// fill vertex buffer
 	DX10COLOREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10COLOREDSPRITEDATA{ Eigen::Vector3f( 0.5,-0.5, 0), 0 };
-	vertices[1] = DX10COLOREDSPRITEDATA{ Eigen::Vector3f( 0.5, 0.5, 0), 1 };
-	vertices[2] = DX10COLOREDSPRITEDATA{ Eigen::Vector3f(-0.5,-0.5, 0), 2 };
-	vertices[3] = DX10COLOREDSPRITEDATA{ Eigen::Vector3f(-0.5, 0.5, 0), 3 };
+	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 0 };
+	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
+	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 2 };
+	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 3 };
 	vertexBuffer->Unmap();
 }
 
@@ -117,14 +117,14 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 	if (!d3dDevice || !transMatrix || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render device");
 
 	LcVector2 offset = renderDevice.GetOffset();
-	LcVector3 pos(sprite->GetPos().x() + offset.x(), sprite->GetPos().y() + offset.y(), sprite->GetPos().z());
+	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);
 	LcSpriteColors colors = sprite->GetColors();
 
-	transData.trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ()).transpose();
-	transData.colors[0] = colors.rightTop;
-	transData.colors[1] = colors.rightBottom;
-	transData.colors[2] = colors.leftTop;
-	transData.colors[3] = colors.leftBottom;
+	transData.trans = TransposeMatrix(TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ()));
+	transData.colors[0] = ToV(colors.rightTop);
+	transData.colors[1] = ToV(colors.rightBottom);
+	transData.colors[2] = ToV(colors.leftTop);
+	transData.colors[3] = ToV(colors.leftBottom);
 
 	d3dDevice->UpdateSubresource(transMatrix, 0, NULL, &transData, 0, 0);
 	d3dDevice->Draw(4, 0);

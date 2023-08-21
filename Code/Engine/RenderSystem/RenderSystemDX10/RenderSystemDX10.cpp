@@ -30,7 +30,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 
 void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed)
 {
-	int width = viewportSize.x(), height = viewportSize.y();
+	int width = viewportSize.x, height = viewportSize.y;
 	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -85,7 +85,7 @@ void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed
 	// define constant buffers
 	struct VS_PROJ_BUFFER
 	{
-		Eigen::Matrix4f matrix;
+		LcMatrix4 matrix;
 	};
 	VS_PROJ_BUFFER projData;
 	VS_TRANS_BUFFER transData;
@@ -111,11 +111,11 @@ void LcRenderSystemDX10::Create(void* Handle, LcSize viewportSize, bool windowed
 
 	cbDesc.ByteWidth = sizeof(VS_TRANS_BUFFER);
 	InitData.pSysMem = &transData;
-	transData.trans = Eigen::Matrix4f::Identity();
-	transData.colors[0] = LcVector4::Ones();
-	transData.colors[1] = LcVector4::Ones();
-	transData.colors[2] = LcVector4::Ones();
-	transData.colors[3] = LcVector4::Ones();
+	transData.trans = IdentityMatrix();
+	transData.colors[0] = LcDefaults::OneVec4;
+	transData.colors[1] = LcDefaults::OneVec4;
+	transData.colors[2] = LcDefaults::OneVec4;
+	transData.colors[3] = LcDefaults::OneVec4;
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &InitData, &transMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
@@ -190,7 +190,7 @@ void LcRenderSystemDX10::Render()
 	}
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
-	d3dDevice->ClearRenderTargetView(renderTargetView, color.data());
+	d3dDevice->ClearRenderTargetView(renderTargetView, (FLOAT*)&color);
 
 	IRenderSystem::Render();
 
