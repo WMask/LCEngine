@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Visual.h"
+#include "Core/LCUtils.h"
 
 
 /**
@@ -65,7 +66,7 @@ struct LcSpriteData
 	bool visible;
 	LcSpriteType type;
 	//
-	LcSpriteData() : rotZ(0.0f), visible(true), type(LcSpriteType::Colored) {}
+	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(), rotZ(0.0f), visible(true), type(LcSpriteType::Colored) {}
 	//
 	LcSpriteData(LcSpriteType inType, LcVector3 inPos, LcSizef inSize, const LcSpriteColors& inColors, float inRotZ = 0.0f, bool inVisible = true)
 		: type(inType), pos(inPos), size(inSize), colors(inColors), rotZ(inRotZ), visible(inVisible)
