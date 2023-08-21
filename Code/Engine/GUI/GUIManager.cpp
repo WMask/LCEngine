@@ -6,11 +6,11 @@
 
 #include "pch.h"
 #include "GUI/GUIManager.h"
-#include "World/Module.h"
+#include "World/WorldInterface.h"
 #include "Core/LCUtils.h"
 
 
-void IGuiManager::Init(void* window, LcSize viewportSize)
+void LcGuiManagerBase::Init(void* window, LcSize viewportSize)
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
@@ -21,7 +21,7 @@ void IGuiManager::Init(void* window, LcSize viewportSize)
     }
 }
 
-void IGuiManager::Update(float DeltaSeconds)
+void LcGuiManagerBase::Update(float DeltaSeconds)
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
@@ -32,7 +32,7 @@ void IGuiManager::Update(float DeltaSeconds)
     }
 }
 
-void IGuiManager::PreRender()
+void LcGuiManagerBase::PreRender()
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
@@ -43,7 +43,7 @@ void IGuiManager::PreRender()
     }
 }
 
-void IGuiManager::PostRender()
+void LcGuiManagerBase::PostRender()
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
@@ -54,7 +54,7 @@ void IGuiManager::PostRender()
     }
 }
 
-void IGuiManager::OnKeyboard(int btn, LcKeyState state)
+void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state)
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
@@ -65,7 +65,7 @@ void IGuiManager::OnKeyboard(int btn, LcKeyState state)
     }
 }
 
-void IGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
+void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();
@@ -85,7 +85,7 @@ void IGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
     }
 }
 
-void IGuiManager::OnMouseMove(int x, int y)
+void LcGuiManagerBase::OnMouseMove(int x, int y)
 {
     auto world = GetWorld();
     auto& widgetList = world->GetWidgets();

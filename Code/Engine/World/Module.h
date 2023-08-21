@@ -12,9 +12,7 @@
 #define WORLD_API __declspec (dllexport)
 #endif
 
-#include "WorldInterface.h"
-
 
 /**
 * Get game world manager */
-WORLD_API IWorld* GetWorld();
+WORLD_API class IWorld* GetWorld();

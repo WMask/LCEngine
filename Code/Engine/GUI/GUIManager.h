@@ -20,16 +20,43 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(void* window, LcSize viewportSize);
+	virtual void Init(void* window, LcSize viewportSize) = 0;
 	/**
 	* Update GUI */
-	virtual void Update(float DeltaSeconds);
+	virtual void Update(float DeltaSeconds) = 0;
 	/**
 	* Render GUI */
 	virtual void Render() = 0;
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() = 0;
+	/**
+	* Keyboard key event */
+	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
+	/**
+	* Mouse button event */
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
+	/**
+	* Mouse move event */
+	virtual void OnMouseMove(int x, int y) = 0;
+
+};
+
+
+/**
+* GUI manager base */
+class GUI_API LcGuiManagerBase : public IGuiManager
+{
+public:
+	/**
+	* Constructor */
+	LcGuiManagerBase() {}
+	/**
+	* Init GUI manager */
+	virtual void Init(void* window, LcSize viewportSize);
+	/**
+	* Update GUI */
+	virtual void Update(float DeltaSeconds);
 	/**
 	* Keyboard key event */
 	virtual void OnKeyboard(int btn, LcKeyState state);

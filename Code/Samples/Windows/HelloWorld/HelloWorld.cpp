@@ -8,8 +8,8 @@
 #include "HelloWorld.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
+#include "World/WorldInterface.h"
 #include "Core/LCUtils.h"
-#include "World/World.h"
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)

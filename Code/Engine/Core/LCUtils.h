@@ -9,6 +9,7 @@
 #include "Module.h"
 #include "LCTypes.h"
 
+#include <string>
 #include <vector>
 
 

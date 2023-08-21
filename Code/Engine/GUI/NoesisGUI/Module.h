@@ -28,7 +28,7 @@ namespace Noesis
 
 /**
 * Noesis GUI manager */
-class NOESISGUI_API INoesisGuiManager : public IGuiManager
+class NOESISGUI_API INoesisGuiManager : public LcGuiManagerBase
 {
 public:
 	/**

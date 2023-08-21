@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Module.h"
+#include "WorldInterface.h"
 
 #pragma warning(disable : 4251)
 

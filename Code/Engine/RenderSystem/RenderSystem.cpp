@@ -6,7 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
-#include "World/Module.h"
+#include "World/WorldInterface.h"
 #include "Core/LCUtils.h"
 
 
