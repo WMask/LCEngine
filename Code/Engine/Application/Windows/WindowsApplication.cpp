@@ -18,7 +18,7 @@ struct LcWin32Handles
     LcKeyboardHandler keyboardHandler;
     LcMouseMoveHandler mouseMoveHandler;
     LcMouseButtonHandler mouseButtonHandler;
-    std::shared_ptr<IGuiManager> guiManager;
+    IGuiManager* guiManager;
 };
 
 
@@ -104,7 +104,7 @@ void LcWindowsApplication::Run()
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager };
+    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager.get() };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     if (renderSystem)

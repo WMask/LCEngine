@@ -28,7 +28,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
         auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, pos, size, colors));
 
-        unsigned char keys[256];
+        unsigned char keys[128];
         memset(keys, 0, sizeof(keys));
 
         auto onUpdateHandler = [weakApp, sprite, &keys](float deltaSeconds) {

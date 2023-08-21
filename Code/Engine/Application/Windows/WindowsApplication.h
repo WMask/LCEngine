@@ -72,9 +72,9 @@ protected:
 	//
 	TWorldWeakPtr world;
 	//
-	std::shared_ptr<class IRenderSystem> renderSystem;
+	TRenderSystemPtr renderSystem;
 	//
-	std::shared_ptr<class IGuiManager> guiManager;
+	TGuiManagerPtr guiManager;
 	//
 	std::wstring cmds;
 	//
