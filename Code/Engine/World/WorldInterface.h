@@ -34,7 +34,7 @@ typedef std::shared_ptr<TWorldFactory<IWidget, LcWidgetData>> TWidgetFactoryPtr;
 
 /**
 * Game world interface */
-class WORLD_API IWorld
+class IWorld
 {
 public:
 	typedef std::deque<std::shared_ptr<ISprite>> SPRITE_LIST;

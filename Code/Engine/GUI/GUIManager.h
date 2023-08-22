@@ -13,7 +13,7 @@
 
 /**
 * GUI manager */
-class GUI_API IGuiManager
+class IGuiManager
 {
 public:
 	/**
@@ -46,7 +46,7 @@ public:
 
 /**
 * GUI manager base */
-class GUI_API LcGuiManagerBase : public IGuiManager
+class LcGuiManagerBase : public IGuiManager
 {
 public:
 	/**

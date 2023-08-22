@@ -67,7 +67,7 @@ public:
 	//
 	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
 	{
-		return std::shared_ptr<ISprite>(new LcSprite(data));
+		return std::make_shared<LcSprite>(data);
 	}
 
 };
