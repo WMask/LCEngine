@@ -69,6 +69,11 @@ void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle, const std:
     Init(worldPtr, handle, inCmds, 1, inShadersPath);
 }
 
+void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle) noexcept
+{
+    Init(worldPtr, handle, L"", 1, "../../../Shaders/HLSL/");
+}
+
 void LcWindowsApplication::Run()
 {
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");

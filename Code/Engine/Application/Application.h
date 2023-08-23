@@ -51,6 +51,9 @@ public:
 	* Set app parameters */
 	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
 	/**
+	* Set app parameters */
+	virtual void Init(TWorldWeakPtr worldPtr, void* handle) noexcept = 0;
+	/**
 	* Set render system */
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept = 0;
 	/**

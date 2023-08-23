@@ -6,6 +6,7 @@
 
 #include "framework.h"
 #include "HelloWorld.h"
+#include "Application/AppConfig.h"
 #include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
@@ -54,11 +55,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             }
         };
 
+        auto cfg = LoadConfig();
+        LcSize appWinSize(cfg["appWinWidth"].iValue, cfg["appWinHeight"].iValue);
+
         app->SetRenderSystem(GetRenderSystem());
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetWindowSize(LcSize(1024, 768));
-        app->Init(world, hInstance, lpCmdLine, "../../../Shaders/HLSL/");
+        app->SetWindowSize(appWinSize);
+        app->Init(world, hInstance);
         app->Run();
     }
     catch (const std::exception& ex)

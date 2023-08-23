@@ -33,6 +33,9 @@ public: // IApplication interface implementation
 	* Set app parameters */
 	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, const char* shadersPath) noexcept override;
 	/**
+	* Set app parameters */
+	virtual void Init(TWorldWeakPtr worldPtr, void* handle) noexcept override;
+	/**
 	* Set render system */
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = std::move(render); }
 	/**
