@@ -13,6 +13,8 @@
 #include "Core/LCUtils.h"
 
 
+#define NUMKEYS 128
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
@@ -28,8 +30,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, To3(pos), size, colors));
 
         TWeakApp weakApp(app);
-        unsigned char keys[128];
-        memset(keys, 0, sizeof(keys));
+        KEYS keys;
 
         auto onUpdateHandler = [weakApp, sprite, &keys](float deltaSeconds) {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));

@@ -70,10 +70,22 @@ CORE_API LcMatrix4 IdentityMatrix();
 
 
 /**
+* Keys struct */
+struct CORE_API KEYS
+{
+	KEYS();
+	//
+	unsigned char& operator[](int index);
+	//
+	const static int numKeys = 128;
+	//
+	unsigned char keys[numKeys];
+};
+
+
+/**
 * Read text file */
 CORE_API std::string ReadTextFile(const char* filePath);
-
-
 /**
 * Read binary file */
 CORE_API std::vector<char> ReadBinaryFile(const char* filePath);

@@ -129,6 +129,20 @@ LcMatrix4 IdentityMatrix()
 #endif
 }
 
+
+KEYS::KEYS()
+{
+	memset(keys, 0, sizeof(keys));
+}
+
+unsigned char& KEYS::operator[](int index)
+{
+	if (index < 0 || index >= numKeys) throw std::exception("KEYS::operator[]: Invalid index");
+
+	return keys[index];
+}
+
+
 std::string ReadTextFile(const char* filePath)
 {
 	using namespace std::filesystem;
