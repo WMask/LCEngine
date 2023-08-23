@@ -55,19 +55,19 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	}
 
 	// get back buffer
-	ID3D10Texture2D* backBuffer;
+	ComPtr<ID3D10Texture2D> backBuffer;
 	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)&backBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
 	}
 
 	// create render target
-	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer, NULL, &renderTargetView)))
+	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, &renderTargetView)))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
 	}
 
-	backBuffer->Release();
+	backBuffer.Reset();
 	d3dDevice->OMSetRenderTargets(1, &renderTargetView, NULL);
 
 	// set the viewport

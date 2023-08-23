@@ -27,7 +27,7 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 
 	auto shaderCode = renderDevice.GetShaderCode(coloredSpriteShaderName);
 
-	ID3D10Blob *vertexBlob;
+	ComPtr<ID3D10Blob> vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, &vertexBlob, NULL)))
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile vertex shader");
@@ -35,11 +35,10 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 
 	if (FAILED(d3dDevice->CreateVertexShader((DWORD*)vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &vs)))
 	{
-		vertexBlob->Release();
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create vertex shader");
 	}
 
-	ID3D10Blob *pixelBlob;
+	ComPtr<ID3D10Blob> pixelBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "PShader", "ps_4_0", 0, &pixelBlob, NULL)))
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile pixel shader");
@@ -47,11 +46,9 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 
 	if (FAILED(d3dDevice->CreatePixelShader((DWORD*)pixelBlob->GetBufferPointer(), pixelBlob->GetBufferSize(), &ps)))
 	{
-		pixelBlob->Release();
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create pixel shader");
 	}
 
-	pixelBlob->Release();
 
 	D3D10_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -63,7 +60,6 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create input layout");
 	}
-	vertexBlob->Release();
 
 	// create vertex buffer
 	D3D10_BUFFER_DESC bufferDesc;

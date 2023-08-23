@@ -8,6 +8,9 @@
 
 #include <deque>
 #include <d3d10.h>
+#include <wrl.h>
+
+using namespace Microsoft::WRL;
 
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
