@@ -14,8 +14,6 @@
 #include "Core/LCUtils.h"
 
 
-#define NUMKEYS 128
-
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);

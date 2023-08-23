@@ -11,6 +11,7 @@
 *.idb
 *.pdb
 *.bin
+Code/Engine/Lua/src/*
 Code/Samples/Windows/HelloWorld/x64/*
 Projects/Windows/Core/x64/*
 Projects/Windows/Application/x64/*
