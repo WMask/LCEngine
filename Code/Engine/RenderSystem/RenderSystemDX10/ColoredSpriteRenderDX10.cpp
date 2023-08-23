@@ -114,7 +114,7 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transMatrix = renderDevice.GetTransformBuffer();
-	if (!d3dDevice || !transMatrix || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render device");
+	if (!d3dDevice || !transMatrix || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
 
 	LcVector2 offset = renderDevice.GetOffset();
 	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);

@@ -84,7 +84,7 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	// define constant buffers
 	struct VS_PROJ_BUFFER
 	{
-		LcMatrix4 matrix;
+		LcMatrix4 proj;
 	};
 	VS_PROJ_BUFFER projData;
 	VS_TRANS_BUFFER transData;
@@ -96,26 +96,26 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	cbDesc.CPUAccessFlags = 0;
 	cbDesc.MiscFlags = 0;
 
-	D3D10_SUBRESOURCE_DATA InitData;
-	InitData.pSysMem = &projData;
-	InitData.SysMemPitch = 0;
-	InitData.SysMemSlicePitch = 0;
+	D3D10_SUBRESOURCE_DATA subResData;
+	subResData.pSysMem = &projData;
+	subResData.SysMemPitch = 0;
+	subResData.SysMemSlicePitch = 0;
 
 	// create constant buffers
-	projData.matrix = OrthoMatrix(viewportSize, -1.0f, 2.0f);
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &InitData, &projMatrixBuffer)))
+	projData.proj = OrthoMatrix(viewportSize, 1.0f, -1.0f);
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &projMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
 	cbDesc.ByteWidth = sizeof(VS_TRANS_BUFFER);
-	InitData.pSysMem = &transData;
+	subResData.pSysMem = &transData;
 	transData.trans = IdentityMatrix();
 	transData.colors[0] = LcDefaults::OneVec4;
 	transData.colors[1] = LcDefaults::OneVec4;
 	transData.colors[2] = LcDefaults::OneVec4;
 	transData.colors[3] = LcDefaults::OneVec4;
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &InitData, &transMatrixBuffer)))
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &transMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}

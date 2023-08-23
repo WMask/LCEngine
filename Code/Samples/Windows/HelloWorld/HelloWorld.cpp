@@ -20,14 +20,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     try
     {
         auto app = GetApp();
-        TWeakApp weakApp(app);
-
         auto world = GetWorld();
+
         LcSizef size(200, 200);
         LcVector2 pos(200, 200);
         LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
         auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, To3(pos), size, colors));
 
+        TWeakApp weakApp(app);
         unsigned char keys[128];
         memset(keys, 0, sizeof(keys));
 
@@ -36,11 +36,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
             if (auto app = weakApp.lock())
             {
-                if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200.0f * deltaSeconds, 0.0f, 0.0f));
-                if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200.0f * deltaSeconds, 0.0f, 0.0f));
+                if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
+                if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
 
-                if (keys[VK_UP]) sprite->AddRotZ(-2.0f * deltaSeconds);
-                if (keys[VK_DOWN]) sprite->AddRotZ(2.0f * deltaSeconds);
+                if (keys[VK_UP]) sprite->AddRotZ(-2 * deltaSeconds);
+                if (keys[VK_DOWN]) sprite->AddRotZ(2 * deltaSeconds);
             }
         };
 

@@ -53,6 +53,9 @@ CORE_API LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float near
 * Create ortho matrix */
 CORE_API LcMatrix4 OrthoMatrix(LcSize viewportSize, float nearPlane, float farPlane);
 /**
+* Create look at matrix */
+CORE_API LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to);
+/**
 * Create translation matrix */
 CORE_API LcMatrix4 TranslationMatrix(LcVector3 pos);
 /**

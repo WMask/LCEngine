@@ -76,6 +76,18 @@ LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane)
 	return OrthoMatrix((float)vp.x, (float)vp.y, nearPlane, farPlane);
 }
 
+LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to)
+{
+#ifdef _WINDOWS
+	return DirectX::XMMatrixLookAtLH(
+		DirectX::XMVectorSet(from.x, from.y, from.z, 0.0f),
+		DirectX::XMVectorSet(to.x, to.y, to.z, 0.0f),
+		DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+#else
+	return LcMatrix4{};
+#endif
+}
+
 LcMatrix4 TranslationMatrix(LcVector3 pos)
 {
 #ifdef _WINDOWS
@@ -88,7 +100,10 @@ LcMatrix4 TranslationMatrix(LcVector3 pos)
 LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
 {
 #ifdef _WINDOWS
-	return DirectX::XMMatrixTransformation(LcDefaults::ZeroVec4, LcDefaults::OneVec4, LcDefaults::OneVec4, LcDefaults::ZeroVec4,
+	return DirectX::XMMatrixTransformation(
+		LcDefaults::ZeroVec4, LcDefaults::ZeroVec4,
+		DirectX::XMVectorSet(scale.x, scale.y, 0.0f, 1.0f),
+		LcDefaults::ZeroVec4,
 		DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), rotZ),
 		DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f));
 #else
