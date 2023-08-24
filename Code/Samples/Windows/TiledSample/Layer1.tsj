@@ -1,0 +1,14 @@
+{ "columns":31,
+ "image":"D:\/Kartinki\/Design\/10b3042b-9968-4de4-a2fe-ce66f4b0446c_infog3.jpg",
+ "imageheight":3959,
+ "imagewidth":1020,
+ "margin":0,
+ "name":"Layer1",
+ "spacing":0,
+ "tilecount":3813,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}
