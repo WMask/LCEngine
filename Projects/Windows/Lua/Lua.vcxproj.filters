@@ -120,6 +120,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Lua\src\lzio.h">
       <Filter>Header Files\Lib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -226,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Lua\src\lutf8lib.c">
       <Filter>Source Files\Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.cpp">
+      <Filter>Source Files\Lua</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
