@@ -31,7 +31,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         TWeakApp weakApp(app);
         KEYS keys;
 
-        auto onUpdateHandler = [weakApp, sprite, &keys](float deltaSeconds) {
+        auto onUpdateHandler = [sprite, weakApp, &keys](float deltaSeconds) {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
             if (auto app = weakApp.lock())

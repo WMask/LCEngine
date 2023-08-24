@@ -129,7 +129,6 @@ LcMatrix4 IdentityMatrix()
 #endif
 }
 
-
 KEYS::KEYS()
 {
 	memset(keys, 0, sizeof(keys));
@@ -141,7 +140,6 @@ unsigned char& KEYS::operator[](int index)
 
 	return keys[index];
 }
-
 
 std::string ReadTextFile(const char* filePath)
 {

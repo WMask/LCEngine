@@ -11,6 +11,10 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef _WINDOWS
+# include <stdlib.h>
+#endif
+
 
 CONFIG_ITEMS LoadConfig(const char* fileName, char delim)
 {
@@ -58,11 +62,14 @@ CONFIG_ITEMS LoadConfig(const char* fileName, char delim)
 		if (value.empty()) continue;
 
 		LcAppConfigItem item;
+
 		if (isBool(value)) item.bValue = (key == "true");
+#ifdef _WINDOWS
 		else
 		if (isInt(value)) item.iValue = atoi(value.c_str());
 		else
 		if (isFloat(value)) item.fValue = (float)atof(value.c_str());
+#endif
 		else item.sValue = value;
 
 		items[key] = item;
