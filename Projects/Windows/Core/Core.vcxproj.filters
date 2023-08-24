@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\ScriptSystem.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Core\LCAny.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

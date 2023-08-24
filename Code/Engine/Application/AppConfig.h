@@ -8,8 +8,8 @@
 
 #include <map>
 
-#include "Core/LCUtils.h"
 #include "Module.h"
+#include "Core/LCAny.h"
 
 
 typedef std::map<std::string, LcAny> CONFIG_ITEMS;

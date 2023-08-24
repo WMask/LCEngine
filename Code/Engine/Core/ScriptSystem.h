@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Module.h"
+#include "Core/LCAny.h"
 
 #include <string>
 
@@ -22,6 +23,9 @@ public:
 	/**
 	* Runs script */
 	virtual void RunScript(const std::string& script) = 0;
+	/**
+	* Runs script and return value */
+	virtual LcAny RunScriptEx(const std::string& script) = 0;
 
 };
 

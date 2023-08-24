@@ -18,12 +18,18 @@ public:
 	/**
 	* Constructor */
 	LcLuaScriptSystem(bool openBaseDefaultLibs = true, bool openAllDefaultLibs = false);
+
+
+public: // IScriptSystem interface implementation
 	/**
 	* Destructor */
 	~LcLuaScriptSystem();
 	/**
 	* Runs script */
-	virtual void RunScript(const std::string& script) override;
+	virtual void RunScript(const std::string& script) override { RunScriptEx(script); }
+	/**
+	* Runs script and return value */
+	virtual LcAny RunScriptEx(const std::string& script) override;
 
 
 public:

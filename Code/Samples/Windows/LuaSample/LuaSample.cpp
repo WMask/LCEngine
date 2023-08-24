@@ -29,7 +29,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
                 if (key == 'L' && (keyEvent == LcKeyState::Down))
                 {
                     LcLuaScriptSystem lua;
-                    lua.RunScript("print(\"Hello from Lua!\")"); // Override luaB_print in lbaselib.c to print in Output window
+                    auto result = lua.RunScriptEx("print(\"Hello from Lua!\"); return 77.7"); // Override luaB_print in lbaselib.c to print in Output window
                     OutputDebugStringA("\n");
                 }
             }
