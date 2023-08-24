@@ -40,6 +40,6 @@ public:
 	virtual ~IScriptModule();
 	/**
 	* Adds script module */
-	virtual void AddModule(IScriptSystem* system) = 0;
+	virtual void Add(IScriptSystem& system) = 0;
 
 };

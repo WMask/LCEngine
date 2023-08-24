@@ -28,7 +28,7 @@ public: // IScriptModule interface implementation
 	virtual ~LcApplicationLuaModule() override;
 	/**
 	* Adds script module */
-	virtual void AddModule(IScriptSystem* system) override;
+	virtual void Add(IScriptSystem& system) override;
 
 
 protected:

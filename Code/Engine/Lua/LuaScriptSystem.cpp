@@ -5,7 +5,6 @@
 */
 
 #include "Lua/LuaScriptSystem.h"
-
 #include "src/lua.hpp"
 
 
@@ -33,7 +32,11 @@ LcLuaScriptSystem::LcLuaScriptSystem(bool openBaseDefaultLibs, bool openAllDefau
 
 LcLuaScriptSystem::~LcLuaScriptSystem()
 {
-	if (luaState) lua_close(luaState);
+	if (luaState)
+	{
+		lua_close(luaState);
+		luaState = nullptr;
+	}
 }
 
 void LcLuaScriptSystem::RunScript(const std::string& script)
