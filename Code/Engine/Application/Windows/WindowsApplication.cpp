@@ -55,7 +55,7 @@ LcWindowsApplication::~LcWindowsApplication()
     }
 }
 
-void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
 {
     world = worldPtr;
 	hInstance = (HINSTANCE)handle;
@@ -64,14 +64,14 @@ void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle, const std:
     if (inShadersPath) shadersPath = inShadersPath;
 }
 
-void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& inCmds, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr, const std::wstring& inCmds, const char* inShadersPath) noexcept
 {
-    Init(worldPtr, handle, inCmds, 1, inShadersPath);
+    Init(handle, worldPtr, inCmds, 1, inShadersPath);
 }
 
-void LcWindowsApplication::Init(TWorldWeakPtr worldPtr, void* handle) noexcept
+void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr) noexcept
 {
-    Init(worldPtr, handle, L"", 1, "../../../Shaders/HLSL/");
+    Init(handle, worldPtr, L"", 1, "../../../Shaders/HLSL/");
 }
 
 void LcWindowsApplication::Run()

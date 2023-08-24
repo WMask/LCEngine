@@ -13,6 +13,7 @@
 *.bin
 Code/Engine/Lua/src/*
 Code/Samples/Windows/HelloWorld/x64/*
+Code/Samples/Windows/LuaSample/x64/*
 Projects/Windows/Core/x64/*
 Projects/Windows/Application/x64/*
 Projects/Windows/WindowsApplication/x64/*

@@ -60,7 +60,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(appWinSize);
-        app->Init(world, hInstance);
+        app->Init(hInstance, world);
         app->Run();
     }
     catch (const std::exception& ex)

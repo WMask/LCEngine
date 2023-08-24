@@ -6,8 +6,6 @@
 
 #include "Lua/LuaScriptSystem.h"
 
-#include <stdio.h>
-#include <string.h>
 #include "src/lua.hpp"
 
 
@@ -44,7 +42,8 @@ void LcLuaScriptSystem::RunScript(const std::string& script)
 
 	if (luaL_loadbuffer(luaState, script.c_str(), script.length(), "Initializer") == 0)
 	{
-		lua_pcall(luaState, 0, 0, 0);
+		auto result = lua_pcall(luaState, 0, 0, 0);
+		if (result != 0) throw std::exception("LcLuaScriptSystem::RunScript(): Script error");
 	}
 	else
 		throw std::exception("LcLuaScriptSystem::RunScript(): Buffer loading failed");
