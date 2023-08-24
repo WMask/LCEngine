@@ -36,6 +36,19 @@ LcLuaScriptSystem::~LcLuaScriptSystem()
 	if (luaState) lua_close(luaState);
 }
 
+void LcLuaScriptSystem::RunScript(const std::string& script)
+{
+	if (!luaState) throw std::exception("LcLuaScriptSystem::RunScript(): Invalid Lua state");
+
+	LcAny result;
+	if (luaL_loadbuffer(luaState, script.c_str(), script.length(), "Initializer") == 0)
+	{
+		if (lua_pcall(luaState, 0, 0, 0) != 0) throw std::exception("LcLuaScriptSystem::RunScript(): Script error");
+	}
+	else
+		throw std::exception("LcLuaScriptSystem::RunScript(): Buffer loading failed");
+}
+
 LcAny LcLuaScriptSystem::RunScriptEx(const std::string& script)
 {
 	if (!luaState) throw std::exception("LcLuaScriptSystem::RunScriptEx(): Invalid Lua state");

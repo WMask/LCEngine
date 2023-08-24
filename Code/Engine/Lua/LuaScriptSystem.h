@@ -26,7 +26,7 @@ public: // IScriptSystem interface implementation
 	~LcLuaScriptSystem();
 	/**
 	* Runs script */
-	virtual void RunScript(const std::string& script) override { RunScriptEx(script); }
+	virtual void RunScript(const std::string& script) override;
 	/**
 	* Runs script and return value */
 	virtual LcAny RunScriptEx(const std::string& script) override;
