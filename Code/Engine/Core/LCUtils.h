@@ -84,6 +84,18 @@ struct CORE_API KEYS
 
 
 /**
+* Any value container */
+struct LcAny
+{
+	LcAny() : fValue(0.0f), iValue(0), bValue(false) {}
+	std::string	sValue;
+	float		fValue;
+	bool		bValue;
+	int			iValue;
+};
+
+
+/**
 * Read text file */
 CORE_API std::string ReadTextFile(const char* filePath);
 /**

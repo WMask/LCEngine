@@ -61,7 +61,7 @@ CONFIG_ITEMS LoadConfig(const char* fileName, char delim)
 		ls >> value;
 		if (value.empty()) continue;
 
-		LcAppConfigItem item;
+		LcAny item;
 
 		if (isBool(value)) item.bValue = (key == "true");
 #ifdef _WINDOWS

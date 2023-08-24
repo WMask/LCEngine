@@ -7,23 +7,12 @@
 #pragma once
 
 #include <map>
-#include <string>
 
+#include "Core/LCUtils.h"
 #include "Module.h"
 
 
-/**
-* Application config item */
-struct LcAppConfigItem
-{
-	LcAppConfigItem() : fValue(0.0f), iValue(0), bValue(false) {}
-	std::string	sValue;
-	float		fValue;
-	bool		bValue;
-	int			iValue;
-};
-
-typedef std::map<std::string, LcAppConfigItem> CONFIG_ITEMS;
+typedef std::map<std::string, LcAny> CONFIG_ITEMS;
 
 
 /**
