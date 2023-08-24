@@ -12,6 +12,7 @@
 *.pdb
 *.bin
 Code/Engine/Lua/src/*
+Code/Engine/Json/nlohmann/*
 Code/Samples/Windows/HelloWorld/x64/*
 Code/Samples/Windows/LuaSample/x64/*
 Projects/Windows/Core/x64/*
