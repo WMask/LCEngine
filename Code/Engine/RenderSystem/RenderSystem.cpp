@@ -7,6 +7,8 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
+#include "World/Sprites.h"
+#include "World/Widgets.h"
 #include "Core/LCUtils.h"
 
 
@@ -28,7 +30,7 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     }
 }
 
-void LcRenderSystemBase::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed)
+void LcRenderSystemBase::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed)
 {
     world = worldPtr;
 }
@@ -42,10 +44,16 @@ void LcRenderSystemBase::Render()
     if (auto weakWorld = world.lock())
     {
         const auto& sprites = weakWorld->GetSprites();
+        const auto& widgets = weakWorld->GetWidgets();
 
         for (const auto& sprite : sprites)
         {
             if (sprite->IsVisible()) RenderSprite(sprite.get());
+        }
+
+        for (const auto& widget : widgets)
+        {
+            if (widget->IsVisible()) RenderWidget(widget.get());
         }
     }
 }

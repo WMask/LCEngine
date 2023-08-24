@@ -10,7 +10,6 @@
 #include "World/Module.h"
 #include "Module.h"
 
-
 #include <map>
 #include <string>
 
@@ -30,7 +29,7 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed) = 0;
+	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
@@ -64,7 +63,7 @@ public:
 	virtual void LoadShaders(const char* folderPath);
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed);
+	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed);
 	/**
 	* Shutdown render system */
 	virtual void Shutdown();
@@ -77,6 +76,9 @@ protected:
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const class IWidget* widget) = 0;
 
 
 protected:

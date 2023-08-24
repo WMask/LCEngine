@@ -10,6 +10,7 @@
 
 #include "Module.h"
 #include "Application/Application.h"
+#include "Core/LCTypesEx.h"
 
 
 /**
@@ -43,7 +44,7 @@ public: // IApplication interface implementation
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = std::move(gui); }
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(LcSize inWindowSize) noexcept { windowSize = inWindowSize; }
+	virtual void SetWindowSize(int width, int height) noexcept { windowSize = LcSize(width, height); }
 	/**
 	* Set update handler */
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept { updateHandler = handler; }

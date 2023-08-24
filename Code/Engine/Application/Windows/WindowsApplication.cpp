@@ -115,9 +115,9 @@ void LcWindowsApplication::Run()
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
-        renderSystem->Create(world, hWnd, windowSize, true);
+        renderSystem->Create(world, hWnd, true);
     }
-    if (guiManager) guiManager->Init(world, hWnd, windowSize);
+    if (guiManager) guiManager->Init(world, hWnd);
 
 	prevTick = GetTickCount64();
     MSG msg;

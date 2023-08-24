@@ -6,9 +6,9 @@
 
 #include "framework.h"
 #include "LuaSample.h"
-#include "Application/AppConfig.h"
 #include "Application/Application.h"
 #include "Application/Windows/Module.h"
+#include "Lua/ApplicationLuaModule.h"
 #include "Lua/LuaScriptSystem.h"
 #include "Core/LCUtils.h"
 
@@ -36,7 +36,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         };
 
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetWindowSize(LcSize(800, 600));
+        app->SetWindowSize(800, 600);
         app->Init(hInstance);
         app->Run();
     }

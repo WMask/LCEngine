@@ -7,8 +7,6 @@
 #pragma once
 
 #include "Module.h"
-#include "Sprites.h"
-#include "Widgets.h"
 
 #include <deque>
 #include <memory>
@@ -25,11 +23,11 @@ public:
 
 /**
 * Sprite factory pointer */
-typedef std::shared_ptr<TWorldFactory<ISprite, LcSpriteData>> TSpriteFactoryPtr;
+typedef std::shared_ptr<TWorldFactory<class ISprite, struct LcSpriteData>> TSpriteFactoryPtr;
 
 /**
 * Widget factory pointer */
-typedef std::shared_ptr<TWorldFactory<IWidget, LcWidgetData>> TWidgetFactoryPtr;
+typedef std::shared_ptr<TWorldFactory<class IWidget, struct LcWidgetData>> TWidgetFactoryPtr;
 
 
 /**
@@ -37,9 +35,9 @@ typedef std::shared_ptr<TWorldFactory<IWidget, LcWidgetData>> TWidgetFactoryPtr;
 class IWorld
 {
 public:
-	typedef std::deque<std::shared_ptr<ISprite>> SPRITE_LIST;
+	typedef std::deque<std::shared_ptr<class ISprite>> SPRITE_LIST;
 	//
-	typedef std::deque<std::shared_ptr<IWidget>> WIDGET_LIST;
+	typedef std::deque<std::shared_ptr<class IWidget>> WIDGET_LIST;
 
 
 public:

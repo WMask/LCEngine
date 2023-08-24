@@ -20,6 +20,7 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	transMatrixBuffer = nullptr;
 	blendState = nullptr;
 	rasterizerState = nullptr;
+	initialOffset = LcVector2();
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -27,9 +28,12 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed)
+void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed)
 {
-	int width = viewportSize.x, height = viewportSize.y;
+	RECT clientRect;
+	GetClientRect((HWND)windowHandle, &clientRect);
+
+	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
 	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -102,7 +106,7 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	subResData.SysMemSlicePitch = 0;
 
 	// create constant buffers
-	projData.proj = OrthoMatrix(viewportSize, 1.0f, -1.0f);
+	projData.proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &projMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
@@ -161,7 +165,7 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	spriteRenders[0]->Setup();
 
 	// init render system
-	LcRenderSystemBase::Create(worldPtr, this, viewportSize, windowed);
+	LcRenderSystemBase::Create(worldPtr, this, windowed);
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -208,6 +212,11 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			break;
 		}
 	}
+}
+
+void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
+{
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

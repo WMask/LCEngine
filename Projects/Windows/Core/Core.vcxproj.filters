@@ -42,6 +42,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCAny.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -54,6 +57,9 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Core\ScriptSystem.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,6 +8,7 @@
 
 #include "pch.h"
 #include "World/World.h"
+#include "World/Sprites.h"
 
 
 /**

@@ -11,6 +11,7 @@
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"
+#include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
 
@@ -54,12 +55,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         };
 
         auto cfg = LoadConfig();
-        LcSize appWinSize(cfg["appWinWidth"].iValue, cfg["appWinHeight"].iValue);
+        int winWidth = cfg["appWinWidth"].iValue;
+        int winHeight = cfg["appWinHeight"].iValue;
 
         app->SetRenderSystem(GetRenderSystem());
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetWindowSize(appWinSize);
+        app->SetWindowSize(winWidth, winHeight);
         app->Init(hInstance, world);
         app->Run();
     }

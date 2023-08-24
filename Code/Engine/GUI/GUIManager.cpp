@@ -7,10 +7,11 @@
 #include "pch.h"
 #include "GUI/GUIManager.h"
 #include "World/WorldInterface.h"
+#include "World/Widgets.h"
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWorldWeakPtr weakWorld, void* window, LcSize viewportSize)
+void LcGuiManagerBase::Init(TWorldWeakPtr weakWorld, void* window)
 {
     worldPtr = weakWorld;
 

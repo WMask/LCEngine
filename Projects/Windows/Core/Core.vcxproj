@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\Core\LCAny.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCUtils.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCUtils.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\ScriptSystem.cpp" />
     <ClCompile Include="dllmain.cpp" />

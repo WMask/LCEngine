@@ -76,7 +76,7 @@ public: // IRenderSystem interface implementation
 	virtual ~LcRenderSystemDX10() override;
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed) override;
+	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed) override;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() override;
@@ -87,8 +87,11 @@ public: // IRenderSystem interface implementation
 	* Render world */
 	virtual void Render() override;
 	/**
-	* Render world */
+	* Render sprite */
 	virtual void RenderSprite(const ISprite* sprite) override;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const IWidget* widget) override;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }

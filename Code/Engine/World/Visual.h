@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Core/LCTypes.h"
+#include "Core/LCTypesEx.h"
 
 
 /**
