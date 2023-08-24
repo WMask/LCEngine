@@ -6,25 +6,10 @@
 
 #pragma once
 
-#include "Module.h"
 #include "LCTypes.h"
 
 #include <string>
 #include <vector>
-
-
-/**
-* Keys struct */
-struct CORE_API KEYS
-{
-	KEYS();
-	//
-	unsigned char& operator[](int index);
-	//
-	const static int numKeys = 128;
-	//
-	unsigned char keys[numKeys];
-};
 
 
 /**

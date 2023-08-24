@@ -62,5 +62,8 @@
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCTypes.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

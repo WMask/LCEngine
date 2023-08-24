@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "Module.h"
+
 
 /** Mouse buttons */
 enum class LcMouseBtn
@@ -32,4 +34,18 @@ enum class LcRenderSystemType
 	DX7,
 	DX9,
 	DX10
+};
+
+
+/**
+* Keys struct */
+struct CORE_API KEYS
+{
+	KEYS();
+	//
+	unsigned char& operator[](int index);
+	//
+	const static int numKeys = 128;
+	//
+	unsigned char keys[numKeys];
 };

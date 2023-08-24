@@ -153,6 +153,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCTypes.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCUtils.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\ScriptSystem.cpp" />
