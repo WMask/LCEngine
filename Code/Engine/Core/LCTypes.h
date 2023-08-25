@@ -12,6 +12,7 @@
 #include <string>
 
 
+/** vector of unsigned chars */
 typedef std::vector<unsigned char> LcBytes;
 
 

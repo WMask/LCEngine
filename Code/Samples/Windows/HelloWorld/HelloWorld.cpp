@@ -26,7 +26,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
         LcSizef size(200, 200);
         LcVector2 pos(200, 200);
-        LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(0, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 1, 0, 1));
+        LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 0, 0, 1), LcColor4(0, 1, 0, 1));
         auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, To3(pos), size, colors));
 
         TWeakApp weakApp(app);

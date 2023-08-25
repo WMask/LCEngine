@@ -6,7 +6,6 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
-#include "Core/LCUtils.h"
 
 
 static const char* coloredSpriteShaderName = "ColoredSprite2d.shader";
@@ -22,6 +21,7 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
+	colorsBuffer = nullptr;
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10(): Invalid arguments");
 
@@ -49,7 +49,6 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create pixel shader");
 	}
 
-
 	D3D10_INPUT_ELEMENT_DESC layout[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0},
@@ -73,13 +72,44 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create vertex buffer");
 	}
 
+	// define constant buffer
+	struct VS_COLORS_BUFFER
+	{
+		LcColor4 colors[4];
+	};
+	VS_COLORS_BUFFER colorsData;
+	colorsData.colors[0] = LcDefaults::White;
+	colorsData.colors[1] = LcDefaults::White;
+	colorsData.colors[2] = LcDefaults::White;
+	colorsData.colors[3] = LcDefaults::White;
+
+	D3D10_BUFFER_DESC cbDesc;
+	cbDesc.ByteWidth = sizeof(VS_COLORS_BUFFER);
+	cbDesc.Usage = D3D10_USAGE_DEFAULT;
+	cbDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
+	cbDesc.CPUAccessFlags = 0;
+	cbDesc.MiscFlags = 0;
+
+	D3D10_SUBRESOURCE_DATA subResData;
+	subResData.pSysMem = &colorsData;
+	subResData.SysMemPitch = 0;
+	subResData.SysMemSlicePitch = 0;
+
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &colorsBuffer)))
+	{
+		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create constant buffer");
+	}
+
+	// slots in ColoredSprite2d.shader: 0 - proj matrix, 1 - trans matrix, 2 - colors
+	d3dDevice->VSSetConstantBuffers(2, 1, &colorsBuffer);
+
 	// fill vertex buffer
 	DX10COLOREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 0 };
-	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
-	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 2 };
-	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 3 };
+	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
+	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 2 };
+	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 0 };
+	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 3 };
 	vertexBuffer->Unmap();
 }
 
@@ -87,6 +117,7 @@ LcColoredSpriteRenderDX10::~LcColoredSpriteRenderDX10()
 {
 	if (vertexBuffer) { vertexBuffer->Release(); vertexBuffer = nullptr; }
 	if (vertexLayout) { vertexLayout->Release(); vertexLayout = nullptr; }
+	if (colorsBuffer) { colorsBuffer->Release(); ps = nullptr; }
 	if (vs) { vs->Release(); vs = nullptr; }
 	if (ps) { ps->Release(); ps = nullptr; }
 }
@@ -114,14 +145,9 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 
 	LcVector2 offset = renderDevice.GetOffset();
 	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);
-	LcSpriteColors colors = sprite->GetColors();
+	LcMatrix4 trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ());
 
-	transData.trans = TransposeMatrix(TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ()));
-	transData.colors[0] = ToV(colors.rightTop);
-	transData.colors[1] = ToV(colors.rightBottom);
-	transData.colors[2] = ToV(colors.leftTop);
-	transData.colors[3] = ToV(colors.leftBottom);
-
-	d3dDevice->UpdateSubresource(transMatrix, 0, NULL, &transData, 0, 0);
+	d3dDevice->UpdateSubresource(transMatrix, 0, NULL, &trans, 0, 0);
+	d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, &sprite->GetColors(), 0, 0);
 	d3dDevice->Draw(4, 0);
 }

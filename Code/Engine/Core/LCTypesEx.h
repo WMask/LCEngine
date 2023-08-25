@@ -54,10 +54,13 @@ inline LcVector4 operator+(const LcVector4& a, const LcVector4& b)
 /** Defaults */
 namespace LcDefaults
 {
+	extern CORE_API LcVector2 OneVec2;
+	extern CORE_API LcVector2 ZeroVec2;
 	extern CORE_API LcVector3 OneVec3;
 	extern CORE_API LcVector3 ZeroVec3;
 	extern CORE_API LcVector4 OneVec4;
 	extern CORE_API LcVector4 ZeroVec4;
+	extern CORE_API LcColor4 White;
 };
 
 

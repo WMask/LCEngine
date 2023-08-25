@@ -16,7 +16,6 @@ using namespace Microsoft::WRL;
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "World/Module.h"
-#include "Core/LcUtils.h"
 
 
 #pragma warning(disable : 4251)
@@ -40,25 +39,6 @@ public:
 	virtual LcVector2 GetOffset() const = 0;
 
 };
-
-
-/**
-* Transform buffer */
-struct VS_TRANS_BUFFER
-{
-	LcMatrix4 trans;		// scale * rotation * translation
-	LcVector4 colors[4];	// colors
-	//
-	VS_TRANS_BUFFER()
-	{
-		trans = IdentityMatrix();
-		colors[0] = LcDefaults::OneVec4;
-		colors[1] = LcDefaults::OneVec4;
-		colors[2] = LcDefaults::OneVec4;
-		colors[3] = LcDefaults::OneVec4;
-	}
-};
-
 
 /**
 * DirectX 10 render system */
@@ -133,5 +113,7 @@ protected:
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//
 	LcVector2 initialOffset;
+	//
+	LcSpriteType prevSpriteType;
 
 };

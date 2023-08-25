@@ -24,9 +24,9 @@ public:
 public: // ISprite interface implementation
 	virtual ~LcSprite() override {}
 	//
-	virtual void SetColors(LcSpriteColors inColors) override { sprite.colors = inColors; }
+	virtual void SetColors(const LcSpriteColors& inColors) override { sprite.colors = inColors; }
 	//
-	virtual LcSpriteColors GetColors() const override { return sprite.colors; }
+	virtual const LcSpriteColors& GetColors() const override { return sprite.colors; }
 	//
 	virtual LcSpriteType GetType() const override { return sprite.type; }
 

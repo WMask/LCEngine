@@ -8,8 +8,11 @@
 #include "LCTypesEx.h"
 
 
+LcVector2 LcDefaults::OneVec2 = LcVector2(1.0f, 1.0f);
+LcVector2 LcDefaults::ZeroVec2 = LcVector2(0.0f, 0.0f);
 LcVector3 LcDefaults::OneVec3 = LcVector3(1.0f, 1.0f, 1.0f);
 LcVector3 LcDefaults::ZeroVec3 = LcVector3(0.0f, 0.0f, 0.0f);
+LcColor4 LcDefaults::White = LcColor4(1.0f, 1.0f, 1.0f, 1.0f);
 
 #ifdef _WINDOWS
 LcVector4 LcDefaults::OneVec4 = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
@@ -100,12 +103,13 @@ LcMatrix4 TranslationMatrix(LcVector3 pos)
 LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
 {
 #ifdef _WINDOWS
-	return DirectX::XMMatrixTransformation(
+	auto matrix = DirectX::XMMatrixTransformation(
 		LcDefaults::ZeroVec4, LcDefaults::ZeroVec4,
 		DirectX::XMVectorSet(scale.x, scale.y, 0.0f, 1.0f),
 		LcDefaults::ZeroVec4,
 		DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), rotZ),
 		DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f));
+	return TransposeMatrix(matrix);
 #else
 	return LcMatrix4{};
 #endif

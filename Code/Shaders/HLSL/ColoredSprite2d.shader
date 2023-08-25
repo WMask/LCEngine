@@ -7,6 +7,10 @@ cbuffer VS_PROJ_BUFFER : register(b0)
 cbuffer VS_TRANS_BUFFER : register(b1)
 {
 	float4x4 mTrans;
+};
+
+cbuffer VS_COLORS_BUFFER : register(b2)
+{
 	float4 vColors[4];
 };
 

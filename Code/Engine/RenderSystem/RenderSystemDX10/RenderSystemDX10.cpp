@@ -21,6 +21,7 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	blendState = nullptr;
 	rasterizerState = nullptr;
 	initialOffset = LcVector2();
+	prevSpriteType = LcSpriteType::Colored;
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -86,15 +87,15 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool
 	d3dDevice->RSSetViewports(1, &viewPort);
 
 	// define constant buffers
-	struct VS_PROJ_BUFFER
+	struct VS_MATRIX_BUFFER
 	{
-		LcMatrix4 proj;
+		LcMatrix4 mat;
 	};
-	VS_PROJ_BUFFER projData;
-	VS_TRANS_BUFFER transData;
+	VS_MATRIX_BUFFER projData;
+	VS_MATRIX_BUFFER transData;
 
 	D3D10_BUFFER_DESC cbDesc;
-	cbDesc.ByteWidth = sizeof(VS_PROJ_BUFFER);
+	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
 	cbDesc.Usage = D3D10_USAGE_DEFAULT;
 	cbDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
 	cbDesc.CPUAccessFlags = 0;
@@ -106,19 +107,14 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool
 	subResData.SysMemSlicePitch = 0;
 
 	// create constant buffers
-	projData.proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+	projData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &projMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
-	cbDesc.ByteWidth = sizeof(VS_TRANS_BUFFER);
 	subResData.pSysMem = &transData;
-	transData.trans = IdentityMatrix();
-	transData.colors[0] = LcDefaults::OneVec4;
-	transData.colors[1] = LcDefaults::OneVec4;
-	transData.colors[2] = LcDefaults::OneVec4;
-	transData.colors[3] = LcDefaults::OneVec4;
+	transData.mat = IdentityMatrix();
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &transMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
@@ -161,8 +157,8 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool
 	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
-	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new LcColoredSpriteRenderDX10(*this)));
-	spriteRenders[0]->Setup();
+	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
+	spriteRenders.back()->Setup();
 
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
@@ -208,6 +204,12 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 	{
 		if (render->GetType() == sprite->GetType())
 		{
+			if (prevSpriteType != render->GetType())
+			{
+				prevSpriteType = render->GetType();
+				render->Setup();
+			}
+
 			render->Render(sprite);
 			break;
 		}

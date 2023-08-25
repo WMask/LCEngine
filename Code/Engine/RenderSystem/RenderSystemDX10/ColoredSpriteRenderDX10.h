@@ -47,6 +47,6 @@ protected:
 	//
 	ID3D10PixelShader* ps;
 	//
-	VS_TRANS_BUFFER transData;
+	ID3D10Buffer* colorsBuffer;
 
 };
