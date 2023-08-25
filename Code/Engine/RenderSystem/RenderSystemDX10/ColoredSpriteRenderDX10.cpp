@@ -21,7 +21,6 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
-	colorsBuffer = nullptr;
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10(): Invalid arguments");
 
@@ -72,37 +71,6 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create vertex buffer");
 	}
 
-	// define constant buffer
-	struct VS_COLORS_BUFFER
-	{
-		LcColor4 colors[4];
-	};
-	VS_COLORS_BUFFER colorsData;
-	colorsData.colors[0] = LcDefaults::White;
-	colorsData.colors[1] = LcDefaults::White;
-	colorsData.colors[2] = LcDefaults::White;
-	colorsData.colors[3] = LcDefaults::White;
-
-	D3D10_BUFFER_DESC cbDesc;
-	cbDesc.ByteWidth = sizeof(VS_COLORS_BUFFER);
-	cbDesc.Usage = D3D10_USAGE_DEFAULT;
-	cbDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = 0;
-	cbDesc.MiscFlags = 0;
-
-	D3D10_SUBRESOURCE_DATA subResData;
-	subResData.pSysMem = &colorsData;
-	subResData.SysMemPitch = 0;
-	subResData.SysMemSlicePitch = 0;
-
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &colorsBuffer)))
-	{
-		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create constant buffer");
-	}
-
-	// slots in ColoredSprite2d.shader: 0 - proj matrix, 1 - trans matrix, 2 - colors
-	d3dDevice->VSSetConstantBuffers(2, 1, &colorsBuffer);
-
 	// fill vertex buffer
 	DX10COLOREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
@@ -117,7 +85,6 @@ LcColoredSpriteRenderDX10::~LcColoredSpriteRenderDX10()
 {
 	if (vertexBuffer) { vertexBuffer->Release(); vertexBuffer = nullptr; }
 	if (vertexLayout) { vertexLayout->Release(); vertexLayout = nullptr; }
-	if (colorsBuffer) { colorsBuffer->Release(); ps = nullptr; }
 	if (vs) { vs->Release(); vs = nullptr; }
 	if (ps) { ps->Release(); ps = nullptr; }
 }
@@ -141,7 +108,8 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transMatrix = renderDevice.GetTransformBuffer();
-	if (!d3dDevice || !transMatrix || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
+	auto colorsBuffer = renderDevice.GetColorsBuffer();
+	if (!d3dDevice || !transMatrix || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
 
 	LcVector2 offset = renderDevice.GetOffset();
 	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);

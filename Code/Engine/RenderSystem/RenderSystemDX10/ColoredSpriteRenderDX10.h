@@ -46,7 +46,5 @@ protected:
 	ID3D10VertexShader* vs;
 	//
 	ID3D10PixelShader* ps;
-	//
-	ID3D10Buffer* colorsBuffer;
 
 };

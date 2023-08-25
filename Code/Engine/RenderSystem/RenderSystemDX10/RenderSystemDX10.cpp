@@ -18,6 +18,7 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	renderTargetView = nullptr;
 	projMatrixBuffer = nullptr;
 	transMatrixBuffer = nullptr;
+	colorsBuffer = nullptr;
 	blendState = nullptr;
 	rasterizerState = nullptr;
 	initialOffset = LcVector2();
@@ -94,6 +95,12 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool
 	VS_MATRIX_BUFFER projData;
 	VS_MATRIX_BUFFER transData;
 
+	struct VS_COLORS_BUFFER
+	{
+		LcColor4 colors[4];
+	};
+	VS_COLORS_BUFFER colorsData;
+
 	D3D10_BUFFER_DESC cbDesc;
 	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
 	cbDesc.Usage = D3D10_USAGE_DEFAULT;
@@ -120,9 +127,20 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
+	subResData.pSysMem = &colorsData;
+	colorsData.colors[0] = LcDefaults::White;
+	colorsData.colors[1] = LcDefaults::White;
+	colorsData.colors[2] = LcDefaults::White;
+	colorsData.colors[3] = LcDefaults::White;
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &colorsBuffer)))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
 	// set buffers
 	d3dDevice->VSSetConstantBuffers(0, 1, &projMatrixBuffer);
 	d3dDevice->VSSetConstantBuffers(1, 1, &transMatrixBuffer);
+	d3dDevice->VSSetConstantBuffers(2, 1, &colorsBuffer);
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -170,6 +188,7 @@ void LcRenderSystemDX10::Shutdown()
 
 	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
 	if (blendState) { blendState->Release(); blendState = nullptr; }
+	if (colorsBuffer) { colorsBuffer->Release(); colorsBuffer = nullptr; }
 	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
 	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
 	if (renderTargetView) { renderTargetView->Release(); renderTargetView = nullptr; }
