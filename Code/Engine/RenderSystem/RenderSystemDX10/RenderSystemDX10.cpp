@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "RenderSystem/RenderSystemDX10/TexturedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "Application/Application.h"
 #include "World/WorldInterface.h"
@@ -208,6 +209,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
+	spriteRenders.push_back(std::make_shared<LcTexturedSpriteRenderDX10>(*this));
 	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
 	spriteRenders.back()->Setup();
 
