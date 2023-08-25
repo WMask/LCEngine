@@ -143,7 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Code\Engine\Core\DirectXTK\WICTextureLoader.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h" />
@@ -153,7 +152,6 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Code\Engine\Core\DirectXTK\WICTextureLoader.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypes.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCUtils.cpp" />

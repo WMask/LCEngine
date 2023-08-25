@@ -19,12 +19,6 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{c798c6d6-7dcd-4b53-beda-6af2bf28f7e8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\DirectXTK">
-      <UniqueIdentifier>{637fccb3-f4f0-4a6e-9368-1d53c95bc50e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core\DirectXTK">
-      <UniqueIdentifier>{a2b7e144-6ea2-4f87-9988-5b76e4da534d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -48,9 +42,6 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Core\DirectXTK\WICTextureLoader.h">
-      <Filter>Header Files\Core\DirectXTK</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -70,9 +61,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypes.cpp">
       <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\Core\DirectXTK\WICTextureLoader.cpp">
-      <Filter>Source Files\Core\DirectXTK</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
