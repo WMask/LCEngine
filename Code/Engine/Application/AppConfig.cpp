@@ -37,12 +37,14 @@ CONFIG_ITEMS LoadConfig(const char* fileName, char delim)
 	};
 
 	auto isFloat = [](const std::string& str) {
+		bool dotFound = false;
 		for (auto c : str)
 		{
-			if (c == '-' || c == '.') continue;
+			if (c == '-') continue;
+			if (c == '.') { dotFound = true; continue; }
 			if (c < '0' || c > '9') return false;
 		}
-		return true;
+		return dotFound;
 	};
 
 	std::string line;
@@ -66,9 +68,9 @@ CONFIG_ITEMS LoadConfig(const char* fileName, char delim)
 		if (isBool(value)) item.bValue = (key == "true");
 #ifdef _WINDOWS
 		else
-		if (isInt(value)) item.iValue = atoi(value.c_str());
-		else
 		if (isFloat(value)) item.fValue = (float)atof(value.c_str());
+		else
+		if (isInt(value)) item.iValue = atoi(value.c_str());
 #endif
 		else item.sValue = value;
 
