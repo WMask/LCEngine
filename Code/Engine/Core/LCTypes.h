@@ -8,6 +8,8 @@
 
 #include "Module.h"
 
+#include <string>
+
 
 /** Mouse buttons */
 enum class LcMouseBtn
@@ -17,7 +19,6 @@ enum class LcMouseBtn
 	Middle
 };
 
-
 /** Key state */
 enum class LcKeyState
 {
@@ -25,9 +26,7 @@ enum class LcKeyState
 	Up
 };
 
-
-/**
-* Render system type */
+/** Render system type */
 enum class LcRenderSystemType
 {
 	Null,
@@ -37,8 +36,7 @@ enum class LcRenderSystemType
 };
 
 
-/**
-* Keys struct */
+/** Keys struct */
 struct CORE_API KEYS
 {
 	KEYS();
@@ -48,4 +46,14 @@ struct CORE_API KEYS
 	const static int numKeys = 128;
 	//
 	unsigned char keys[numKeys];
+};
+
+/** Any value container */
+struct LcAny
+{
+	LcAny() : fValue(0.0f), iValue(0), bValue(false) {}
+	std::string	sValue;
+	float		fValue;
+	bool		bValue;
+	int			iValue;
 };

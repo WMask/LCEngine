@@ -10,7 +10,6 @@
 #include "Application/Windows/Module.h"
 #include "Lua/ApplicationLuaModule.h"
 #include "Lua/LuaScriptSystem.h"
-#include "Lua/ApplicationLuaModule.h"
 #include "Core/LCUtils.h"
 
 

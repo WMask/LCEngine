@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Module.h"
-#include "Core/LCAny.h"
+#include "Core/LCTypes.h"
 
 #include <string>
 

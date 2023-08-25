@@ -9,7 +9,7 @@
 #include <map>
 
 #include "Module.h"
-#include "Core/LCAny.h"
+#include "Core/LCTypes.h"
 
 
 typedef std::map<std::string, LcAny> CONFIG_ITEMS;
