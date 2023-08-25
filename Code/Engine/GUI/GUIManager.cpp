@@ -11,7 +11,7 @@
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWorldWeakPtr weakWorld, void* window)
+void LcGuiManagerBase::Init(TWeakWorld weakWorld, void* window)
 {
     worldPtr = weakWorld;
 

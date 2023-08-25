@@ -17,7 +17,7 @@
 
 
 typedef std::shared_ptr<class IWorld> TWorldPtr;
-typedef std::weak_ptr<class IWorld> TWorldWeakPtr;
+typedef std::weak_ptr<class IWorld> TWeakWorld;
 
 
 /**

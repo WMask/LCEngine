@@ -19,7 +19,7 @@ class LcApplicationLuaModule : public IScriptModule
 public:
 	/**
 	* Default constructor */
-	LcApplicationLuaModule(std::weak_ptr<class IApplication> appPtr);
+	LcApplicationLuaModule(class IApplication& app);
 
 
 public: // IScriptModule interface implementation
@@ -32,9 +32,9 @@ public: // IScriptModule interface implementation
 
 
 protected:
-	std::weak_ptr<IApplication> weakApp;
+	IApplication& app;
 
 };
 
 
-LCLUA_API IScriptModule& GetApplicationLuaModule(std::weak_ptr<class IApplication> appPtr);
+LCLUA_API IScriptModule& GetApplicationLuaModule(class IApplication& app);

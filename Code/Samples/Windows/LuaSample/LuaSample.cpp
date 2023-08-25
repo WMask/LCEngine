@@ -19,30 +19,31 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     try
     {
-        auto app = GetApp();
-        TWeakApp weakApp(app);
-
         LcLuaScriptSystem lua;
-        GetApplicationLuaModule(app).Add(lua);
 
-        auto onKeyboardHandler = [weakApp, &lua](int key, LcKeyState keyEvent) {
-            if (auto app = weakApp.lock())
+        auto onInitHandler = [&lua](IApplication* app)
+        {
+            GetApplicationLuaModule(*app).Add(lua);
+        };
+
+        auto onKeyboardHandler = [&lua](int key, LcKeyState keyEvent, IApplication* app)
+        {
+            if (key == 'Q' && (keyEvent == LcKeyState::Down))
             {
-                if (key == 'Q' && (keyEvent == LcKeyState::Down))
-                {
-                    lua.RunScript("print(\"Quit request!\"); requestQuit()");
-                    OutputDebugStringA("\n");
-                }
-                if (key == 'P' && (keyEvent == LcKeyState::Down))
-                {
-                    // Override luaB_print in lbaselib.c to print in Output window
-                    const char* script = "print(\"Hello from Lua!\"); return 77.7";
-                    auto result = lua.RunScriptEx(script);
-                    OutputDebugStringA("\n");
-                }
+                lua.RunScript("print(\"Quit request!\"); requestQuit()");
+                OutputDebugStringA("\n");
+            }
+            if (key == 'P' && (keyEvent == LcKeyState::Down))
+            {
+                // Override luaB_print in lbaselib.c to print in Output window
+                const char* script = "print(\"Hello from Lua!\"); return 77.7";
+                auto result = lua.RunScriptEx(script);
+                OutputDebugStringA("\n");
             }
         };
 
+        auto app = GetApp();
+        app->SetInitHandler(onInitHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(800, 600);
         app->Init(hInstance);

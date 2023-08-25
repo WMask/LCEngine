@@ -29,7 +29,7 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed) = 0;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
@@ -63,7 +63,7 @@ public:
 	virtual void LoadShaders(const char* folderPath);
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed);
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed);
 	/**
 	* Shutdown render system */
 	virtual void Shutdown();
@@ -82,7 +82,7 @@ protected:
 
 
 protected:
-	TWorldWeakPtr world;
+	TWeakWorld world;
 	//
 	SHADERS_MAP shaders;
 

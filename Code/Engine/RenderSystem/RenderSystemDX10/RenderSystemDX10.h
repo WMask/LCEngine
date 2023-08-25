@@ -59,7 +59,7 @@ public: // IRenderSystem interface implementation
 	virtual ~LcRenderSystemDX10() override;
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed) override;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() override;

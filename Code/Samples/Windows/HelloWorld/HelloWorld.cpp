@@ -21,44 +21,43 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     try
     {
-        auto app = GetApp();
-        auto world = GetWorld();
-
-        LcSizef size(200, 200);
-        LcVector2 pos(200, -200);
-        LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 0, 0, 1), LcColor4(0, 1, 0, 1));
-        auto sprite = world->AddSprite(LcSpriteData(LcSpriteType::Colored, To3(pos), size, colors));
-
-        TWeakApp weakApp(app);
-        KEYS keys;
-
-        auto onUpdateHandler = [sprite, weakApp, &keys](float deltaSeconds) {
-            DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
-
-            if (auto app = weakApp.lock())
-            {
-                if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-                if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
-
-                if (keys[VK_UP]) sprite->AddRotZ(-2 * deltaSeconds);
-                if (keys[VK_DOWN]) sprite->AddRotZ(2 * deltaSeconds);
-            }
+        auto onInitHandler = [](IApplication* app)
+        {
+            LcSizef size(200, 200);
+            LcVector2 pos(200, -200);
+            LcSpriteColors colors(LcColor4(1, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 0, 0, 1), LcColor4(0, 1, 0, 1));
+            app->GetWorld()->AddSprite(LcSpriteData(LcSpriteType::Colored, To3(pos), size, colors));
         };
 
-        auto onKeyboardHandler = [weakApp, &keys](int key, LcKeyState keyEvent) {
+        KEYS keys;
+        auto onUpdateHandler = [&keys](float deltaSeconds, IApplication* app)
+        {
+            DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
+
+            auto sprite = app->GetWorld()->GetSprites()[0];
+
+            if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
+            if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
+
+            if (keys[VK_UP]) sprite->AddRotZ(-2 * deltaSeconds);
+            if (keys[VK_DOWN]) sprite->AddRotZ(2 * deltaSeconds);
+        };
+
+        auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
+        {
             keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
 
-            if (auto app = weakApp.lock())
-            {
-                if (key == 'Q') app->RequestQuit();
-            }
+            if (key == 'Q') app->RequestQuit();
         };
 
         auto cfg = LoadConfig();
         int winWidth = cfg["appWinWidth"].iValue;
         int winHeight = cfg["appWinHeight"].iValue;
 
+        auto app = GetApp();
+        auto world = GetWorld();
         app->SetRenderSystem(GetRenderSystem());
+        app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(winWidth, winHeight);

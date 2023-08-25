@@ -10,7 +10,7 @@
 #include "src/lua.hpp"
 
 
-LcApplicationLuaModule::LcApplicationLuaModule(std::weak_ptr<IApplication> appPtr) : weakApp(appPtr)
+LcApplicationLuaModule::LcApplicationLuaModule(IApplication& appRef) : app(appRef)
 {
 }
 
@@ -33,13 +33,10 @@ static int requestQuit(lua_State* luaState)
 
 void LcApplicationLuaModule::Add(IScriptSystem& system)
 {
-	auto app = weakApp.lock();
-	if (!app) throw std::exception("LcApplicationLuaModule::Add(): Invalid Application pointer");
-
 	auto& luaSystem = (LcLuaScriptSystem&)system;
 	if (auto luaState = luaSystem.GetState())
 	{
-		lua_pushlightuserdata(luaState, app.get());
+		lua_pushlightuserdata(luaState, &app);
 		lua_setglobal(luaState, "app");
 
 		lua_pushcfunction(luaState, requestQuit);
@@ -49,8 +46,8 @@ void LcApplicationLuaModule::Add(IScriptSystem& system)
 		throw std::exception("LcApplicationLuaModule::Add(): Invalid Lua state");
 }
 
-IScriptModule& GetApplicationLuaModule(std::weak_ptr<IApplication> appPtr)
+IScriptModule& GetApplicationLuaModule(IApplication& appRef)
 {
-	static LcApplicationLuaModule instance(appPtr);
+	static LcApplicationLuaModule instance(appRef);
 	return instance;
 }

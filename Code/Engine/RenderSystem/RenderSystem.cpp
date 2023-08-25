@@ -30,7 +30,7 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     }
 }
 
-void LcRenderSystemBase::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed)
+void LcRenderSystemBase::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
 {
     world = worldPtr;
 }

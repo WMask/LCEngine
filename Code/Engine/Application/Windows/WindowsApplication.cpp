@@ -19,6 +19,7 @@ struct LcWin32Handles
     LcMouseMoveHandler mouseMoveHandler;
     LcMouseButtonHandler mouseButtonHandler;
     IGuiManager* guiManager;
+    IApplication* app;
 };
 
 
@@ -55,7 +56,7 @@ LcWindowsApplication::~LcWindowsApplication()
     }
 }
 
-void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
 {
     world = worldPtr;
 	hInstance = (HINSTANCE)handle;
@@ -64,12 +65,12 @@ void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr, const std:
     if (inShadersPath) shadersPath = inShadersPath;
 }
 
-void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr, const std::wstring& inCmds, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr, const std::wstring& inCmds, const char* inShadersPath) noexcept
 {
     Init(handle, worldPtr, inCmds, 1, inShadersPath);
 }
 
-void LcWindowsApplication::Init(void* handle, TWorldWeakPtr worldPtr) noexcept
+void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr) noexcept
 {
     Init(handle, worldPtr, L"", 1, "../../../Shaders/HLSL/");
 }
@@ -109,7 +110,7 @@ void LcWindowsApplication::Run()
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager.get() };
+    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager.get(), this };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     if (renderSystem)
@@ -118,6 +119,8 @@ void LcWindowsApplication::Run()
         renderSystem->Create(world, hWnd, true);
     }
     if (guiManager) guiManager->Init(world, hWnd);
+
+    if (initHandler) initHandler(this);
 
 	prevTick = GetTickCount64();
     MSG msg;
@@ -161,8 +164,18 @@ void LcWindowsApplication::OnUpdate()
             guiManager->Render();
         }
 
-        if (updateHandler) updateHandler(deltaSeconds);
+        if (updateHandler)
+        {
+            updateHandler(deltaSeconds, this);
+        }
     }
+}
+
+IWorld* LcWindowsApplication::GetWorld() noexcept
+{
+    IWorld* result = nullptr;
+    if (auto worldPtr = world.lock()) result = worldPtr.get();
+    return result;
 }
 
 LcMouseBtn MapMouseKeys(WPARAM wParam)
@@ -191,19 +204,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     case WM_KEYDOWN:
-        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down);
+        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down, handles->app);
         if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Down);
         break;
     case WM_KEYUP:
-        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up);
+        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up, handles->app);
         if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up);
         break;
     case WM_LBUTTONDOWN:
-        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y);
+        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->app);
         if (handles && handles->guiManager) handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y);
         break;
     case WM_LBUTTONUP:
-        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y);
+        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, handles->app);
         if (handles && handles->guiManager) handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y);
         break;
     default:

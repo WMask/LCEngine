@@ -8,7 +8,40 @@
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "Application/Application.h"
-#include "Core/LCUtils.h"
+#include "World/WorldInterface.h"
+#include "World/Sprites.h"
+
+
+/**
+* DirectX10 Sprite implementation */
+class LcSpriteDX10 : public LcSprite
+{
+public:
+	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender)
+	{
+		bool needTexture = (inSprite.type == LcSpriteType::Textured || inSprite.type == LcSpriteType::TexturedColored);
+		if (needTexture && !inSprite.texture.empty())
+		{
+		}
+	}
+	//
+	LcRenderSystemDX10& render;
+};
+
+/**
+* DirectX10 Sprite factory implementation */
+class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
+{
+public:
+	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	//
+	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
+	{
+		return std::make_shared<LcSpriteDX10>(data, render);
+	}
+	//
+	LcRenderSystemDX10& render;
+};
 
 
 LcRenderSystemDX10::LcRenderSystemDX10()
@@ -30,7 +63,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool windowed)
+void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
 {
 	RECT clientRect;
 	GetClientRect((HWND)windowHandle, &clientRect);
@@ -177,6 +210,12 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, bool
 	// add sprite renders
 	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
 	spriteRenders.back()->Setup();
+
+	// add sprite factory
+	if (auto world = worldPtr.lock())
+	{
+		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
+	}
 
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
