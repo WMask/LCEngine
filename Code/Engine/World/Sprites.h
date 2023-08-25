@@ -60,24 +60,25 @@ struct LcSpriteColors
 struct LcSpriteData
 {
 	LcSpriteColors colors;
-	LcVector3 pos;
+	LcVector3 pos; // [0,0] - leftTop, x - right, y - down (negative)
 	LcSizef size;
 	float rotZ;
 	bool visible;
 	std::string texPath;
 	LcVector2 texPos;
+	LcVector2 texSize;
 	LcBytes texData;
 	LcSpriteType type;
 	//
-	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(), rotZ(0.0f), visible(true), texPos(LcDefaults::ZeroVec2), type(LcSpriteType::Colored) {}
+	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(), rotZ(0.0f), visible(true), texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2), type(LcSpriteType::Colored) {}
 	//
 	LcSpriteData(LcSpriteType inType, LcVector3 inPos, LcSizef inSize, const LcSpriteColors& inColors, float inRotZ = 0.0f, bool inVisible = true)
-		: type(inType), pos(inPos), size(inSize), colors(inColors), rotZ(inRotZ), visible(inVisible), texPos(LcDefaults::ZeroVec2)
+		: type(inType), pos(inPos), size(inSize), colors(inColors), rotZ(inRotZ), visible(inVisible), texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2)
 	{
 	}
 	//
 	LcSpriteData(LcSpriteType inType, LcVector3 inPos, LcSizef inSize, LcVector2 inTexPos, const std::string& inTexPath, float inRotZ = 0.0f, bool inVisible = true)
-		: type(inType), pos(inPos), size(inSize), rotZ(inRotZ), visible(inVisible), texPos(inTexPos), texPath(inTexPath)
+		: type(inType), pos(inPos), size(inSize), rotZ(inRotZ), visible(inVisible), texPath(inTexPath), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
 	{
 	}
 };
