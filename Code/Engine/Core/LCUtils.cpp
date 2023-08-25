@@ -23,7 +23,7 @@ std::string ReadTextFile(const char* filePath)
 	return result;
 }
 
-std::vector<char> ReadBinaryFile(const char* filePath)
+LcBytes ReadBinaryFile(const char* filePath)
 {
 	using namespace std::filesystem;
 
@@ -32,8 +32,8 @@ std::vector<char> ReadBinaryFile(const char* filePath)
 	std::ifstream stream(path, std::ios::in | std::ios::binary);
 
 	const auto sz = file_size(path);
-	std::vector<char> result(sz);
-	stream.read(result.data(), sz);
+	LcBytes result(sz);
+	stream.read((char*)result.data(), sz);
 
 	return result;
 }

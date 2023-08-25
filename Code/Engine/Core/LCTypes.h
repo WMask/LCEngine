@@ -8,7 +8,11 @@
 
 #include "Module.h"
 
+#include <vector>
 #include <string>
+
+
+typedef std::vector<unsigned char> LcBytes;
 
 
 /** Mouse buttons */

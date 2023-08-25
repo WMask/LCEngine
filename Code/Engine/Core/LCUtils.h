@@ -8,16 +8,13 @@
 
 #include "LCTypes.h"
 
-#include <string>
-#include <vector>
-
 
 /**
 * Read text file */
 CORE_API std::string ReadTextFile(const char* filePath);
 /**
 * Read binary file */
-CORE_API std::vector<char> ReadBinaryFile(const char* filePath);
+CORE_API LcBytes ReadBinaryFile(const char* filePath);
 
 
 /**
