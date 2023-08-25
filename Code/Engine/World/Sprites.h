@@ -147,6 +147,12 @@ public: // ISprite interface implementation
 
 
 public: // IVisual interface implementation
+	virtual void AddComponent(std::shared_ptr<IVisualComponent> comp) override {}
+	//
+	virtual std::shared_ptr<IVisualComponent> GetComponent() override { return std::shared_ptr<IVisualComponent>(); }
+	//
+	virtual bool HasComponent(EVCType type) const override { return false; }
+	//
 	virtual void SetSize(LcSizef inSize) override { sprite.size = inSize; }
 	//
 	virtual LcSizef GetSize() const override { return sprite.size; }

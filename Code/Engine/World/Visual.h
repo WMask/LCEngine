@@ -6,7 +6,38 @@
 
 #pragma once
 
+#include <memory>
+
 #include "Core/LCTypesEx.h"
+
+
+/**
+* Visual component type */
+enum class EVCType : int
+{
+	Tint,
+	VertexColor,
+	Texture,
+	FrameAnimation
+};
+
+
+/**
+* Visual component interface */
+class IVisualComponent
+{
+public:
+	/**
+	* Virtual destructor */
+	virtual ~IVisualComponent() {}
+	/**
+	* Update component */
+	virtual void Update(float DeltaSeconds) {}
+	/**
+	* Get type */
+	virtual EVCType GetType() const = 0;
+
+};
 
 
 /**
@@ -26,6 +57,15 @@ public:
 	/**
 	* Render visual */
 	virtual void PostRender() {}
+	/**
+	* Add component */
+	virtual void AddComponent(std::shared_ptr<IVisualComponent> comp) = 0;
+	/**
+	* Get component */
+	virtual std::shared_ptr<IVisualComponent> GetComponent() = 0;
+	/**
+	* Render visual */
+	virtual bool HasComponent(EVCType type) const = 0;
 	/**
 	* Visual size in pixels */
 	virtual void SetSize(LcSizef size) = 0;
