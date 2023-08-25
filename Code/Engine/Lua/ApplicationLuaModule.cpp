@@ -49,8 +49,8 @@ void LcApplicationLuaModule::Add(IScriptSystem& system)
 		throw std::exception("LcApplicationLuaModule::Add(): Invalid Lua state");
 }
 
-IScriptModule* GetApplicationLuaModule(std::weak_ptr<IApplication> appPtr)
+IScriptModule& GetApplicationLuaModule(std::weak_ptr<IApplication> appPtr)
 {
 	static LcApplicationLuaModule instance(appPtr);
-	return &instance;
+	return instance;
 }

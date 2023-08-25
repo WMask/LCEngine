@@ -24,17 +24,21 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         TWeakApp weakApp(app);
 
         LcLuaScriptSystem lua;
-        GetApplicationLuaModule(app)->Add(lua);
+        GetApplicationLuaModule(app).Add(lua);
 
         auto onKeyboardHandler = [weakApp, &lua](int key, LcKeyState keyEvent) {
             if (auto app = weakApp.lock())
             {
-                if (key == 'Q') app->RequestQuit();
-                if (key == 'L' && (keyEvent == LcKeyState::Down))
+                if (key == 'Q' && (keyEvent == LcKeyState::Down))
+                {
+                    lua.RunScript("print(\"Quit request!\"); requestQuit()");
+                    OutputDebugStringA("\n");
+                }
+                if (key == 'P' && (keyEvent == LcKeyState::Down))
                 {
                     // Override luaB_print in lbaselib.c to print in Output window
-                    const char* script = "print(\"Hello from Lua!\"); requestQuit(); return 77.7";
-                    auto result = lua.RunScriptEx(script); 
+                    const char* script = "print(\"Hello from Lua!\"); return 77.7";
+                    auto result = lua.RunScriptEx(script);
                     OutputDebugStringA("\n");
                 }
             }

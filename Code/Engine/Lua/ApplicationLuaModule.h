@@ -37,4 +37,4 @@ protected:
 };
 
 
-LCLUA_API IScriptModule* GetApplicationLuaModule(std::weak_ptr<class IApplication> appPtr);
+LCLUA_API IScriptModule& GetApplicationLuaModule(std::weak_ptr<class IApplication> appPtr);
