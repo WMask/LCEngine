@@ -20,10 +20,6 @@ class LcSpriteDX10 : public LcSprite
 public:
 	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender)
 	{
-		bool needTexture = (inSprite.type == LcSpriteType::Textured || inSprite.type == LcSpriteType::TexturedColored);
-		if (needTexture && !inSprite.texture.empty())
-		{
-		}
 	}
 	//
 	LcRenderSystemDX10& render;
@@ -56,7 +52,6 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	blendState = nullptr;
 	rasterizerState = nullptr;
 	initialOffset = LcVector2();
-	prevSpriteType = LcSpriteType::Colored;
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -262,11 +257,11 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 
 	for (auto& render : spriteRenders)
 	{
-		if (render->GetType() == sprite->GetType())
+		if (render->Supports(sprite->GetFeaturesList()))
 		{
-			if (prevSpriteType != render->GetType())
+			if (prevSpriteFeatures != sprite->GetFeaturesList())
 			{
-				prevSpriteType = render->GetType();
+				prevSpriteFeatures = sprite->GetFeaturesList();
 				render->Setup();
 			}
 

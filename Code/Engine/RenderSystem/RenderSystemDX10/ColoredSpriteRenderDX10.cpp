@@ -107,15 +107,45 @@ void LcColoredSpriteRenderDX10::Setup()
 void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transMatrix = renderDevice.GetTransformBuffer();
+	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	if (!d3dDevice || !transMatrix || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
 
+	// update components
+	auto colorsComponent = sprite->GetComponent(EVCType::VertexColor);
+	const LcSpriteColorsComponent* colors = (LcSpriteColorsComponent*)colorsComponent.get();
+
+	auto tintComponent = sprite->GetComponent(EVCType::Tint);
+	const LcSpriteTintComponent* tint = (LcSpriteTintComponent*)tintComponent.get();
+
+	if (colors || tint)
+	{
+		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colors ? colors->GetData() : tint->GetData(), 0, 0);
+	}
+	else
+	{
+		static LcColor4 defaultColors[] = { LcDefaults::White, LcDefaults::White, LcDefaults::White, LcDefaults::White };
+		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
+	}
+
+	// update transform
 	LcVector2 offset = renderDevice.GetOffset();
 	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);
 	LcMatrix4 trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ());
 
-	d3dDevice->UpdateSubresource(transMatrix, 0, NULL, &trans, 0, 0);
-	d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, &sprite->GetColors(), 0, 0);
+	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
+
+	// render sprite
 	d3dDevice->Draw(4, 0);
+}
+
+bool LcColoredSpriteRenderDX10::Supports(const TVFeaturesList& features) const
+{
+	bool needTexture = false, needAnimation = false;
+	for (auto& feature : features)
+	{
+		needTexture |= (feature == EVCType::Texture);
+		needAnimation |= (feature == EVCType::FrameAnimation);
+	}
+	return !needAnimation && !needTexture;
 }

@@ -6,78 +6,28 @@
 
 #pragma once
 
+#include "Module.h"
 #include "Visual.h"
 
+#include <deque>
 
-/**
-* Sprite type */
-enum class LcSpriteType
-{
-	Colored,
-	Textured,
-	TexturedColored
-};
-
-
-/**
-* Sprite colors */
-struct LcSpriteColors
-{
-	LcColor4 leftTop;
-	LcColor4 rightTop;
-	LcColor4 rightBottom;
-	LcColor4 leftBottom;
-	//
-	LcSpriteColors() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
-	//
-	LcSpriteColors(const LcSpriteColors& colors) :
-		leftTop{ colors.leftTop }, rightTop{ colors.rightTop }, rightBottom{ colors.rightBottom }, leftBottom{ colors.leftBottom }
-	{
-	}
-	//
-	LcSpriteColors(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) :
-		leftTop(inLeftTop), rightTop(inRightTop), rightBottom(inRightBottom), leftBottom(inLeftBottom)
-	{
-	}
-	//
-	LcSpriteColors(LcColor4 tint) : leftTop(tint), rightTop(tint), rightBottom(tint), leftBottom(tint)
-	{
-	}
-	//
-	LcSpriteColors& operator=(const LcSpriteColors& colors)
-	{
-		leftTop = colors.leftTop;
-		rightTop = colors.rightTop;
-		rightBottom = colors.rightBottom;
-		leftBottom = colors.leftBottom;
-		return *this;
-	}
-};
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
 
 /**
 * Sprite data */
 struct LcSpriteData
 {
-	LcSpriteColors colors;
-	LcVector3 pos; // [0,0] - leftTop, x - right, y - down (negative)
-	LcSizef size;
+	LcVector3 pos;	// [0,0] - leftTop, x - right, y - down (negative)
+	LcSizef size;	// sprite size in pixels
 	float rotZ;
 	bool visible;
-	std::string texture;
-	LcVector2 texPos;
-	LcVector2 texSize;
-	LcSpriteType type;
 	//
-	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(), rotZ(0.0f), visible(true), texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2), type(LcSpriteType::Colored) {}
+	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(), rotZ(0.0f), visible(true) {}
 	//
-	LcSpriteData(LcSpriteType inType, LcVector3 inPos, LcSizef inSize, const LcSpriteColors& inColors, float inRotZ = 0.0f, bool inVisible = true)
-		: type(inType), pos(inPos), size(inSize), colors(inColors), rotZ(inRotZ), visible(inVisible), texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2)
-	{
-	}
-	//
-	LcSpriteData(LcSpriteType inType, LcVector3 inPos, LcSizef inSize, LcVector2 inTexPos, const std::string& inTexture, float inRotZ = 0.0f, bool inVisible = true)
-		: type(inType), pos(inPos), size(inSize), rotZ(inRotZ), visible(inVisible), texture(inTexture), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	LcSpriteData(LcVector3 inPos, LcSizef inSize, float inRotZ = 0.0f, bool inVisible = true)
+		: pos(inPos), size(inSize), rotZ(inRotZ), visible(inVisible)
 	{
 	}
 };
@@ -88,70 +38,112 @@ struct LcSpriteData
 class ISprite : public IVisual
 {
 public:
-	/**
-	* Sprite colors */
-	virtual void SetColors(const LcSpriteColors& colors) = 0;
-	/**
-	* Sprite colors */
-	virtual const LcSpriteColors& GetColors() const = 0;
-	/**
-	* Sprite texture */
-	virtual void SetTexture(const std::string& texture) = 0;
-	/**
-	* Sprite texture */
-	virtual const std::string& GetTexture() const = 0;
-	/**
-	* Sprite frame pos */
-	virtual void SetTexPos(LcVector2 texPos) = 0;
-	/**
-	* Sprite frame pos */
-	virtual LcVector2 GetTexPos() const = 0;
-	/**
-	* Texture size */
-	virtual LcVector2 GetTexSize() const = 0;
-	/**
-	* Sprite type */
-	virtual LcSpriteType GetType() const = 0;
+	ISprite() {}
+	~ISprite() {}
+};
+
+
+/**
+* Sprite tint component */
+struct LcSpriteTintComponent : public IVisualComponent
+{
+	LcColor4 tint;
+	//
+	LcColor4 data[4];
+	//
+	LcSpriteTintComponent(const LcSpriteTintComponent& colors) : tint(colors.tint)
+	{
+		data[0] = data[1] = data[2] = data[3] = tint;
+	}
+	//
+	LcSpriteTintComponent(LcColor4 inTint) : tint(inTint)
+	{
+		data[0] = data[1] = data[2] = data[3] = tint;
+	}
+	//
+	const void* GetData() const { return data; }
+	// IVisualComponent interface implementation
+	virtual EVCType GetType() const override { return EVCType::Tint; }
+
+};
+
+
+/**
+* Sprite colors component */
+struct LcSpriteColorsComponent : public IVisualComponent
+{
+	LcColor4 leftTop;
+	LcColor4 rightTop;
+	LcColor4 rightBottom;
+	LcColor4 leftBottom;
+	//
+	LcSpriteColorsComponent() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
+	//
+	LcSpriteColorsComponent(const LcSpriteColorsComponent& colors) :
+		leftTop{ colors.leftTop }, rightTop{ colors.rightTop }, rightBottom{ colors.rightBottom }, leftBottom{ colors.leftBottom }
+	{
+	}
+	//
+	LcSpriteColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) :
+		leftTop(inLeftTop), rightTop(inRightTop), rightBottom(inRightBottom), leftBottom(inLeftBottom)
+	{
+	}
+	const void* GetData() const { return &leftTop; }
+	// IVisualComponent interface implementation
+	virtual EVCType GetType() const override { return EVCType::VertexColor; }
+
+};
+
+
+/**
+* Sprite texture component */
+struct LcSpriteTextureComponent : public IVisualComponent
+{
+	std::string texture;// texture file path
+	LcBytes data;		// texture data
+	LcVector2 texPos;	// sprite frame offset
+	LcVector2 texSize;	// texture size in pixels
+	//
+	LcSpriteTextureComponent() : texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2) {}
+	//
+	LcSpriteTextureComponent(const LcSpriteTextureComponent& texture) :
+		texture(texture.texture), data(texture.data), texPos(texture.texPos), texSize(texture.texSize) {}
+	//
+	LcSpriteTextureComponent(const std::string& inTexture, LcVector2 inTexPos) :
+		texture(inTexture), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	{
+	}
+	//
+	LcSpriteTextureComponent(const LcBytes& inData, LcVector2 inTexPos) :
+		data(inData), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	{
+	}
+	// IVisualComponent interface implementation
+	virtual EVCType GetType() const override { return EVCType::Texture; }
 
 };
 
 
 /**
 * Default Sprite implementation */
-class LcSprite : public ISprite
+class WORLD_API LcSprite : public ISprite
 {
 public:
 	LcSprite(LcSpriteData inSprite) : sprite(inSprite) {}
 	//
+	~LcSprite() {}
+	//
 	LcSpriteData sprite;
 
 
-public: // ISprite interface implementation
-	virtual ~LcSprite() override {}
-	//
-	virtual void SetColors(const LcSpriteColors& inColors) override { sprite.colors = inColors; }
-	//
-	virtual const LcSpriteColors& GetColors() const override { return sprite.colors; }
-	//
-	virtual void SetTexture(const std::string& inTexture) override { sprite.texture = inTexture; }
-	//
-	virtual const std::string& GetTexture() const override { return sprite.texture; }
-	//
-	virtual void SetTexPos(LcVector2 inTexPos) override { sprite.texPos = inTexPos; }
-	//
-	virtual LcVector2 GetTexPos() const override { return sprite.texPos; }
-	//
-	virtual LcVector2 GetTexSize() const override { return sprite.texSize; }
-	//
-	virtual LcSpriteType GetType() const override { return sprite.type; }
-
-
 public: // IVisual interface implementation
-	virtual void AddComponent(std::shared_ptr<IVisualComponent> comp) override {}
+	virtual void AddComponent(TVComponentPtr comp) override;
 	//
-	virtual std::shared_ptr<IVisualComponent> GetComponent() override { return std::shared_ptr<IVisualComponent>(); }
+	virtual TVComponentPtr GetComponent(EVCType type) const override;
 	//
-	virtual bool HasComponent(EVCType type) const override { return false; }
+	virtual bool HasComponent(EVCType type) const override;
+	//
+	virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
 	//
 	virtual void SetSize(LcSizef inSize) override { sprite.size = inSize; }
 	//
@@ -176,5 +168,11 @@ public: // IVisual interface implementation
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) {}
 	//
 	virtual void OnMouseMove(int x, int y) {}
+
+
+protected:
+	std::deque<TVComponentPtr> components;
+	//
+	TVFeaturesList features;
 
 };

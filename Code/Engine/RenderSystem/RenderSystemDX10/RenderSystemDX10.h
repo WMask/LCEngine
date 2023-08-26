@@ -122,6 +122,6 @@ protected:
 	//
 	LcVector2 initialOffset;
 	//
-	LcSpriteType prevSpriteType;
+	TVFeaturesList prevSpriteFeatures;
 
 };

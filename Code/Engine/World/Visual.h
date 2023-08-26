@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <set>
 #include <memory>
 
 #include "Core/LCTypesEx.h"
@@ -20,6 +21,10 @@ enum class EVCType : int
 	Texture,
 	FrameAnimation
 };
+
+
+/** Visual feature list */
+typedef std::set<EVCType> TVFeaturesList;
 
 
 /**
@@ -38,6 +43,10 @@ public:
 	virtual EVCType GetType() const = 0;
 
 };
+
+
+/** Visual component pointer */
+typedef std::shared_ptr<IVisualComponent> TVComponentPtr;
 
 
 /**
@@ -59,13 +68,16 @@ public:
 	virtual void PostRender() {}
 	/**
 	* Add component */
-	virtual void AddComponent(std::shared_ptr<IVisualComponent> comp) = 0;
+	virtual void AddComponent(TVComponentPtr comp) = 0;
 	/**
 	* Get component */
-	virtual std::shared_ptr<IVisualComponent> GetComponent() = 0;
+	virtual TVComponentPtr GetComponent(EVCType type) const = 0;
 	/**
-	* Render visual */
+	* Check for component type */
 	virtual bool HasComponent(EVCType type) const = 0;
+	/**
+	* Return features list */
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
 	/**
 	* Visual size in pixels */
 	virtual void SetSize(LcSizef size) = 0;

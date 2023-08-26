@@ -56,5 +56,8 @@
     <ClCompile Include="..\..\..\Code\Engine\World\World.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\World\Sprites.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

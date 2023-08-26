@@ -152,6 +152,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\World\Sprites.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\World\World.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">

@@ -32,8 +32,8 @@ public: // ISpriteRender interface implementation
 	* Render sprite */
 	virtual void Render(const ISprite* sprite) override;
 	/**
-	* Return sprite type */
-	virtual LcSpriteType GetType() const override { return LcSpriteType::Colored; }
+	* Checks support for the feature */
+	virtual bool Supports(const TVFeaturesList& features) const override;
 
 
 protected:
