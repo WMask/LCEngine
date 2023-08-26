@@ -142,9 +142,9 @@ public:
 	//
 	LcRenderSystemDX10& render;
 	//
-	ComPtr<ID3D10Texture2D> texture;
+	ID3D10Texture2D* texture;
 	//
-	ComPtr<ID3D10ShaderResourceView> shaderView;
+	ID3D10ShaderResourceView* shaderView;
 
 
 public: // IVisual interface implementation

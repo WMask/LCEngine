@@ -11,10 +11,24 @@
 #include <wincodec.h>
 
 
+LcTextureLoaderDX10::~LcTextureLoaderDX10()
+{
+    ClearCache(nullptr);
+}
+
 bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view)
 {
     if (!device) return false;
     if (!texture && !view) return false;
+
+    // get from cache
+    auto entry = texturesCache.find(texPath);
+    if (entry != texturesCache.end())
+    {
+        if (texture) *texture = entry->second.texture.Get();
+        if (view) *view = entry->second.view.Get();
+        return true;
+    }
 
     // read file
     auto texData = ReadBinaryFile(texPath);
@@ -112,6 +126,9 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     result = device->CreateTexture2D(&desc, &initData, texture);
     if (SUCCEEDED(result) && texture)
     {
+        LcTextureDataDX10 newTexData;
+        newTexData.texture = *texture;
+
         if (view)
         {
             D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc{};
@@ -121,10 +138,17 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
 
             result = device->CreateShaderResourceView(*texture, &SRVDesc, view);
             if (FAILED(result)) return false;
+            newTexData.view = *view;
         }
 
+        texturesCache.emplace(std::make_pair(std::string(texPath), newTexData));
         return true;
     }
 
     return false;
+}
+
+void LcTextureLoaderDX10::ClearCache(IWorld* world)
+{
+    texturesCache.clear();
 }

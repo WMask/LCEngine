@@ -34,16 +34,16 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 	auto texComp = (LcSpriteTextureComponent*)comp.get();
 	if (comp->GetType() == EVCType::Texture)
 	{
-		bool loaded = render.GetTextureLoader()->LoadTexture(texComp->texture.c_str(),
-			render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf());
+		bool loaded = render.GetTextureLoader()->LoadTexture(
+			texComp->texture.c_str(), render.GetD3D10Device(), &texture, &shaderView);
 		if (!loaded) throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
 	}
 }
 
 LcSpriteDX10::~LcSpriteDX10()
 {
-	shaderView.Reset();
-	texture.Reset();
+	shaderView = nullptr;
+	texture = nullptr;
 }
 
 LcRenderSystemDX10::LcRenderSystemDX10()
@@ -225,7 +225,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
 
 	// init texture loader
-	texLoader.reset(new LcTextureLoaderDX10());
+	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
 }
 
 void LcRenderSystemDX10::Shutdown()

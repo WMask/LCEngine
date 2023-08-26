@@ -133,7 +133,7 @@ void LcTexturedSpriteRenderDX10::Render(const ISprite* sprite)
 	if (sprite->HasComponent(EVCType::Texture))
 	{
 		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
-		d3dDevice->PSSetShaderResources(0, 1, spriteDX10->shaderView.GetAddressOf());
+		d3dDevice->PSSetShaderResources(0, 1, &spriteDX10->shaderView);
 	}
 
 	// update transform
