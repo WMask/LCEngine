@@ -21,7 +21,7 @@ public:
 	* Render sprite */
 	virtual void Render(const ISprite* sprite) = 0;
 	/**
-	* Return sprite type */
-	virtual LcSpriteType GetType() const = 0;
+	* Checks support for the feature */
+	virtual bool Supports(const TVFeaturesList& features) const = 0;
 
 };

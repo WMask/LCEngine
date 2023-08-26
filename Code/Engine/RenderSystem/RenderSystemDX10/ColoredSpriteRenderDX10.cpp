@@ -6,7 +6,6 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
-#include "Core/LCUtils.h"
 
 
 static const char* coloredSpriteShaderName = "ColoredSprite2d.shader";
@@ -28,7 +27,7 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	auto shaderCode = renderDevice.GetShaderCode(coloredSpriteShaderName);
 
 	ComPtr<ID3D10Blob> vertexBlob;
-	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, &vertexBlob, NULL)))
+	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, vertexBlob.GetAddressOf(), NULL)))
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile vertex shader");
 	}
@@ -39,7 +38,7 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	}
 
 	ComPtr<ID3D10Blob> pixelBlob;
-	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "PShader", "ps_4_0", 0, &pixelBlob, NULL)))
+	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "PShader", "ps_4_0", 0, pixelBlob.GetAddressOf(), NULL)))
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile pixel shader");
 	}
@@ -48,7 +47,6 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot create pixel shader");
 	}
-
 
 	D3D10_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -76,10 +74,10 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	// fill vertex buffer
 	DX10COLOREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 0 };
-	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
-	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 2 };
-	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 3 };
+	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
+	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 2 };
+	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 0 };
+	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 3 };
 	vertexBuffer->Unmap();
 }
 
@@ -109,19 +107,46 @@ void LcColoredSpriteRenderDX10::Setup()
 void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transMatrix = renderDevice.GetTransformBuffer();
-	if (!d3dDevice || !transMatrix || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
+	auto transBuffer = renderDevice.GetTransformBuffer();
+	auto colorsBuffer = renderDevice.GetColorsBuffer();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
 
+	// update components
+	auto colorsComponent = sprite->GetComponent(EVCType::VertexColor);
+	const LcSpriteColorsComponent* colors = (LcSpriteColorsComponent*)colorsComponent.get();
+
+	auto tintComponent = sprite->GetComponent(EVCType::Tint);
+	const LcSpriteTintComponent* tint = (LcSpriteTintComponent*)tintComponent.get();
+
+	if (colors || tint)
+	{
+		auto colorsData = colors ? colors->GetData() : tint->GetData();
+		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colorsData, 0, 0);
+	}
+	else
+	{
+		static LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
+		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
+	}
+
+	// update transform
 	LcVector2 offset = renderDevice.GetOffset();
 	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);
-	LcSpriteColors colors = sprite->GetColors();
+	LcMatrix4 trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ());
 
-	transData.trans = TransposeMatrix(TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ()));
-	transData.colors[0] = ToV(colors.rightTop);
-	transData.colors[1] = ToV(colors.rightBottom);
-	transData.colors[2] = ToV(colors.leftTop);
-	transData.colors[3] = ToV(colors.leftBottom);
+	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
-	d3dDevice->UpdateSubresource(transMatrix, 0, NULL, &transData, 0, 0);
+	// render sprite
 	d3dDevice->Draw(4, 0);
+}
+
+bool LcColoredSpriteRenderDX10::Supports(const TVFeaturesList& features) const
+{
+	bool needTexture = false, needAnimation = false;
+	for (auto& feature : features)
+	{
+		needTexture |= (feature == EVCType::Texture);
+		needAnimation |= (feature == EVCType::FrameAnimation);
+	}
+	return !needAnimation && !needTexture;
 }

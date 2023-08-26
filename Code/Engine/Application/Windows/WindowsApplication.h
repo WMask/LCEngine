@@ -10,6 +10,7 @@
 
 #include "Module.h"
 #include "Application/Application.h"
+#include "Core/LCTypesEx.h"
 
 
 /**
@@ -28,10 +29,13 @@ public: // IApplication interface implementation
 	virtual ~LcWindowsApplication() override;
 	/**
 	* Set app parameters */
-	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
+	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
 	/**
 	* Set app parameters */
-	virtual void Init(TWorldWeakPtr worldPtr, void* handle, const std::wstring& cmds, const char* shadersPath) noexcept override;
+	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, const char* shadersPath) noexcept override;
+	/**
+	* Set app parameters */
+	virtual void Init(void* handle, TWeakWorld worldPtr = TWeakWorld()) noexcept override;
 	/**
 	* Set render system */
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = std::move(render); }
@@ -40,7 +44,10 @@ public: // IApplication interface implementation
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = std::move(gui); }
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(LcSize inWindowSize) noexcept { windowSize = inWindowSize; }
+	virtual void SetWindowSize(int width, int height) noexcept { windowSize = LcSize(width, height); }
+	/**
+	* Set init handler */
+	virtual void SetInitHandler(LcInitHandler handler) noexcept { initHandler = handler; }
 	/**
 	* Set update handler */
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept { updateHandler = handler; }
@@ -59,6 +66,12 @@ public: // IApplication interface implementation
 	/**
 	* Request application quit */
 	virtual void RequestQuit() noexcept { quit = true; }
+	/**
+	* Get World */
+	virtual class IWorld* GetWorld() noexcept;
+	/**
+	* Get World pointer */
+	virtual TWeakWorld GetWorldPtr() noexcept { return world; }
 
 
 protected:
@@ -70,7 +83,7 @@ protected:
 	//
 	HWND hWnd;
 	//
-	TWorldWeakPtr world;
+	TWeakWorld world;
 	//
 	TRenderSystemPtr renderSystem;
 	//
@@ -85,6 +98,8 @@ protected:
 	LcSize windowSize;
 	//
 	bool quit;
+	//
+	LcInitHandler initHandler;
 	//
 	LcUpdateHandler updateHandler;
 	//

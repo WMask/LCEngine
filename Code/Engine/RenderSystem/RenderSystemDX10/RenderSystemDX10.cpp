@@ -6,10 +6,45 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "RenderSystem/RenderSystemDX10/TexturedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "Application/Application.h"
-#include "Core/LCUtils.h"
+#include "World/WorldInterface.h"
+#include "World/Sprites.h"
 
+
+class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
+{
+public:
+	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	//
+	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
+	{
+		return std::make_shared<LcSpriteDX10>(data, render);
+	}
+	//
+	LcRenderSystemDX10& render;
+};
+
+void LcSpriteDX10::AddComponent(TVComponentPtr comp)
+{
+	LcSprite::AddComponent(comp);
+
+	auto texComp = (LcSpriteTextureComponent*)comp.get();
+	if (comp->GetType() == EVCType::Texture)
+	{
+		bool loaded = render.GetTextureLoader()->LoadTexture(
+			texComp->texture.c_str(), render.GetD3D10Device(), &texture, &shaderView);
+		if (!loaded) throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
+	}
+}
+
+LcSpriteDX10::~LcSpriteDX10()
+{
+	shaderView = nullptr;
+	texture = nullptr;
+}
 
 LcRenderSystemDX10::LcRenderSystemDX10()
 {
@@ -18,8 +53,10 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	renderTargetView = nullptr;
 	projMatrixBuffer = nullptr;
 	transMatrixBuffer = nullptr;
+	colorsBuffer = nullptr;
 	blendState = nullptr;
 	rasterizerState = nullptr;
+	initialOffset = LcVector2();
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -27,14 +64,15 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed)
+void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
 {
-	int width = viewportSize.x, height = viewportSize.y;
+	RECT clientRect;
+	GetClientRect((HWND)windowHandle, &clientRect);
+
+	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
 	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.Width = width;
 	swapChainDesc.BufferDesc.Height = height;
@@ -56,7 +94,7 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 
 	// get back buffer
 	ComPtr<ID3D10Texture2D> backBuffer;
-	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)&backBuffer)))
+	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)backBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
 	}
@@ -82,15 +120,21 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	d3dDevice->RSSetViewports(1, &viewPort);
 
 	// define constant buffers
-	struct VS_PROJ_BUFFER
+	struct VS_MATRIX_BUFFER
 	{
-		LcMatrix4 proj;
+		LcMatrix4 mat;
 	};
-	VS_PROJ_BUFFER projData;
-	VS_TRANS_BUFFER transData;
+	VS_MATRIX_BUFFER projData;
+	VS_MATRIX_BUFFER transData;
+
+	struct VS_COLORS_BUFFER
+	{
+		LcColor4 colors[4];
+	};
+	VS_COLORS_BUFFER colorsData;
 
 	D3D10_BUFFER_DESC cbDesc;
-	cbDesc.ByteWidth = sizeof(VS_PROJ_BUFFER);
+	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
 	cbDesc.Usage = D3D10_USAGE_DEFAULT;
 	cbDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
 	cbDesc.CPUAccessFlags = 0;
@@ -102,20 +146,25 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	subResData.SysMemSlicePitch = 0;
 
 	// create constant buffers
-	projData.proj = OrthoMatrix(viewportSize, 1.0f, -1.0f);
+	projData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &projMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
-	cbDesc.ByteWidth = sizeof(VS_TRANS_BUFFER);
 	subResData.pSysMem = &transData;
-	transData.trans = IdentityMatrix();
-	transData.colors[0] = LcDefaults::OneVec4;
-	transData.colors[1] = LcDefaults::OneVec4;
-	transData.colors[2] = LcDefaults::OneVec4;
-	transData.colors[3] = LcDefaults::OneVec4;
+	transData.mat = IdentityMatrix();
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &transMatrixBuffer)))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
+	subResData.pSysMem = &colorsData;
+	colorsData.colors[0] = LcDefaults::White4;
+	colorsData.colors[1] = LcDefaults::White4;
+	colorsData.colors[2] = LcDefaults::White4;
+	colorsData.colors[3] = LcDefaults::White4;
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &colorsBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
@@ -123,6 +172,7 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	// set buffers
 	d3dDevice->VSSetConstantBuffers(0, 1, &projMatrixBuffer);
 	d3dDevice->VSSetConstantBuffers(1, 1, &transMatrixBuffer);
+	d3dDevice->VSSetConstantBuffers(2, 1, &colorsBuffer);
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -153,23 +203,40 @@ void LcRenderSystemDX10::Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSi
 	rasterizerDesc.MultisampleEnable = false;
 	rasterizerDesc.AntialiasedLineEnable = true;
 
-	d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+	if (FAILED(d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState)))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create rasterizer state");
+	}
+
 	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
-	spriteRenders.push_back(std::shared_ptr<ISpriteRender>(new LcColoredSpriteRenderDX10(*this)));
-	spriteRenders[0]->Setup();
+	spriteRenders.push_back(std::make_shared<LcTexturedSpriteRenderDX10>(*this));
+	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
+	spriteRenders.back()->Setup();
+
+	// add sprite factory
+	if (auto world = worldPtr.lock())
+	{
+		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
+	}
 
 	// init render system
-	LcRenderSystemBase::Create(worldPtr, this, viewportSize, windowed);
+	LcRenderSystemBase::Create(worldPtr, this, windowed);
+
+	// init texture loader
+	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
 
+	texLoader.reset();
+
 	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
 	if (blendState) { blendState->Release(); blendState = nullptr; }
+	if (colorsBuffer) { colorsBuffer->Release(); colorsBuffer = nullptr; }
 	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
 	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
 	if (renderTargetView) { renderTargetView->Release(); renderTargetView = nullptr; }
@@ -202,12 +269,23 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 
 	for (auto& render : spriteRenders)
 	{
-		if (render->GetType() == sprite->GetType())
+		if (render->Supports(sprite->GetFeaturesList()))
 		{
+			if (prevSpriteFeatures != sprite->GetFeaturesList())
+			{
+				prevSpriteFeatures = sprite->GetFeaturesList();
+				render->Setup();
+			}
+
 			render->Render(sprite);
 			break;
 		}
 	}
+}
+
+void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
+{
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

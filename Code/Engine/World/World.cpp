@@ -8,54 +8,7 @@
 
 #include "pch.h"
 #include "World/World.h"
-
-
-/**
-* Default Sprite implementation */
-class LcSprite : public ISprite
-{
-public:
-	LcSprite(LcSpriteData inSprite) : sprite(inSprite) {}
-	//
-	LcSpriteData sprite;
-
-
-public: // ISprite interface implementation
-	virtual ~LcSprite() override {}
-	//
-	virtual void SetColors(LcSpriteColors inColors) override { sprite.colors = inColors; }
-	//
-	virtual LcSpriteColors GetColors() const override { return sprite.colors; }
-	//
-	virtual LcSpriteType GetType() const override { return sprite.type; }
-
-
-public: // IVisual interface implementation
-	virtual void SetSize(LcSizef inSize) override { sprite.size = inSize; }
-	//
-	virtual LcSizef GetSize() const override { return sprite.size; }
-	//
-	virtual void SetPos(LcVector3 inPos) override { sprite.pos = inPos; }
-	//
-	virtual void AddPos(LcVector3 inPos) override { sprite.pos = sprite.pos + inPos; }
-	//
-	virtual LcVector3 GetPos() const override { return sprite.pos; }
-	//
-	virtual void SetRotZ(float inRotZ) override { sprite.rotZ = inRotZ; }
-	//
-	virtual void AddRotZ(float inRotZ) override { sprite.rotZ += inRotZ; }
-	//
-	virtual float GetRotZ() const override { return sprite.rotZ; }
-	//
-	virtual void SetVisible(bool inVisible) override { sprite.visible = inVisible; }
-	//
-	virtual bool IsVisible() const override { return sprite.visible; }
-	//
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) {}
-	//
-	virtual void OnMouseMove(int x, int y) {}
-
-};
+#include "World/Sprites.h"
 
 
 /**
@@ -69,7 +22,6 @@ public:
 	{
 		return std::make_shared<LcSprite>(data);
 	}
-
 };
 
 
@@ -100,6 +52,16 @@ ISprite* LcWorld::AddSprite(const LcSpriteData& inSprite)
 		throw std::exception("LcWorld::AddSprite(): Cannot create sprite");
 
 	return newSprite.get();
+}
+
+ISprite* LcWorld::AddSprite(float x, float y, float z, float width, float height, float inRotZ, bool inVisible)
+{
+	return AddSprite(LcSpriteData(LcVector3(x, y, z), LcSizef(width, height), inRotZ, inVisible));
+}
+
+ISprite* LcWorld::AddSprite(float x, float y, float width, float height, float inRotZ, bool inVisible)
+{
+	return AddSprite(LcSpriteData(LcVector3(x, y, 0.0f), LcSizef(width, height), inRotZ, inVisible));
 }
 
 void LcWorld::RemoveSprite(ISprite* sprite)

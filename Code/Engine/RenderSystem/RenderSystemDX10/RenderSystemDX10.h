@@ -16,7 +16,6 @@ using namespace Microsoft::WRL;
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "World/Module.h"
-#include "Core/LcUtils.h"
 
 
 #pragma warning(disable : 4251)
@@ -33,6 +32,9 @@ public:
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const = 0;
 	/**
+	* Return colors buffer */
+	virtual ID3D10Buffer* GetColorsBuffer() const = 0;
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 	/**
@@ -40,25 +42,6 @@ public:
 	virtual LcVector2 GetOffset() const = 0;
 
 };
-
-
-/**
-* Transform buffer */
-struct VS_TRANS_BUFFER
-{
-	LcMatrix4 trans;		// scale * rotation * translation
-	LcVector4 colors[4];	// colors
-	//
-	VS_TRANS_BUFFER()
-	{
-		trans = IdentityMatrix();
-		colors[0] = LcDefaults::OneVec4;
-		colors[1] = LcDefaults::OneVec4;
-		colors[2] = LcDefaults::OneVec4;
-		colors[3] = LcDefaults::OneVec4;
-	}
-};
-
 
 /**
 * DirectX 10 render system */
@@ -68,6 +51,8 @@ class RENDERSYSTEMDX10_API LcRenderSystemDX10
 {
 public:
 	LcRenderSystemDX10();
+	//
+	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 
 
 public: // IRenderSystem interface implementation
@@ -76,7 +61,7 @@ public: // IRenderSystem interface implementation
 	virtual ~LcRenderSystemDX10() override;
 	/**
 	* Create render system */
-	virtual void Create(TWorldWeakPtr worldPtr, void* windowHandle, LcSize viewportSize, bool windowed) override;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() override;
@@ -87,8 +72,11 @@ public: // IRenderSystem interface implementation
 	* Render world */
 	virtual void Render() override;
 	/**
-	* Render world */
+	* Render sprite */
 	virtual void RenderSprite(const ISprite* sprite) override;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const IWidget* widget) override;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
@@ -104,6 +92,9 @@ public: // IDX10RenderDevice interface implementation
 	/**
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer; }
+	/**
+	* Return colors buffer */
+	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer; }
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
@@ -123,12 +114,40 @@ protected:
 	//
 	ID3D10Buffer* transMatrixBuffer;
 	//
+	ID3D10Buffer* colorsBuffer;
+	//
 	ID3D10BlendState* blendState;
 	//
 	ID3D10RasterizerState* rasterizerState;
 	//
+	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
+	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//
 	LcVector2 initialOffset;
+	//
+	TVFeaturesList prevSpriteFeatures;
+
+};
+
+
+/**
+* DirectX10 Sprite implementation */
+class LcSpriteDX10 : public LcSprite
+{
+public:
+	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender) {}
+	//
+	~LcSpriteDX10();
+	//
+	LcRenderSystemDX10& render;
+	//
+	ID3D10Texture2D* texture;
+	//
+	ID3D10ShaderResourceView* shaderView;
+
+
+public: // IVisual interface implementation
+	virtual void AddComponent(TVComponentPtr comp) override;
 
 };

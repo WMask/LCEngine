@@ -143,14 +143,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCUtils.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Core\ScriptSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCTypes.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCUtils.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Core\ScriptSystem.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

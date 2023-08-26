@@ -147,12 +147,16 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedSpriteRenderDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\UtilsDX10.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedSpriteRenderDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\UtilsDX10.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

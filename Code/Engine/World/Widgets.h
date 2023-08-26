@@ -19,7 +19,7 @@ struct LcWidgetData
 	bool visible;
 	bool active;
 	//
-	LcWidgetData() : visible(true), active(false) {}
+	LcWidgetData() : pos(LcDefaults::ZeroVec3), visible(true), active(false) {}
 	//
 	LcWidgetData(const std::string& inName, LcVector3 inPos, bool inVisible = true, bool inActive = false)
 		: name(inName), pos(inPos), visible(inVisible), active(inActive)

@@ -29,6 +29,12 @@ public: // IWorld interface implementation
 	* Add sprite */
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
 	/**
+	* Add sprite */
+	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) override;
+	/**
+	* Add sprite */
+	virtual ISprite* AddSprite(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) override;
+	/**
 	* Remove sprite */
 	virtual void RemoveSprite(ISprite* sprite) override;
 	/**
