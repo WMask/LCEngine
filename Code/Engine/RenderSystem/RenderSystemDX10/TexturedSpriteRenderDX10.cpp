@@ -12,8 +12,9 @@
 static const char* texturedSpriteShaderName = "TexturedSprite2d.shader";
 struct DX10TEXTUREDSPRITEDATA
 {
-	LcVector3 pos;	// position
-	LcVector2 uv;	// uv coords
+	LcVector3 pos;		// position
+	LcVector2 uv;		// uv coords
+	unsigned int index;	// vertex index
 };
 
 LcTexturedSpriteRenderDX10::LcTexturedSpriteRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
@@ -52,10 +53,11 @@ LcTexturedSpriteRenderDX10::LcTexturedSpriteRenderDX10(IRenderDeviceDX10& inRend
 	D3D10_INPUT_ELEMENT_DESC layout[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D10_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0}
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"INDEX",    0, DXGI_FORMAT_R32_SINT,        0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	if (FAILED(d3dDevice->CreateInputLayout(layout, 2, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &vertexLayout)))
+	if (FAILED(d3dDevice->CreateInputLayout(layout, 3, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &vertexLayout)))
 	{
 		throw std::exception("LcTexturedSpriteRenderDX10(): Cannot create input layout");
 	}
@@ -75,10 +77,10 @@ LcTexturedSpriteRenderDX10::LcTexturedSpriteRenderDX10(IRenderDeviceDX10& inRend
 	// fill vertex buffer
 	DX10TEXTUREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), LcVector2(1.0, 0.0) };
-	vertices[1] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), LcVector2(1.0, 1.0) };
-	vertices[2] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), LcVector2(0.0, 0.0) };
-	vertices[3] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), LcVector2(0.0, 1.0) };
+	vertices[0] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), LcVector2(1.0, 0.0), 1 };
+	vertices[1] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), LcVector2(1.0, 1.0), 2 };
+	vertices[2] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), LcVector2(0.0, 0.0), 0 };
+	vertices[3] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), LcVector2(0.0, 1.0), 3 };
 	vertexBuffer->Unmap();
 }
 

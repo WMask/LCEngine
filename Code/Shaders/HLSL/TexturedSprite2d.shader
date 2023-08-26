@@ -18,23 +18,30 @@ cbuffer VS_TRANS_BUFFER : register(b1)
 	float4x4 mTrans;
 };
 
+cbuffer VS_COLORS_BUFFER : register(b2)
+{
+	float4 vColors[4];
+};
+
 struct VOut
 {
 	float4 position : SV_POSITION;
+	float4 color : COLOR;
 	float2 uv : TEXCOORD;
 };
 
-VOut VShader(float4 position : POSITION, float2 uv : TEXCOORD)
+VOut VShader(float4 position : POSITION, float2 uv : TEXCOORD, uint index : INDEX)
 {
 	VOut output;
 
 	output.position = mul(position, mul(mTrans, mProj));
+	output.color = vColors[index];
 	output.uv = uv;
 
 	return output;
 }
 
-float4 PShader(float4 position : SV_POSITION, float2 uv : TEXCOORD) : SV_TARGET
+float4 PShader(float4 position : SV_POSITION, float4 color : COLOR, float2 uv : TEXCOORD) : SV_TARGET
 {
-	return tex2D.Sample(linearSampler, uv);
+	return tex2D.Sample(linearSampler, uv) * color;
 }
