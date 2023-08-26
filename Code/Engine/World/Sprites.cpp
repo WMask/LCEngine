@@ -12,6 +12,8 @@
 
 void LcSprite::AddComponent(TVComponentPtr comp)
 {
+	if (!comp) throw std::exception("LcSprite::AddComponent(): Invalud component");
+
 	components.push_back(comp);
 	features.insert(comp->GetType());
 }

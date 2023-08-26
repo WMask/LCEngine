@@ -11,24 +11,6 @@
 #include <wincodec.h>
 
 
-LcTextureLoaderDX10::LcTextureLoaderDX10() : factory(nullptr)
-{
-    HRESULT result = CoCreateInstance(
-        CLSID_WICImagingFactory2, nullptr,
-        CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2),
-        (LPVOID*)&factory
-    );
-}
-
-LcTextureLoaderDX10::~LcTextureLoaderDX10()
-{
-    if (factory)
-    {
-        factory->Release();
-        factory = nullptr;
-    }
-}
-
 bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view)
 {
     if (!device) return false;
@@ -38,9 +20,17 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     auto texData = ReadBinaryFile(texPath);
     if (texData.empty()) return false;
 
+    // create factory
+    ComPtr<IWICImagingFactory2> factory;
+    HRESULT result = CoCreateInstance(
+        CLSID_WICImagingFactory2, nullptr,
+        CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2),
+        (LPVOID*)&factory
+    );
+
     // create decoder
     ComPtr<IWICStream> stream;
-    HRESULT result = factory->CreateStream(stream.GetAddressOf());
+    result = factory->CreateStream(stream.GetAddressOf());
     if (FAILED(result)) return false;
 
     result = stream->InitializeFromMemory(const_cast<uint8_t*>(&texData[0]), static_cast<DWORD>(texData.size()));
@@ -104,6 +94,8 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
         result = converter->CopyPixels(nullptr, static_cast<UINT>(rowPitch), static_cast<UINT>(texPixels.size()), texPixelsPtr);
         if (FAILED(result)) return false;
     }
+
+    factory.Reset();
 
     // create texture
     D3D10_TEXTURE2D_DESC desc{};

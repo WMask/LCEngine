@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/TexturedSpriteRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
 
 static const char* texturedSpriteShaderName = "TexturedSprite2d.shader";
@@ -74,10 +75,10 @@ LcTexturedSpriteRenderDX10::LcTexturedSpriteRenderDX10(IRenderDeviceDX10& inRend
 	// fill vertex buffer
 	DX10TEXTUREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), LcVector2(1.0, 1.0) };
-	vertices[1] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), LcVector2(1.0, 0.0) };
-	vertices[2] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), LcVector2(0.0, 1.0) };
-	vertices[3] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), LcVector2(0.0, 0.0) };
+	vertices[0] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), LcVector2(1.0, 0.0) };
+	vertices[1] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), LcVector2(1.0, 1.0) };
+	vertices[2] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), LcVector2(0.0, 0.0) };
+	vertices[3] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), LcVector2(0.0, 1.0) };
 	vertexBuffer->Unmap();
 }
 
@@ -127,6 +128,12 @@ void LcTexturedSpriteRenderDX10::Render(const ISprite* sprite)
 	{
 		static LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
 		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
+	}
+
+	if (sprite->HasComponent(EVCType::Texture))
+	{
+		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
+		d3dDevice->PSSetShaderResources(0, 1, spriteDX10->shaderView.GetAddressOf());
 	}
 
 	// update transform

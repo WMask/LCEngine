@@ -51,6 +51,8 @@ class RENDERSYSTEMDX10_API LcRenderSystemDX10
 {
 public:
 	LcRenderSystemDX10();
+	//
+	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 
 
 public: // IRenderSystem interface implementation
@@ -118,10 +120,34 @@ protected:
 	//
 	ID3D10RasterizerState* rasterizerState;
 	//
+	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
+	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//
 	LcVector2 initialOffset;
 	//
 	TVFeaturesList prevSpriteFeatures;
+
+};
+
+
+/**
+* DirectX10 Sprite implementation */
+class LcSpriteDX10 : public LcSprite
+{
+public:
+	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender) {}
+	//
+	~LcSpriteDX10();
+	//
+	LcRenderSystemDX10& render;
+	//
+	ComPtr<ID3D10Texture2D> texture;
+	//
+	ComPtr<ID3D10ShaderResourceView> shaderView;
+
+
+public: // IVisual interface implementation
+	virtual void AddComponent(TVComponentPtr comp) override;
 
 };

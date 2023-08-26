@@ -18,14 +18,8 @@ using Microsoft::WRL::ComPtr;
 class LcTextureLoaderDX10
 {
 public:
-	LcTextureLoaderDX10();
-	//
-	~LcTextureLoaderDX10();
+	LcTextureLoaderDX10() {}
 	//
 	bool LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view);
-
-
-protected:
-	ComPtr<IWICImagingFactory2> factory;
 
 };

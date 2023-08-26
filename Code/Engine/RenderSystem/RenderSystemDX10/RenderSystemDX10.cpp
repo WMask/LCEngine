@@ -8,25 +8,12 @@
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "Application/Application.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 
 
-/**
-* DirectX10 Sprite implementation */
-class LcSpriteDX10 : public LcSprite
-{
-public:
-	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender)
-	{
-	}
-	//
-	LcRenderSystemDX10& render;
-};
-
-/**
-* DirectX10 Sprite factory implementation */
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
 {
 public:
@@ -40,6 +27,24 @@ public:
 	LcRenderSystemDX10& render;
 };
 
+void LcSpriteDX10::AddComponent(TVComponentPtr comp)
+{
+	LcSprite::AddComponent(comp);
+
+	auto texComp = (LcSpriteTextureComponent*)comp.get();
+	if (comp->GetType() == EVCType::Texture)
+	{
+		bool loaded = render.GetTextureLoader()->LoadTexture(texComp->texture.c_str(),
+			render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf());
+		if (!loaded) throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
+	}
+}
+
+LcSpriteDX10::~LcSpriteDX10()
+{
+	shaderView.Reset();
+	texture.Reset();
+}
 
 LcRenderSystemDX10::LcRenderSystemDX10()
 {
@@ -198,7 +203,11 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	rasterizerDesc.MultisampleEnable = false;
 	rasterizerDesc.AntialiasedLineEnable = true;
 
-	d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+	if (FAILED(d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState)))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create rasterizer state");
+	}
+
 	d3dDevice->RSSetState(rasterizerState);
 
 	// add sprite renders
@@ -214,11 +223,16 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
+
+	// init texture loader
+	texLoader.reset(new LcTextureLoaderDX10());
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
+
+	texLoader.reset();
 
 	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
 	if (blendState) { blendState->Release(); blendState = nullptr; }
