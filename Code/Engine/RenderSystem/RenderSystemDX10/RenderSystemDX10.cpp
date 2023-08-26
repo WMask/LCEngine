@@ -65,7 +65,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	GetClientRect((HWND)windowHandle, &clientRect);
 
 	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
-	initialOffset = LcVector2(width / -2.0f, height / 2.0f);
+	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));

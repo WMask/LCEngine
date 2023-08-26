@@ -19,7 +19,7 @@
 * Sprite data */
 struct LcSpriteData
 {
-	LcVector3 pos;	// [0,0] - leftTop, x - right, y - down (negative)
+	LcVector3 pos;	// [0,0] - leftBottom, x - right, y - up
 	LcSizef size;	// sprite size in pixels
 	float rotZ;
 	bool visible;
@@ -31,6 +31,7 @@ struct LcSpriteData
 	{
 	}
 };
+
 
 /**
 * Sprite tint component */
