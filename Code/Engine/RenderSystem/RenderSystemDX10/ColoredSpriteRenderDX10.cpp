@@ -120,11 +120,12 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 
 	if (colors || tint)
 	{
-		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colors ? colors->GetData() : tint->GetData(), 0, 0);
+		auto colorsData = colors ? colors->GetData() : tint->GetData();
+		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colorsData, 0, 0);
 	}
 	else
 	{
-		static LcColor4 defaultColors[] = { LcDefaults::White, LcDefaults::White, LcDefaults::White, LcDefaults::White };
+		static LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
 		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
 	}
 

@@ -32,17 +32,6 @@ struct LcSpriteData
 	}
 };
 
-
-/**
-* Sprite interface */
-class ISprite : public IVisual
-{
-public:
-	ISprite() {}
-	~ISprite() {}
-};
-
-
 /**
 * Sprite tint component */
 struct LcSpriteTintComponent : public IVisualComponent
@@ -57,6 +46,11 @@ struct LcSpriteTintComponent : public IVisualComponent
 	}
 	//
 	LcSpriteTintComponent(LcColor4 inTint) : tint(inTint)
+	{
+		data[0] = data[1] = data[2] = data[3] = tint;
+	}
+	//
+	LcSpriteTintComponent(LcColor3 inTint) : tint(inTint.x, inTint.y, inTint.z, 1.0f)
 	{
 		data[0] = data[1] = data[2] = data[3] = tint;
 	}
@@ -86,6 +80,11 @@ struct LcSpriteColorsComponent : public IVisualComponent
 	//
 	LcSpriteColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) :
 		leftTop(inLeftTop), rightTop(inRightTop), rightBottom(inRightBottom), leftBottom(inLeftBottom)
+	{
+	}
+	//
+	LcSpriteColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) :
+		leftTop(ToC(inLeftTop)), rightTop(ToC(inRightTop)), rightBottom(ToC(inRightBottom)), leftBottom(ToC(inLeftBottom))
 	{
 	}
 	const void* GetData() const { return &leftTop; }
@@ -120,6 +119,48 @@ struct LcSpriteTextureComponent : public IVisualComponent
 	}
 	// IVisualComponent interface implementation
 	virtual EVCType GetType() const override { return EVCType::Texture; }
+
+};
+
+
+/**
+* Sprite interface */
+class ISprite : public IVisual
+{
+public:
+	ISprite() {}
+	//
+	~ISprite() {}
+	//
+	void AddTintComponent(LcColor4 tint)
+	{
+		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+	}
+	//
+	void AddTintComponent(LcColor3 tint)
+	{
+		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+	}
+	//
+	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom)
+	{
+		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	}
+	//
+	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom)
+	{
+		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	}
+	//
+	void AddTextureComponent(const std::string& inTexture, LcVector2 inTexPos)
+	{
+		AddComponent(std::make_shared<LcSpriteTextureComponent>(inTexture, inTexPos));
+	}
+	//
+	void AddTextureComponent(const LcBytes& inData, LcVector2 inTexPos)
+	{
+		AddComponent(std::make_shared<LcSpriteTextureComponent>(inData, inTexPos));
+	}
 
 };
 

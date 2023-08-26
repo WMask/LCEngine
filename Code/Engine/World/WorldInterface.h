@@ -51,6 +51,12 @@ public:
 	* Add sprite */
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) = 0;
 	/**
+	* Add sprite */
+	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	/**
+	* Add sprite */
+	virtual ISprite* AddSprite(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	/**
 	* Remove sprite */
 	virtual void RemoveSprite(ISprite* sprite) = 0;
 	/**

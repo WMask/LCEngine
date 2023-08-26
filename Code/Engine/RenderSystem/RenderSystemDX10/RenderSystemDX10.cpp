@@ -157,10 +157,10 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	}
 
 	subResData.pSysMem = &colorsData;
-	colorsData.colors[0] = LcDefaults::White;
-	colorsData.colors[1] = LcDefaults::White;
-	colorsData.colors[2] = LcDefaults::White;
-	colorsData.colors[3] = LcDefaults::White;
+	colorsData.colors[0] = LcDefaults::White4;
+	colorsData.colors[1] = LcDefaults::White4;
+	colorsData.colors[2] = LcDefaults::White4;
+	colorsData.colors[3] = LcDefaults::White4;
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &colorsBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");

@@ -15,7 +15,7 @@
 #include "Core/LCUtils.h"
 
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
 
@@ -23,16 +23,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     {
         auto onInitHandler = [](IApplication* app)
         {
-            if (auto sprite1 = app->GetWorld()->AddSprite(LcSpriteData(LcVector3{ 200, -200, 0 }, LcSizef{ 200, 200 })))
+            if (auto sprite1 = app->GetWorld()->AddSprite(200, -200, 200, 200))
             {
-                auto colorsComponent = std::make_shared<LcSpriteColorsComponent>(
-                    LcColor4(1, 0, 0, 1), LcColor4(1, 0, 1, 1), LcColor4(0, 0, 0, 1), LcColor4(0, 1, 0, 1));
-                sprite1->AddComponent(colorsComponent);
+                sprite1->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
             }
 
-            if (auto sprite2 = app->GetWorld()->AddSprite(LcSpriteData(LcVector3{ 200, -500, 0 }, LcSizef{ 200, 200 })))
+            if (auto sprite2 = app->GetWorld()->AddSprite(200, -500, 200, 200))
             {
-                sprite2->AddComponent(std::make_shared<LcSpriteTintComponent>(LcColor4(0.7, 0.7, 0.7, 1)));
+                sprite2->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
             }
         };
 
