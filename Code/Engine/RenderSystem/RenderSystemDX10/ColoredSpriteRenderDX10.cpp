@@ -27,7 +27,7 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	auto shaderCode = renderDevice.GetShaderCode(coloredSpriteShaderName);
 
 	ComPtr<ID3D10Blob> vertexBlob;
-	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, &vertexBlob, NULL)))
+	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, vertexBlob.GetAddressOf(), NULL)))
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile vertex shader");
 	}
@@ -38,7 +38,7 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRender
 	}
 
 	ComPtr<ID3D10Blob> pixelBlob;
-	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "PShader", "ps_4_0", 0, &pixelBlob, NULL)))
+	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "PShader", "ps_4_0", 0, pixelBlob.GetAddressOf(), NULL)))
 	{
 		throw std::exception("LcColoredSpriteRenderDX10(): Cannot compile pixel shader");
 	}

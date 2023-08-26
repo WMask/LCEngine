@@ -67,9 +67,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
 	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.Width = width;
 	swapChainDesc.BufferDesc.Height = height;
@@ -91,7 +89,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 
 	// get back buffer
 	ComPtr<ID3D10Texture2D> backBuffer;
-	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)&backBuffer)))
+	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)backBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
 	}
