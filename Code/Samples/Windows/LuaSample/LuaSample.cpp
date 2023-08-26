@@ -23,7 +23,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
         auto onInitHandler = [&lua](IApplication* app)
         {
-            GetApplicationLuaModule(*app).Add(lua);
+            GetApplicationLuaModule(*app).AddTo(lua);
         };
 
         auto onKeyboardHandler = [&lua](int key, LcKeyState keyEvent, IApplication* app)

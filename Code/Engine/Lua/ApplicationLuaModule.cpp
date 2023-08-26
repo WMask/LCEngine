@@ -31,7 +31,7 @@ static int requestQuit(lua_State* luaState)
 	return 0;
 }
 
-void LcApplicationLuaModule::Add(IScriptSystem& system)
+void LcApplicationLuaModule::AddTo(IScriptSystem& system)
 {
 	auto& luaSystem = (LcLuaScriptSystem&)system;
 	if (auto luaState = luaSystem.GetState())
