@@ -90,6 +90,9 @@ public:
 	/**
 	* Get World */
 	virtual class IWorld* GetWorld() noexcept = 0;
+	/**
+	* Get World pointer */
+	virtual TWeakWorld GetWorldPtr() noexcept = 0;
 
 
 protected:

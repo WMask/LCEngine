@@ -69,6 +69,9 @@ public: // IApplication interface implementation
 	/**
 	* Get World */
 	virtual class IWorld* GetWorld() noexcept;
+	/**
+	* Get World pointer */
+	virtual TWeakWorld GetWorldPtr() noexcept { return world; }
 
 
 protected:
