@@ -6,9 +6,11 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
+#include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
 #include <wincodec.h>
+#include <set>
 
 
 LcTextureLoaderDX10::~LcTextureLoaderDX10()
@@ -150,5 +152,35 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
 
 void LcTextureLoaderDX10::ClearCache(IWorld* world)
 {
-    texturesCache.clear();
+    if (world)
+    {
+        std::set<std::string> aliveTexList;
+        auto& allSprites = world->GetSprites();
+        for (auto sprite : allSprites)
+        {
+            auto texComp = sprite->GetComponent(EVCType::Texture);
+            if (auto tex = (LcSpriteTextureComponent*)texComp.get())
+            {
+                aliveTexList.insert(tex->texture);
+            }
+        }
+
+        std::set<std::string> eraseTexList;
+        for (auto tex : texturesCache)
+        {
+            if (aliveTexList.find(tex.first) == aliveTexList.end())
+            {
+                eraseTexList.insert(tex.first);
+            }
+        }
+
+        for (auto entry : eraseTexList)
+        {
+            texturesCache.erase(entry);
+        }
+    }
+    else
+    {
+        texturesCache.clear();
+    }
 }
