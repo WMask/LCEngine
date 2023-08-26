@@ -16,21 +16,21 @@ cbuffer VS_COLORS_BUFFER : register(b2)
 
 struct VOut
 {
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
+	float4 vPosition : SV_POSITION;
+	float4 vColor : COLOR;
 };
 
-VOut VShader(float4 position : POSITION, uint index : INDEX)
+VOut VShader(float4 vPosition : POSITION, uint iIndex : INDEX)
 {
 	VOut output;
 
-	output.position = mul(position, mul(mTrans, mProj));
-	output.color = vColors[index];
+	output.vPosition = mul(vPosition, mul(mTrans, mProj));
+	output.vColor = vColors[iIndex];
 
 	return output;
 }
 
-float4 PShader(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
+float4 PShader(float4 vPosition : SV_POSITION, float4 vColor : COLOR) : SV_TARGET
 {
-	return color;
+	return vColor;
 }

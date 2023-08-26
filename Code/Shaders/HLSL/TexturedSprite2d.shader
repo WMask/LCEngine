@@ -1,13 +1,4 @@
 
-Texture2D tex2D;
-
-SamplerState linearSampler
-{
-    Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
-
 cbuffer VS_PROJ_BUFFER : register(b0)
 {
 	float4x4 mProj;
@@ -25,23 +16,32 @@ cbuffer VS_COLORS_BUFFER : register(b2)
 
 struct VOut
 {
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
-	float2 uv : TEXCOORD;
+	float4 vPosition : SV_POSITION;
+	float4 vColor : COLOR;
+	float2 vCoord : TEXCOORD;
 };
 
-VOut VShader(float4 position : POSITION, float2 uv : TEXCOORD, uint index : INDEX)
+VOut VShader(float4 vPosition : POSITION, float2 vCoord : TEXCOORD, uint iIndex : INDEX)
 {
 	VOut output;
 
-	output.position = mul(position, mul(mTrans, mProj));
-	output.color = vColors[index];
-	output.uv = uv;
+	output.vPosition = mul(vPosition, mul(mTrans, mProj));
+	output.vColor = vColors[iIndex];
+	output.vCoord = vCoord;
 
 	return output;
 }
 
-float4 PShader(float4 position : SV_POSITION, float4 color : COLOR, float2 uv : TEXCOORD) : SV_TARGET
+Texture2D tex2D;
+
+SamplerState linearSampler
 {
-	return tex2D.Sample(linearSampler, uv) * color;
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+float4 PShader(float4 vPosition : SV_POSITION, float4 vColor : COLOR, float2 vCoord : TEXCOORD) : SV_TARGET
+{
+	return tex2D.Sample(linearSampler, vCoord) * vColor;
 }
