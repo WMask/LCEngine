@@ -6,11 +6,9 @@
 
 #pragma once
 
-#include "Module.h"
 #include "LCTypes.h"
 
 #ifdef _WINDOWS
-# include <windows.h>
 # include <directxmath.h>
 # include <dcommon.h>
 #endif
