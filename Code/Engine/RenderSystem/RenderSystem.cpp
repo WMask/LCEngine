@@ -39,6 +39,25 @@ void LcRenderSystemBase::Shutdown()
 {
 }
 
+void LcRenderSystemBase::Update(float deltaSeconds)
+{
+    if (auto weakWorld = world.lock())
+    {
+        const auto& sprites = weakWorld->GetSprites();
+        const auto& widgets = weakWorld->GetWidgets();
+
+        for (const auto& sprite : sprites)
+        {
+            if (sprite->IsVisible()) sprite->Update(deltaSeconds);
+        }
+
+        for (const auto& widget : widgets)
+        {
+            if (widget->IsVisible()) widget->Update(deltaSeconds);
+        }
+    }
+}
+
 void LcRenderSystemBase::Render()
 {
     if (auto weakWorld = world.lock())

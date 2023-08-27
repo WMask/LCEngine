@@ -57,19 +57,22 @@ public:
 	typedef std::map<std::string, std::string> SHADERS_MAP;
 
 
-public:
+public:// IRenderSystem interface implementation
 	/**
 	* Load shaders */
-	virtual void LoadShaders(const char* folderPath);
+	virtual void LoadShaders(const char* folderPath) override;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed);
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override;
 	/**
 	* Shutdown render system */
-	virtual void Shutdown();
+	virtual void Shutdown() override;
+	/**
+	* Update world */
+	virtual void Update(float deltaSeconds) override;
 	/**
 	* Render world */
-	virtual void Render();
+	virtual void Render() override;
 
 
 protected:

@@ -35,6 +35,9 @@ public:
 	* Return colors buffer */
 	virtual ID3D10Buffer* GetColorsBuffer() const = 0;
 	/**
+	* Return frame animation buffer */
+	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 	/**
@@ -96,6 +99,9 @@ public: // IDX10RenderDevice interface implementation
 	* Return colors buffer */
 	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer; }
 	/**
+	* Return colors buffer */
+	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer; }
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 	/**
@@ -115,6 +121,8 @@ protected:
 	ID3D10Buffer* transMatrixBuffer;
 	//
 	ID3D10Buffer* colorsBuffer;
+	//
+	ID3D10Buffer* frameAnimBuffer;
 	//
 	ID3D10BlendState* blendState;
 	//

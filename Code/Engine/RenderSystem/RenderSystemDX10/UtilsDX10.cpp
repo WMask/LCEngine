@@ -18,7 +18,7 @@ LcTextureLoaderDX10::~LcTextureLoaderDX10()
     ClearCache(nullptr);
 }
 
-bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view)
+bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view, LcSize* outTexSize)
 {
     if (!device) return false;
     if (!texture && !view) return false;
@@ -27,6 +27,7 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     auto entry = texturesCache.find(texPath);
     if (entry != texturesCache.end())
     {
+        if (outTexSize) *outTexSize = entry->second.texSize;
         if (texture) *texture = entry->second.texture.Get();
         if (view) *view = entry->second.view.Get();
         return true;
@@ -130,6 +131,9 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     {
         LcTextureDataDX10 newTexData;
         newTexData.texture = *texture;
+        newTexData.texSize = LcSize(width, height);
+
+        if (outTexSize) *outTexSize = newTexData.texSize;
 
         if (view)
         {

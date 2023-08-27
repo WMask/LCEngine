@@ -33,14 +33,28 @@ class IVisualComponent
 {
 public:
 	/**
+	* Constructor */
+	IVisualComponent() : owner(nullptr) {}
+	/**
 	* Virtual destructor */
 	virtual ~IVisualComponent() {}
 	/**
 	* Update component */
-	virtual void Update(float DeltaSeconds) {}
+	virtual void Update(float deltaSeconds) {}
 	/**
 	* Get type */
 	virtual EVCType GetType() const = 0;
+	/**
+	* Set owner */
+	inline void SetOwner(class IVisual* inOwner) { owner = inOwner; }
+	/**
+	* Get owner */
+	inline class IVisual* GetOwner() const { return owner; }
+
+
+protected:
+	class IVisual* owner;
+	friend class IVisual;
 
 };
 
@@ -59,7 +73,7 @@ public:
 	virtual ~IVisual() {}
 	/**
 	* Update visual */
-	virtual void Update(float DeltaSeconds) {}
+	virtual void Update(float deltaSeconds) {}
 	/**
 	* Render visual */
 	virtual void PreRender() {}

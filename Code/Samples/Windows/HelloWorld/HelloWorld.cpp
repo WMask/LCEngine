@@ -35,8 +35,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto sprite3 = app->GetWorld()->AddSprite(450, 178, 256, 256))
             {
-                sprite3->AddTextureComponent("tree.png", LcDefaults::ZeroVec2);
+                sprite3->AddTextureComponent("tree.png");
                 sprite3->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+            }
+
+            if (auto sprite4 = app->GetWorld()->AddSprite(380, 85, 100, 100))
+            {
+                sprite4->AddTextureComponent("anim.png");
+                sprite4->AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
         };
 
@@ -57,7 +63,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // change tint
             auto value = sin(float(GetTickCount64()) / 1000.0f);
-            sprite2->GetTintComponent()->SetColor(LcColor4(0.0f, abs(value), 0.0f, 1.0f));
+            auto tint = float(abs(value));
+            sprite2->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
         };
 
         auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)

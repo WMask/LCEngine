@@ -13,6 +13,7 @@
 #include <map>
 
 #include "World/WorldInterface.h"
+#include "Core/LCTypesEx.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -26,7 +27,7 @@ public:
 	//
 	~LcTextureLoaderDX10();
 	//
-	bool LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view);
+	bool LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view, LcSize* outTexSize);
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
 	void ClearCache(IWorld* world);
 
@@ -37,6 +38,8 @@ protected:
 		ComPtr<ID3D10Texture2D> texture;
 		//
 		ComPtr<ID3D10ShaderResourceView> view;
+		//
+		LcSize texSize;
 	};
 	//
 	std::map<std::string, LcTextureDataDX10> texturesCache;

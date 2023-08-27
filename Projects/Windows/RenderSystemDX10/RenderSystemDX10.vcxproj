@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedSpriteRenderDX10.cpp" />

@@ -87,7 +87,7 @@ struct LcSpriteColorsComponent : public IVisualComponent
 	}
 	//
 	LcSpriteColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) :
-		leftTop(ToC(inLeftTop)), rightTop(ToC(inRightTop)), rightBottom(ToC(inRightBottom)), leftBottom(ToC(inLeftBottom))
+		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
 	{
 	}
 	const void* GetData() const { return &leftTop; }
@@ -101,27 +101,59 @@ struct LcSpriteColorsComponent : public IVisualComponent
 * Sprite texture component */
 struct LcSpriteTextureComponent : public IVisualComponent
 {
-	std::string texture;// texture file path
-	LcBytes data;		// texture data
-	LcVector2 texPos;	// sprite frame offset
-	LcVector2 texSize;	// texture size in pixels
+	std::string texture;	// texture file path
+	LcBytes data;			// texture data
+	LcVector2 framePos;		// sprite frame offset in pixels
+	LcVector2 texSize;		// texture size in pixels
 	//
-	LcSpriteTextureComponent() : texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2) {}
+	LcSpriteTextureComponent() : framePos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2) {}
 	//
 	LcSpriteTextureComponent(const LcSpriteTextureComponent& texture) :
-		texture(texture.texture), data(texture.data), texPos(texture.texPos), texSize(texture.texSize) {}
+		texture(texture.texture), data(texture.data), framePos(texture.framePos), texSize(texture.texSize) {}
 	//
-	LcSpriteTextureComponent(const std::string& inTexture, LcVector2 inTexPos) :
-		texture(inTexture), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	LcSpriteTextureComponent(const std::string& inTexture, LcVector2 inFramePos) :
+		texture(inTexture), framePos(inFramePos), texSize(LcDefaults::ZeroVec2)
 	{
 	}
 	//
-	LcSpriteTextureComponent(const LcBytes& inData, LcVector2 inTexPos) :
-		data(inData), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	LcSpriteTextureComponent(const LcBytes& inData, LcVector2 inFramePos) :
+		data(inData), framePos(inFramePos), texSize(LcDefaults::ZeroVec2)
 	{
 	}
 	// IVisualComponent interface implementation
 	virtual EVCType GetType() const override { return EVCType::Texture; }
+
+};
+
+
+/**
+* Sprite texture component */
+struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
+{
+	LcVector2 frameSize;		// sprite frame offset in pixels
+	unsigned short numFrames;	// frames count
+	unsigned short curFrame;	// current frame index
+	float framesPerSecond;		// frames per second
+	double lastFrameSeconds;	// last game time
+	//
+	LcSpriteAnimationComponent() :
+		frameSize(LcDefaults::ZeroVec2), numFrames(0), curFrame(0), framesPerSecond(0.0f), lastFrameSeconds(0.0f) {}
+	//
+	LcSpriteAnimationComponent(const LcSpriteAnimationComponent& anim) :
+		frameSize(anim.frameSize), numFrames(anim.numFrames), curFrame(anim.curFrame),
+		framesPerSecond(anim.framesPerSecond), lastFrameSeconds(anim.lastFrameSeconds) {}
+	//
+	LcSpriteAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) :
+		frameSize(inFrameSize), numFrames(inNumFrames), curFrame(0), framesPerSecond(inFramesPerSecond), lastFrameSeconds(0.0f)
+	{
+	}
+	// x - frame width, y - frame height, z - offsetX, w - offsetY
+	LcVector4 GetAnimData() const;
+
+
+public: // IVisualComponent interface implementation
+	virtual void Update(float deltaSeconds) override;
+	virtual EVCType GetType() const override { return EVCType::FrameAnimation; }
 
 };
 
@@ -155,14 +187,19 @@ public:
 		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
 	}
 	//
-	void AddTextureComponent(const std::string& inTexture, LcVector2 inTexPos)
+	void AddTextureComponent(const std::string& inTexture, LcVector2 inTexPos = LcDefaults::ZeroVec2)
 	{
 		AddComponent(std::make_shared<LcSpriteTextureComponent>(inTexture, inTexPos));
 	}
 	//
-	void AddTextureComponent(const LcBytes& inData, LcVector2 inTexPos)
+	void AddTextureComponent(const LcBytes& inData, LcVector2 inTexPos = LcDefaults::ZeroVec2)
 	{
 		AddComponent(std::make_shared<LcSpriteTextureComponent>(inData, inTexPos));
+	}
+	//
+	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
+	{
+		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
 	}
 	//
 	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
@@ -170,6 +207,8 @@ public:
 	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
 	//
 	LcSpriteTextureComponent* GetTextureComponent() const { return (LcSpriteTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	//
+	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
 
 };
 
@@ -187,6 +226,8 @@ public:
 
 
 public: // IVisual interface implementation
+	virtual void Update(float deltaSeconds);
+	//
 	virtual void AddComponent(TVComponentPtr comp) override;
 	//
 	virtual TVComponentPtr GetComponent(EVCType type) const override;
