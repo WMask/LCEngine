@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Module.h"
+#include "Core/LcTypesEx.h"
 
 #include <deque>
 #include <memory>
@@ -74,5 +75,17 @@ public:
 	/**
 	* Get widgets */
 	virtual WIDGET_LIST& GetWidgets() = 0;
+	/**
+	* Set camera */
+	virtual void SetCamera(LcVector3 newPos, LcVector3 newTarget) = 0;
+	/**
+	* Move camera */
+	virtual void MoveCamera(LcVector3 newPosOffset, LcVector3 newTargetOffset) = 0;
+	/**
+	* Get camera position */
+	virtual LcVector3 GetCameraPos() const = 0;
+	/**
+	* Get camera target */
+	virtual LcVector3 GetCameraTarget() const = 0;
 
 };

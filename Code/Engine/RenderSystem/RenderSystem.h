@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "Core/LcTypes.h"
-#include "World/Module.h"
 #include "Module.h"
+#include "World/Module.h"
+#include "Core/LcTypesEx.h"
 
 #include <map>
 #include <string>
@@ -43,6 +43,15 @@ public:
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
+	* Update camera */
+	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
+	/**
+	* Get camera position */
+	virtual LcVector3 GetCameraPos() const = 0;
+	/**
+	* Get camera target */
+	virtual LcVector3 GetCameraTarget() const = 0;
+	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
 
@@ -55,6 +64,8 @@ class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
 {
 public:
 	typedef std::map<std::string, std::string> SHADERS_MAP;
+	//
+	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3) {}
 
 
 public:// IRenderSystem interface implementation
@@ -73,6 +84,12 @@ public:// IRenderSystem interface implementation
 	/**
 	* Render world */
 	virtual void Render() override;
+	/**
+	* Get camera position */
+	virtual LcVector3 GetCameraPos() const { return cameraPos; }
+	/**
+	* Get camera target */
+	virtual LcVector3 GetCameraTarget() const { return cameraTarget; }
 
 
 protected:
@@ -88,5 +105,9 @@ protected:
 	TWeakWorld world;
 	//
 	SHADERS_MAP shaders;
+	//
+	LcVector3 cameraPos;
+	//
+	LcVector3 cameraTarget;
 
 };

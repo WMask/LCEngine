@@ -52,6 +52,26 @@ public: // IWorld interface implementation
 	/**
 	* Get widgets */
 	virtual WIDGET_LIST& GetWidgets() override { return widgets; }
+	/**
+	* Set camera */
+	virtual void SetCamera(LcVector3 newPos, LcVector3 newTarget) override
+	{
+		cameraPos = newPos;
+		cameraTarget = newTarget;
+	}
+	/**
+	* Move camera */
+	virtual void MoveCamera(LcVector3 newPosOffset, LcVector3 newTargetOffset) override
+	{
+		cameraPos = cameraPos + newPosOffset;
+		cameraTarget = cameraTarget + newTargetOffset;
+	}
+	/**
+	* Get camera position */
+	virtual LcVector3 GetCameraPos() const override { return cameraPos; }
+	/**
+	* Get camera target */
+	virtual LcVector3 GetCameraTarget() const override { return cameraTarget; }
 
 
 protected:
@@ -70,5 +90,9 @@ protected:
 	TSpriteFactoryPtr spriteFactory;
 	//
 	TWidgetFactoryPtr widgetFactory;
+	//
+	LcVector3 cameraPos;
+	//
+	LcVector3 cameraTarget;
 
 };

@@ -55,13 +55,13 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	d3dDevice = nullptr;
 	swapChain = nullptr;
 	renderTargetView = nullptr;
+	viewMatrixBuffer = nullptr;
 	projMatrixBuffer = nullptr;
 	transMatrixBuffer = nullptr;
 	frameAnimBuffer = nullptr;
 	colorsBuffer = nullptr;
 	blendState = nullptr;
 	rasterizerState = nullptr;
-	initialOffset = LcVector2();
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -75,7 +75,6 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	GetClientRect((HWND)windowHandle, &clientRect);
 
 	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
-	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
@@ -129,8 +128,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	{
 		LcMatrix4 mat;
 	};
-	VS_MATRIX_BUFFER projData;
-	VS_MATRIX_BUFFER transData;
+	VS_MATRIX_BUFFER matData;
 
 	struct VS_COLORS_BUFFER
 	{
@@ -152,20 +150,27 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	cbDesc.MiscFlags = 0;
 
 	D3D10_SUBRESOURCE_DATA subResData;
-	subResData.pSysMem = &projData;
+	subResData.pSysMem = &matData;
 	subResData.SysMemPitch = 0;
 	subResData.SysMemSlicePitch = 0;
 
 	// create constant buffers
-	projData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+	matData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &projMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
-	subResData.pSysMem = &transData;
-	transData.mat = IdentityMatrix();
+	matData.mat = IdentityMatrix();
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &transMatrixBuffer)))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
+	cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
+	cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+	matData.mat = LookAtMatrix(cameraPos, cameraTarget);
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &viewMatrixBuffer)))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
@@ -189,9 +194,10 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 
 	// set buffers
 	d3dDevice->VSSetConstantBuffers(0, 1, &projMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(1, 1, &transMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(2, 1, &colorsBuffer);
-	d3dDevice->VSSetConstantBuffers(3, 1, &frameAnimBuffer);
+	d3dDevice->VSSetConstantBuffers(1, 1, &viewMatrixBuffer);
+	d3dDevice->VSSetConstantBuffers(2, 1, &transMatrixBuffer);
+	d3dDevice->VSSetConstantBuffers(3, 1, &colorsBuffer);
+	d3dDevice->VSSetConstantBuffers(4, 1, &frameAnimBuffer);
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -238,6 +244,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	// add sprite factory
 	if (auto world = worldPtr.lock())
 	{
+		world->SetCamera(cameraPos, cameraTarget);
 		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
 	}
 
@@ -260,6 +267,7 @@ void LcRenderSystemDX10::Shutdown()
 	if (colorsBuffer) { colorsBuffer->Release(); colorsBuffer = nullptr; }
 	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
 	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
+	if (viewMatrixBuffer) { viewMatrixBuffer->Release(); viewMatrixBuffer = nullptr; }
 	if (renderTargetView) { renderTargetView->Release(); renderTargetView = nullptr; }
 	if (swapChain) { swapChain->Release(); swapChain = nullptr; }
 	if (d3dDevice) { d3dDevice->Release(); d3dDevice = nullptr; }
@@ -268,6 +276,12 @@ void LcRenderSystemDX10::Shutdown()
 void LcRenderSystemDX10::Update(float deltaSeconds)
 {
 	LcRenderSystemBase::Update(deltaSeconds);
+}
+
+void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
+{
+	auto viewMatrix = LookAtMatrix(newPos, newTarget);
+	d3dDevice->UpdateSubresource(viewMatrixBuffer, 0, NULL, &viewMatrix, 0, 0);
 }
 
 void LcRenderSystemDX10::Render()

@@ -67,10 +67,11 @@ LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane)
 LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to)
 {
 #ifdef _WINDOWS
-	return DirectX::XMMatrixLookAtLH(
+	auto matrix = DirectX::XMMatrixLookAtLH(
 		DirectX::XMVectorSet(from.x, from.y, from.z, 0.0f),
 		DirectX::XMVectorSet(to.x, to.y, to.z, 0.0f),
 		DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	return TransposeMatrix(matrix);
 #else
 	return LcMatrix4{};
 #endif

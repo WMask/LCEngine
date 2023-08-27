@@ -143,10 +143,7 @@ void LcAnimatedSpriteRenderDX10::Render(const ISprite* sprite)
 	}
 
 	// update transform
-	LcVector2 offset = renderDevice.GetOffset();
-	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);
-	LcMatrix4 trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ());
-
+	LcMatrix4 trans = TransformMatrix(sprite->GetPos(), sprite->GetSize(), sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 	// render sprite

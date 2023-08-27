@@ -40,9 +40,6 @@ public:
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
-	/**
-	* Return initial sprite offset */
-	virtual LcVector2 GetOffset() const = 0;
 
 };
 
@@ -71,6 +68,9 @@ public: // IRenderSystem interface implementation
 	/**
 	* Update world */
 	virtual void Update(float deltaSeconds) override;
+	/**
+	* Update camera */
+	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) override;
 	/**
 	* Render world */
 	virtual void Render() override;
@@ -104,9 +104,6 @@ public: // IDX10RenderDevice interface implementation
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
-	/**
-	* Return initial sprite offset */
-	virtual LcVector2 GetOffset() const override { return initialOffset; }
 
 
 protected:
@@ -120,6 +117,8 @@ protected:
 	//
 	ID3D10Buffer* transMatrixBuffer;
 	//
+	ID3D10Buffer* viewMatrixBuffer;
+	//
 	ID3D10Buffer* colorsBuffer;
 	//
 	ID3D10Buffer* frameAnimBuffer;
@@ -131,8 +130,6 @@ protected:
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
-	//
-	LcVector2 initialOffset;
 	//
 	TVFeaturesList prevSpriteFeatures;
 

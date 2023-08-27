@@ -41,10 +41,10 @@ void LcRenderSystemBase::Shutdown()
 
 void LcRenderSystemBase::Update(float deltaSeconds)
 {
-    if (auto weakWorld = world.lock())
+    if (auto worldPtr = world.lock())
     {
-        const auto& sprites = weakWorld->GetSprites();
-        const auto& widgets = weakWorld->GetWidgets();
+        const auto& sprites = worldPtr->GetSprites();
+        const auto& widgets = worldPtr->GetWidgets();
 
         for (const auto& sprite : sprites)
         {
@@ -54,6 +54,16 @@ void LcRenderSystemBase::Update(float deltaSeconds)
         for (const auto& widget : widgets)
         {
             if (widget->IsVisible()) widget->Update(deltaSeconds);
+        }
+
+        auto newPos = worldPtr->GetCameraPos();
+        auto newTarget = worldPtr->GetCameraTarget();
+        if (newPos != cameraPos || newTarget != cameraTarget)
+        {
+            UpdateCamera(deltaSeconds, worldPtr->GetCameraPos(), worldPtr->GetCameraTarget());
+
+            cameraPos = newPos;
+            cameraTarget = newTarget;
         }
     }
 }
