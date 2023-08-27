@@ -43,18 +43,20 @@ struct LcSpriteTintComponent : public IVisualComponent
 	//
 	LcSpriteTintComponent(const LcSpriteTintComponent& colors) : tint(colors.tint)
 	{
-		data[0] = data[1] = data[2] = data[3] = tint;
+		SetColor(tint);
 	}
 	//
 	LcSpriteTintComponent(LcColor4 inTint) : tint(inTint)
 	{
-		data[0] = data[1] = data[2] = data[3] = tint;
+		SetColor(tint);
 	}
 	//
 	LcSpriteTintComponent(LcColor3 inTint) : tint(inTint.x, inTint.y, inTint.z, 1.0f)
 	{
-		data[0] = data[1] = data[2] = data[3] = tint;
+		SetColor(tint);
 	}
+	//
+	void SetColor(LcColor4 inTint) { data[0] = data[1] = data[2] = data[3] = inTint; }
 	//
 	const void* GetData() const { return data; }
 	// IVisualComponent interface implementation
@@ -162,6 +164,12 @@ public:
 	{
 		AddComponent(std::make_shared<LcSpriteTextureComponent>(inData, inTexPos));
 	}
+	//
+	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
+	//
+	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	//
+	LcSpriteTextureComponent* GetTextureComponent() const { return (LcSpriteTextureComponent*)GetComponent(EVCType::Texture).get(); }
 
 };
 

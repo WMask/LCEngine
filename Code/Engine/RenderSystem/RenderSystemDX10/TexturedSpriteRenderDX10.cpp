@@ -115,12 +115,8 @@ void LcTexturedSpriteRenderDX10::Render(const ISprite* sprite)
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcTexturedSpriteRenderDX10::Render(): Invalid render params");
 
 	// update components
-	auto colorsComponent = sprite->GetComponent(EVCType::VertexColor);
-	const LcSpriteColorsComponent* colors = (LcSpriteColorsComponent*)colorsComponent.get();
-
-	auto tintComponent = sprite->GetComponent(EVCType::Tint);
-	const LcSpriteTintComponent* tint = (LcSpriteTintComponent*)tintComponent.get();
-
+	auto colors = sprite->GetColorsComponent();
+	auto tint = sprite->GetTintComponent();
 	if (colors || tint)
 	{
 		auto colorsData = colors ? colors->GetData() : tint->GetData();

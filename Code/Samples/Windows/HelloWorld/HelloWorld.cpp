@@ -45,13 +45,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
-            auto sprite = app->GetWorld()->GetSprites()[0];
+            auto sprite1 = app->GetWorld()->GetSprites()[0];
+            auto sprite2 = app->GetWorld()->GetSprites()[1];
 
-            if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-            if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
+            // move sprite
+            if (keys[VK_LEFT]) sprite1->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
+            if (keys[VK_RIGHT]) sprite1->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
 
-            if (keys[VK_UP]) sprite->AddRotZ(-2 * deltaSeconds);
-            if (keys[VK_DOWN]) sprite->AddRotZ(2 * deltaSeconds);
+            if (keys[VK_UP]) sprite1->AddRotZ(-2 * deltaSeconds);
+            if (keys[VK_DOWN]) sprite1->AddRotZ(2 * deltaSeconds);
+
+            // change tint
+            auto value = sin(float(GetTickCount64()) / 1000.0f);
+            sprite2->GetTintComponent()->SetColor(LcColor4(0.0f, abs(value), 0.0f, 1.0f));
         };
 
         auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
