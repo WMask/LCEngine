@@ -46,12 +46,6 @@ public:
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
 	/**
-	* Get camera position */
-	virtual LcVector3 GetCameraPos() const = 0;
-	/**
-	* Get camera target */
-	virtual LcVector3 GetCameraTarget() const = 0;
-	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
 
@@ -84,12 +78,6 @@ public:// IRenderSystem interface implementation
 	/**
 	* Render world */
 	virtual void Render() override;
-	/**
-	* Get camera position */
-	virtual LcVector3 GetCameraPos() const { return cameraPos; }
-	/**
-	* Get camera target */
-	virtual LcVector3 GetCameraTarget() const { return cameraTarget; }
 
 
 protected:
