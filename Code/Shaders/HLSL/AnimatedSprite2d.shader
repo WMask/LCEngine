@@ -29,10 +29,12 @@ struct VOut
 VOut VShader(float4 vPosition : POSITION, float2 vCoord : TEXCOORD, uint iIndex : INDEX)
 {
 	VOut output;
+	float frameOffsetX = vAnim.z;
+	float frameOffsetY = vAnim.w;
 
 	output.vPosition = mul(vPosition, mul(mTrans, mProj));
 	output.vColor = vColors[iIndex];
-	output.vCoord = float2(vCoord.x * vAnim.x + vAnim.z, vCoord.y * vAnim.y + vAnim.w);
+	output.vCoord = float2(vCoord.x * vAnim.x + frameOffsetX, vCoord.y * vAnim.y + frameOffsetY);
 
 	return output;
 }
