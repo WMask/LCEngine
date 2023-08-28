@@ -23,7 +23,7 @@ using Microsoft::WRL::ComPtr;
 class LcTextureLoaderDX10
 {
 public:
-	LcTextureLoaderDX10(TWeakWorld worldPtr) : world(worldPtr) {}
+	LcTextureLoaderDX10(TWeakWorld worldPtr);
 	//
 	~LcTextureLoaderDX10();
 	//
@@ -43,6 +43,8 @@ protected:
 	};
 	//
 	std::map<std::string, LcTextureDataDX10> texturesCache;
+	//
+	ComPtr<IWICImagingFactory2> factory;
 	//
 	TWeakWorld world;
 
