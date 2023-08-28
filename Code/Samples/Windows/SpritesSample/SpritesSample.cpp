@@ -62,7 +62,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (keys[VK_DOWN]) sprite1->AddRotZ(2 * deltaSeconds);
 
             // change tint
-            auto value = sin(float(GetTickCount64()) / 1000.0f);
+            auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
             sprite2->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
         };
