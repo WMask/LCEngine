@@ -146,11 +146,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\GUI\GUIManager.h" />
     <ClInclude Include="..\..\..\Code\Engine\GUI\Module.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\Widgets\LabelWidget.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\GUI\GUIManager.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\GUI\Widgets\LabelWidget.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
