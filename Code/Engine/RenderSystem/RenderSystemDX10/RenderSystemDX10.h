@@ -7,7 +7,7 @@
 #pragma once
 
 #include <deque>
-#include <d3d10.h>
+#include <d3d10_1.h>
 #include <wrl.h>
 
 using namespace Microsoft::WRL;
@@ -27,7 +27,7 @@ class RENDERSYSTEMDX10_API IRenderDeviceDX10
 public:
 	/**
 	* Return D3D10 device */
-	virtual ID3D10Device* GetD3D10Device() const = 0;
+	virtual ID3D10Device1* GetD3D10Device() const = 0;
 	/**
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const = 0;
@@ -91,41 +91,41 @@ public: // IRenderSystem interface implementation
 public: // IDX10RenderDevice interface implementation
 	/**
 	* Return D3D10 device */
-	virtual ID3D10Device* GetD3D10Device() const override { return d3dDevice; }
+	virtual ID3D10Device1* GetD3D10Device() const override { return d3dDevice.Get(); }
 	/**
 	* Return matrix buffer */
-	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer; }
+	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer.Get(); }
 	/**
 	* Return colors buffer */
-	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer; }
+	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer.Get(); }
 	/**
 	* Return colors buffer */
-	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer; }
+	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
 
 protected:
-	ID3D10Device* d3dDevice;
+	ComPtr<ID3D10Device1> d3dDevice;
 	//
-	IDXGISwapChain* swapChain;
+	ComPtr<IDXGISwapChain> swapChain;
 	//
-	ID3D10RenderTargetView* renderTargetView;
+	ComPtr<ID3D10RenderTargetView> renderTargetView;
 	//
-	ID3D10Buffer* projMatrixBuffer;
+	ComPtr<ID3D10Buffer> projMatrixBuffer;
 	//
-	ID3D10Buffer* transMatrixBuffer;
+	ComPtr<ID3D10Buffer> transMatrixBuffer;
 	//
-	ID3D10Buffer* viewMatrixBuffer;
+	ComPtr<ID3D10Buffer> viewMatrixBuffer;
 	//
-	ID3D10Buffer* colorsBuffer;
+	ComPtr<ID3D10Buffer> colorsBuffer;
 	//
-	ID3D10Buffer* frameAnimBuffer;
+	ComPtr<ID3D10Buffer> frameAnimBuffer;
 	//
-	ID3D10BlendState* blendState;
+	ComPtr<ID3D10BlendState> blendState;
 	//
-	ID3D10RasterizerState* rasterizerState;
+	ComPtr<ID3D10RasterizerState> rasterizerState;
 	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
@@ -143,13 +143,11 @@ class LcSpriteDX10 : public LcSprite
 public:
 	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender) {}
 	//
-	~LcSpriteDX10();
-	//
 	LcRenderSystemDX10& render;
 	//
-	ID3D10Texture2D* texture;
+	ComPtr<ID3D10Texture2D> texture;
 	//
-	ID3D10ShaderResourceView* shaderView;
+	ComPtr<ID3D10ShaderResourceView1> shaderView;
 
 
 public: // IVisual interface implementation

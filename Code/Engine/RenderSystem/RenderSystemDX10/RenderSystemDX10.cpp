@@ -14,6 +14,7 @@
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"
+#include <d2d1.h>
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -37,7 +38,7 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 	{
 		LcSize texSize;
 		bool loaded = render.GetTextureLoader()->LoadTexture(
-			texComp->texture.c_str(), render.GetD3D10Device(), &texture, &shaderView, &texSize);
+			texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
 		if (loaded)
 			texComp->texSize = ToF(texSize);
 		else
@@ -45,24 +46,8 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 	}
 }
 
-LcSpriteDX10::~LcSpriteDX10()
-{
-	shaderView = nullptr;
-	texture = nullptr;
-}
-
 LcRenderSystemDX10::LcRenderSystemDX10()
 {
-	d3dDevice = nullptr;
-	swapChain = nullptr;
-	renderTargetView = nullptr;
-	viewMatrixBuffer = nullptr;
-	projMatrixBuffer = nullptr;
-	transMatrixBuffer = nullptr;
-	frameAnimBuffer = nullptr;
-	colorsBuffer = nullptr;
-	blendState = nullptr;
-	rasterizerState = nullptr;
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -85,14 +70,14 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = (HWND)windowHandle;
 	swapChainDesc.Windowed = true;
 
 	// create the D3D device
-	if (FAILED(D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0,
-		D3D10_SDK_VERSION, &swapChainDesc, &swapChain, &d3dDevice)))
+	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
+		D3D10_DRIVER_TYPE_HARDWARE, NULL, D3D10_CREATE_DEVICE_BGRA_SUPPORT,
+		D3D10_FEATURE_LEVEL_10_0, D3D10_1_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), d3dDevice.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create D3D device");
 	}
@@ -105,13 +90,13 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	}
 
 	// create render target
-	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, &renderTargetView)))
+	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, renderTargetView.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
 	}
 
 	backBuffer.Reset();
-	d3dDevice->OMSetRenderTargets(1, &renderTargetView, NULL);
+	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
 
 	// set the viewport
 	D3D10_VIEWPORT viewPort;
@@ -194,11 +179,11 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	}
 
 	// set buffers
-	d3dDevice->VSSetConstantBuffers(0, 1, &projMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(1, 1, &viewMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(2, 1, &transMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(3, 1, &colorsBuffer);
-	d3dDevice->VSSetConstantBuffers(4, 1, &frameAnimBuffer);
+	d3dDevice->VSSetConstantBuffers(0, 1, projMatrixBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(1, 1, viewMatrixBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(2, 1, transMatrixBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(3, 1, colorsBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(4, 1, frameAnimBuffer.GetAddressOf());
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -214,7 +199,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 
 	d3dDevice->CreateBlendState(&blendStateDesc, &blendState);
 	float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	d3dDevice->OMSetBlendState(blendState, blendFactor, 0xffffffff);
+	d3dDevice->OMSetBlendState(blendState.Get(), blendFactor, 0xffffffff);
 
 	// set up rasterizer
 	D3D10_RASTERIZER_DESC rasterizerDesc;
@@ -234,7 +219,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 		throw std::exception("LcRenderSystemDX10(): Cannot create rasterizer state");
 	}
 
-	d3dDevice->RSSetState(rasterizerState);
+	d3dDevice->RSSetState(rasterizerState.Get());
 
 	// add sprite renders
 	spriteRenders.push_back(std::make_shared<LcTexturedSpriteRenderDX10>(*this));
@@ -261,17 +246,16 @@ void LcRenderSystemDX10::Shutdown()
 	LcRenderSystemBase::Shutdown();
 
 	texLoader.reset();
-
-	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
-	if (blendState) { blendState->Release(); blendState = nullptr; }
-	if (frameAnimBuffer) { frameAnimBuffer->Release(); frameAnimBuffer = nullptr; }
-	if (colorsBuffer) { colorsBuffer->Release(); colorsBuffer = nullptr; }
-	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
-	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
-	if (viewMatrixBuffer) { viewMatrixBuffer->Release(); viewMatrixBuffer = nullptr; }
-	if (renderTargetView) { renderTargetView->Release(); renderTargetView = nullptr; }
-	if (swapChain) { swapChain->Release(); swapChain = nullptr; }
-	if (d3dDevice) { d3dDevice->Release(); d3dDevice = nullptr; }
+	rasterizerState.Reset();
+	blendState.Reset();
+	frameAnimBuffer.Reset();
+	colorsBuffer.Reset();
+	transMatrixBuffer.Reset();
+	projMatrixBuffer.Reset();
+	viewMatrixBuffer.Reset();
+	renderTargetView.Reset();
+	swapChain.Reset();
+	d3dDevice.Reset();
 }
 
 void LcRenderSystemDX10::Update(float deltaSeconds)
@@ -282,7 +266,7 @@ void LcRenderSystemDX10::Update(float deltaSeconds)
 void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
 {
 	auto viewMatrix = LookAtMatrix(newPos, newTarget);
-	d3dDevice->UpdateSubresource(viewMatrixBuffer, 0, NULL, &viewMatrix, 0, 0);
+	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
 void LcRenderSystemDX10::Render()
@@ -293,7 +277,7 @@ void LcRenderSystemDX10::Render()
 	}
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
-	d3dDevice->ClearRenderTargetView(renderTargetView, (FLOAT*)&color);
+	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
 
 	LcRenderSystemBase::Render();
 

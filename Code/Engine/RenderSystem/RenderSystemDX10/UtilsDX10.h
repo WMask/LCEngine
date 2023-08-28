@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <d3d10.h>
+#include <d3d10_1.h>
 #include <wincodec.h>
 #include <wrl.h>
 #include <string>
@@ -27,7 +27,7 @@ public:
 	//
 	~LcTextureLoaderDX10();
 	//
-	bool LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view, LcSize* outTexSize);
+	bool LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize);
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
 	void ClearCache(IWorld* world);
 
@@ -37,7 +37,7 @@ protected:
 	{
 		ComPtr<ID3D10Texture2D> texture;
 		//
-		ComPtr<ID3D10ShaderResourceView> view;
+		ComPtr<ID3D10ShaderResourceView1> view;
 		//
 		LcSize texSize;
 	};

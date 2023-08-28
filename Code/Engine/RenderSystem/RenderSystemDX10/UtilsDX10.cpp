@@ -18,7 +18,7 @@ LcTextureLoaderDX10::~LcTextureLoaderDX10()
     ClearCache(nullptr);
 }
 
-bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view, LcSize* outTexSize)
+bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
 {
     if (!device) return false;
     if (!texture && !view) return false;
@@ -137,12 +137,12 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
 
         if (view)
         {
-            D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc{};
+            D3D10_SHADER_RESOURCE_VIEW_DESC1 SRVDesc{};
             SRVDesc.Format = desc.Format;
             SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
             SRVDesc.Texture2D.MipLevels = 1u;
 
-            result = device->CreateShaderResourceView(*texture, &SRVDesc, view);
+            result = device->CreateShaderResourceView1(*texture, &SRVDesc, view);
             if (FAILED(result)) return false;
             newTexData.view = *view;
         }
