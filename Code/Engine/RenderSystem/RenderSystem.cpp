@@ -9,6 +9,7 @@
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Widgets.h"
+#include "World/Camera.h"
 #include "Core/LCUtils.h"
 
 
@@ -56,11 +57,11 @@ void LcRenderSystemBase::Update(float deltaSeconds)
             if (widget->IsVisible()) widget->Update(deltaSeconds);
         }
 
-        auto newPos = worldPtr->GetCameraPos();
-        auto newTarget = worldPtr->GetCameraTarget();
+        auto newPos = worldPtr->GetCamera().GetPosition();
+        auto newTarget = worldPtr->GetCamera().GetTarget();
         if (newPos != cameraPos || newTarget != cameraTarget)
         {
-            UpdateCamera(deltaSeconds, worldPtr->GetCameraPos(), worldPtr->GetCameraTarget());
+            UpdateCamera(deltaSeconds, newPos, newTarget);
 
             cameraPos = newPos;
             cameraTarget = newTarget;

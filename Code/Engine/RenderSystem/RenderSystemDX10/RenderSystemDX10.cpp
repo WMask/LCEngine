@@ -13,6 +13,7 @@
 #include "Application/Application.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
+#include "World/Camera.h"
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -244,7 +245,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	// add sprite factory
 	if (auto world = worldPtr.lock())
 	{
-		world->SetCamera(cameraPos, cameraTarget);
+		world->GetCamera().Set(cameraPos, cameraTarget);
 		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
 	}
 

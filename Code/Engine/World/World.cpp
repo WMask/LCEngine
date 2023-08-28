@@ -28,8 +28,6 @@ public:
 LcWorld::LcWorld()
 {
 	spriteFactory = TSpriteFactoryPtr(new LcSpriteFactory());
-	cameraPos = LcDefaults::ZeroVec3;
-	cameraTarget = LcDefaults::ZeroVec3;
 }
 
 LcWorld::~LcWorld()

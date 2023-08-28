@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Engine\World\Camera.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Sprites.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Visual.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Widgets.h" />
