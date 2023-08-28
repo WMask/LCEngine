@@ -7,6 +7,8 @@
 #pragma once
 
 #include <d3d10_1.h>
+#include <d2d1.h>
+#include <dwrite.h>
 #include <wincodec.h>
 #include <wrl.h>
 #include <string>
@@ -23,7 +25,7 @@ using Microsoft::WRL::ComPtr;
 class LcTextureLoaderDX10
 {
 public:
-	LcTextureLoaderDX10(TWeakWorld worldPtr);
+	LcTextureLoaderDX10(TWeakWorld worldPtr) : world(worldPtr) {}
 	//
 	~LcTextureLoaderDX10();
 	//
@@ -47,5 +49,31 @@ protected:
 	ComPtr<IWICImagingFactory2> factory;
 	//
 	TWeakWorld world;
+
+};
+
+
+/**
+* Text renderer */
+class LcTextRendererDX10
+{
+public:
+	LcTextRendererDX10(IDXGISwapChain* swapChainPtr, HWND hWnd);
+	//
+	~LcTextRendererDX10();
+	//
+	void AddFont(const std::wstring& fontName);
+
+
+protected:
+	IDXGISwapChain* swapChain;
+	//
+	ComPtr<ID2D1Factory> d2dFactory;
+	//
+	ComPtr<ID2D1RenderTarget> renderTarget;
+	//
+	ComPtr<IDWriteFactory> dwriteFactory;
+	//
+	ComPtr<IDWriteTextFormat> textFormat;
 
 };

@@ -9,23 +9,12 @@
 #include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
-#include <wincodec.h>
 #include <set>
 
-
-LcTextureLoaderDX10::LcTextureLoaderDX10(TWeakWorld worldPtr) : world(worldPtr)
-{
-    HRESULT result = CoCreateInstance(
-        CLSID_WICImagingFactory2, nullptr,
-        CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2),
-        (LPVOID*)&factory
-    );
-}
 
 LcTextureLoaderDX10::~LcTextureLoaderDX10()
 {
     ClearCache(nullptr);
-    factory.Reset();
 }
 
 bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
@@ -47,9 +36,16 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
     auto texData = ReadBinaryFile(texPath);
     if (texData.empty()) return false;
 
+    // create factory
+    HRESULT result = CoCreateInstance(
+        CLSID_WICImagingFactory2, nullptr,
+        CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2),
+        (LPVOID*)&factory
+    );
+
     // create decoder
     ComPtr<IWICStream> stream;
-    HRESULT result = factory->CreateStream(stream.GetAddressOf());
+    result = factory->CreateStream(stream.GetAddressOf());
     if (FAILED(result)) return false;
 
     result = stream->InitializeFromMemory(const_cast<uint8_t*>(&texData[0]), static_cast<DWORD>(texData.size()));
@@ -113,6 +109,8 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
         result = converter->CopyPixels(nullptr, static_cast<UINT>(rowPitch), static_cast<UINT>(texPixels.size()), texPixelsPtr);
         if (FAILED(result)) return false;
     }
+
+    factory.Reset();
 
     // create texture
     D3D10_TEXTURE2D_DESC desc{};
@@ -186,5 +184,62 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     else
     {
         texturesCache.clear();
+    }
+}
+
+
+LcTextRendererDX10::LcTextRendererDX10(IDXGISwapChain* swapChainPtr, HWND hWnd) : swapChain(swapChainPtr)
+{
+    if (!swapChain || !hWnd)
+    {
+        throw std::exception("LcTextRendererDX10(): Invalid arguments");
+    }
+
+    if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
+    {
+        throw std::exception("LcTextRendererDX10(): Cannot create Direct2D factory");
+    }
+
+    ComPtr<IDXGISurface1> backBuffer;
+    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
+    {
+        throw std::exception("LcTextRendererDX10(): Cannot get back buffer");
+    }
+
+    float dpi = (float)GetDpiForWindow(hWnd);
+
+    D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
+        D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpi, dpi);
+
+    if (FAILED(d2dFactory->CreateDxgiSurfaceRenderTarget(backBuffer.Get(), &props, renderTarget.GetAddressOf())))
+    {
+        throw std::exception("LcTextRendererDX10(): Cannot create render target");
+    }
+
+    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(dwriteFactory.Get()),
+        reinterpret_cast<IUnknown**>(dwriteFactory.GetAddressOf()))))
+    {
+        throw std::exception("LcTextRendererDX10(): Cannot create DirectWrite factory");
+    }
+}
+
+LcTextRendererDX10::~LcTextRendererDX10()
+{
+    textFormat.Reset();
+    dwriteFactory.Reset();
+    renderTarget.Reset();
+    d2dFactory.Reset();
+}
+
+void LcTextRendererDX10::AddFont(const std::wstring& fontName)
+{
+    if (FAILED(dwriteFactory->CreateTextFormat(
+        fontName.c_str(), NULL,
+        DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL,
+        20, L"", textFormat.GetAddressOf())))
+    {
+        throw std::exception("LcTextRendererDX10::AddFont(): Cannot create font");
     }
 }
