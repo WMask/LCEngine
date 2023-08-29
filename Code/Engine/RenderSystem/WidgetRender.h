@@ -34,6 +34,6 @@ public:
 	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
 	/**
 	* Render text */
-	virtual void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont& font) = 0;
+	virtual void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font) = 0;
 
 };

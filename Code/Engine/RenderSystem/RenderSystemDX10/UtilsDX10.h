@@ -80,7 +80,7 @@ public: // IWidgetRender interface implementation
 	//
 	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
 	//
-	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont& font);
+	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);
 
 
 protected:

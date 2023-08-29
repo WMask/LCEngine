@@ -327,16 +327,16 @@ HRESULT LcWidgetRenderDX10::EndRender()
         return D2DERR_INVALID_CALL;
 }
 
-void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont& font)
+void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font)
 {
-    if (renderTarget.Get())
-    {
-        D2D1_RECT_F frect{ rect.left, screenHeight - rect.top, rect.right, screenHeight - rect.bottom };
-        D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
-        auto& fontDX10 = (ITextFontDX10&)font;
+    if (!renderTarget) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid renderer");
+    if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
-        ComPtr<ID2D1SolidColorBrush> brush;
-        renderTarget->CreateSolidColorBrush(fcolor, brush.GetAddressOf());
-        renderTarget->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10.GetFont(), frect, brush.Get());
-    }
+    D2D1_RECT_F frect{ rect.left, screenHeight - rect.top, rect.right, screenHeight - rect.bottom };
+    D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
+    auto& fontDX10 = (ITextFontDX10&)font;
+
+    ComPtr<ID2D1SolidColorBrush> brush;
+    renderTarget->CreateSolidColorBrush(fcolor, brush.GetAddressOf());
+    renderTarget->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10.GetFont(), frect, brush.Get());
 }
