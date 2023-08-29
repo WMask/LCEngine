@@ -10,7 +10,7 @@
 
 
 /**
-* Sprite render interface */
+* Sprite renderer interface */
 class ISpriteRender
 {
 public:

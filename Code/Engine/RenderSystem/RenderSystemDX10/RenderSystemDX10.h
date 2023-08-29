@@ -78,8 +78,14 @@ public: // IRenderSystem interface implementation
 	* Render sprite */
 	virtual void RenderSprite(const ISprite* sprite) override;
 	/**
+	* Pre render widgets */
+	virtual void PreRenderWidgets() override;
+	/**
 	* Render widget */
-	virtual void RenderWidget(const IWidget* widget) override;
+	virtual void RenderWidget(const class IWidget* widget) override;
+	/**
+	* Post render widgets */
+	virtual void PostRenderWidgets() override;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
@@ -128,6 +134,8 @@ protected:
 	ComPtr<ID3D10RasterizerState> rasterizerState;
 	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
+	//
+	std::unique_ptr<class LcWidgetRenderDX10> widgetRender;
 	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//

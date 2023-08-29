@@ -14,7 +14,6 @@
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"
-#include <d2d1.h>
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -57,8 +56,9 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 
 void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
 {
+	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
-	GetClientRect((HWND)windowHandle, &clientRect);
+	GetClientRect(hWnd, &clientRect);
 
 	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
 
@@ -71,7 +71,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.OutputWindow = (HWND)windowHandle;
+	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = true;
 
 	// create the D3D device
@@ -237,15 +237,18 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
 
-	// init texture loader
+	// init managers
 	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
+	widgetRender.reset(new LcWidgetRenderDX10(swapChain.Get(), hWnd));
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
 
+	widgetRender.reset();
 	texLoader.reset();
+
 	rasterizerState.Reset();
 	blendState.Reset();
 	frameAnimBuffer.Reset();
@@ -304,9 +307,24 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 	}
 }
 
+void LcRenderSystemDX10::PreRenderWidgets()
+{
+	if (widgetRender.get()) widgetRender->BeginRender();
+}
+
 void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
 {
 	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
+
+	auto renderer = widgetRender.get();
+	if (!renderer) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget renderer");
+
+	widget->Render(*renderer);
+}
+
+void LcRenderSystemDX10::PostRenderWidgets()
+{
+	if (widgetRender.get()) widgetRender->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

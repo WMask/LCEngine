@@ -81,9 +81,16 @@ void LcRenderSystemBase::Render()
             if (sprite->IsVisible()) RenderSprite(sprite.get());
         }
 
-        for (const auto& widget : widgets)
+        if (!widgets.empty())
         {
-            if (widget->IsVisible()) RenderWidget(widget.get());
+            PreRenderWidgets();
+
+            for (const auto& widget : widgets)
+            {
+                if (widget->IsVisible()) RenderWidget(widget.get());
+            }
+
+            PostRenderWidgets();
         }
     }
 }

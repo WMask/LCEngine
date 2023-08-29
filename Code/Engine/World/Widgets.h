@@ -36,6 +36,9 @@ public:
 	/**
 	* Initialize widget */
 	virtual void Init() = 0;
+    /**
+    * Render widget */
+    virtual void Render(class IWidgetRender& render) const = 0;
 	/**
 	* Widget name */
 	virtual const std::string& GetName() const = 0;

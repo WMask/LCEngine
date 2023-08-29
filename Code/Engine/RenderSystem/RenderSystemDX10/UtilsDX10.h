@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 
+#include "RenderSystem/WidgetRender.h"
 #include "World/WorldInterface.h"
 #include "Core/LCTypesEx.h"
 
@@ -41,7 +42,7 @@ protected:
 		//
 		ComPtr<ID3D10ShaderResourceView1> view;
 		//
-		LcSize texSize;
+		LcSize texSize = LcSize();
 	};
 	//
 	std::map<std::string, LcTextureDataDX10> texturesCache;
@@ -54,15 +55,32 @@ protected:
 
 
 /**
-* Text renderer */
-class LcTextRendererDX10
+* Text font */
+struct ITextFontDX10 : public ITextFont
 {
 public:
-	LcTextRendererDX10(IDXGISwapChain* swapChainPtr, HWND hWnd);
+	virtual IDWriteTextFormat* GetFont() const = 0;
+};
+
+/**
+* Text renderer */
+class LcWidgetRenderDX10 : public IWidgetRender
+{
+public:
+	LcWidgetRenderDX10(IDXGISwapChain* swapChainPtr, HWND hWnd);
 	//
-	~LcTextRendererDX10();
+	~LcWidgetRenderDX10();
 	//
-	void AddFont(const std::wstring& fontName);
+	void BeginRender();
+	//
+	HRESULT EndRender();
+
+
+public: // IWidgetRender interface implementation
+	//
+	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
+	//
+	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont& font);
 
 
 protected:
@@ -74,6 +92,8 @@ protected:
 	//
 	ComPtr<IDWriteFactory> dwriteFactory;
 	//
-	ComPtr<IDWriteTextFormat> textFormat;
+	std::map<std::wstring, std::shared_ptr<ITextFont>> fonts;
+	//
+	unsigned int screenHeight;
 
 };
