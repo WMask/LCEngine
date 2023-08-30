@@ -160,7 +160,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
         auto& allSprites = world->GetSprites();
         for (auto sprite : allSprites)
         {
-            auto texComp = sprite->GetComponent(EVCType::Texture);
+            auto texComp = sprite->GetComponent(ESCType::Texture);
             if (auto tex = (LcSpriteTextureComponent*)texComp.get())
             {
                 aliveTexList.insert(tex->texture);
@@ -232,19 +232,6 @@ LcWidgetRenderDX10::~LcWidgetRenderDX10()
     dwriteFactory.Reset();
     renderTarget.Reset();
     d2dFactory.Reset();
-}
-
-void LcWidgetRenderDX10::BeginRender()
-{
-    if (renderTarget) renderTarget->BeginDraw();
-}
-
-HRESULT LcWidgetRenderDX10::EndRender()
-{
-    if (renderTarget)
-        return renderTarget->EndDraw();
-    else
-        return D2DERR_INVALID_CALL;
 }
 
 DWRITE_FONT_WEIGHT ConvertDWeight(LcFontWeight weight)
@@ -344,9 +331,22 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
 
     D2D1_RECT_F frect{ rect.left, screenHeight - rect.top, rect.right, screenHeight - rect.bottom };
     D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
-    auto& fontDX10 = (ITextFontDX10&)font;
+    auto fontDX10 = (ITextFontDX10*)font;
 
     ComPtr<ID2D1SolidColorBrush> brush;
     renderTarget->CreateSolidColorBrush(fcolor, brush.GetAddressOf());
-    renderTarget->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10.GetFont(), frect, brush.Get());
+    renderTarget->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10->GetFont(), frect, brush.Get());
+}
+
+void LcWidgetRenderDX10::BeginRender()
+{
+    if (renderTarget) renderTarget->BeginDraw();
+}
+
+HRESULT LcWidgetRenderDX10::EndRender()
+{
+    if (renderTarget)
+        return renderTarget->EndDraw();
+    else
+        return D2DERR_INVALID_CALL;
 }

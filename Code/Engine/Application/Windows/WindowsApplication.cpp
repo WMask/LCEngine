@@ -120,7 +120,11 @@ void LcWindowsApplication::Run()
 
         renderSystem->Create(world, hWnd, true);
 
-        if (guiManager) guiManager->Init(world, renderSystem->GetWidgetRender(), hWnd);
+        if (guiManager)
+        {
+            guiManager->Init(world, renderSystem, hWnd);
+            renderSystem->SetGuiManager(guiManager);
+        }
     }
 
     if (initHandler) initHandler(this);

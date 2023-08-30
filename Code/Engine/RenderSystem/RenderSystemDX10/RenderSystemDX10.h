@@ -79,15 +79,6 @@ public: // IRenderSystem interface implementation
 	* Render sprite */
 	virtual void RenderSprite(const ISprite* sprite) override;
 	/**
-	* Pre render widgets */
-	virtual void PreRenderWidgets() override;
-	/**
-	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget) override;
-	/**
-	* Post render widgets */
-	virtual void PostRenderWidgets() override;
-	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
 	/**
@@ -143,7 +134,7 @@ protected:
 	//
 	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
 	//
-	TVFeaturesList prevSpriteFeatures;
+	TSFeaturesList prevSpriteFeatures;
 
 };
 
@@ -163,6 +154,6 @@ public:
 
 
 public: // IVisual interface implementation
-	virtual void AddComponent(TVComponentPtr comp) override;
+	virtual void AddComponent(TSComponentPtr comp) override;
 
 };

@@ -64,11 +64,8 @@ public:
 	* Get sprites */
 	virtual SPRITE_LIST& GetSprites() = 0;
 	/**
-	* Set widget factory */
-	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) = 0;
-	/**
 	* Add widget */
-	virtual IWidget* AddWidget(const LcWidgetData& widget) = 0;
+	virtual void AddWidget(std::shared_ptr<IWidget> widget) = 0;
 	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) = 0;

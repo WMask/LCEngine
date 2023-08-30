@@ -70,19 +70,19 @@ public:
 	LcWidgetRenderDX10(IDXGISwapChain* swapChainPtr, HWND hWnd);
 	//
 	~LcWidgetRenderDX10();
-	//
-	void BeginRender();
-	//
-	HRESULT EndRender();
 
 
 public: // IWidgetRender interface implementation
 	//
-	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
+	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) override;
 	//
 	virtual bool RemoveFont(const ITextFont* font) override;
 	//
-	virtual void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);
+	virtual void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font) override;
+	//
+	virtual void BeginRender() override;
+	//
+	virtual long EndRender() override;
 
 
 protected:

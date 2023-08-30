@@ -136,7 +136,7 @@ void LcAnimatedSpriteRenderDX10::Render(const ISprite* sprite)
 		d3dDevice->UpdateSubresource(animBuffer, 0, NULL, &animData, 0, 0);
 	}
 
-	if (sprite->HasComponent(EVCType::Texture))
+	if (sprite->HasComponent(ESCType::Texture))
 	{
 		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
@@ -150,12 +150,12 @@ void LcAnimatedSpriteRenderDX10::Render(const ISprite* sprite)
 	d3dDevice->Draw(4, 0);
 }
 
-bool LcAnimatedSpriteRenderDX10::Supports(const TVFeaturesList& features) const
+bool LcAnimatedSpriteRenderDX10::Supports(const TSFeaturesList& features) const
 {
 	bool needAnimation = false;
 	for (auto& feature : features)
 	{
-		needAnimation |= (feature == EVCType::FrameAnimation);
+		needAnimation |= (feature == ESCType::FrameAnimation);
 	}
 	return needAnimation;
 }

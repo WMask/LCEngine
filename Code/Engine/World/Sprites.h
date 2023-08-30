@@ -34,8 +34,59 @@ struct LcSpriteData
 
 
 /**
+* Sprite component type */
+enum class ESCType : int
+{
+	Tint,
+	VertexColor,
+	Texture,
+	FrameAnimation
+};
+
+
+/** Sprite feature list */
+typedef std::set<ESCType> TSFeaturesList;
+
+
+/**
+* Sprite component interface */
+class ISpriteComponent
+{
+public:
+	/**
+	* Constructor */
+	ISpriteComponent() : owner(nullptr) {}
+	/**
+	* Virtual destructor */
+	virtual ~ISpriteComponent() {}
+	/**
+	* Update component */
+	virtual void Update(float deltaSeconds) {}
+	/**
+	* Get type */
+	virtual ESCType GetType() const = 0;
+	/**
+	* Set owner */
+	inline void SetOwner(class ISprite* inOwner) { owner = inOwner; }
+	/**
+	* Get owner */
+	inline class ISprite* GetOwner() const { return owner; }
+
+
+protected:
+	class ISprite* owner;
+	friend class ISprite;
+
+};
+
+
+/** Visual component pointer */
+typedef std::shared_ptr<ISpriteComponent> TSComponentPtr;
+
+
+/**
 * Sprite tint component */
-struct LcSpriteTintComponent : public IVisualComponent
+struct LcSpriteTintComponent : public ISpriteComponent
 {
 	LcColor4 tint;
 	//
@@ -59,15 +110,15 @@ struct LcSpriteTintComponent : public IVisualComponent
 	void SetColor(LcColor4 inTint) { data[0] = data[1] = data[2] = data[3] = inTint; }
 	//
 	const void* GetData() const { return data; }
-	// IVisualComponent interface implementation
-	virtual EVCType GetType() const override { return EVCType::Tint; }
+	// ISpriteComponent interface implementation
+	virtual ESCType GetType() const override { return ESCType::Tint; }
 
 };
 
 
 /**
 * Sprite colors component */
-struct LcSpriteColorsComponent : public IVisualComponent
+struct LcSpriteColorsComponent : public ISpriteComponent
 {
 	LcColor4 leftTop;
 	LcColor4 rightTop;
@@ -91,15 +142,15 @@ struct LcSpriteColorsComponent : public IVisualComponent
 	{
 	}
 	const void* GetData() const { return &leftTop; }
-	// IVisualComponent interface implementation
-	virtual EVCType GetType() const override { return EVCType::VertexColor; }
+	// ISpriteComponent interface implementation
+	virtual ESCType GetType() const override { return ESCType::VertexColor; }
 
 };
 
 
 /**
 * Sprite texture component */
-struct LcSpriteTextureComponent : public IVisualComponent
+struct LcSpriteTextureComponent : public ISpriteComponent
 {
 	std::string texture;	// texture file path
 	LcBytes data;			// texture data
@@ -120,15 +171,15 @@ struct LcSpriteTextureComponent : public IVisualComponent
 		data(inData), framePos(inFramePos), texSize(LcDefaults::ZeroVec2)
 	{
 	}
-	// IVisualComponent interface implementation
-	virtual EVCType GetType() const override { return EVCType::Texture; }
+	// ISpriteComponent interface implementation
+	virtual ESCType GetType() const override { return ESCType::Texture; }
 
 };
 
 
 /**
 * Sprite texture component */
-struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
+struct WORLD_API LcSpriteAnimationComponent : public ISpriteComponent
 {
 	LcVector2 frameSize;		// sprite frame offset in pixels
 	unsigned short numFrames;	// frames count
@@ -151,9 +202,9 @@ struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
 	LcVector4 GetAnimData() const;
 
 
-public: // IVisualComponent interface implementation
+public: // ISpriteComponent interface implementation
 	virtual void Update(float deltaSeconds) override;
-	virtual EVCType GetType() const override { return EVCType::FrameAnimation; }
+	virtual ESCType GetType() const override { return ESCType::FrameAnimation; }
 
 };
 
@@ -162,11 +213,24 @@ public: // IVisualComponent interface implementation
 * Sprite interface */
 class ISprite : public IVisual
 {
+public: // IVisual interface implementation
+	/**
+	* Add component */
+	virtual void AddComponent(TSComponentPtr comp) = 0;
+	/**
+	* Get component */
+	virtual TSComponentPtr GetComponent(ESCType type) const = 0;
+	/**
+	* Check for component type */
+	virtual bool HasComponent(ESCType type) const = 0;
+	/**
+	* Return features list */
+	virtual const TSFeaturesList& GetFeaturesList() const = 0;
+	//
+	virtual ~ISprite() override {}
+
+
 public:
-	ISprite() {}
-	//
-	~ISprite() {}
-	//
 	void AddTintComponent(LcColor4 tint)
 	{
 		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
@@ -202,13 +266,13 @@ public:
 		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
 	}
 	//
-	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
+	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(ESCType::Tint).get(); }
 	//
-	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(ESCType::VertexColor).get(); }
 	//
-	LcSpriteTextureComponent* GetTextureComponent() const { return (LcSpriteTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	LcSpriteTextureComponent* GetTextureComponent() const { return (LcSpriteTextureComponent*)GetComponent(ESCType::Texture).get(); }
 	//
-	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
+	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(ESCType::FrameAnimation).get(); }
 
 };
 
@@ -225,16 +289,16 @@ public:
 	LcSpriteData sprite;
 
 
-public: // IVisual interface implementation
+public: // ISprite interface implementation
 	virtual void Update(float deltaSeconds);
 	//
-	virtual void AddComponent(TVComponentPtr comp) override;
+	virtual void AddComponent(TSComponentPtr comp) override;
 	//
-	virtual TVComponentPtr GetComponent(EVCType type) const override;
+	virtual TSComponentPtr GetComponent(ESCType type) const override;
 	//
-	virtual bool HasComponent(EVCType type) const override;
+	virtual bool HasComponent(ESCType type) const override;
 	//
-	virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
+	virtual const TSFeaturesList& GetFeaturesList() const override { return features; }
 	//
 	virtual void SetSize(LcSizef inSize) override { sprite.size = inSize; }
 	//
@@ -262,8 +326,8 @@ public: // IVisual interface implementation
 
 
 protected:
-	std::deque<TVComponentPtr> components;
+	std::deque<TSComponentPtr> components;
 	//
-	TVFeaturesList features;
+	TSFeaturesList features;
 
 };

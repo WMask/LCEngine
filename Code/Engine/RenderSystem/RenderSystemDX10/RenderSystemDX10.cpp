@@ -13,6 +13,7 @@
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"
+#include "GUI/GuiManager.h"
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -28,7 +29,7 @@ public:
 	LcRenderSystemDX10& render;
 };
 
-void LcSpriteDX10::AddComponent(TVComponentPtr comp)
+void LcSpriteDX10::AddComponent(TSComponentPtr comp)
 {
 	LcSprite::AddComponent(comp);
 
@@ -304,26 +305,6 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			break;
 		}
 	}
-}
-
-void LcRenderSystemDX10::PreRenderWidgets()
-{
-	if (widgetRender.get()) widgetRender->BeginRender();
-}
-
-void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
-{
-	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
-
-	auto renderer = widgetRender.get();
-	if (!renderer) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget renderer");
-
-	widget->Render(*renderer);
-}
-
-void LcRenderSystemDX10::PostRenderWidgets()
-{
-	if (widgetRender.get()) widgetRender->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

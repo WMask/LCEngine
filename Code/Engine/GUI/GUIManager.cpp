@@ -6,24 +6,27 @@
 
 #include "pch.h"
 #include "GUI/GUIManager.h"
+#include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
 #include "World/Widgets.h"
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWeakWorld weakWorld, class IWidgetRender* render, void* window)
+void LcGuiManagerBase::Init(TWeakWorld weakWorld, TWeakRenderSystem weakRender, void* window)
 {
-    if (!render) throw std::exception("LcGuiManagerBase::Init(): Invalid widget renderer");
-
     worldPtr = weakWorld;
+    renderPtr = weakRender;
+    auto world = worldPtr.lock();
+    auto render = renderPtr.lock();
+    auto widgetRender = render ? render->GetWidgetRender() : nullptr;
 
-    if (auto world = worldPtr.lock())
+    if (world && widgetRender)
     {
         auto& widgetList = world->GetWidgets();
 
         for (auto& widget : widgetList)
         {
-            widget->Init(*render);
+            widget->Init(*widgetRender);
         }
     }
 }
@@ -33,38 +36,52 @@ void LcGuiManagerBase::Update(float DeltaSeconds)
     if (auto world = worldPtr.lock())
     {
         auto& widgetList = world->GetWidgets();
-
-        for (auto& widget : widgetList)
+        if (!widgetList.empty())
         {
-            if (widget->IsVisible()) widget->Update(DeltaSeconds);
+            auto render = renderPtr.lock();
+            auto widgetRender = render ? render->GetWidgetRender() : nullptr;
+
+            for (auto& widget : widgetList)
+            {
+                if (!widget->IsInitialized() && widgetRender) widget->Init(*widgetRender);
+
+                if (widget->IsVisible()) widget->Update(DeltaSeconds);
+            }
         }
     }
 }
 
-void LcGuiManagerBase::PreRender()
+void LcGuiManagerBase::Render()
 {
-    if (auto world = worldPtr.lock())
+    auto world = worldPtr.lock();
+    auto render = renderPtr.lock();
+    auto widgetRender = render ? render->GetWidgetRender() : nullptr;
+
+    if (world && widgetRender)
     {
         auto& widgetList = world->GetWidgets();
-
-        for (auto& widget : widgetList)
+        if (!widgetList.empty())
         {
-            if (widget->IsVisible()) widget->PreRender();
+            PreRender(*render.get());
+
+            for (auto& widget : widgetList)
+            {
+                if (widget->IsVisible()) widget->Render(*widgetRender);
+            }
+
+            PostRender(*render.get());
         }
     }
 }
 
-void LcGuiManagerBase::PostRender()
+void LcGuiManagerBase::PreRender(class IRenderSystem& render)
 {
-    if (auto world = worldPtr.lock())
-    {
-        auto& widgetList = world->GetWidgets();
+    if (auto widgetRender = render.GetWidgetRender()) widgetRender->BeginRender();
+}
 
-        for (auto& widget : widgetList)
-        {
-            if (widget->IsVisible()) widget->PostRender();
-        }
-    }
+void LcGuiManagerBase::PostRender(class IRenderSystem& render)
+{
+    if (auto widgetRender = render.GetWidgetRender()) widgetRender->EndRender();
 }
 
 void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state)
@@ -122,4 +139,9 @@ void LcGuiManagerBase::OnMouseMove(int x, int y)
             }
         }
     }
+}
+
+TGuiManagerPtr GetGuiManager()
+{
+    return std::make_shared<LcGuiManagerBase>();
 }

@@ -8,6 +8,7 @@
 
 #include "Module.h"
 #include "World/Module.h"
+#include "RenderSystem/Module.h"
 #include "Core/LCTypes.h"
 
 
@@ -21,7 +22,7 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, class IWidgetRender* render, void* window) = 0;
+	virtual void Init(TWeakWorld world, TWeakRenderSystem render, void* window) = 0;
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) = 0;
@@ -54,31 +55,39 @@ public:
 	LcGuiManagerBase() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, class IWidgetRender* render, void* window);
+	virtual void Init(TWeakWorld world, TWeakRenderSystem render, void* window) override;
 	/**
 	* Update GUI */
-	virtual void Update(float DeltaSeconds);
+	virtual void Update(float DeltaSeconds) override;
+	/**
+	* Render GUI */
+	virtual void Render() override;
+	/**
+	* Shutdown GUI manager */
+	virtual void Shutdown() override {}
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state);
+	virtual void OnKeyboard(int btn, LcKeyState state) override;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y);
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y);
+	virtual void OnMouseMove(int x, int y) override;
 
 
 protected:
 	/**
 	* Render GUI */
-	virtual void PreRender();
+	virtual void PreRender(class IRenderSystem& render);
 	/**
 	* Render GUI */
-	virtual void PostRender();
+	virtual void PostRender(class IRenderSystem& render);
 
 
 protected:
 	TWeakWorld worldPtr;
+	//
+	TWeakRenderSystem renderPtr;
 
 };

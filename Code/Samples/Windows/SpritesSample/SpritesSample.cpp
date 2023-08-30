@@ -23,23 +23,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](IApplication* app)
         {
-            if (auto sprite1 = app->GetWorld()->AddSprite(150, 400, 200, 200))
+            auto world = app->GetWorld();
+
+            if (auto sprite1 = world->AddSprite(150, 400, 200, 200))
             {
                 sprite1->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
             }
 
-            if (auto sprite2 = app->GetWorld()->AddSprite(150, 150, 200, 200))
+            if (auto sprite2 = world->AddSprite(150, 150, 200, 200))
             {
                 sprite2->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
             }
 
-            if (auto sprite3 = app->GetWorld()->AddSprite(450, 200, 300, 300))
+            if (auto sprite3 = world->AddSprite(450, 200, 300, 300))
             {
                 sprite3->AddTextureComponent("tree.png");
                 sprite3->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
-            if (auto sprite4 = app->GetWorld()->AddSprite(380, 85, 100, 100))
+            if (auto sprite4 = world->AddSprite(380, 85, 100, 100))
             {
                 sprite4->AddTextureComponent("anim.png");
                 sprite4->AddAnimationComponent(LcSizef(128, 128), 10, 12);

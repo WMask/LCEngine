@@ -54,7 +54,7 @@ void LcSprite::Update(float deltaSeconds)
 	}
 }
 
-void LcSprite::AddComponent(TVComponentPtr comp)
+void LcSprite::AddComponent(TSComponentPtr comp)
 {
 	if (!comp) throw std::exception("LcSprite::AddComponent(): Invalud component");
 
@@ -63,15 +63,15 @@ void LcSprite::AddComponent(TVComponentPtr comp)
 	features.insert(comp->GetType());
 }
 
-TVComponentPtr LcSprite::GetComponent(EVCType type) const
+TSComponentPtr LcSprite::GetComponent(ESCType type) const
 {
 	auto result = std::find_if(components.begin(), components.end(), [type](auto& comp) {
 		return comp->GetType() == type;
 	});
-	return (result == components.end()) ? TVComponentPtr() : *result;
+	return (result == components.end()) ? TSComponentPtr() : *result;
 }
 
-bool LcSprite::HasComponent(EVCType type) const
+bool LcSprite::HasComponent(ESCType type) const
 {
 	auto result = std::find_if(components.begin(), components.end(), [type](auto& comp) {
 		return comp->GetType() == type;

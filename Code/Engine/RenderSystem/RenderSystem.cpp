@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
+#include "GUI/GuiManager.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Widgets.h"
@@ -31,15 +32,6 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     }
 }
 
-void LcRenderSystemBase::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
-{
-    world = worldPtr;
-}
-
-void LcRenderSystemBase::Shutdown()
-{
-}
-
 void LcRenderSystemBase::Update(float deltaSeconds)
 {
     if (auto worldPtr = world.lock())
@@ -52,9 +44,9 @@ void LcRenderSystemBase::Update(float deltaSeconds)
             if (sprite->IsVisible()) sprite->Update(deltaSeconds);
         }
 
-        for (const auto& widget : widgets)
+        if (auto gui = guiManager.lock())
         {
-            if (widget->IsVisible()) widget->Update(deltaSeconds);
+            gui->Update(deltaSeconds);
         }
 
         auto newPos = worldPtr->GetCamera().GetPosition();
@@ -80,17 +72,10 @@ void LcRenderSystemBase::Render()
         {
             if (sprite->IsVisible()) RenderSprite(sprite.get());
         }
+    }
 
-        if (!widgets.empty())
-        {
-            PreRenderWidgets();
-
-            for (const auto& widget : widgets)
-            {
-                if (widget->IsVisible()) RenderWidget(widget.get());
-            }
-
-            PostRenderWidgets();
-        }
+    if (auto gui = guiManager.lock())
+    {
+        gui->Render();
     }
 }

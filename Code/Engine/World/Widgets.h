@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Visual.h"
+#include "RenderSystem/WidgetRender.h"
 #include <string>
 
 
@@ -29,20 +30,6 @@ struct LcWidgetData
 
 
 /**
-* Text font */
-struct ITextFont
-{
-public:
-    virtual ~ITextFont() {}
-    //
-    virtual const std::wstring& GetFontName() const = 0;
-};
-
-
-/** Font weight */
-enum class LcFontWeight { Light, Normal, Bold };
-
-/**
 * Widget interface */
 class IWidget : public IVisual
 {
@@ -50,6 +37,9 @@ public:
 	/**
 	* Initialize widget */
 	virtual void Init(class IWidgetRender& render) = 0;
+    /**
+    * Chack state */
+    virtual bool IsInitialized() const = 0;
     /**
     * Render widget */
     virtual void Render(class IWidgetRender& render) const = 0;
@@ -80,7 +70,7 @@ public:
 class LcWidgetBase : public IWidget
 {
 public:
-    LcWidgetBase(LcWidgetData inWidget) : widget(inWidget), size(LcDefaults::ZeroVec2), focused(false) {}
+    LcWidgetBase(LcWidgetData inWidget) : widget(inWidget), size(LcDefaults::ZeroVec2), focused(false), initialized(false) {}
     //
     ~LcWidgetBase() {}
     //
@@ -89,10 +79,14 @@ public:
     LcSizef size;
     //
     bool focused;
+    //
+    bool initialized;
 
 
 public: // IWidget interface implementation
-    virtual void Init(class IWidgetRender& render) override {}
+    virtual void Init(class IWidgetRender& render) override { initialized = true; }
+    //
+    virtual bool IsInitialized() const { return initialized; }
     //
     virtual void Render(class IWidgetRender& render) const override {}
     //
@@ -111,10 +105,6 @@ public: // IWidget interface implementation
 
 public: // IVisual interface implementation
     virtual void Update(float DeltaSeconds) {}
-    //
-    virtual void PreRender() {}
-    //
-    virtual void PostRender() {}
     //
     virtual void SetSize(LcSizef inSize) override { size = inSize; }
     //

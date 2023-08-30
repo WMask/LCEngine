@@ -70,15 +70,11 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 	if (it != sprites.end()) sprites.erase(it);
 }
 
-IWidget* LcWorld::AddWidget(const LcWidgetData& inWidget)
+void LcWorld::AddWidget(std::shared_ptr<IWidget> widget)
 {
-	auto newWidget = spriteFactory ? widgetFactory->Build(inWidget) : nullptr;
-	if (newWidget)
-		widgets.push_back(newWidget);
-	else
-		throw std::exception("LcWorld::AddWidget(): Cannot create widget");
+	if (!widget) throw std::exception("LcWorld::AddWidget(): Invalid widget");
 
-	return newWidget.get();
+	widgets.push_back(widget);
 }
 
 void LcWorld::RemoveWidget(IWidget* widget)

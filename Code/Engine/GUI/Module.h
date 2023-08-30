@@ -16,4 +16,8 @@
 #endif
 
 
-typedef std::unique_ptr<class IGuiManager> TGuiManagerPtr;
+typedef std::shared_ptr<class IGuiManager> TGuiManagerPtr;
+typedef std::weak_ptr<class IGuiManager> TWeakGuiManager;
+
+
+GUI_API TGuiManagerPtr GetGuiManager();
