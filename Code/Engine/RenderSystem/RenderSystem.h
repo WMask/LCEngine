@@ -97,12 +97,6 @@ protected:
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const class ISprite* sprite) = 0;
-	/**
-	* Pre render widget */
-	virtual void PreRenderWidget() = 0;
-	/**
-	* Pre render widget */
-	virtual void PostRenderWidget() = 0;
 
 
 protected:

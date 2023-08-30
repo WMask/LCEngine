@@ -59,10 +59,14 @@ void LcGuiManagerBase::Render()
         auto& widgetList = world->GetWidgets();
         if (!widgetList.empty())
         {
+            render->BeginRender();
+
             for (auto& widget : widgetList)
             {
                 if (widget->IsVisible()) widget->Render(*render.get());
             }
+
+            render->EndRender();
         }
     }
 }

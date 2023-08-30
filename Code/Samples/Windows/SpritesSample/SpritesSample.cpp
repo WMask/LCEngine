@@ -92,7 +92,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     }
     catch (const std::exception& ex)
     {
-        DebugMsg("\n# HelloWorld error: %s\n\n", ex.what());
+        DebugMsg("\n# SpritesSample error: %s\n\n", ex.what());
     }
 
     return 0;

@@ -37,7 +37,6 @@ void LcRenderSystemBase::Update(float deltaSeconds)
     if (auto worldPtr = world.lock())
     {
         const auto& sprites = worldPtr->GetSprites();
-        const auto& widgets = worldPtr->GetWidgets();
 
         for (const auto& sprite : sprites)
         {
@@ -66,7 +65,6 @@ void LcRenderSystemBase::Render()
     if (auto weakWorld = world.lock())
     {
         const auto& sprites = weakWorld->GetSprites();
-        const auto& widgets = weakWorld->GetWidgets();
 
         for (const auto& sprite : sprites)
         {
@@ -76,10 +74,6 @@ void LcRenderSystemBase::Render()
 
     if (auto gui = guiManager.lock())
     {
-        PreRenderWidget();
-
         gui->Render();
-
-        PostRenderWidget();
     }
 }

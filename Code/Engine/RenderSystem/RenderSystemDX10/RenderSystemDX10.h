@@ -57,7 +57,7 @@ public:
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 
 
-public: // IRenderSystem interface implementation
+public:// IRenderSystem interface implementation
 	/**
 	* Virtual destructor */
 	virtual ~LcRenderSystemDX10() override;
@@ -87,16 +87,10 @@ public: // IRenderSystem interface implementation
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
 
 
-protected:
+protected:// LcRenderSystemBase interface implementation
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const ISprite* sprite) override;
-	/**
-	* Pre render widget */
-	virtual void PreRenderWidget() override;
-	/**
-	* Pre render widget */
-	virtual void PostRenderWidget() override;
 
 
 public: // IDX10RenderDevice interface implementation

@@ -15,6 +15,7 @@ Code/Engine/Lua/src/*
 Code/Engine/Json/nlohmann/*
 Code/Samples/Windows/HelloWorld/x64/*
 Code/Samples/Windows/SpritesSample/x64/*
+Code/Samples/Windows/WidgetSample/x64/*
 Code/Samples/Windows/LuaSample/x64/*
 Projects/Windows/Core/x64/*
 Projects/Windows/Application/x64/*

@@ -147,7 +147,7 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
     if (!renderTarget) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid renderer");
     if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
-    D2D1_RECT_F frect{ rect.left, screenHeight - rect.top, rect.right, screenHeight - rect.bottom };
+    D2D1_RECT_F frect{ rect.left + 0.5f, screenHeight - rect.top + 0.5f, rect.right + 0.5f, screenHeight - rect.bottom + 0.5f };
     D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
     auto fontDX10 = (ITextFontDX10*)font;
 

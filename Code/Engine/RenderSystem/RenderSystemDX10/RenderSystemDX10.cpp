@@ -307,16 +307,6 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 	}
 }
 
-void LcRenderSystemDX10::PreRenderWidget()
-{
-	if (widgetRender) widgetRender->BeginRender();
-}
-
-void LcRenderSystemDX10::PostRenderWidget()
-{
-	if (widgetRender) widgetRender->EndRender();
-}
-
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const
 {
 	return shaders.at(shaderName);
