@@ -234,6 +234,19 @@ LcWidgetRenderDX10::~LcWidgetRenderDX10()
     d2dFactory.Reset();
 }
 
+void LcWidgetRenderDX10::BeginRender()
+{
+    if (renderTarget) renderTarget->BeginDraw();
+}
+
+HRESULT LcWidgetRenderDX10::EndRender()
+{
+    if (renderTarget)
+        return renderTarget->EndDraw();
+    else
+        return D2DERR_INVALID_CALL;
+}
+
 DWRITE_FONT_WEIGHT ConvertDWeight(LcFontWeight weight)
 {
     switch (weight)
@@ -244,7 +257,6 @@ DWRITE_FONT_WEIGHT ConvertDWeight(LcFontWeight weight)
 
     return DWRITE_FONT_WEIGHT_NORMAL;
 }
-
 
 struct LC_FONT_DATA
 {
@@ -262,6 +274,8 @@ inline bool operator==(const LC_FONT_DATA& a, const LC_FONT_DATA& b)
     return a.fontName == b.fontName && a.fontSize == b.fontSize && a.fontWeight == b.fontWeight;
 }
 
+/**
+* Text font implementation */
 struct LcTextFontDX10 : public ITextFontDX10
 {
 public:
@@ -299,7 +313,6 @@ protected:
     LC_FONT_DATA data;
 };
 
-
 const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight)
 {
     for (auto entry : fonts)
@@ -314,17 +327,14 @@ const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsig
     return newFont.get();
 }
 
-void LcWidgetRenderDX10::BeginRender()
+bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
 {
-    if (renderTarget) renderTarget->BeginDraw();
-}
+    if (auto fontPtr = (const LcTextFontDX10*)font)
+    {
+        return fonts.erase(fontPtr->GetFontName()) == 1;
+    }
 
-HRESULT LcWidgetRenderDX10::EndRender()
-{
-    if (renderTarget)
-        return renderTarget->EndDraw();
-    else
-        return D2DERR_INVALID_CALL;
+    return false;
 }
 
 void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font)

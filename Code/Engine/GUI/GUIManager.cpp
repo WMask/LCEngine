@@ -11,8 +11,10 @@
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWeakWorld weakWorld, void* window)
+void LcGuiManagerBase::Init(TWeakWorld weakWorld, class IWidgetRender* render, void* window)
 {
+    if (!render) throw std::exception("LcGuiManagerBase::Init(): Invalid widget renderer");
+
     worldPtr = weakWorld;
 
     if (auto world = worldPtr.lock())
@@ -21,7 +23,7 @@ void LcGuiManagerBase::Init(TWeakWorld weakWorld, void* window)
 
         for (auto& widget : widgetList)
         {
-            widget->Init();
+            widget->Init(*render);
         }
     }
 }

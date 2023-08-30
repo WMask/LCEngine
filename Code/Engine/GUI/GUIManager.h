@@ -21,7 +21,7 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, void* window) = 0;
+	virtual void Init(TWeakWorld world, class IWidgetRender* render, void* window) = 0;
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) = 0;
@@ -54,7 +54,7 @@ public:
 	LcGuiManagerBase() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, void* window);
+	virtual void Init(TWeakWorld world, class IWidgetRender* render, void* window);
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds);

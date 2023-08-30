@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/RenderSystem.h"
+#include "RenderSystem/WidgetRender.h"
 #include "GUI/GuiManager.h"
 
 
@@ -116,9 +117,11 @@ void LcWindowsApplication::Run()
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
+
         renderSystem->Create(world, hWnd, true);
+
+        if (guiManager) guiManager->Init(world, renderSystem->GetWidgetRender(), hWnd);
     }
-    if (guiManager) guiManager->Init(world, hWnd);
 
     if (initHandler) initHandler(this);
 

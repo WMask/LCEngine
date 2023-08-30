@@ -46,6 +46,9 @@ public:
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
 	/**
+	* Get widget render */
+	virtual class IWidgetRender* GetWidgetRender() = 0;
+	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
 

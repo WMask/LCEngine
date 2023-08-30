@@ -63,7 +63,7 @@ public:
 };
 
 /**
-* Text renderer */
+* Widget renderer */
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
@@ -78,9 +78,11 @@ public:
 
 public: // IWidgetRender interface implementation
 	//
-	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
+	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
 	//
-	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);
+	virtual bool RemoveFont(const ITextFont* font) override;
+	//
+	virtual void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);
 
 
 protected:

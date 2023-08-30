@@ -13,6 +13,7 @@
 using namespace Microsoft::WRL;
 
 #include "Module.h"
+#include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "World/Module.h"
@@ -89,6 +90,9 @@ public: // IRenderSystem interface implementation
 	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
+	/**
+	* Get widget render */
+	virtual IWidgetRender* GetWidgetRender() override { return widgetRender.get(); }
 	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }

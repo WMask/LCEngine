@@ -9,7 +9,6 @@
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
-#include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "Application/Application.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"

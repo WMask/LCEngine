@@ -15,7 +15,7 @@
 struct LcWidgetData
 {
 	std::string name;
-	LcVector3 pos;
+    LcVector3 pos;
 	bool visible;
 	bool active;
 	//
@@ -29,13 +29,27 @@ struct LcWidgetData
 
 
 /**
+* Text font */
+struct ITextFont
+{
+public:
+    virtual ~ITextFont() {}
+    //
+    virtual const std::wstring& GetFontName() const = 0;
+};
+
+
+/** Font weight */
+enum class LcFontWeight { Light, Normal, Bold };
+
+/**
 * Widget interface */
 class IWidget : public IVisual
 {
 public:
 	/**
 	* Initialize widget */
-	virtual void Init() = 0;
+	virtual void Init(class IWidgetRender& render) = 0;
     /**
     * Render widget */
     virtual void Render(class IWidgetRender& render) const = 0;
@@ -78,7 +92,9 @@ public:
 
 
 public: // IWidget interface implementation
-    virtual void Init() override {}
+    virtual void Init(class IWidgetRender& render) override {}
+    //
+    virtual void Render(class IWidgetRender& render) const override {}
     //
     virtual void OnKeyboard(int btn, LcKeyState state) override {}
     //
