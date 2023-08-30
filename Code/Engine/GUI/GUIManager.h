@@ -8,7 +8,7 @@
 
 #include "Module.h"
 #include "World/Module.h"
-#include "RenderSystem/Module.h"
+#include "RenderSystem/RenderSystem.h"
 #include "Core/LCTypes.h"
 
 
@@ -22,7 +22,7 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, TWeakRenderSystem render, void* window) = 0;
+	virtual void Init(TWeakWorld world, TWeakWidgetRender render, void* window) = 0;
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) = 0;
@@ -55,7 +55,7 @@ public:
 	LcGuiManagerBase() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, TWeakRenderSystem render, void* window) override;
+	virtual void Init(TWeakWorld world, TWeakWidgetRender render, void* window) override;
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) override;
@@ -77,17 +77,8 @@ public:
 
 
 protected:
-	/**
-	* Render GUI */
-	virtual void PreRender(class IRenderSystem& render);
-	/**
-	* Render GUI */
-	virtual void PostRender(class IRenderSystem& render);
-
-
-protected:
 	TWeakWorld worldPtr;
 	//
-	TWeakRenderSystem renderPtr;
+	TWeakWidgetRender renderPtr;
 
 };

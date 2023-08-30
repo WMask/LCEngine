@@ -76,6 +76,10 @@ void LcRenderSystemBase::Render()
 
     if (auto gui = guiManager.lock())
     {
+        PreRenderWidget();
+
         gui->Render();
+
+        PostRenderWidget();
     }
 }

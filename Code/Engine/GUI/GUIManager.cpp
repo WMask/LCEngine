@@ -12,21 +12,20 @@
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWeakWorld weakWorld, TWeakRenderSystem weakRender, void* window)
+void LcGuiManagerBase::Init(TWeakWorld weakWorld, TWeakWidgetRender weakRender, void* window)
 {
     worldPtr = weakWorld;
     renderPtr = weakRender;
     auto world = worldPtr.lock();
     auto render = renderPtr.lock();
-    auto widgetRender = render ? render->GetWidgetRender() : nullptr;
 
-    if (world && widgetRender)
+    if (world && render)
     {
         auto& widgetList = world->GetWidgets();
 
         for (auto& widget : widgetList)
         {
-            widget->Init(*widgetRender);
+            widget->Init(*render.get());
         }
     }
 }
@@ -39,11 +38,10 @@ void LcGuiManagerBase::Update(float DeltaSeconds)
         if (!widgetList.empty())
         {
             auto render = renderPtr.lock();
-            auto widgetRender = render ? render->GetWidgetRender() : nullptr;
 
             for (auto& widget : widgetList)
             {
-                if (!widget->IsInitialized() && widgetRender) widget->Init(*widgetRender);
+                if (!widget->IsInitialized() && render) widget->Init(*render.get());
 
                 if (widget->IsVisible()) widget->Update(DeltaSeconds);
             }
@@ -55,33 +53,18 @@ void LcGuiManagerBase::Render()
 {
     auto world = worldPtr.lock();
     auto render = renderPtr.lock();
-    auto widgetRender = render ? render->GetWidgetRender() : nullptr;
 
-    if (world && widgetRender)
+    if (world && render)
     {
         auto& widgetList = world->GetWidgets();
         if (!widgetList.empty())
         {
-            PreRender(*render.get());
-
             for (auto& widget : widgetList)
             {
-                if (widget->IsVisible()) widget->Render(*widgetRender);
+                if (widget->IsVisible()) widget->Render(*render.get());
             }
-
-            PostRender(*render.get());
         }
     }
-}
-
-void LcGuiManagerBase::PreRender(class IRenderSystem& render)
-{
-    if (auto widgetRender = render.GetWidgetRender()) widgetRender->BeginRender();
-}
-
-void LcGuiManagerBase::PostRender(class IRenderSystem& render)
-{
-    if (auto widgetRender = render.GetWidgetRender()) widgetRender->EndRender();
 }
 
 void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state)

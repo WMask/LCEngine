@@ -14,6 +14,7 @@ using namespace Microsoft::WRL;
 
 #include "Module.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
+#include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "World/Module.h"
@@ -76,17 +77,26 @@ public: // IRenderSystem interface implementation
 	* Render world */
 	virtual void Render() override;
 	/**
-	* Render sprite */
-	virtual void RenderSprite(const ISprite* sprite) override;
-	/**
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
 	/**
 	* Get widget render */
-	virtual IWidgetRender* GetWidgetRender() override { return widgetRender.get(); }
+	virtual TWidgetRenderPtr GetWidgetRender() const override { return widgetRender; }
 	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
+
+
+protected:
+	/**
+	* Render sprite */
+	virtual void RenderSprite(const ISprite* sprite) override;
+	/**
+	* Pre render widget */
+	virtual void PreRenderWidget() override;
+	/**
+	* Pre render widget */
+	virtual void PostRenderWidget() override;
 
 
 public: // IDX10RenderDevice interface implementation
@@ -128,11 +138,11 @@ protected:
 	//
 	ComPtr<ID3D10RasterizerState> rasterizerState;
 	//
+	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
+	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
-	std::unique_ptr<class LcWidgetRenderDX10> widgetRender;
-	//
-	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
+	TWidgetRenderPtr widgetRender;
 	//
 	TSFeaturesList prevSpriteFeatures;
 

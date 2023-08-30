@@ -16,6 +16,9 @@
 
 #pragma warning(disable : 4251)
 
+typedef std::shared_ptr<class IWidgetRender> TWidgetRenderPtr;
+typedef std::weak_ptr<class IWidgetRender> TWeakWidgetRender;
+
 
 /**
 * Render system interface */
@@ -51,7 +54,7 @@ public:
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
 	/**
 	* Get widget render */
-	virtual class IWidgetRender* GetWidgetRender() = 0;
+	virtual TWidgetRenderPtr GetWidgetRender() const = 0;
 	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
@@ -94,6 +97,12 @@ protected:
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	/**
+	* Pre render widget */
+	virtual void PreRenderWidget() = 0;
+	/**
+	* Pre render widget */
+	virtual void PostRenderWidget() = 0;
 
 
 protected:

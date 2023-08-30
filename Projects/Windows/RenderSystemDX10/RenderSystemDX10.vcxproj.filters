@@ -45,6 +45,9 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.h">
       <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\WidgetRenderDX10.h">
+      <Filter>Header Files\RenderSystemDX10</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -66,6 +69,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.cpp">
+      <Filter>Source Files\RenderSystemDX10</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\WidgetRenderDX10.cpp">
       <Filter>Source Files\RenderSystemDX10</Filter>
     </ClCompile>
   </ItemGroup>
