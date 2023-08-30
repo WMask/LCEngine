@@ -18,8 +18,8 @@
 class GUI_API LcLabelWidget : public LcWidgetBase
 {
 public:
-    LcLabelWidget(const std::wstring& inText, LcRectf rect, LcColor4 inTextColor,
-        const std::wstring& inFontName, unsigned short inFontSize, LcFontWeight inFontWeight = LcFontWeight::Normal) :
+    LcLabelWidget(const std::wstring& inText, const std::wstring& inFontName, unsigned short inFontSize,
+        LcColor4 inTextColor, LcRectf rect, LcFontWeight inFontWeight = LcFontWeight::Normal) :
         LcWidgetBase(LcWidgetData("LcLabelWidget", LcVector3(rect.left, rect.top, 0))), text(inText),
         fontName(inFontName), fontSize(inFontSize), fontWeight(inFontWeight), textColor(LcDefaults::White4), font(nullptr)
     {
