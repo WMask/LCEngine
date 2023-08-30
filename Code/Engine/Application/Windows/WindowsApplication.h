@@ -38,10 +38,10 @@ public: // IApplication interface implementation
 	virtual void Init(void* handle, TWeakWorld worldPtr = TWeakWorld()) noexcept override;
 	/**
 	* Set render system */
-	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = std::move(render); }
+	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = render; }
 	/**
 	* Set GUI manager */
-	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = std::move(gui); }
+	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
 	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(int width, int height) noexcept { windowSize = LcSize(width, height); }
