@@ -33,7 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
 
             world->AddWidget(std::make_shared<LcLabelWidget>(
-                L"Label Text", L"Calibri", 40, LcDefaults::White4, LcRectf{ 400, 300, 600, 500 }));
+                L"Label Text", L"Calibri", 40, LcDefaults::White4, To3(LcVector2(500, 400)), LcSizef(200, 200)));
         };
 
         auto onKeyboardHandler = [](int key, LcKeyState keyEvent, IApplication* app)
