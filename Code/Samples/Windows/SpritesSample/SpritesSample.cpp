@@ -37,13 +37,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto sprite3 = world->AddSprite(450, 200, 300, 300))
             {
-                sprite3->AddTextureComponent("tree.png");
+                sprite3->AddTextureComponent("../../Assets/tree.png");
                 sprite3->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
             if (auto sprite4 = world->AddSprite(380, 85, 100, 100))
             {
-                sprite4->AddTextureComponent("anim.png");
+                sprite4->AddTextureComponent("../../Assets/anim.png");
                 sprite4->AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
         };
@@ -76,17 +76,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q') app->RequestQuit();
         };
 
-        auto cfg = LoadConfig();
-        int winWidth = cfg["appWinWidth"].iValue;
-        int winHeight = cfg["appWinHeight"].iValue;
-
         auto app = GetApp();
         auto world = GetWorld();
         app->SetRenderSystem(GetRenderSystem());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetWindowSize(winWidth, winHeight);
+        app->SetWindowSize(1024, 768);
         app->Init(hInstance, world);
         app->Run();
     }

@@ -51,7 +51,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q') app->RequestQuit();
         };
 
-        auto cfg = LoadConfig();
+        auto cfg = LoadConfig("../../Assets/config.txt");
         int winWidth = cfg["appWinWidth"].iValue;
         int winHeight = cfg["appWinHeight"].iValue;
 
