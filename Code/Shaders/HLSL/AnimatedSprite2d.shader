@@ -19,11 +19,6 @@ cbuffer VS_COLORS_BUFFER : register(b3)
 	float4 vColors[4];
 };
 
-cbuffer VS_UV_BUFFER : register(b4)
-{
-	float2 vUV[4];
-};
-
 cbuffer VS_ANIM_BUFFER : register(b5)
 {
 	float4 vAnim;
