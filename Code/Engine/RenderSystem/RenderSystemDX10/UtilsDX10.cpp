@@ -160,7 +160,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
         auto& allSprites = world->GetSprites();
         for (auto sprite : allSprites)
         {
-            auto texComp = sprite->GetComponent(ESCType::Texture);
+            auto texComp = sprite->GetComponent(EVCType::Texture);
             if (auto tex = (LcSpriteTextureComponent*)texComp.get())
             {
                 aliveTexList.insert(tex->texture);

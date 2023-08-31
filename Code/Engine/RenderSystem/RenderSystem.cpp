@@ -9,8 +9,8 @@
 #include "GUI/GuiManager.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
-#include "World/Widgets.h"
 #include "World/Camera.h"
+#include "GUI/Widgets.h"
 #include "Core/LCUtils.h"
 
 
@@ -34,22 +34,17 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
 
 void LcRenderSystemBase::Update(float deltaSeconds)
 {
-    if (auto worldPtr = world.lock())
+    if (auto world = worldPtr.lock())
     {
-        const auto& sprites = worldPtr->GetSprites();
+        const auto& sprites = world->GetSprites();
 
         for (const auto& sprite : sprites)
         {
             if (sprite->IsVisible()) sprite->Update(deltaSeconds);
         }
 
-        if (auto gui = guiManager.lock())
-        {
-            gui->Update(deltaSeconds);
-        }
-
-        auto newPos = worldPtr->GetCamera().GetPosition();
-        auto newTarget = worldPtr->GetCamera().GetTarget();
+        auto newPos = world->GetCamera().GetPosition();
+        auto newTarget = world->GetCamera().GetTarget();
         if (newPos != cameraPos || newTarget != cameraTarget)
         {
             UpdateCamera(deltaSeconds, newPos, newTarget);
@@ -62,18 +57,23 @@ void LcRenderSystemBase::Update(float deltaSeconds)
 
 void LcRenderSystemBase::Render()
 {
-    if (auto weakWorld = world.lock())
+    if (auto world = worldPtr.lock())
     {
-        const auto& sprites = weakWorld->GetSprites();
+        const auto& sprites = world->GetSprites();
+        const auto& widgets = world->GetWidgets();
 
         for (const auto& sprite : sprites)
         {
             if (sprite->IsVisible()) RenderSprite(sprite.get());
         }
-    }
 
-    if (auto gui = guiManager.lock())
-    {
-        gui->Render();
+        PreRenderWidgets();
+
+        for (const auto& widget : widgets)
+        {
+            if (widget->IsVisible()) RenderWidget(widget.get());
+        }
+
+        PostRenderWidgets();
     }
 }

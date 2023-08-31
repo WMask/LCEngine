@@ -10,6 +10,7 @@
 #include <d2d1.h>
 #include <dwrite.h>
 #include <wrl.h>
+#include <memory>
 #include <string>
 #include <map>
 
@@ -33,25 +34,31 @@ public:
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
-	LcWidgetRenderDX10(IDXGISwapChain* swapChainPtr, HWND hWnd);
+	LcWidgetRenderDX10(IDXGISwapChain* swapChainPtr, HWND hWndPtr) : swapChain(swapChainPtr), hWnd(hWndPtr) {}
 	//
 	~LcWidgetRenderDX10();
+	//
+	bool RemoveFont(const ITextFont* font);
+	//
+	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);
+	//
+	void BeginRender();
+	//
+	long EndRender();
 
 
 public:// IWidgetRender interface implementation
 	//
-	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) override;
+	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
 	//
-	virtual bool RemoveFont(const ITextFont* font) override;
+	virtual void Setup() override;
 	//
-	virtual void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font) override;
-	//
-	virtual void BeginRender() override;
-	//
-	virtual long EndRender() override;
+	virtual void Render(const IWidget* widget) override;
 
 
 protected:
+	HWND hWnd;
+	//
 	IDXGISwapChain* swapChain;
 	//
 	ComPtr<ID2D1Factory> d2dFactory;

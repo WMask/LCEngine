@@ -29,7 +29,20 @@ public:
 	LcRenderSystemDX10& render;
 };
 
-void LcSpriteDX10::AddComponent(TSComponentPtr comp)
+class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
+{
+public:
+	LcWidgetFactoryDX10(IWidgetRender& inRender) : render(inRender) {}
+	//
+	virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override
+	{
+		return std::make_shared<LcWidgetDX10>(data, render);
+	}
+	//
+	IWidgetRender& render;
+};
+
+void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 {
 	LcSprite::AddComponent(comp);
 
@@ -42,6 +55,18 @@ void LcSpriteDX10::AddComponent(TSComponentPtr comp)
 			texComp->texSize = ToF(texSize);
 		else
 			throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
+	}
+}
+
+void LcWidgetDX10::AddComponent(TVComponentPtr comp)
+{
+	LcWidget::AddComponent(comp);
+
+	if (auto textComp = GetTextComponent())
+	{
+		font = render.AddFont(textComp->fontName, textComp->fontSize, textComp->fontWeight);
+		if (!font)
+			throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
 	}
 }
 
@@ -227,19 +252,22 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
 	spriteRenders.back()->Setup();
 
+	// init managers
+	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
+	auto newWidgetRender = new LcWidgetRenderDX10(swapChain.Get(), hWnd);
+	newWidgetRender->Setup();
+	widgetRender.reset(newWidgetRender);
+
 	// add sprite factory
 	if (auto world = worldPtr.lock())
 	{
 		world->GetCamera().Set(cameraPos, cameraTarget);
 		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
+		world->SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*widgetRender.get()));
 	}
 
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
-
-	// init managers
-	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
-	widgetRender.reset(new LcWidgetRenderDX10(swapChain.Get(), hWnd));
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -305,6 +333,26 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			break;
 		}
 	}
+}
+
+void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
+{
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
+
+	if (auto render = (LcWidgetRenderDX10*)widgetRender.get())
+	{
+		render->Render(widget);
+	}
+}
+
+void LcRenderSystemDX10::PreRenderWidgets()
+{
+	if (auto render = (LcWidgetRenderDX10*)widgetRender.get()) render->BeginRender();
+}
+
+void LcRenderSystemDX10::PostRenderWidgets()
+{
+	if (auto render = (LcWidgetRenderDX10*)widgetRender.get()) render->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

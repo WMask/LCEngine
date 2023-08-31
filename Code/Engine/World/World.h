@@ -27,6 +27,9 @@ public: // IWorld interface implementation
 	* Set sprite factory */
 	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
 	/**
+	* Set widget factory */
+	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
+	/**
 	* Add sprite */
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
 	/**
@@ -43,7 +46,7 @@ public: // IWorld interface implementation
 	virtual SPRITE_LIST& GetSprites() override { return sprites; }
 	/**
 	* Add widget */
-	virtual void AddWidget(std::shared_ptr<IWidget> widget) override;
+	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
 	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) override;
@@ -72,6 +75,8 @@ protected:
 	WIDGET_LIST widgets;
 	//
 	TSpriteFactoryPtr spriteFactory;
+	//
+	TWidgetFactoryPtr widgetFactory;
 	//
 	LcCamera camera;
 

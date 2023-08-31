@@ -5,29 +5,16 @@
 */
 
 #include "pch.h"
+#include "GUI/Widgets.h"
 #include "GUI/GUIManager.h"
 #include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
-#include "World/Widgets.h"
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWeakWorld weakWorld, TWeakWidgetRender weakRender, void* window)
+void LcGuiManagerBase::Init(TWeakWorld weakWorld)
 {
     worldPtr = weakWorld;
-    renderPtr = weakRender;
-    auto world = worldPtr.lock();
-    auto render = renderPtr.lock();
-
-    if (world && render)
-    {
-        auto& widgetList = world->GetWidgets();
-
-        for (auto& widget : widgetList)
-        {
-            widget->Init(*render.get());
-        }
-    }
 }
 
 void LcGuiManagerBase::Update(float DeltaSeconds)
@@ -37,36 +24,10 @@ void LcGuiManagerBase::Update(float DeltaSeconds)
         auto& widgetList = world->GetWidgets();
         if (!widgetList.empty())
         {
-            auto render = renderPtr.lock();
-
             for (auto& widget : widgetList)
             {
-                if (!widget->IsInitialized() && render) widget->Init(*render.get());
-
                 if (widget->IsVisible()) widget->Update(DeltaSeconds);
             }
-        }
-    }
-}
-
-void LcGuiManagerBase::Render()
-{
-    auto world = worldPtr.lock();
-    auto render = renderPtr.lock();
-
-    if (world && render)
-    {
-        auto& widgetList = world->GetWidgets();
-        if (!widgetList.empty())
-        {
-            render->BeginRender();
-
-            for (auto& widget : widgetList)
-            {
-                if (widget->IsVisible()) widget->Render(*render.get());
-            }
-
-            render->EndRender();
         }
     }
 }

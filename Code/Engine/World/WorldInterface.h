@@ -49,8 +49,11 @@ public:
 	* Set sprite factory */
 	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) = 0;
 	/**
+	* Set widget factory */
+	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) = 0;
+	/**
 	* Add sprite */
-	virtual ISprite* AddSprite(const LcSpriteData& sprite) = 0;
+	virtual ISprite* AddSprite(const struct LcSpriteData& sprite) = 0;
 	/**
 	* Add sprite */
 	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
@@ -65,7 +68,7 @@ public:
 	virtual SPRITE_LIST& GetSprites() = 0;
 	/**
 	* Add widget */
-	virtual void AddWidget(std::shared_ptr<IWidget> widget) = 0;
+	virtual IWidget* AddWidget(const struct LcWidgetData& widget) = 0;
 	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) = 0;

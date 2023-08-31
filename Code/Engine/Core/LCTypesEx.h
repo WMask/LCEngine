@@ -59,6 +59,7 @@ namespace LcDefaults
 	extern CORE_API LcVector4 ZeroVec4;
 	extern CORE_API LcColor4 White4;
 	extern CORE_API LcColor3 White3;
+	extern CORE_API LcSizef ZeroSize;
 };
 
 

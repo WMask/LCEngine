@@ -147,7 +147,6 @@
     <ClInclude Include="..\..\..\Code\Engine\World\Camera.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Sprites.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Visual.h" />
-    <ClInclude Include="..\..\..\Code\Engine\World\Widgets.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\World.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\WorldInterface.h" />
@@ -156,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\World\Sprites.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\World\Visual.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\World\World.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">

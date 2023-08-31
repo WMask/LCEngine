@@ -22,6 +22,6 @@ public:
 	virtual void Render(const ISprite* sprite) = 0;
 	/**
 	* Checks support for the feature */
-	virtual bool Supports(const TSFeaturesList& features) const = 0;
+	virtual bool Supports(const TVFeaturesList& features) const = 0;
 
 };

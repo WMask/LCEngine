@@ -19,12 +19,6 @@
     <Filter Include="Source Files\GUI">
       <UniqueIdentifier>{9a01a367-a807-4945-9703-ae368f90ffca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\GUI\Widgets">
-      <UniqueIdentifier>{b547bebd-dfa8-44a2-9860-a687380c2fc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\GUI\Widgets">
-      <UniqueIdentifier>{185e157d-ff72-4f54-88e7-4dd1f400cf0c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -39,8 +33,8 @@
     <ClInclude Include="..\..\..\Code\Engine\GUI\Module.h">
       <Filter>Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\GUI\Widgets\LabelWidget.h">
-      <Filter>Header Files\GUI\Widgets</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\GUI\Widgets.h">
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,8 +47,8 @@
     <ClCompile Include="..\..\..\Code\Engine\GUI\GUIManager.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\GUI\Widgets\LabelWidget.cpp">
-      <Filter>Source Files\GUI\Widgets</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\GUI\Widgets.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

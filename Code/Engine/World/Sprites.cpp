@@ -7,7 +7,7 @@
 #pragma once
 
 #include "pch.h"
-#include "Sprites.h"
+#include "World/Sprites.h"
 
 
 void LcSpriteAnimationComponent::Update(float deltaSeconds)
@@ -54,27 +54,9 @@ void LcSprite::Update(float deltaSeconds)
 	}
 }
 
-void LcSprite::AddComponent(TSComponentPtr comp)
+void LcSprite::AddComponent(TVComponentPtr comp)
 {
-	if (!comp) throw std::exception("LcSprite::AddComponent(): Invalud component");
+	IVisualBase::AddComponent(comp);
 
-	comp->SetOwner(this);
-	components.push_back(comp);
 	features.insert(comp->GetType());
-}
-
-TSComponentPtr LcSprite::GetComponent(ESCType type) const
-{
-	auto result = std::find_if(components.begin(), components.end(), [type](auto& comp) {
-		return comp->GetType() == type;
-	});
-	return (result == components.end()) ? TSComponentPtr() : *result;
-}
-
-bool LcSprite::HasComponent(ESCType type) const
-{
-	auto result = std::find_if(components.begin(), components.end(), [type](auto& comp) {
-		return comp->GetType() == type;
-	});
-	return result != components.end();
 }

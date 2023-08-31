@@ -6,46 +6,8 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
-
-LcWidgetRenderDX10::LcWidgetRenderDX10(IDXGISwapChain* swapChainPtr, HWND hWnd) : swapChain(swapChainPtr)
-{
-    if (!swapChain || !hWnd)
-    {
-        throw std::exception("LcWidgetRenderDX10(): Invalid arguments");
-    }
-
-    RECT clientRect;
-    GetClientRect(hWnd, &clientRect);
-    screenHeight = clientRect.bottom - clientRect.top;
-
-    if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
-    {
-        throw std::exception("LcWidgetRenderDX10(): Cannot create Direct2D factory");
-    }
-
-    ComPtr<IDXGISurface1> backBuffer;
-    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
-    {
-        throw std::exception("LcWidgetRenderDX10(): Cannot get back buffer");
-    }
-
-    float dpi = (float)GetDpiForWindow(hWnd);
-
-    D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
-        D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpi, dpi);
-
-    if (FAILED(d2dFactory->CreateDxgiSurfaceRenderTarget(backBuffer.Get(), &props, renderTarget.GetAddressOf())))
-    {
-        throw std::exception("LcWidgetRenderDX10(): Cannot create render target");
-    }
-
-    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(dwriteFactory.Get()),
-        reinterpret_cast<IUnknown**>(dwriteFactory.GetAddressOf()))))
-    {
-        throw std::exception("LcWidgetRenderDX10(): Cannot create DirectWrite factory");
-    }
-}
 
 LcWidgetRenderDX10::~LcWidgetRenderDX10()
 {
@@ -120,6 +82,8 @@ protected:
 
 const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight)
 {
+    if (!dwriteFactory) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid DirectWrite factory");
+
     for (auto entry : fonts)
     {
         auto font = (const LcTextFontDX10*)entry.second.get();
@@ -140,6 +104,61 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
     }
 
     return false;
+}
+
+void LcWidgetRenderDX10::Setup()
+{
+    if (!swapChain || !hWnd)
+    {
+        throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
+    }
+
+    RECT clientRect;
+    GetClientRect(hWnd, &clientRect);
+    screenHeight = clientRect.bottom - clientRect.top;
+
+    if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
+    {
+        throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create Direct2D factory");
+    }
+
+    ComPtr<IDXGISurface1> backBuffer;
+    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
+    {
+        throw std::exception("LcWidgetRenderDX10::Setup(): Cannot get back buffer");
+    }
+
+    float dpi = (float)GetDpiForWindow(hWnd);
+
+    D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
+        D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpi, dpi);
+
+    if (FAILED(d2dFactory->CreateDxgiSurfaceRenderTarget(backBuffer.Get(), &props, renderTarget.GetAddressOf())))
+    {
+        throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create render target");
+    }
+
+    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(dwriteFactory.Get()),
+        reinterpret_cast<IUnknown**>(dwriteFactory.GetAddressOf()))))
+    {
+        throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create DirectWrite factory");
+    }
+}
+
+void LcWidgetRenderDX10::Render(const IWidget* widgetPtr)
+{
+    const LcWidgetDX10* widget = (LcWidgetDX10*)widgetPtr;
+    LcRectf rect{
+        widget->widget.pos.x - widget->widget.size.x / 2.0f,
+        widget->widget.pos.y - widget->widget.size.y / 2.0f,
+        widget->widget.pos.x + widget->widget.size.x / 2.0f,
+        widget->widget.pos.y + widget->widget.size.x / 2.0f
+    };
+
+    if (auto text = widget->GetTextComponent())
+    {
+        RenderText(text->text, rect, text->textColor, widget->font);
+    }
 }
 
 void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font)

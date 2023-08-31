@@ -133,13 +133,13 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 	d3dDevice->Draw(4, 0);
 }
 
-bool LcColoredSpriteRenderDX10::Supports(const TSFeaturesList& features) const
+bool LcColoredSpriteRenderDX10::Supports(const TVFeaturesList& features) const
 {
 	bool needTexture = false, needAnimation = false;
 	for (auto& feature : features)
 	{
-		needTexture |= (feature == ESCType::Texture);
-		needAnimation |= (feature == ESCType::FrameAnimation);
+		needTexture |= (feature == EVCType::Texture);
+		needAnimation |= (feature == EVCType::FrameAnimation);
 	}
 	return !needAnimation && !needTexture;
 }

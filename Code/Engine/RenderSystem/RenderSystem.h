@@ -16,9 +16,6 @@
 
 #pragma warning(disable : 4251)
 
-typedef std::shared_ptr<class IWidgetRender> TWidgetRenderPtr;
-typedef std::weak_ptr<class IWidgetRender> TWeakWidgetRender;
-
 
 /**
 * Render system interface */
@@ -35,9 +32,6 @@ public:
 	* Create render system */
 	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) = 0;
 	/**
-	* Set GUI manager */
-	virtual void SetGuiManager(TWeakGuiManager guiManager) = 0;
-	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
 	/**
@@ -52,9 +46,6 @@ public:
 	/**
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
-	/**
-	* Get widget render */
-	virtual TWidgetRenderPtr GetWidgetRender() const = 0;
 	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
@@ -78,10 +69,7 @@ public:// IRenderSystem interface implementation
 	virtual void LoadShaders(const char* folderPath) override;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override { world = worldPtr; }
-	/**
-	* Set GUI manager */
-	virtual void SetGuiManager(TWeakGuiManager inGuiManager) override { guiManager = inGuiManager; }
+	virtual void Create(TWeakWorld world, void* windowHandle, bool windowed) override { worldPtr = world; }
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() override {}
@@ -97,12 +85,19 @@ protected:
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const class IWidget* widget) = 0;
+	/**
+	* Pre render widgets */
+	virtual void PreRenderWidgets() = 0;
+	/**
+	* Post render widgets */
+	virtual void PostRenderWidgets() = 0;
 
 
 protected:
-	TWeakWorld world;
-	//
-	TWeakGuiManager guiManager;
+	TWeakWorld worldPtr;
 	//
 	SHADERS_MAP shaders;
 	//

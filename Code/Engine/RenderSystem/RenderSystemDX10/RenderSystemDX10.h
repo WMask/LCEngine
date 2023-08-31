@@ -17,7 +17,7 @@ using namespace Microsoft::WRL;
 #include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
-#include "World/Module.h"
+#include "GUI/Widgets.h"
 
 
 #pragma warning(disable : 4251)
@@ -80,20 +80,22 @@ public:// IRenderSystem interface implementation
 	* Return render system state */
 	virtual bool CanRender() const override { return d3dDevice; }
 	/**
-	* Get widget render */
-	virtual TWidgetRenderPtr GetWidgetRender() const override { return widgetRender; }
-	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
 
 
 protected:// LcRenderSystemBase interface implementation
-	/**
-	* Render sprite */
+	//
 	virtual void RenderSprite(const ISprite* sprite) override;
+	//
+	virtual void RenderWidget(const IWidget* widget) override;
+	//
+	virtual void PreRenderWidgets() override;
+	//
+	virtual void PostRenderWidgets() override;
 
 
-public: // IDX10RenderDevice interface implementation
+public:// IDX10RenderDevice interface implementation
 	/**
 	* Return D3D10 device */
 	virtual ID3D10Device1* GetD3D10Device() const override { return d3dDevice.Get(); }
@@ -136,9 +138,9 @@ protected:
 	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
-	TWidgetRenderPtr widgetRender;
+	std::shared_ptr<IWidgetRender> widgetRender;
 	//
-	TSFeaturesList prevSpriteFeatures;
+	TVFeaturesList prevSpriteFeatures;
 
 };
 
@@ -157,7 +159,25 @@ public:
 	ComPtr<ID3D10ShaderResourceView1> shaderView;
 
 
-public: // IVisual interface implementation
-	virtual void AddComponent(TSComponentPtr comp) override;
+public:// IVisual interface implementation
+	virtual void AddComponent(TVComponentPtr comp) override;
+
+};
+
+
+/**
+* DirectX10 Widget implementation */
+class LcWidgetDX10 : public LcWidget
+{
+public:
+	LcWidgetDX10(LcWidgetData inSprite, IWidgetRender& inRender) : LcWidget(inSprite), render(inRender), font(nullptr) {}
+	//
+	IWidgetRender& render;
+	//
+	const ITextFont* font;
+
+
+public:// IVisual interface implementation
+	virtual void AddComponent(TVComponentPtr comp) override;
 
 };

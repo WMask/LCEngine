@@ -12,8 +12,7 @@
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
-#include "GUI/Widgets/LabelWidget.h"
-#include "GUI/Module.h"
+#include "GUI/Widgets.h"
 #include "Core/LCUtils.h"
 
 
@@ -32,8 +31,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 sprite->AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            world->AddWidget(std::make_shared<LcLabelWidget>(
-                L"Label Text", L"Calibri", 40, LcDefaults::White4, To3(LcVector2(500, 400)), LcSizef(200, 200)));
+            if (auto widget = world->AddWidget(LcWidgetData(To3(LcVector2(500, 400)), LcSizef(200, 200))))
+            {
+                widget->AddTextComponent(L"Label Text", L"Calibri", 40, LcDefaults::White4);
+            }
         };
 
         auto onKeyboardHandler = [](int key, LcKeyState keyEvent, IApplication* app)
@@ -41,17 +42,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q' && keyEvent == LcKeyState::Down) app->RequestQuit();
         };
 
-        auto cfg = LoadConfig();
-        int winWidth = cfg["appWinWidth"].iValue;
-        int winHeight = cfg["appWinHeight"].iValue;
-
         auto app = GetApp();
         auto world = GetWorld();
         app->SetRenderSystem(GetRenderSystem());
         app->SetGuiManager(GetGuiManager());
         app->SetInitHandler(onInitHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetWindowSize(winWidth, winHeight);
+        app->SetWindowSize(1024, 768);
         app->Init(hInstance, world);
         app->Run();
     }

@@ -33,7 +33,7 @@ public: // ISpriteRender interface implementation
 	virtual void Render(const ISprite* sprite) override;
 	/**
 	* Checks support for the feature */
-	virtual bool Supports(const TSFeaturesList& features) const override;
+	virtual bool Supports(const TVFeaturesList& features) const override;
 
 
 protected:

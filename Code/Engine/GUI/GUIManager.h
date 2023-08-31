@@ -22,16 +22,13 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, TWeakWidgetRender render, void* window) = 0;
-	/**
-	* Update GUI */
-	virtual void Update(float DeltaSeconds) = 0;
-	/**
-	* Render GUI */
-	virtual void Render() = 0;
+	virtual void Init(TWeakWorld world) = 0;
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() = 0;
+	/**
+	* Update GUI */
+	virtual void Update(float DeltaSeconds) = 0;
 	/**
 	* Keyboard key event */
 	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
@@ -55,16 +52,13 @@ public:
 	LcGuiManagerBase() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, TWeakWidgetRender render, void* window) override;
-	/**
-	* Update GUI */
-	virtual void Update(float DeltaSeconds) override;
-	/**
-	* Render GUI */
-	virtual void Render() override;
+	virtual void Init(TWeakWorld world) override;
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override {}
+	/**
+	* Update GUI */
+	virtual void Update(float DeltaSeconds) override;
 	/**
 	* Keyboard key event */
 	virtual void OnKeyboard(int btn, LcKeyState state) override;
@@ -78,7 +72,5 @@ public:
 
 protected:
 	TWeakWorld worldPtr;
-	//
-	TWeakWidgetRender renderPtr;
 
 };

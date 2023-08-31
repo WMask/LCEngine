@@ -119,13 +119,9 @@ void LcWindowsApplication::Run()
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
         renderSystem->Create(world, hWnd, true);
-
-        if (guiManager)
-        {
-            guiManager->Init(world, renderSystem->GetWidgetRender(), hWnd);
-            renderSystem->SetGuiManager(guiManager);
-        }
     }
+
+    if (guiManager) guiManager->Init(world);
 
     if (initHandler) initHandler(this);
 
@@ -168,7 +164,6 @@ void LcWindowsApplication::OnUpdate()
         if (guiManager)
         {
             guiManager->Update(deltaSeconds);
-            guiManager->Render();
         }
 
         if (updateHandler)

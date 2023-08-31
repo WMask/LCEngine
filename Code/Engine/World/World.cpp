@@ -9,10 +9,10 @@
 #include "pch.h"
 #include "World/World.h"
 #include "World/Sprites.h"
+#include "GUI/Widgets.h"
 
 
-/**
-* Default Sprite factory implementation */
+/** Default Sprite factory implementation */
 class LcSpriteFactory : public TWorldFactory<ISprite, LcSpriteData>
 {
 public:
@@ -24,10 +24,23 @@ public:
 	}
 };
 
+/** Default Sprite factory implementation */
+class LcWidgetFactory : public TWorldFactory<IWidget, LcWidgetData>
+{
+public:
+	LcWidgetFactory() {}
+	//
+	virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override
+	{
+		return std::make_shared<LcWidget>(data);
+	}
+};
+
 
 LcWorld::LcWorld()
 {
 	spriteFactory = TSpriteFactoryPtr(new LcSpriteFactory());
+	widgetFactory = TWidgetFactoryPtr(new LcWidgetFactory());
 }
 
 LcWorld::~LcWorld()
@@ -70,11 +83,15 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 	if (it != sprites.end()) sprites.erase(it);
 }
 
-void LcWorld::AddWidget(std::shared_ptr<IWidget> widget)
+IWidget* LcWorld::AddWidget(const LcWidgetData& inWidget)
 {
-	if (!widget) throw std::exception("LcWorld::AddWidget(): Invalid widget");
+	auto newWidget = widgetFactory ? widgetFactory->Build(inWidget) : nullptr;
+	if (newWidget)
+		widgets.push_back(newWidget);
+	else
+		throw std::exception("LcWorld::AddWidget(): Cannot create widget");
 
-	widgets.push_back(widget);
+	return newWidget.get();
 }
 
 void LcWorld::RemoveWidget(IWidget* widget)
