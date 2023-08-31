@@ -19,6 +19,11 @@ cbuffer VS_COLORS_BUFFER : register(b3)
 	float4 vColors[4];
 };
 
+cbuffer VS_UV_BUFFER : register(b4)
+{
+	float4 vUV[4];
+};
+
 struct VOut
 {
 	float4 vPosition : SV_POSITION;
@@ -26,14 +31,14 @@ struct VOut
 	float2 vCoord : TEXCOORD;
 };
 
-VOut VShader(float4 vPosition : POSITION, float2 vCoord : TEXCOORD, uint iIndex : INDEX)
+VOut VShader(float4 vPosition : POSITION, uint iIndex : INDEX)
 {
 	VOut output;
 	float4x4 mWVP = mul(mTrans, mul(mView, mProj));
 
 	output.vPosition = mul(vPosition, mWVP);
 	output.vColor = vColors[iIndex];
-	output.vCoord = vCoord;
+	output.vCoord = vUV[iIndex];
 
 	return output;
 }

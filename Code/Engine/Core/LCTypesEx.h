@@ -69,6 +69,7 @@ inline      LcSize		ToI(const LcSizef& size) { return LcSize((int)size.x, (int)s
 inline      LcVector2	To2(const LcVector3& v) { return LcVector2(v.x, v.y); }
 inline      LcVector3	To3(const LcVector2& v) { return LcVector3(v.x, v.y, 0.0f); }
 inline	    LcColor4	To4(const LcColor3& v) { return LcColor4{ v.x, v.y, v.z, 1.0f }; }
+inline	    LcVector4	To4(const LcVector2& v) { return LcVector4{ v.x, v.y, 0.0f, 0.0f }; }
 CORE_API    LcRectf		ToF(const LcRect& rect);
 CORE_API    LcRectf		ToF(const LcVector2& leftTop, const LcVector2& rightBottom);
 CORE_API	LcRect		ToI(const LcRectf& rect);

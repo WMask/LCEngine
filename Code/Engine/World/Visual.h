@@ -27,6 +27,7 @@ enum class EVCType : int
 	Tint,
 	VertexColor,
 	Texture,
+	CustomUV,
 	FrameAnimation,
 	// Widgets
 	Text

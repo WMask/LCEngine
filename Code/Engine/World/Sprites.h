@@ -122,6 +122,33 @@ struct LcSpriteTextureComponent : public IVisualComponent
 
 
 /**
+* Sprite custom UV component */
+struct LcSpriteCustomUVComponent : public IVisualComponent
+{
+	LcVector4 leftTop;
+	LcVector4 rightTop;
+	LcVector4 rightBottom;
+	LcVector4 leftBottom;
+	//
+	LcSpriteCustomUVComponent() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
+	//
+	LcSpriteCustomUVComponent(const LcSpriteCustomUVComponent& colors) :
+		leftTop{ colors.leftTop }, rightTop{ colors.rightTop }, rightBottom{ colors.rightBottom }, leftBottom{ colors.leftBottom }
+	{
+	}
+	//
+	LcSpriteCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) :
+		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
+	{
+	}
+	const void* GetData() const { return &leftTop; }
+	// IVisualComponent interface implementation
+	virtual EVCType GetType() const override { return EVCType::CustomUV; }
+
+};
+
+
+/**
 * Sprite texture component */
 struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
 {
@@ -192,6 +219,11 @@ public:
 		AddComponent(std::make_shared<LcSpriteTextureComponent>(inData, inTexPos));
 	}
 	//
+	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
+	{
+		AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	}
+	//
 	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
 	{
 		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
@@ -202,6 +234,8 @@ public:
 	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
 	//
 	LcSpriteTextureComponent* GetTextureComponent() const { return (LcSpriteTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	//
+	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
 	//
 	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
 

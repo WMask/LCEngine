@@ -37,6 +37,9 @@ public:
 	* Return colors buffer */
 	virtual ID3D10Buffer* GetColorsBuffer() const = 0;
 	/**
+	* Return custom UV buffer */
+	virtual ID3D10Buffer* GetCustomUvBuffer() const = 0;
+	/**
 	* Return frame animation buffer */
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
 	/**
@@ -106,6 +109,9 @@ public:// IDX10RenderDevice interface implementation
 	* Return colors buffer */
 	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer.Get(); }
 	/**
+	* Return custom UV buffer */
+	virtual ID3D10Buffer* GetCustomUvBuffer() const override { return customUvBuffer.Get(); }
+	/**
 	* Return colors buffer */
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
 	/**
@@ -127,6 +133,8 @@ protected:
 	ComPtr<ID3D10Buffer> viewMatrixBuffer;
 	//
 	ComPtr<ID3D10Buffer> colorsBuffer;
+	//
+	ComPtr<ID3D10Buffer> customUvBuffer;
 	//
 	ComPtr<ID3D10Buffer> frameAnimBuffer;
 	//
