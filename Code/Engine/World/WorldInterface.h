@@ -70,6 +70,12 @@ public:
 	* Add widget */
 	virtual IWidget* AddWidget(const struct LcWidgetData& widget) = 0;
 	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) = 0;
+	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;
+	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) = 0;
 	/**

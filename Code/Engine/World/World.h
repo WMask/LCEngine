@@ -48,6 +48,12 @@ public: // IWorld interface implementation
 	* Add widget */
 	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
 	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) override;
+	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) override;
+	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) override;
 	/**

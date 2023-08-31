@@ -31,7 +31,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 sprite->AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            if (auto widget = world->AddWidget(LcWidgetData(To3(LcVector2(500, 400)), LcSizef(200, 200))))
+            if (auto widget = world->AddWidget(500, 400, 200, 200))
             {
                 widget->AddTextComponent(L"Label Text", L"Calibri", 40, LcDefaults::White4);
             }

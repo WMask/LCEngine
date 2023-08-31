@@ -94,6 +94,17 @@ IWidget* LcWorld::AddWidget(const LcWidgetData& inWidget)
 	return newWidget.get();
 }
 
+IWidget* LcWorld::AddWidget(float x, float y, float z, float width, float height, bool inVisible)
+{
+	return AddWidget(LcWidgetData(LcVector3(x, y, z), LcSizef(width, height), inVisible));
+
+}
+
+IWidget* LcWorld::AddWidget(float x, float y, float width, float height, bool inVisible)
+{
+	return AddWidget(LcWidgetData(LcVector3(x, y, 0.0f), LcSizef(width, height), inVisible));
+}
+
 void LcWorld::RemoveWidget(IWidget* widget)
 {
 	auto it = std::find_if(widgets.begin(), widgets.end(), [widget](std::shared_ptr<IWidget>& data) { return data.get() == widget; });
