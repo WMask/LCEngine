@@ -31,7 +31,8 @@ enum class EVCType : int
 	FrameAnimation,
 	// Widgets
 	Text,
-	Button
+	Button,
+	ClickHandler
 };
 
 /** Text font */

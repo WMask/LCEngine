@@ -22,7 +22,7 @@ using namespace Microsoft::WRL;
 #pragma warning(disable : 4251)
 
 
-typedef std::deque<std::shared_ptr<ISpriteRender>> TSpriteRenderList;
+typedef std::deque<std::shared_ptr<IVisual2DRender>> TVisual2DRenderList;
 
 /**
 * Render device */
@@ -49,7 +49,7 @@ public:
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
 	/**
 	* Get sprite renders */
-	virtual TSpriteRenderList& GetSpriteRenderList() = 0;
+	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
@@ -68,7 +68,7 @@ public:
 	//
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 	//
-	class IWidgetRender* GetWidgetRender() { return widgetRender.get(); }
+	class LcWidgetRenderDX10* GetWidgetRender() { return widgetRender; }
 
 
 public:// IRenderSystem interface implementation
@@ -122,7 +122,7 @@ public:// IDX10RenderDevice interface implementation
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
 	/**
 	* Get sprite renders */
-	virtual TSpriteRenderList& GetSpriteRenderList() override { return spriteRenders; }
+	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
@@ -153,9 +153,9 @@ protected:
 	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
-	std::shared_ptr<IWidgetRender> widgetRender;
+	TVisual2DRenderList visual2DRenders;
 	//
-	TSpriteRenderList spriteRenders;
+	LcWidgetRenderDX10* widgetRender;
 	//
 	TVFeaturesList prevSpriteFeatures;
 

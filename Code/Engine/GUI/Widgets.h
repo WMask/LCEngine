@@ -10,10 +10,8 @@
 #include "World/Visual.h"
 
 #include <string>
+#include <functional>
 
-
-/** Widget texture component */
-typedef struct LcSpriteTextureComponent LcWidgetTextureComponent;
 
 /** Widget data */
 struct LcWidgetData
@@ -36,6 +34,9 @@ struct LcWidgetData
     }
 };
 
+
+/** Widget texture component */
+typedef struct LcSpriteTextureComponent LcWidgetTextureComponent;
 
 /**
 * Widget text component */
@@ -71,6 +72,9 @@ enum class EBtnState : int
     Pressed
 };
 
+/** Button click handler */
+typedef std::function<void()> FBtnHandler;
+
 /**
 * Widget button component */
 struct GUI_API LcWidgetButtonComponent : public IVisualComponent
@@ -98,6 +102,26 @@ public:// IVisualComponent interface implementation
 };
 
 
+/** Widget click handler */
+typedef std::function<void()> LcClickHandler;
+
+/**
+* Widget click component */
+struct GUI_API LcWidgetClickComponent : public IVisualComponent
+{
+    LcClickHandler handler;
+    //
+    LcWidgetClickComponent() {}
+    //
+    LcWidgetClickComponent(const LcWidgetClickComponent& widget) : handler(widget.handler) {}
+    //
+    LcWidgetClickComponent(LcClickHandler inHandler) : handler(inHandler) {}
+    // IVisualComponent interface implementation
+    virtual EVCType GetType() const override { return EVCType::ClickHandler; }
+
+};
+
+
 /**
 * Widget interface */
 class IWidget : public IVisualBase
@@ -109,18 +133,27 @@ public:
         AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight));
     }
     //
-    void AddTextureComponent(const std::string& inTexture)
+    void AddTextureComponent(const std::string& texture)
     {
-        AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
+        AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
     }
     //
     void AddTextureComponent(const LcBytes& inData)
     {
         AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
     }
-    void AddButtonComponent(LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
+    void AddButtonComponent()
     {
+        AddComponent(std::make_shared<LcWidgetButtonComponent>());
+    }
+    void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
+    {
+        AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
         AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos));
+    }
+    void AddClickHandlerComponent(LcClickHandler handler)
+    {
+        AddComponent(std::make_shared<LcWidgetClickComponent>(handler));
     }
     //
     LcWidgetTextComponent* GetTextComponent() const { return (LcWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
@@ -128,6 +161,8 @@ public:
     LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
     //
     LcWidgetButtonComponent* GetButtonComponent() const { return (LcWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
+    //
+    LcWidgetClickComponent* GetClickHandlerComponent() const { return (LcWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
 
 
 public:

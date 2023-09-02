@@ -272,15 +272,18 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	d3dDevice->RSSetState(rasterizerState.Get());
 
 	// add sprite renders
-	spriteRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
-	spriteRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
-	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
-	spriteRenders.back()->Setup();
+	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
+	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
+	visual2DRenders.back()->Setup();
+
+	// add widget render
+	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(*this, hWnd));
+	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
+	widgetRender->Setup();
 
 	// init managers
 	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
-	widgetRender.reset(new LcWidgetRenderDX10(*this, hWnd));
-	widgetRender->Setup();
 
 	// add sprite factory
 	if (auto world = worldPtr.lock())
@@ -298,7 +301,7 @@ void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
 
-	widgetRender.reset();
+	widgetRender = nullptr;
 	texLoader.reset();
 
 	rasterizerState.Reset();
@@ -344,7 +347,7 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 {
 	if (!sprite) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
 
-	for (auto& render : spriteRenders)
+	for (auto& render : visual2DRenders)
 	{
 		if (render->Supports(sprite->GetFeaturesList()))
 		{
@@ -362,37 +365,39 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 
 void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
 {
-	if (!widget) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid sprite");
 
-	if (auto render = (LcWidgetRenderDX10*)widgetRender.get())
+	if (widgetRender)
 	{
-		render->RenderWidget(widget);
+		widgetRender->RenderWidget(widget);
 	}
 }
 
 void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 {
-	auto render = (LcWidgetRenderDX10*)widgetRender.get();
-	render->SetRenderMode(mode);
-
-	switch (mode)
+	if (widgetRender)
 	{
-	case Textures:
-		if (auto textureRender = render->GetTextureRender())
+		widgetRender->SetRenderMode(mode);
+
+		switch (mode)
 		{
-			textureRender->Setup();
-			prevSpriteFeatures = render->GetFeaturesList();
+		case Textures:
+			if (auto textureRender = widgetRender->GetTextureRender())
+			{
+				textureRender->Setup();
+				prevSpriteFeatures = widgetRender->GetFeaturesList();
+			}
+			break;
+		case Text:
+			widgetRender->BeginRender();
+			break;
 		}
-		break;
-	case Text:
-		if (render) render->BeginRender();
-		break;
 	}
 }
 
 void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode)
 {
-	if (auto render = (LcWidgetRenderDX10*)widgetRender.get()) render->EndRender();
+	if (widgetRender) widgetRender->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

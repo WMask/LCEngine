@@ -33,32 +33,30 @@ void LcWidgetButtonComponent::Init(class IWorld& world)
 {
     IVisualComponent::Init(world);
 
-    if (!owner) throw std::exception("LcWidgetButtonComponent::Init(): Invalid owner");
+    if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
+    {
+        LcSizef size = owner->GetSize();
+        LcSizef texSize = texComp->texSize;
+        LcVector2 idlePos{ idle[0].x, idle[0].y };
+        LcVector2 overPos{ over[0].x, over[0].y };
+        LcVector2 pressedPos{ pressed[0].x, pressed[0].y };
 
-    auto texComp = (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get();
-    if (!texComp) throw std::exception("LcWidgetButtonComponent::Init(): No texture component found");
+        // generate UVs
+        idle[0] = To4(LcVector2(idlePos.x / texSize.x, idlePos.y / texSize.y));
+        idle[1] = To4(LcVector2((idlePos.x + size.x) / texSize.x, idlePos.y / texSize.y));
+        idle[2] = To4(LcVector2((idlePos.x + size.x) / texSize.x, (idlePos.y + size.y) / texSize.y));
+        idle[3] = To4(LcVector2(idlePos.x / texSize.x, (idlePos.y + size.y) / texSize.y));
 
-    LcSizef size = owner->GetSize();
-    LcSizef texSize = texComp->texSize;
-    LcVector2 idlePos{ idle[0].x, idle[0].y };
-    LcVector2 overPos{ over[0].x, over[0].y };
-    LcVector2 pressedPos{ pressed[0].x, pressed[0].y };
+        over[0] = To4(LcVector2(overPos.x / texSize.x, overPos.y / texSize.y));
+        over[1] = To4(LcVector2((overPos.x + size.x) / texSize.x, overPos.y / texSize.y));
+        over[2] = To4(LcVector2((overPos.x + size.x) / texSize.x, (overPos.y + size.y) / texSize.y));
+        over[3] = To4(LcVector2(overPos.x / texSize.x, (overPos.y + size.y) / texSize.y));
 
-    // generate UVs
-    idle[0] = To4(LcVector2( idlePos.x                  / texSize.x,  idlePos.y                 / texSize.y));
-    idle[1] = To4(LcVector2((idlePos.x + size.x)        / texSize.x,  idlePos.y                 / texSize.y));
-    idle[2] = To4(LcVector2((idlePos.x + size.x)        / texSize.x, (idlePos.y + size.y)       / texSize.y));
-    idle[3] = To4(LcVector2( idlePos.x                  / texSize.x, (idlePos.y + size.y)       / texSize.y));
-
-    over[0] = To4(LcVector2( overPos.x                  / texSize.x,  overPos.y                 / texSize.y));
-    over[1] = To4(LcVector2((overPos.x + size.x)        / texSize.x,  overPos.y                 / texSize.y));
-    over[2] = To4(LcVector2((overPos.x + size.x)        / texSize.x, (overPos.y + size.y)       / texSize.y));
-    over[3] = To4(LcVector2( overPos.x                  / texSize.x, (overPos.y + size.y)       / texSize.y));
-
-    pressed[0] = To4(LcVector2( pressedPos.x            / texSize.x,  pressedPos.y              / texSize.y));
-    pressed[1] = To4(LcVector2((pressedPos.x + size.x)  / texSize.x,  pressedPos.y              / texSize.y));
-    pressed[2] = To4(LcVector2((pressedPos.x + size.x)  / texSize.x, (pressedPos.y + size.y)    / texSize.y));
-    pressed[3] = To4(LcVector2( pressedPos.x            / texSize.x, (pressedPos.y + size.y)    / texSize.y));
+        pressed[0] = To4(LcVector2(pressedPos.x / texSize.x, pressedPos.y / texSize.y));
+        pressed[1] = To4(LcVector2((pressedPos.x + size.x) / texSize.x, pressedPos.y / texSize.y));
+        pressed[2] = To4(LcVector2((pressedPos.x + size.x) / texSize.x, (pressedPos.y + size.y) / texSize.y));
+        pressed[3] = To4(LcVector2(pressedPos.x / texSize.x, (pressedPos.y + size.y) / texSize.y));
+    }
 }
 
 const void* LcWidgetButtonComponent::GetData() const
@@ -82,6 +80,14 @@ void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
         }
         else
         {
+            if (button->state == EBtnState::Pressed)
+            {
+                if (auto clickComp = GetClickHandlerComponent())
+                {
+                    if (clickComp->handler) clickComp->handler();
+                }
+            }
+
             button->state = IsHovered() ? EBtnState::Over : EBtnState::Idle;
         }
     }

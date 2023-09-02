@@ -38,9 +38,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto button = world->AddWidget(500, 350, 124, 40))
             {
-                button->AddTextureComponent("../../Assets/button.png");
-                button->AddButtonComponent(LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
+                button->AddButtonComponent("../../Assets/button.png", LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
                 button->AddTextComponent(L"SUBMIT", L"Calibri", 22, LcDefaults::Black4);
+                button->AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed!\n"); });
             }
         };
 
