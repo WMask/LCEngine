@@ -140,15 +140,13 @@ public:// IVisualComponent interface implementation
 
 };
 
-typedef LcWidgetCheckboxComponent LcCheckbox;
-
 
 /** Widget click handler */
 typedef std::function<void()> LcClickHandler;
 
 /**
 * Widget click component */
-struct GUI_API LcWidgetClickComponent : public IVisualComponent
+struct LcWidgetClickComponent : public IVisualComponent
 {
     LcClickHandler handler;
     //
@@ -162,12 +160,13 @@ struct GUI_API LcWidgetClickComponent : public IVisualComponent
 
 };
 
+
 /** Widget check handler */
 typedef std::function<void(bool)> LcCheckHandler;
 
 /**
 * Widget check component */
-struct GUI_API LcWidgetCheckComponent : public IVisualComponent
+struct LcWidgetCheckComponent : public IVisualComponent
 {
     LcCheckHandler handler;
     //
