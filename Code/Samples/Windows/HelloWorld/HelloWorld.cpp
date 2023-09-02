@@ -23,20 +23,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](IApplication* app)
         {
-            if (auto sprite1 = app->GetWorld()->AddSprite(150, 400, 200, 200))
+            if (auto sprite = app->GetWorld()->AddSprite(250, 400, 200, 200))
             {
-                sprite1->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
-            }
-
-            if (auto sprite2 = app->GetWorld()->AddSprite(150, 150, 200, 200))
-            {
-                sprite2->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
-            }
-
-            if (auto sprite3 = app->GetWorld()->AddSprite(450, 178, 256, 256))
-            {
-                sprite3->AddTextureComponent("tree.png", LcDefaults::ZeroVec2);
-                sprite3->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+                sprite->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
             }
         };
 
@@ -47,6 +36,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             auto sprite = app->GetWorld()->GetSprites()[0];
 
+            // move sprite
             if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
             if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
 
@@ -61,7 +51,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q') app->RequestQuit();
         };
 
-        auto cfg = LoadConfig();
+        auto cfg = LoadConfig("../../Assets/config.txt");
         int winWidth = cfg["appWinWidth"].iValue;
         int winHeight = cfg["appWinHeight"].iValue;
 

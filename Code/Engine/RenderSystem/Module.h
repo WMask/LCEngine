@@ -16,4 +16,5 @@
 #endif
 
 
-typedef std::unique_ptr<class IRenderSystem> TRenderSystemPtr;
+typedef std::shared_ptr<class IRenderSystem> TRenderSystemPtr;
+typedef std::weak_ptr<class IRenderSystem> TWeakRenderSystem;

@@ -12,32 +12,19 @@ LcVector2 LcDefaults::OneVec2 = LcVector2(1.0f, 1.0f);
 LcVector2 LcDefaults::ZeroVec2 = LcVector2(0.0f, 0.0f);
 LcVector3 LcDefaults::OneVec3 = LcVector3(1.0f, 1.0f, 1.0f);
 LcVector3 LcDefaults::ZeroVec3 = LcVector3(0.0f, 0.0f, 0.0f);
+LcVector4 LcDefaults::OneVec4 = LcVector4(1.0f, 1.0f, 1.0f, 1.0f);
+LcVector4 LcDefaults::ZeroVec4 = LcVector4(0.0f, 0.0f, 0.0f, 0.0f);
 LcColor4 LcDefaults::White4 = LcColor4(1.0f, 1.0f, 1.0f, 1.0f);
 LcColor3 LcDefaults::White3 = LcColor3(1.0f, 1.0f, 1.0f);
+LcColor4 LcDefaults::Black4 = LcColor4(0.0f, 0.0f, 0.0f, 1.0f);
+LcColor3 LcDefaults::Black3 = LcColor3(0.0f, 0.0f, 0.0f);
+LcSizef LcDefaults::ZeroSize = LcSizef(0.0f, 0.0f);
 
 #ifdef _WINDOWS
-LcVector4 LcDefaults::OneVec4 = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-LcVector4 LcDefaults::ZeroVec4 = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+DirectX::XMVECTOR LcDefaults::OneXVec4 = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+DirectX::XMVECTOR LcDefaults::ZeroXVec4 = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 #endif
 
-
-LcVector4 ToV(const LcColor4& v)
-{
-#ifdef _WINDOWS
-	return DirectX::XMVectorSet(v.x, v.y, v.z, v.w);
-#else
-	return LcColor4{};
-#endif
-}
-
-LcColor4 ToC(const LcVector4& v)
-{
-#ifdef _WINDOWS
-	return LcColor4{ DirectX::XMVectorGetX(v), DirectX::XMVectorGetY(v), DirectX::XMVectorGetZ(v), DirectX::XMVectorGetW(v) };
-#else
-	return LcColor4{};
-#endif
-}
 
 LcRectf ToF(const LcRect& rect)
 {
@@ -83,10 +70,11 @@ LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane)
 LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to)
 {
 #ifdef _WINDOWS
-	return DirectX::XMMatrixLookAtLH(
+	auto matrix = DirectX::XMMatrixLookAtLH(
 		DirectX::XMVectorSet(from.x, from.y, from.z, 0.0f),
 		DirectX::XMVectorSet(to.x, to.y, to.z, 0.0f),
 		DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	return TransposeMatrix(matrix);
 #else
 	return LcMatrix4{};
 #endif
@@ -105,9 +93,9 @@ LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
 {
 #ifdef _WINDOWS
 	auto matrix = DirectX::XMMatrixTransformation(
-		LcDefaults::ZeroVec4, LcDefaults::ZeroVec4,
+		LcDefaults::ZeroXVec4, LcDefaults::ZeroXVec4,
 		DirectX::XMVectorSet(scale.x, scale.y, 0.0f, 1.0f),
-		LcDefaults::ZeroVec4,
+		LcDefaults::ZeroXVec4,
 		DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), rotZ),
 		DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f));
 	return TransposeMatrix(matrix);

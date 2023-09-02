@@ -9,7 +9,6 @@
 #include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
-#include <wincodec.h>
 #include <set>
 
 
@@ -18,7 +17,7 @@ LcTextureLoaderDX10::~LcTextureLoaderDX10()
     ClearCache(nullptr);
 }
 
-bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView** view)
+bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
 {
     if (!device) return false;
     if (!texture && !view) return false;
@@ -27,6 +26,7 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     auto entry = texturesCache.find(texPath);
     if (entry != texturesCache.end())
     {
+        if (outTexSize) *outTexSize = entry->second.texSize;
         if (texture) *texture = entry->second.texture.Get();
         if (view) *view = entry->second.view.Get();
         return true;
@@ -37,7 +37,6 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     if (texData.empty()) return false;
 
     // create factory
-    ComPtr<IWICImagingFactory2> factory;
     HRESULT result = CoCreateInstance(
         CLSID_WICImagingFactory2, nullptr,
         CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2),
@@ -130,15 +129,18 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device* device,
     {
         LcTextureDataDX10 newTexData;
         newTexData.texture = *texture;
+        newTexData.texSize = LcSize(width, height);
+
+        if (outTexSize) *outTexSize = newTexData.texSize;
 
         if (view)
         {
-            D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc{};
+            D3D10_SHADER_RESOURCE_VIEW_DESC1 SRVDesc{};
             SRVDesc.Format = desc.Format;
             SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
             SRVDesc.Texture2D.MipLevels = 1u;
 
-            result = device->CreateShaderResourceView(*texture, &SRVDesc, view);
+            result = device->CreateShaderResourceView1(*texture, &SRVDesc, view);
             if (FAILED(result)) return false;
             newTexData.view = *view;
         }
@@ -158,10 +160,9 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
         auto& allSprites = world->GetSprites();
         for (auto sprite : allSprites)
         {
-            auto texComp = sprite->GetComponent(EVCType::Texture);
-            if (auto tex = (LcSpriteTextureComponent*)texComp.get())
+            if (auto texComp = sprite->GetTextureComponent())
             {
-                aliveTexList.insert(tex->texture);
+                aliveTexList.insert(texComp->texture);
             }
         }
 

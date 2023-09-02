@@ -39,10 +39,10 @@
     <ClInclude Include="..\..\..\Code\Engine\World\WorldInterface.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\World\Widgets.h">
+    <ClInclude Include="..\..\..\Code\Engine\World\Visual.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\World\Visual.h">
+    <ClInclude Include="..\..\..\Code\Engine\World\Camera.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
   </ItemGroup>
@@ -57,6 +57,9 @@
       <Filter>Source Files\World</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\World\Sprites.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\World\Visual.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
   </ItemGroup>

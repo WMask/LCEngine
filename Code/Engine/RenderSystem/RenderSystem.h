@@ -6,9 +6,10 @@
 
 #pragma once
 
-#include "Core/LcTypes.h"
-#include "World/Module.h"
 #include "Module.h"
+#include "GUI/Module.h"
+#include "World/Visual.h"
+#include "Core/LcTypesEx.h"
 
 #include <map>
 #include <string>
@@ -43,11 +44,17 @@ public:
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
+	* Update camera */
+	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
+	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;
 
 };
 
+
+/** Widget render mode */
+enum EWRMode { Textures, Text };
 
 /**
 * Render system interface */
@@ -55,21 +62,26 @@ class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
 {
 public:
 	typedef std::map<std::string, std::string> SHADERS_MAP;
+	//
+	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3) {}
 
 
-public:
+public:// IRenderSystem interface implementation
 	/**
 	* Load shaders */
-	virtual void LoadShaders(const char* folderPath);
+	virtual void LoadShaders(const char* folderPath) override;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed);
+	virtual void Create(TWeakWorld world, void* windowHandle, bool windowed) override { worldPtr = world; }
 	/**
 	* Shutdown render system */
-	virtual void Shutdown();
+	virtual void Shutdown() override {}
+	/**
+	* Update world */
+	virtual void Update(float deltaSeconds) override;
 	/**
 	* Render world */
-	virtual void Render();
+	virtual void Render() override;
 
 
 protected:
@@ -79,11 +91,45 @@ protected:
 	/**
 	* Render widget */
 	virtual void RenderWidget(const class IWidget* widget) = 0;
+	/**
+	* Pre render widgets */
+	virtual void PreRenderWidgets(EWRMode mode) = 0;
+	/**
+	* Post render widgets */
+	virtual void PostRenderWidgets(EWRMode mode) = 0;
 
 
 protected:
-	TWeakWorld world;
+	TWeakWorld worldPtr;
 	//
 	SHADERS_MAP shaders;
+	//
+	LcVector3 cameraPos;
+	//
+	LcVector3 cameraTarget;
+
+};
+
+
+/**
+* 2D Visual renderer interface */
+class IVisual2DRender
+{
+public:
+	/**
+	* Setup render state */
+	virtual void Setup() = 0;
+	/**
+	* Add font */
+	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
+	/**
+	* Render sprite */
+	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const class IWidget* widget) = 0;
+	/**
+	* Checks support for the feature */
+	virtual bool Supports(const TVFeaturesList& features) const = 0;
 
 };

@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\SpriteRender.h">
       <Filter>Header Files\RenderSystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\WidgetRender.h">
+      <Filter>Header Files\RenderSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "WorldInterface.h"
+#include "Camera.h"
 
 #pragma warning(disable : 4251)
 
@@ -26,6 +27,9 @@ public: // IWorld interface implementation
 	* Set sprite factory */
 	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
 	/**
+	* Set widget factory */
+	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
+	/**
 	* Add sprite */
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
 	/**
@@ -41,17 +45,26 @@ public: // IWorld interface implementation
 	* Get sprites */
 	virtual SPRITE_LIST& GetSprites() override { return sprites; }
 	/**
-	* Set widget factory */
-	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
-	/**
 	* Add widget */
 	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
+	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) override;
+	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) override;
 	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) override;
 	/**
 	* Get widgets */
 	virtual WIDGET_LIST& GetWidgets() override { return widgets; }
+	/**
+	* Get camera */
+	virtual const LcCamera& GetCamera() const override { return camera; }
+	/**
+	* Get camera */
+	virtual LcCamera& GetCamera() override { return camera; }
 
 
 protected:
@@ -70,5 +83,7 @@ protected:
 	TSpriteFactoryPtr spriteFactory;
 	//
 	TWidgetFactoryPtr widgetFactory;
+	//
+	LcCamera camera;
 
 };

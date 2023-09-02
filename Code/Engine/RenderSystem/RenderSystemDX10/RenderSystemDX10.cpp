@@ -6,12 +6,14 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "RenderSystem/RenderSystemDX10/TexturedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
-#include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
+#include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "Application/Application.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
+#include "World/Camera.h"
+#include "GUI/GuiManager.h"
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -31,32 +33,56 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 {
 	LcSprite::AddComponent(comp);
 
-	auto texComp = (LcSpriteTextureComponent*)comp.get();
-	if (comp->GetType() == EVCType::Texture)
+	if (auto texComp = GetTextureComponent())
 	{
+		LcSize texSize;
 		bool loaded = render.GetTextureLoader()->LoadTexture(
-			texComp->texture.c_str(), render.GetD3D10Device(), &texture, &shaderView);
-		if (!loaded) throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
+			texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+		if (loaded)
+			texComp->texSize = ToF(texSize);
+		else
+			throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
 	}
 }
 
-LcSpriteDX10::~LcSpriteDX10()
+class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
 {
-	shaderView = nullptr;
-	texture = nullptr;
+public:
+	LcWidgetFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	//
+	virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override
+	{
+		return std::make_shared<LcWidgetDX10>(data, render);
+	}
+	//
+	LcRenderSystemDX10& render;
+};
+
+void LcWidgetDX10::AddComponent(TVComponentPtr comp)
+{
+	LcWidget::AddComponent(comp);
+
+	if (auto texComp = GetTextureComponent())
+	{
+		LcSize texSize;
+		bool loaded = render.GetTextureLoader()->LoadTexture(
+			texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+		if (loaded)
+			texComp->texSize = ToF(texSize);
+		else
+			throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
+	}
+
+	if (auto textComp = GetTextComponent())
+	{
+		font = render.GetWidgetRender()->AddFont(textComp->fontName, textComp->fontSize, textComp->fontWeight);
+		if (!font)
+			throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
+	}
 }
 
 LcRenderSystemDX10::LcRenderSystemDX10()
 {
-	d3dDevice = nullptr;
-	swapChain = nullptr;
-	renderTargetView = nullptr;
-	projMatrixBuffer = nullptr;
-	transMatrixBuffer = nullptr;
-	colorsBuffer = nullptr;
-	blendState = nullptr;
-	rasterizerState = nullptr;
-	initialOffset = LcVector2();
 }
 
 LcRenderSystemDX10::~LcRenderSystemDX10()
@@ -66,11 +92,11 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 
 void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
 {
+	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
-	GetClientRect((HWND)windowHandle, &clientRect);
+	GetClientRect(hWnd, &clientRect);
 
 	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
-	initialOffset = LcVector2(width / -2.0f, height / -2.0f);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
@@ -80,14 +106,14 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.OutputWindow = (HWND)windowHandle;
+	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = true;
 
 	// create the D3D device
-	if (FAILED(D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0,
-		D3D10_SDK_VERSION, &swapChainDesc, &swapChain, &d3dDevice)))
+	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
+		D3D10_DRIVER_TYPE_HARDWARE, NULL, D3D10_CREATE_DEVICE_BGRA_SUPPORT,
+		D3D10_FEATURE_LEVEL_10_0, D3D10_1_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), d3dDevice.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create D3D device");
 	}
@@ -100,13 +126,13 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	}
 
 	// create render target
-	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, &renderTargetView)))
+	if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, renderTargetView.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
 	}
 
 	backBuffer.Reset();
-	d3dDevice->OMSetRenderTargets(1, &renderTargetView, NULL);
+	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
 
 	// set the viewport
 	D3D10_VIEWPORT viewPort;
@@ -124,8 +150,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	{
 		LcMatrix4 mat;
 	};
-	VS_MATRIX_BUFFER projData;
-	VS_MATRIX_BUFFER transData;
+	VS_MATRIX_BUFFER matData;
 
 	struct VS_COLORS_BUFFER
 	{
@@ -133,28 +158,43 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	};
 	VS_COLORS_BUFFER colorsData;
 
-	D3D10_BUFFER_DESC cbDesc;
+	struct VS_CUSTOM_UV_BUFFER
+	{
+		LcVector4 uv[4];
+	};
+	VS_CUSTOM_UV_BUFFER uvData;
+
+	struct VS_FRAME_ANIM2D_BUFFER
+	{
+		LcVector4 animData;
+	};
+	VS_FRAME_ANIM2D_BUFFER anim2dData;
+
+	D3D10_BUFFER_DESC cbDesc{};
 	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
 	cbDesc.Usage = D3D10_USAGE_DEFAULT;
 	cbDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = 0;
-	cbDesc.MiscFlags = 0;
 
-	D3D10_SUBRESOURCE_DATA subResData;
-	subResData.pSysMem = &projData;
-	subResData.SysMemPitch = 0;
-	subResData.SysMemSlicePitch = 0;
+	D3D10_SUBRESOURCE_DATA subResData{};
+	subResData.pSysMem = &matData;
 
 	// create constant buffers
-	projData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &projMatrixBuffer)))
+	matData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, projMatrixBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
-	subResData.pSysMem = &transData;
-	transData.mat = IdentityMatrix();
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &transMatrixBuffer)))
+	matData.mat = IdentityMatrix();
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, transMatrixBuffer.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
+	cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
+	cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+	matData.mat = LookAtMatrix(cameraPos, cameraTarget);
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, viewMatrixBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
@@ -164,15 +204,36 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	colorsData.colors[1] = LcDefaults::White4;
 	colorsData.colors[2] = LcDefaults::White4;
 	colorsData.colors[3] = LcDefaults::White4;
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, &colorsBuffer)))
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, colorsBuffer.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
+	subResData.pSysMem = &uvData;
+	uvData.uv[1] = To4(LcVector2(1.0, 0.0));
+	uvData.uv[2] = To4(LcVector2(1.0, 1.0));
+	uvData.uv[0] = To4(LcVector2(0.0, 0.0));
+	uvData.uv[3] = To4(LcVector2(0.0, 1.0));
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, customUvBuffer.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
+	cbDesc.ByteWidth = sizeof(VS_FRAME_ANIM2D_BUFFER);
+	subResData.pSysMem = &anim2dData;
+	anim2dData.animData = LcVector4(1.0, 1.0, 0.0, 0.0);
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, frameAnimBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
 	// set buffers
-	d3dDevice->VSSetConstantBuffers(0, 1, &projMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(1, 1, &transMatrixBuffer);
-	d3dDevice->VSSetConstantBuffers(2, 1, &colorsBuffer);
+	d3dDevice->VSSetConstantBuffers(0, 1, projMatrixBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(1, 1, viewMatrixBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(2, 1, transMatrixBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(3, 1, colorsBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(4, 1, customUvBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(5, 1, frameAnimBuffer.GetAddressOf());
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -188,7 +249,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 
 	d3dDevice->CreateBlendState(&blendStateDesc, &blendState);
 	float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	d3dDevice->OMSetBlendState(blendState, blendFactor, 0xffffffff);
+	d3dDevice->OMSetBlendState(blendState.Get(), blendFactor, 0xffffffff);
 
 	// set up rasterizer
 	D3D10_RASTERIZER_DESC rasterizerDesc;
@@ -208,44 +269,63 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 		throw std::exception("LcRenderSystemDX10(): Cannot create rasterizer state");
 	}
 
-	d3dDevice->RSSetState(rasterizerState);
+	d3dDevice->RSSetState(rasterizerState.Get());
 
 	// add sprite renders
-	spriteRenders.push_back(std::make_shared<LcTexturedSpriteRenderDX10>(*this));
-	spriteRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
-	spriteRenders.back()->Setup();
+	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
+	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
+	visual2DRenders.back()->Setup();
+
+	// add widget render
+	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(*this, hWnd));
+	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
+	widgetRender->Setup();
+
+	// init managers
+	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
 
 	// add sprite factory
 	if (auto world = worldPtr.lock())
 	{
+		world->GetCamera().Set(cameraPos, cameraTarget);
 		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
+		world->SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
 	}
 
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
-
-	// init texture loader
-	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
 
+	widgetRender = nullptr;
 	texLoader.reset();
 
-	if (rasterizerState) { rasterizerState->Release(); rasterizerState = nullptr; }
-	if (blendState) { blendState->Release(); blendState = nullptr; }
-	if (colorsBuffer) { colorsBuffer->Release(); colorsBuffer = nullptr; }
-	if (transMatrixBuffer) { transMatrixBuffer->Release(); transMatrixBuffer = nullptr; }
-	if (projMatrixBuffer) { projMatrixBuffer->Release(); projMatrixBuffer = nullptr; }
-	if (renderTargetView) { renderTargetView->Release(); renderTargetView = nullptr; }
-	if (swapChain) { swapChain->Release(); swapChain = nullptr; }
-	if (d3dDevice) { d3dDevice->Release(); d3dDevice = nullptr; }
+	rasterizerState.Reset();
+	blendState.Reset();
+	frameAnimBuffer.Reset();
+	customUvBuffer.Reset();
+	colorsBuffer.Reset();
+	transMatrixBuffer.Reset();
+	projMatrixBuffer.Reset();
+	viewMatrixBuffer.Reset();
+	renderTargetView.Reset();
+	swapChain.Reset();
+	d3dDevice.Reset();
 }
 
 void LcRenderSystemDX10::Update(float deltaSeconds)
 {
+	LcRenderSystemBase::Update(deltaSeconds);
+}
+
+void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
+{
+	auto viewMatrix = LookAtMatrix(newPos, newTarget);
+	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
 void LcRenderSystemDX10::Render()
@@ -256,7 +336,7 @@ void LcRenderSystemDX10::Render()
 	}
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
-	d3dDevice->ClearRenderTargetView(renderTargetView, (FLOAT*)&color);
+	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
 
 	LcRenderSystemBase::Render();
 
@@ -267,7 +347,7 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 {
 	if (!sprite) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
 
-	for (auto& render : spriteRenders)
+	for (auto& render : visual2DRenders)
 	{
 		if (render->Supports(sprite->GetFeaturesList()))
 		{
@@ -277,7 +357,7 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 				render->Setup();
 			}
 
-			render->Render(sprite);
+			render->RenderSprite(sprite);
 			break;
 		}
 	}
@@ -285,7 +365,39 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 
 void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
 {
-	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid sprite");
+
+	if (widgetRender)
+	{
+		widgetRender->RenderWidget(widget);
+	}
+}
+
+void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
+{
+	if (widgetRender)
+	{
+		widgetRender->SetRenderMode(mode);
+
+		switch (mode)
+		{
+		case Textures:
+			if (auto textureRender = widgetRender->GetTextureRender())
+			{
+				textureRender->Setup();
+				prevSpriteFeatures = widgetRender->GetFeaturesList();
+			}
+			break;
+		case Text:
+			widgetRender->BeginRender();
+			break;
+		}
+	}
+}
+
+void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode)
+{
+	if (widgetRender) widgetRender->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

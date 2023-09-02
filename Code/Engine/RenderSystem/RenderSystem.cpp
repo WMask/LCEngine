@@ -6,9 +6,12 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
+#include "RenderSystem/WidgetRender.h"
+#include "GUI/GuiManager.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
-#include "World/Widgets.h"
+#include "World/Camera.h"
+#include "GUI/Widgets.h"
 #include "Core/LCUtils.h"
 
 
@@ -30,30 +33,57 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     }
 }
 
-void LcRenderSystemBase::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
+void LcRenderSystemBase::Update(float deltaSeconds)
 {
-    world = worldPtr;
-}
+    if (auto world = worldPtr.lock())
+    {
+        const auto& sprites = world->GetSprites();
 
-void LcRenderSystemBase::Shutdown()
-{
+        for (const auto& sprite : sprites)
+        {
+            if (sprite->IsVisible()) sprite->Update(deltaSeconds);
+        }
+
+        auto newPos = world->GetCamera().GetPosition();
+        auto newTarget = world->GetCamera().GetTarget();
+        if (newPos != cameraPos || newTarget != cameraTarget)
+        {
+            UpdateCamera(deltaSeconds, newPos, newTarget);
+
+            cameraPos = newPos;
+            cameraTarget = newTarget;
+        }
+    }
 }
 
 void LcRenderSystemBase::Render()
 {
-    if (auto weakWorld = world.lock())
+    if (auto world = worldPtr.lock())
     {
-        const auto& sprites = weakWorld->GetSprites();
-        const auto& widgets = weakWorld->GetWidgets();
+        const auto& sprites = world->GetSprites();
+        const auto& widgets = world->GetWidgets();
 
         for (const auto& sprite : sprites)
         {
             if (sprite->IsVisible()) RenderSprite(sprite.get());
         }
 
+        PreRenderWidgets(EWRMode::Textures);
+
         for (const auto& widget : widgets)
         {
             if (widget->IsVisible()) RenderWidget(widget.get());
         }
+
+        PostRenderWidgets(EWRMode::Textures);
+
+        PreRenderWidgets(EWRMode::Text);
+
+        for (const auto& widget : widgets)
+        {
+            if (widget->IsVisible()) RenderWidget(widget.get());
+        }
+
+        PostRenderWidgets(EWRMode::Text);
     }
 }

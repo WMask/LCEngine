@@ -104,20 +104,16 @@ void LcColoredSpriteRenderDX10::Setup()
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
+void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
-	auto colorsComponent = sprite->GetComponent(EVCType::VertexColor);
-	const LcSpriteColorsComponent* colors = (LcSpriteColorsComponent*)colorsComponent.get();
-
-	auto tintComponent = sprite->GetComponent(EVCType::Tint);
-	const LcSpriteTintComponent* tint = (LcSpriteTintComponent*)tintComponent.get();
-
+	auto colors = sprite->GetColorsComponent();
+	auto tint = sprite->GetTintComponent();
 	if (colors || tint)
 	{
 		auto colorsData = colors ? colors->GetData() : tint->GetData();
@@ -130,10 +126,7 @@ void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
 	}
 
 	// update transform
-	LcVector2 offset = renderDevice.GetOffset();
-	LcVector3 pos(sprite->GetPos().x + offset.x, sprite->GetPos().y + offset.y, sprite->GetPos().z);
-	LcMatrix4 trans = TransformMatrix(pos, sprite->GetSize(), sprite->GetRotZ());
-
+	LcMatrix4 trans = TransformMatrix(sprite->GetPos(), sprite->GetSize(), sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 	// render sprite

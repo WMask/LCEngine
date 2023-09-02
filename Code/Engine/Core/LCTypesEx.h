@@ -23,34 +23,44 @@ typedef DirectX::XMFLOAT2	LcVector2;
 typedef DirectX::XMFLOAT3	LcVector3;
 typedef DirectX::XMFLOAT3	LcColor3;
 typedef DirectX::XMFLOAT4	LcColor4;
-typedef DirectX::XMVECTOR	LcVector4;
+typedef DirectX::XMFLOAT4	LcVector4;
 typedef DirectX::XMMATRIX	LcMatrix4;
 typedef RECT				LcRect;
 typedef D2D_RECT_F			LcRectf;
 
-inline LcVector2 operator+(const LcVector2& a, const LcVector2& b)
+namespace LcDefaults
 {
-	return LcVector2{ a.x + b.x, a.y + b.y };
-}
-
-inline LcVector3 operator+(const LcVector3& a, const LcVector3& b)
-{
-	return LcVector3{ a.x + b.x, a.y + b.y, a.z + b.z };
-}
-
-inline LcVector4 operator+(const LcVector4& a, const LcVector4& b)
-{
-#ifdef _WINDOWS
-	return DirectX::XMVectorAdd(a, b);
-#else
-	return LcVector4{};
-#endif
+	extern CORE_API DirectX::XMVECTOR OneXVec4;
+	extern CORE_API DirectX::XMVECTOR ZeroXVec4;
 }
 
 #endif
 
+inline LcVector2 operator+(const LcVector2& a, const LcVector2& b) { return LcVector2{ a.x + b.x, a.y + b.y }; }
+inline LcVector3 operator+(const LcVector3& a, const LcVector3& b) { return LcVector3{ a.x + b.x, a.y + b.y, a.z + b.z }; }
+inline LcVector4 operator+(const LcVector4& a, const LcVector4& b) { return LcVector4{ a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; }
 
-/** Defaults */
+inline LcVector2 operator-(const LcVector2& a, const LcVector2& b) { return LcVector2{ a.x - b.x, a.y - b.y }; }
+inline LcVector3 operator-(const LcVector3& a, const LcVector3& b) { return LcVector3{ a.x - b.x, a.y - b.y, a.z - b.z }; }
+inline LcVector4 operator-(const LcVector4& a, const LcVector4& b) { return LcVector4{ a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
+
+inline LcVector2 operator/(const LcVector2& a, float f) { return LcVector2{ a.x / f, a.y / f }; }
+inline LcVector3 operator/(const LcVector3& a, float f) { return LcVector3{ a.x / f, a.y / f, a.z / f }; }
+inline LcVector4 operator/(const LcVector4& a, float f) { return LcVector4{ a.x / f, a.y / f, a.z / f, a.w / f }; }
+
+inline LcVector2 operator*(const LcVector2& a, float f) { return LcVector2{ a.x * f, a.y * f }; }
+inline LcVector3 operator*(const LcVector3& a, float f) { return LcVector3{ a.x * f, a.y * f, a.z * f }; }
+inline LcVector4 operator*(const LcVector4& a, float f) { return LcVector4{ a.x * f, a.y * f, a.z * f, a.w * f }; }
+
+inline bool operator==(const LcVector2& a, const LcVector2& b) { return a.x == b.x && a.y == b.y; }
+inline bool operator==(const LcVector3& a, const LcVector3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
+inline bool operator==(const LcVector4& a, const LcVector4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
+
+inline bool operator!=(const LcVector2& a, const LcVector2& b) { return a.x != b.x || a.y != b.y; }
+inline bool operator!=(const LcVector3& a, const LcVector3& b) { return a.x != b.x || a.y != b.y || a.z != b.z; }
+inline bool operator!=(const LcVector4& a, const LcVector4& b) { return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w; }
+
+
 namespace LcDefaults
 {
 	extern CORE_API LcVector2 OneVec2;
@@ -61,6 +71,9 @@ namespace LcDefaults
 	extern CORE_API LcVector4 ZeroVec4;
 	extern CORE_API LcColor4 White4;
 	extern CORE_API LcColor3 White3;
+	extern CORE_API LcColor4 Black4;
+	extern CORE_API LcColor3 Black3;
+	extern CORE_API LcSizef ZeroSize;
 };
 
 
@@ -69,9 +82,8 @@ inline      LcSizef		ToF(const LcSize& size) { return LcSizef((float)size.x, (fl
 inline      LcSize		ToI(const LcSizef& size) { return LcSize((int)size.x, (int)size.y); }
 inline      LcVector2	To2(const LcVector3& v) { return LcVector2(v.x, v.y); }
 inline      LcVector3	To3(const LcVector2& v) { return LcVector3(v.x, v.y, 0.0f); }
-inline	    LcColor4	ToC(const LcColor3& v) { return LcColor4{ v.x, v.y, v.z, 1.0f }; }
-CORE_API    LcColor4	ToC(const LcVector4& v);
-CORE_API    LcVector4	ToV(const LcColor4& v);
+inline	    LcColor4	To4(const LcColor3& v) { return LcColor4{ v.x, v.y, v.z, 1.0f }; }
+inline	    LcVector4	To4(const LcVector2& v) { return LcVector4{ v.x, v.y, 0.0f, 0.0f }; }
 CORE_API    LcRectf		ToF(const LcRect& rect);
 CORE_API    LcRectf		ToF(const LcVector2& leftTop, const LcVector2& rightBottom);
 CORE_API	LcRect		ToI(const LcRectf& rect);

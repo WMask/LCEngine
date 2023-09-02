@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;World.lib;RenderSystem.lib;D3D10.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;World.lib;RenderSystem.lib;GUI.lib;d3d10_1.lib;d2d1.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,19 +144,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h" />
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedSpriteRenderDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedVisual2DRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\UtilsDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\WidgetRenderDX10.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedSpriteRenderDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedVisual2DRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\UtilsDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\WidgetRenderDX10.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Module.h"
+#include "Core/LcTypesEx.h"
 
 #include <deque>
 #include <memory>
@@ -48,8 +49,11 @@ public:
 	* Set sprite factory */
 	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) = 0;
 	/**
+	* Set widget factory */
+	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) = 0;
+	/**
 	* Add sprite */
-	virtual ISprite* AddSprite(const LcSpriteData& sprite) = 0;
+	virtual ISprite* AddSprite(const struct LcSpriteData& sprite) = 0;
 	/**
 	* Add sprite */
 	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
@@ -63,16 +67,25 @@ public:
 	* Get sprites */
 	virtual SPRITE_LIST& GetSprites() = 0;
 	/**
-	* Set widget factory */
-	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) = 0;
+	* Add widget */
+	virtual IWidget* AddWidget(const struct LcWidgetData& widget) = 0;
 	/**
 	* Add widget */
-	virtual IWidget* AddWidget(const LcWidgetData& widget) = 0;
+	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) = 0;
+	/**
+	* Add widget */
+	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;
 	/**
 	* Remove widget */
 	virtual void RemoveWidget(IWidget* widget) = 0;
 	/**
 	* Get widgets */
 	virtual WIDGET_LIST& GetWidgets() = 0;
+	/**
+	* Get camera */
+	virtual const class LcCamera& GetCamera() const = 0;
+	/**
+	* Get camera */
+	virtual class LcCamera& GetCamera() = 0;
 
 };

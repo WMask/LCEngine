@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/RenderSystem.h"
+#include "RenderSystem/WidgetRender.h"
 #include "GUI/GuiManager.h"
 
 
@@ -116,9 +117,15 @@ void LcWindowsApplication::Run()
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
+
         renderSystem->Create(world, hWnd, true);
     }
-    if (guiManager) guiManager->Init(world, hWnd);
+
+    if (guiManager)
+    {
+        guiManager->Init(world);
+        guiManager->UpdateScreenSize(ToF(windowSize));
+    }
 
     if (initHandler) initHandler(this);
 
@@ -161,7 +168,6 @@ void LcWindowsApplication::OnUpdate()
         if (guiManager)
         {
             guiManager->Update(deltaSeconds);
-            guiManager->Render();
         }
 
         if (updateHandler)
@@ -210,6 +216,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYUP:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up, handles->app);
         if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up);
+        break;
+    case WM_MOUSEMOVE:
+        if (handles && handles->guiManager) handles->guiManager->OnMouseMove(x, y);
         break;
     case WM_LBUTTONDOWN:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->app);

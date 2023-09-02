@@ -8,7 +8,8 @@
 
 #include "Module.h"
 #include "World/Module.h"
-#include "Core/LCTypes.h"
+#include "RenderSystem/RenderSystem.h"
+#include "Core/LCTypesEx.h"
 
 
 /**
@@ -21,16 +22,16 @@ public:
 	virtual ~IGuiManager() {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, void* window) = 0;
+	virtual void Init(TWeakWorld world) = 0;
+	/**
+	* Shutdown GUI manager */
+	virtual void Shutdown() = 0;
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) = 0;
 	/**
-	* Render GUI */
-	virtual void Render() = 0;
-	/**
-	* Shutdown GUI manager */
-	virtual void Shutdown() = 0;
+	* Update screen size */
+	virtual void UpdateScreenSize(LcSizef newSize) = 0;
 	/**
 	* Keyboard key event */
 	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
@@ -51,34 +52,33 @@ class LcGuiManagerBase : public IGuiManager
 public:
 	/**
 	* Constructor */
-	LcGuiManagerBase() {}
+	LcGuiManagerBase() : screenSize(LcDefaults::ZeroSize) {}
 	/**
 	* Init GUI manager */
-	virtual void Init(TWeakWorld world, void* window);
+	virtual void Init(TWeakWorld world) override;
+	/**
+	* Shutdown GUI manager */
+	virtual void Shutdown() override {}
 	/**
 	* Update GUI */
-	virtual void Update(float DeltaSeconds);
+	virtual void Update(float DeltaSeconds) override;
+	/**
+	* Update screen size */
+	virtual void UpdateScreenSize(LcSizef newSize) override { screenSize = newSize; }
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state);
+	virtual void OnKeyboard(int btn, LcKeyState state) override;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y);
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y);
-
-
-protected:
-	/**
-	* Render GUI */
-	virtual void PreRender();
-	/**
-	* Render GUI */
-	virtual void PostRender();
+	virtual void OnMouseMove(int x, int y) override;
 
 
 protected:
 	TWeakWorld worldPtr;
+	//
+	LcSizef screenSize;
 
 };

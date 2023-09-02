@@ -7,12 +7,7 @@
 #pragma once
 
 #include "Module.h"
-#include "Visual.h"
-
-#include <deque>
-
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#include "World/Visual.h"
 
 
 /**
@@ -24,7 +19,7 @@ struct LcSpriteData
 	float rotZ;
 	bool visible;
 	//
-	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(), rotZ(0.0f), visible(true) {}
+	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(LcDefaults::ZeroSize), rotZ(0.0f), visible(true) {}
 	//
 	LcSpriteData(LcVector3 inPos, LcSizef inSize, float inRotZ = 0.0f, bool inVisible = true)
 		: pos(inPos), size(inSize), rotZ(inRotZ), visible(inVisible)
@@ -43,18 +38,20 @@ struct LcSpriteTintComponent : public IVisualComponent
 	//
 	LcSpriteTintComponent(const LcSpriteTintComponent& colors) : tint(colors.tint)
 	{
-		data[0] = data[1] = data[2] = data[3] = tint;
+		SetColor(tint);
 	}
 	//
 	LcSpriteTintComponent(LcColor4 inTint) : tint(inTint)
 	{
-		data[0] = data[1] = data[2] = data[3] = tint;
+		SetColor(tint);
 	}
 	//
 	LcSpriteTintComponent(LcColor3 inTint) : tint(inTint.x, inTint.y, inTint.z, 1.0f)
 	{
-		data[0] = data[1] = data[2] = data[3] = tint;
+		SetColor(tint);
 	}
+	//
+	void SetColor(LcColor4 inTint) { data[0] = data[1] = data[2] = data[3] = inTint; }
 	//
 	const void* GetData() const { return data; }
 	// IVisualComponent interface implementation
@@ -85,7 +82,7 @@ struct LcSpriteColorsComponent : public IVisualComponent
 	}
 	//
 	LcSpriteColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) :
-		leftTop(ToC(inLeftTop)), rightTop(ToC(inRightTop)), rightBottom(ToC(inRightBottom)), leftBottom(ToC(inLeftBottom))
+		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
 	{
 	}
 	const void* GetData() const { return &leftTop; }
@@ -96,42 +93,72 @@ struct LcSpriteColorsComponent : public IVisualComponent
 
 
 /**
-* Sprite texture component */
-struct LcSpriteTextureComponent : public IVisualComponent
+* Sprite custom UV component */
+struct LcSpriteCustomUVComponent : public IVisualComponent
 {
-	std::string texture;// texture file path
-	LcBytes data;		// texture data
-	LcVector2 texPos;	// sprite frame offset
-	LcVector2 texSize;	// texture size in pixels
+	LcVector4 leftTop;
+	LcVector4 rightTop;
+	LcVector4 rightBottom;
+	LcVector4 leftBottom;
 	//
-	LcSpriteTextureComponent() : texPos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2) {}
+	LcSpriteCustomUVComponent() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
 	//
-	LcSpriteTextureComponent(const LcSpriteTextureComponent& texture) :
-		texture(texture.texture), data(texture.data), texPos(texture.texPos), texSize(texture.texSize) {}
-	//
-	LcSpriteTextureComponent(const std::string& inTexture, LcVector2 inTexPos) :
-		texture(inTexture), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	LcSpriteCustomUVComponent(const LcSpriteCustomUVComponent& colors) :
+		leftTop{ colors.leftTop }, rightTop{ colors.rightTop }, rightBottom{ colors.rightBottom }, leftBottom{ colors.leftBottom }
 	{
 	}
 	//
-	LcSpriteTextureComponent(const LcBytes& inData, LcVector2 inTexPos) :
-		data(inData), texPos(inTexPos), texSize(LcDefaults::ZeroVec2)
+	LcSpriteCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) :
+		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
 	{
 	}
+	const void* GetData() const { return &leftTop; }
 	// IVisualComponent interface implementation
-	virtual EVCType GetType() const override { return EVCType::Texture; }
+	virtual EVCType GetType() const override { return EVCType::CustomUV; }
+
+};
+
+
+/**
+* Sprite texture component */
+struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
+{
+	LcVector2 frameSize;		// sprite frame offset in pixels
+	unsigned short numFrames;	// frames count
+	unsigned short curFrame;	// current frame index
+	float framesPerSecond;		// frames per second
+	double lastFrameSeconds;	// last game time
+	//
+	LcSpriteAnimationComponent() :
+		frameSize(LcDefaults::ZeroVec2), numFrames(0), curFrame(0), framesPerSecond(0.0f), lastFrameSeconds(0.0f) {}
+	//
+	LcSpriteAnimationComponent(const LcSpriteAnimationComponent& anim) :
+		frameSize(anim.frameSize), numFrames(anim.numFrames), curFrame(anim.curFrame),
+		framesPerSecond(anim.framesPerSecond), lastFrameSeconds(anim.lastFrameSeconds) {}
+	//
+	LcSpriteAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) :
+		frameSize(inFrameSize), numFrames(inNumFrames), curFrame(0), framesPerSecond(inFramesPerSecond), lastFrameSeconds(0.0f)
+	{
+	}
+	// x - frame width, y - frame height, z - offsetX, w - offsetY
+	LcVector4 GetAnimData() const;
+
+
+public: // IVisualComponent interface implementation
+	virtual void Update(float deltaSeconds) override;
+	virtual EVCType GetType() const override { return EVCType::FrameAnimation; }
 
 };
 
 
 /**
 * Sprite interface */
-class ISprite : public IVisual
+class ISprite : public IVisualBase
 {
 public:
-	ISprite() {}
+	virtual ~ISprite() {}
 	//
-	~ISprite() {}
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
 	//
 	void AddTintComponent(LcColor4 tint)
 	{
@@ -153,15 +180,35 @@ public:
 		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
 	}
 	//
-	void AddTextureComponent(const std::string& inTexture, LcVector2 inTexPos)
+	void AddTextureComponent(const std::string& inTexture)
 	{
-		AddComponent(std::make_shared<LcSpriteTextureComponent>(inTexture, inTexPos));
+		AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
 	}
 	//
-	void AddTextureComponent(const LcBytes& inData, LcVector2 inTexPos)
+	void AddTextureComponent(const LcBytes& inData)
 	{
-		AddComponent(std::make_shared<LcSpriteTextureComponent>(inData, inTexPos));
+		AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
 	}
+	//
+	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
+	{
+		AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	}
+	//
+	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
+	{
+		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
+	}
+	//
+	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
+	//
+	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	//
+	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	//
+	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
+	//
+	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
 
 };
 
@@ -178,14 +225,14 @@ public:
 	LcSpriteData sprite;
 
 
-public: // IVisual interface implementation
-	virtual void AddComponent(TVComponentPtr comp) override;
-	//
-	virtual TVComponentPtr GetComponent(EVCType type) const override;
-	//
-	virtual bool HasComponent(EVCType type) const override;
-	//
+public:// ISprite interface implementation
 	virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
+
+
+public:// IVisual interface implementation
+	virtual void Update(float deltaSeconds);
+	//
+	virtual void AddComponent(TVComponentPtr comp) override;
 	//
 	virtual void SetSize(LcSizef inSize) override { sprite.size = inSize; }
 	//
@@ -209,12 +256,14 @@ public: // IVisual interface implementation
 	//
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) {}
 	//
-	virtual void OnMouseMove(int x, int y) {}
+	virtual void OnMouseMove(LcVector3 pos) override {}
+	//
+	virtual void OnMouseEnter() override {}
+	//
+	virtual void OnMouseLeave() override {}
 
 
 protected:
-	std::deque<TVComponentPtr> components;
-	//
 	TVFeaturesList features;
 
 };
