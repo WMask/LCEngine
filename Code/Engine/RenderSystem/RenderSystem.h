@@ -44,8 +44,14 @@ public:
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
+	* Request resize */
+	virtual void RequestResize(int width, int height) = 0;
+	/**
 	* Resize render system */
 	virtual void Resize(int width, int height) = 0;
+	/**
+	* Set window mode: fullscreen or windowed */
+	virtual void SetMode(bool fullscreen) = 0;
 	/**
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
@@ -70,24 +76,22 @@ public:
 
 
 public:// IRenderSystem interface implementation
-	/**
-	* Load shaders */
+	//
 	virtual void LoadShaders(const char* folderPath) override;
-	/**
-	* Create render system */
+	//
 	virtual void Create(TWeakWorld world, void* windowHandle, bool windowed) override { worldPtr = world; }
-	/**
-	* Shutdown render system */
+	//
 	virtual void Shutdown() override {}
-	/**
-	* Update world */
+	//
 	virtual void Update(float deltaSeconds) override;
-	/**
-	* Render world */
+	//
 	virtual void Render() override;
-	/**
-	* Resize render system */
+	//
+	virtual void RequestResize(int width, int height) override {}
+	//
 	virtual void Resize(int width, int height) override {}
+	//
+	virtual void SetMode(bool fullscreen) override {}
 
 
 protected:

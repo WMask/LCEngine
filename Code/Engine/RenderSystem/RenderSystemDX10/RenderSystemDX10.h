@@ -85,7 +85,11 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Render() override;
 	//
+	virtual void RequestResize(int width, int height) override;
+	//
 	virtual void Resize(int width, int height) override;
+	//
+	virtual void SetMode(bool fullscreen) override;
 	//
 	virtual bool CanRender() const override { return d3dDevice; }
 	//

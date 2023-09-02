@@ -65,7 +65,10 @@ public:
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(int width, int height) noexcept = 0;
+	virtual void SetWindowSize(int width, int height) = 0;
+	/**
+	* Set window mode: fullscreen or windowed */
+	virtual void SetWindowMode(bool fullscreen) = 0;
 	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept = 0;

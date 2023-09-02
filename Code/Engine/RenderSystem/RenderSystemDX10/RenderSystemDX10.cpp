@@ -99,14 +99,16 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	int width = clientRect.right - clientRect.left;
 	int height = clientRect.bottom - clientRect.top;
 
+	DXGI_MODE_DESC displayModeDesc{};
+	if (!LcFindDisplayMode(width, height, &displayModeDesc))
+	{
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot find display mode");
+	}
+
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
-	swapChainDesc.BufferDesc.Width = width;
-	swapChainDesc.BufferDesc.Height = height;
+	swapChainDesc.BufferDesc = displayModeDesc;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = true;
@@ -297,6 +299,8 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
 
+	LcMakeWindowAssociation(hWnd);
+
 	renderSystemSize = LcSize(width, height);
 }
 
@@ -344,14 +348,26 @@ void LcRenderSystemDX10::Render()
 
 	LcRenderSystemBase::Render();
 
-	swapChain->Present(0, 0);
+	swapChain->Present(DXGI_SWAP_EFFECT_SEQUENTIAL, 0);
+}
+
+void LcRenderSystemDX10::RequestResize(int width, int height)
+{
+	DXGI_MODE_DESC displayModeDesc{};
+	if (!LcFindDisplayMode(width, height, &displayModeDesc))
+	{
+		throw std::exception("LcRenderSystemDX10::RequestResize(): Cannot find display mode");
+	}
+
+	swapChain->ResizeTarget(&displayModeDesc);
 }
 
 void LcRenderSystemDX10::Resize(int width, int height)
 {
-	bool isResized = renderSystemSize != LcSize(width, height);
+	LcSize newSize(width, height);
+	bool needResize = (renderSystemSize != newSize);
 
-	if (swapChain && isResized)
+	if (swapChain && needResize)
 	{
 		// reset render system
 		d3dDevice->OMSetRenderTargets(0, NULL, NULL);
@@ -359,8 +375,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		widgetRender->Shutdown();
 
 		// resize swap chain
-		auto hr = swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-		if (FAILED(hr))
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0)))
 		{
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}
@@ -406,11 +421,16 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
-		renderSystemSize = LcSize(width, height);
+		renderSystemSize = newSize;
 
 		// recreate widget render
 		widgetRender->Setup();
 	}
+}
+
+void LcRenderSystemDX10::SetMode(bool fullscreen)
+{
+	if (swapChain) swapChain->SetFullscreenState(fullscreen, nullptr);
 }
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)

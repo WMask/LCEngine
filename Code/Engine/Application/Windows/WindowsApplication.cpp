@@ -19,6 +19,7 @@ struct LcWin32Handles
     LcKeyboardHandler keyboardHandler;
     LcMouseMoveHandler mouseMoveHandler;
     LcMouseButtonHandler mouseButtonHandler;
+    IRenderSystem* renderSystem;
     IGuiManager* guiManager;
     IApplication* app;
 };
@@ -80,19 +81,14 @@ void LcWindowsApplication::Run()
 {
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
 
-    WNDCLASSEXW wcex;
+    WNDCLASSEXW wcex{};
     wcex.cbSize = sizeof(WNDCLASSEXW);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
-    wcex.hIcon = NULL;
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    wcex.lpszMenuName = NULL;
     wcex.lpszClassName = LcWindowClassName;
-    wcex.hIconSm = NULL;
     if (0 == RegisterClassExW(&wcex))
     {
         throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
@@ -111,7 +107,7 @@ void LcWindowsApplication::Run()
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager.get(), this };
+    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, renderSystem.get(), guiManager.get(), this };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     if (renderSystem)
@@ -177,7 +173,7 @@ void LcWindowsApplication::OnUpdate()
     }
 }
 
-void LcWindowsApplication::SetWindowSize(int width, int height) noexcept
+void LcWindowsApplication::SetWindowSize(int width, int height)
 {
     auto newSize = LcSize(width, height);
     if (windowSize == newSize) return;
@@ -186,22 +182,16 @@ void LcWindowsApplication::SetWindowSize(int width, int height) noexcept
 
     if (renderSystem && renderSystem->CanRender())
     {
-        RECT clientRect{ 0, 0, width, height };
-        AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
-        int winWidth = clientRect.right - clientRect.left;
-        int winHeight = clientRect.bottom - clientRect.top;
-
-        RECT winRect;
-        GetWindowRect(hWnd, &winRect);
-        SetWindowPos(hWnd, NULL, winRect.left, winRect.top, winWidth, winHeight, 0);
-        UpdateWindow(hWnd);
-
-        renderSystem->Resize(width, height);
+        // actual resize in WM_SIZE message handler
+        renderSystem->RequestResize(width, height);
     }
+}
 
-    if (guiManager)
+void LcWindowsApplication::SetWindowMode(bool fullscreen)
+{
+    if (renderSystem && renderSystem->CanRender())
     {
-        guiManager->UpdateScreenSize(ToF(windowSize));
+        renderSystem->SetMode(fullscreen);
     }
 }
 
@@ -236,6 +226,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
+        break;
+    case WM_MENUCHAR:
+        return MNC_CLOSE << 16;
+    case WM_SIZE:
+        if (handles && handles->renderSystem)
+        {
+            int width = LOWORD(lParam);
+            int height = HIWORD(lParam);
+            handles->renderSystem->Resize(width, height);
+
+            if (handles->guiManager)
+            {
+                handles->guiManager->UpdateScreenSize(ToF(LcSize(width, height)));
+            }
+        }
         break;
     case WM_KEYDOWN:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down, handles->app);

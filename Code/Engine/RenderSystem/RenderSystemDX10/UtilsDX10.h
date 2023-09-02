@@ -19,6 +19,16 @@
 using Microsoft::WRL::ComPtr;
 
 
+/** Enumerate adapters */
+std::vector<ComPtr<IDXGIAdapter>> LcEnumerateAdapters();
+
+/** Find display mode */
+bool LcFindDisplayMode(int width, int height, DXGI_MODE_DESC* outMode);
+
+/** Make window association to enable fullscreen mode on Alt + Enter */
+void LcMakeWindowAssociation(HWND hWnd);
+
+
 /**
 * Texture loader */
 class LcTextureLoaderDX10
