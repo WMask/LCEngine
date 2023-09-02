@@ -23,6 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
         auto onInitHandler = [&lua](IApplication* app)
         {
+            // Add requestQuit() function
             GetApplicationLuaModule(*app).AddTo(lua);
         };
 
