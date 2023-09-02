@@ -12,7 +12,7 @@
 
 
 /**
-* Render system interface */
+* Animated sprite render */
 class LcAnimatedSpriteRenderDX10 : public ISpriteRender
 {
 public:
@@ -24,13 +24,13 @@ public:
 	~LcAnimatedSpriteRenderDX10();
 
 
-public: // ISpriteRender interface implementation
+public:// ISpriteRender interface implementation
 	/**
 	* Setup render state */
 	virtual void Setup() override;
 	/**
 	* Render sprite */
-	virtual void Render(const ISprite* sprite) override;
+	virtual void RenderSprite(const ISprite* sprite) override;
 	/**
 	* Checks support for the feature */
 	virtual bool Supports(const TVFeaturesList& features) const override;

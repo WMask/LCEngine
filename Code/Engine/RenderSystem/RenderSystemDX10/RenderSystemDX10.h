@@ -19,8 +19,10 @@ using namespace Microsoft::WRL;
 #include "RenderSystem/SpriteRender.h"
 #include "GUI/Widgets.h"
 
-
 #pragma warning(disable : 4251)
+
+
+typedef std::deque<std::shared_ptr<ISpriteRender>> TSpriteRenderList;
 
 /**
 * Render device */
@@ -30,6 +32,9 @@ public:
 	/**
 	* Return D3D10 device */
 	virtual ID3D10Device1* GetD3D10Device() const = 0;
+	/**
+	* Return D3D10 swap chain */
+	virtual IDXGISwapChain* GetD3D10SwapChain() const = 0;
 	/**
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const = 0;
@@ -43,10 +48,14 @@ public:
 	* Return frame animation buffer */
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
 	/**
+	* Get sprite renders */
+	virtual TSpriteRenderList& GetSpriteRenderList() = 0;
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 
 };
+
 
 /**
 * DirectX 10 render system */
@@ -58,32 +67,26 @@ public:
 	LcRenderSystemDX10();
 	//
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
+	//
+	class IWidgetRender* GetWidgetRender() { return widgetRender.get(); }
 
 
 public:// IRenderSystem interface implementation
-	/**
-	* Virtual destructor */
+	//
 	virtual ~LcRenderSystemDX10() override;
-	/**
-	* Create render system */
+	//
 	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override;
-	/**
-	* Shutdown render system */
+	//
 	virtual void Shutdown() override;
-	/**
-	* Update world */
+	//
 	virtual void Update(float deltaSeconds) override;
-	/**
-	* Update camera */
+	//
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) override;
-	/**
-	* Render world */
+	//
 	virtual void Render() override;
-	/**
-	* Return render system state */
+	//
 	virtual bool CanRender() const override { return d3dDevice; }
-	/**
-	* Return render system type */
+	//
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
 
 
@@ -93,15 +96,18 @@ protected:// LcRenderSystemBase interface implementation
 	//
 	virtual void RenderWidget(const IWidget* widget) override;
 	//
-	virtual void PreRenderWidgets() override;
+	virtual void PreRenderWidgets(EWRMode mode) override;
 	//
-	virtual void PostRenderWidgets() override;
+	virtual void PostRenderWidgets(EWRMode mode) override;
 
 
 public:// IDX10RenderDevice interface implementation
 	/**
 	* Return D3D10 device */
 	virtual ID3D10Device1* GetD3D10Device() const override { return d3dDevice.Get(); }
+	/**
+	* Return D3D10 swap chain */
+	virtual IDXGISwapChain* GetD3D10SwapChain() const override { return swapChain.Get(); }
 	/**
 	* Return matrix buffer */
 	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer.Get(); }
@@ -114,6 +120,9 @@ public:// IDX10RenderDevice interface implementation
 	/**
 	* Return colors buffer */
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
+	/**
+	* Get sprite renders */
+	virtual TSpriteRenderList& GetSpriteRenderList() override { return spriteRenders; }
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
@@ -142,11 +151,11 @@ protected:
 	//
 	ComPtr<ID3D10RasterizerState> rasterizerState;
 	//
-	std::deque<std::shared_ptr<ISpriteRender>> spriteRenders;
-	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
 	std::shared_ptr<IWidgetRender> widgetRender;
+	//
+	TSpriteRenderList spriteRenders;
 	//
 	TVFeaturesList prevSpriteFeatures;
 
@@ -178,9 +187,13 @@ public:// IVisual interface implementation
 class LcWidgetDX10 : public LcWidget
 {
 public:
-	LcWidgetDX10(LcWidgetData inSprite, IWidgetRender& inRender) : LcWidget(inSprite), render(inRender), font(nullptr) {}
+	LcWidgetDX10(LcWidgetData inSprite, LcRenderSystemDX10& inRender) : LcWidget(inSprite), render(inRender), font(nullptr) {}
 	//
-	IWidgetRender& render;
+	LcRenderSystemDX10& render;
+	//
+	ComPtr<ID3D10Texture2D> texture;
+	//
+	ComPtr<ID3D10ShaderResourceView1> shaderView;
 	//
 	const ITextFont* font;
 

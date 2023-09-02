@@ -31,9 +31,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 sprite->AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            if (auto widget = world->AddWidget(500, 400, 200, 200))
+            if (auto label = world->AddWidget(500, 450, 200, 100))
             {
-                widget->AddTextComponent(L"Label Text", L"Calibri", 40, LcDefaults::White4);
+                label->AddTextComponent(L"Label Text", L"Calibri", 30, LcDefaults::White4);
+            }
+
+            if (auto button = world->AddWidget(500, 350, 124, 40))
+            {
+                button->AddTextureComponent("../../Assets/button.png");
+                button->AddButtonComponent(LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
+                button->AddTextComponent(L"SUBMIT", L"Calibri", 22, LcDefaults::Black4);
             }
         };
 

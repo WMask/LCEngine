@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
+#include "RenderSystem/WidgetRender.h"
 #include "GUI/GuiManager.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
@@ -67,13 +68,22 @@ void LcRenderSystemBase::Render()
             if (sprite->IsVisible()) RenderSprite(sprite.get());
         }
 
-        PreRenderWidgets();
+        PreRenderWidgets(EWRMode::Textures);
 
         for (const auto& widget : widgets)
         {
             if (widget->IsVisible()) RenderWidget(widget.get());
         }
 
-        PostRenderWidgets();
+        PostRenderWidgets(EWRMode::Textures);
+
+        PreRenderWidgets(EWRMode::Text);
+
+        for (const auto& widget : widgets)
+        {
+            if (widget->IsVisible()) RenderWidget(widget.get());
+        }
+
+        PostRenderWidgets(EWRMode::Text);
     }
 }

@@ -8,6 +8,8 @@
 #include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
+#include <sstream>
+
 
 LcWidgetRenderDX10::~LcWidgetRenderDX10()
 {
@@ -72,7 +74,12 @@ public:
     //
     virtual IDWriteTextFormat* GetFont() const override { return data.font.Get(); }
     //
-    virtual const std::wstring& GetFontName() const override { return data.fontName; }
+    virtual std::wstring GetFontName() const override
+    {
+        std::wstringstream ss;
+        ss << data.fontName << L"_" << data.fontSize << L"_" << (int)data.fontWeight;
+        return ss.str();
+    }
     //
     virtual const LC_FONT_DATA& GetData() const { return data; }
 
@@ -91,7 +98,7 @@ const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsig
     }
 
     auto newFont = std::make_shared<LcTextFontDX10>(fontName, fontSize, fontWeight, dwriteFactory.Get());
-    fonts[fontName] = newFont;
+    fonts[newFont->GetFontName()] = newFont;
 
     return newFont.get();
 }
@@ -108,10 +115,7 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
 
 void LcWidgetRenderDX10::Setup()
 {
-    if (!swapChain || !hWnd)
-    {
-        throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
-    }
+    if (!hWnd || !device.GetD3D10SwapChain()) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
 
     RECT clientRect;
     GetClientRect(hWnd, &clientRect);
@@ -123,7 +127,7 @@ void LcWidgetRenderDX10::Setup()
     }
 
     ComPtr<IDXGISurface1> backBuffer;
-    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
+    if (FAILED(device.GetD3D10SwapChain()->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
     {
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot get back buffer");
     }
@@ -143,21 +147,47 @@ void LcWidgetRenderDX10::Setup()
     {
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create DirectWrite factory");
     }
+
+    auto& spriteRenders = device.GetSpriteRenderList();
+    for (auto& render : spriteRenders)
+    {
+        if (render->Supports(features))
+        {
+            textureRender = render.get();
+            break;
+        }
+    }
 }
 
-void LcWidgetRenderDX10::Render(const IWidget* widgetPtr)
+void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
 {
     const LcWidgetDX10* widget = (LcWidgetDX10*)widgetPtr;
-    LcRectf rect{
-        widget->widget.pos.x - widget->widget.size.x / 2.0f,
-        widget->widget.pos.y - widget->widget.size.y / 2.0f,
-        widget->widget.pos.x + widget->widget.size.x / 2.0f,
-        widget->widget.pos.y + widget->widget.size.x / 2.0f
-    };
 
-    if (auto text = widget->GetTextComponent())
+    switch (renderMode)
     {
-        RenderText(text->text, rect, text->textColor, widget->font);
+    case EWRMode::Textures:
+        {
+            if (auto button = widget->GetButtonComponent())
+            {
+                textureRender->RenderWidget(widget);
+            }
+        }
+        break;
+    case EWRMode::Text:
+        {
+            LcRectf rect{
+                widget->widget.pos.x - widget->widget.size.x / 2.0f,
+                widget->widget.pos.y - widget->widget.size.y / 2.0f,
+                widget->widget.pos.x + widget->widget.size.x / 2.0f,
+                widget->widget.pos.y + widget->widget.size.y / 2.0f
+            };
+
+            if (auto text = widget->GetTextComponent())
+            {
+                RenderText(text->text, rect, text->textColor, widget->font);
+            }
+        }
+        break;
     }
 }
 

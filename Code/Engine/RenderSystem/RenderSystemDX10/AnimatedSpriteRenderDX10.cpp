@@ -107,14 +107,14 @@ void LcAnimatedSpriteRenderDX10::Setup()
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcAnimatedSpriteRenderDX10::Render(const ISprite* sprite)
+void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto animBuffer = renderDevice.GetFrameAnimBuffer();
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !animBuffer || !sprite)
-		throw std::exception("LcAnimatedSpriteRenderDX10::Render(): Invalid render params");
+		throw std::exception("LcAnimatedSpriteRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
 	auto colors = sprite->GetColorsComponent();

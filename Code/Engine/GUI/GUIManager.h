@@ -9,7 +9,7 @@
 #include "Module.h"
 #include "World/Module.h"
 #include "RenderSystem/RenderSystem.h"
-#include "Core/LCTypes.h"
+#include "Core/LCTypesEx.h"
 
 
 /**
@@ -30,6 +30,9 @@ public:
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) = 0;
 	/**
+	* Update screen size */
+	virtual void UpdateScreenSize(LcSizef newSize) = 0;
+	/**
 	* Keyboard key event */
 	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
 	/**
@@ -49,7 +52,7 @@ class LcGuiManagerBase : public IGuiManager
 public:
 	/**
 	* Constructor */
-	LcGuiManagerBase() {}
+	LcGuiManagerBase() : screenSize(LcDefaults::ZeroSize) {}
 	/**
 	* Init GUI manager */
 	virtual void Init(TWeakWorld world) override;
@@ -59,6 +62,9 @@ public:
 	/**
 	* Update GUI */
 	virtual void Update(float DeltaSeconds) override;
+	/**
+	* Update screen size */
+	virtual void UpdateScreenSize(LcSizef newSize) override { screenSize = newSize; }
 	/**
 	* Keyboard key event */
 	virtual void OnKeyboard(int btn, LcKeyState state) override;
@@ -72,5 +78,7 @@ public:
 
 protected:
 	TWeakWorld worldPtr;
+	//
+	LcSizef screenSize;
 
 };

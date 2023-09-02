@@ -93,35 +93,6 @@ struct LcSpriteColorsComponent : public IVisualComponent
 
 
 /**
-* Sprite texture component */
-struct LcSpriteTextureComponent : public IVisualComponent
-{
-	std::string texture;	// texture file path
-	LcBytes data;			// texture data
-	LcVector2 framePos;		// sprite frame offset in pixels
-	LcVector2 texSize;		// texture size in pixels
-	//
-	LcSpriteTextureComponent() : framePos(LcDefaults::ZeroVec2), texSize(LcDefaults::ZeroVec2) {}
-	//
-	LcSpriteTextureComponent(const LcSpriteTextureComponent& texture) :
-		texture(texture.texture), data(texture.data), framePos(texture.framePos), texSize(texture.texSize) {}
-	//
-	LcSpriteTextureComponent(const std::string& inTexture, LcVector2 inFramePos) :
-		texture(inTexture), framePos(inFramePos), texSize(LcDefaults::ZeroVec2)
-	{
-	}
-	//
-	LcSpriteTextureComponent(const LcBytes& inData, LcVector2 inFramePos) :
-		data(inData), framePos(inFramePos), texSize(LcDefaults::ZeroVec2)
-	{
-	}
-	// IVisualComponent interface implementation
-	virtual EVCType GetType() const override { return EVCType::Texture; }
-
-};
-
-
-/**
 * Sprite custom UV component */
 struct LcSpriteCustomUVComponent : public IVisualComponent
 {
@@ -209,14 +180,14 @@ public:
 		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
 	}
 	//
-	void AddTextureComponent(const std::string& inTexture, LcVector2 inTexPos = LcDefaults::ZeroVec2)
+	void AddTextureComponent(const std::string& inTexture)
 	{
-		AddComponent(std::make_shared<LcSpriteTextureComponent>(inTexture, inTexPos));
+		AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
 	}
 	//
-	void AddTextureComponent(const LcBytes& inData, LcVector2 inTexPos = LcDefaults::ZeroVec2)
+	void AddTextureComponent(const LcBytes& inData)
 	{
-		AddComponent(std::make_shared<LcSpriteTextureComponent>(inData, inTexPos));
+		AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
 	}
 	//
 	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
@@ -233,7 +204,7 @@ public:
 	//
 	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
 	//
-	LcSpriteTextureComponent* GetTextureComponent() const { return (LcSpriteTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
 	//
 	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
 	//
@@ -285,7 +256,11 @@ public:// IVisual interface implementation
 	//
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) {}
 	//
-	virtual void OnMouseMove(int x, int y) {}
+	virtual void OnMouseMove(LcVector3 pos) override {}
+	//
+	virtual void OnMouseEnter() override {}
+	//
+	virtual void OnMouseLeave() override {}
 
 
 protected:

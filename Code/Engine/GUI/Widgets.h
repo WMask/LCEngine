@@ -6,9 +6,14 @@
 
 #pragma once
 
+#include "Module.h"
 #include "World/Visual.h"
+
 #include <string>
 
+
+/** Widget texture component */
+typedef struct LcSpriteTextureComponent LcWidgetTextureComponent;
 
 /** Widget data */
 struct LcWidgetData
@@ -30,18 +35,6 @@ struct LcWidgetData
     {
     }
 };
-
-/** Text font */
-struct ITextFont
-{
-public:
-    virtual ~ITextFont() {}
-    //
-    virtual const std::wstring& GetFontName() const = 0;
-};
-
-/** Font weight */
-enum class LcFontWeight { Light, Normal, Bold };
 
 
 /**
@@ -70,6 +63,41 @@ struct LcWidgetTextComponent : public IVisualComponent
 };
 
 
+/** Visual component type */
+enum class EBtnState : int
+{
+    Idle,
+    Over,
+    Pressed
+};
+
+/**
+* Widget button component */
+struct GUI_API LcWidgetButtonComponent : public IVisualComponent
+{
+    EBtnState state;
+    LcVector4 idle[4];      // custom UVs for Idle state
+    LcVector4 over[4];      // custom UVs for Mouse Over state
+    LcVector4 pressed[4];   // custom UVs for Pressed state
+    //
+    LcWidgetButtonComponent() : state(EBtnState::Idle) {}
+    //
+    LcWidgetButtonComponent(const LcWidgetButtonComponent& button);
+    //
+    LcWidgetButtonComponent(LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos);
+    //
+   const void* GetData() const;
+
+
+public:// IVisualComponent interface implementation
+    //
+    virtual void Init(class IWorld& world) override;
+    //
+    virtual EVCType GetType() const override { return EVCType::Button; }
+
+};
+
+
 /**
 * Widget interface */
 class IWidget : public IVisualBase
@@ -81,7 +109,25 @@ public:
         AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight));
     }
     //
+    void AddTextureComponent(const std::string& inTexture)
+    {
+        AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
+    }
+    //
+    void AddTextureComponent(const LcBytes& inData)
+    {
+        AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
+    }
+    void AddButtonComponent(LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
+    {
+        AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos));
+    }
+    //
     LcWidgetTextComponent* GetTextComponent() const { return (LcWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
+    //
+    LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
+    //
+    LcWidgetButtonComponent* GetButtonComponent() const { return (LcWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
 
 
 public:
@@ -94,6 +140,12 @@ public:
 	/**
 	* Active state */
 	virtual bool IsActive() const = 0;
+    /**
+    * Set mouse over */
+    virtual void SetHovered(bool active) = 0;
+    /**
+    * Is mouse over */
+    virtual bool IsHovered() const = 0;
 	/**
 	* Set focused state */
 	virtual void SetFocus(bool focus) = 0;
@@ -106,19 +158,21 @@ public:
 
 /**
 * Widget class */
-class LcWidget : public IWidget
+class GUI_API LcWidget : public IWidget
 {
 public:
-    LcWidget(LcWidgetData inWidget) : widget(inWidget), focused(false) {}
+    LcWidget(LcWidgetData inWidget) : widget(inWidget), focused(false), hovered(false) {}
     //
     ~LcWidget() {}
     //
     LcWidgetData widget;
     //
+    bool hovered;
+    //
     bool focused;
 
 
-public: // IWidget interface implementation
+public:// IWidget interface implementation
     //
     virtual void OnKeyboard(int btn, LcKeyState state) override {}
     //
@@ -126,12 +180,16 @@ public: // IWidget interface implementation
     //
     virtual bool IsActive() const override { return widget.active; }
     //
+    virtual void SetHovered(bool inHovered) override { hovered = inHovered; }
+    //
+    virtual bool IsHovered() const override { return hovered; }
+    //
     virtual void SetFocus(bool inFocus) override { focused = inFocus; }
     //
     virtual bool HasFocus() const override { return focused; }
 
 
-public: // IVisual interface implementation
+public:// IVisual interface implementation
     virtual void Update(float DeltaSeconds) {}
     //
     virtual void SetSize(LcSizef inSize) override { widget.size = inSize; }
@@ -154,8 +212,12 @@ public: // IVisual interface implementation
     //
     virtual bool IsVisible() const override { return widget.visible; }
     //
-    virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override {}
+    virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
     //
-    virtual void OnMouseMove(int x, int y) override {}
+    virtual void OnMouseMove(LcVector3 pos) override {}
+    //
+    virtual void OnMouseEnter() override;
+    //
+    virtual void OnMouseLeave() override;
 
 };

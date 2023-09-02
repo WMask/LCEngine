@@ -7,23 +7,22 @@
 #pragma once
 
 #include "GUI/Widgets.h"
+#include "RenderSystem.h"
+
 
 /**
 * Widget renderer interface */
-class IWidgetRender
+class IWidgetRender : public IVisual2DRender
 {
 public:
-	/**
-	* Add font */
-	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
+	virtual void RenderSprite(const class ISprite* sprite) override {}
+	//
+	virtual EWRMode GetRenderMode() const = 0;
+	//
+	virtual void SetRenderMode(EWRMode inRenderMode) = 0;
 
 
 protected:
-	/**
-	* Setup render state */
-	virtual void Setup() = 0;
-	/**
-	* Render widget */
-	virtual void Render(const class IWidget* widget) = 0;
+	virtual bool Supports(const TVFeaturesList& features) const override { return false; }
 
 };

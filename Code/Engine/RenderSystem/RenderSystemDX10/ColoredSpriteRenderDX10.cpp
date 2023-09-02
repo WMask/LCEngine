@@ -104,12 +104,12 @@ void LcColoredSpriteRenderDX10::Setup()
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcColoredSpriteRenderDX10::Render(const ISprite* sprite)
+void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::Render(): Invalid render params");
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite) throw std::exception("LcColoredSpriteRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
 	auto colors = sprite->GetColorsComponent();

@@ -8,7 +8,7 @@
 
 #include "Module.h"
 #include "GUI/Module.h"
-#include "World/Module.h"
+#include "World/Visual.h"
 #include "Core/LcTypesEx.h"
 
 #include <map>
@@ -53,6 +53,9 @@ public:
 };
 
 
+/** Widget render mode */
+enum EWRMode { Textures, Text };
+
 /**
 * Render system interface */
 class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
@@ -90,10 +93,10 @@ protected:
 	virtual void RenderWidget(const class IWidget* widget) = 0;
 	/**
 	* Pre render widgets */
-	virtual void PreRenderWidgets() = 0;
+	virtual void PreRenderWidgets(EWRMode mode) = 0;
 	/**
 	* Post render widgets */
-	virtual void PostRenderWidgets() = 0;
+	virtual void PostRenderWidgets(EWRMode mode) = 0;
 
 
 protected:
@@ -104,5 +107,29 @@ protected:
 	LcVector3 cameraPos;
 	//
 	LcVector3 cameraTarget;
+
+};
+
+
+/**
+* 2D Visual renderer interface */
+class IVisual2DRender
+{
+public:
+	/**
+	* Setup render state */
+	virtual void Setup() = 0;
+	/**
+	* Add font */
+	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
+	/**
+	* Render sprite */
+	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const class IWidget* widget) = 0;
+	/**
+	* Checks support for the feature */
+	virtual bool Supports(const TVFeaturesList& features) const = 0;
 
 };

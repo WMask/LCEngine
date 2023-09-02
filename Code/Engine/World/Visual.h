@@ -30,8 +30,21 @@ enum class EVCType : int
 	CustomUV,
 	FrameAnimation,
 	// Widgets
-	Text
+	Text,
+	Button
 };
+
+/** Text font */
+struct ITextFont
+{
+public:
+	virtual ~ITextFont() {}
+	//
+	virtual std::wstring GetFontName() const = 0;
+};
+
+/** Font weight */
+enum class LcFontWeight { Light, Normal, Bold };
 
 
 /**
@@ -42,6 +55,12 @@ public:
 	/**
 	* Virtual destructor */
 	virtual ~IVisual() {}
+	/**
+	* Init visual */
+	virtual void Init(class IWorld* world) {}
+	/**
+	* Destroy visual */
+	virtual void Destroy(class IWorld* world) {}
 	/**
 	* Update visual */
 	virtual void Update(float deltaSeconds) {}
@@ -89,7 +108,13 @@ public:
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y) = 0;
+	virtual void OnMouseMove(LcVector3 pos) = 0;
+	/**
+	* Mouse enter event */
+	virtual void OnMouseEnter() = 0;
+	/**
+	* Mouse leave event */
+	virtual void OnMouseLeave() = 0;
 
 };
 
@@ -110,6 +135,12 @@ public:
 	* Virtual destructor */
 	virtual ~IVisualComponent() {}
 	/**
+	* Init component */
+	virtual void Init(class IWorld& world) {}
+	/**
+	* Destroy component */
+	virtual void Destroy(class IWorld& world) {}
+	/**
 	* Update component */
 	virtual void Update(float deltaSeconds) {}
 	/**
@@ -117,10 +148,10 @@ public:
 	virtual EVCType GetType() const = 0;
 	/**
 	* Set owner */
-	inline void SetOwner(class IVisual* inOwner) { owner = inOwner; }
+	virtual void SetOwner(IVisual* inOwner) { owner = inOwner; }
 	/**
 	* Get owner */
-	inline class IVisual* GetOwner() const { return owner; }
+	inline IVisual* GetOwner() const { return owner; }
 
 
 protected:
@@ -131,10 +162,38 @@ protected:
 
 
 /**
+* Visual texture component */
+struct LcVisualTextureComponent : public IVisualComponent
+{
+	std::string texture;	// texture file path
+	LcBytes data;			// texture data
+	LcVector2 texSize;		// texture size in pixels
+	//
+	LcVisualTextureComponent() : texSize(LcDefaults::ZeroVec2) {}
+	//
+	LcVisualTextureComponent(const LcVisualTextureComponent& texture) :
+		texture(texture.texture), data(texture.data), texSize(texture.texSize) {}
+	//
+	LcVisualTextureComponent(const std::string& inTexture) : texture(inTexture), texSize(LcDefaults::ZeroVec2)
+	{
+	}
+	//
+	LcVisualTextureComponent(const LcBytes& inData) : data(inData), texSize(LcDefaults::ZeroVec2)
+	{
+	}
+	// IVisualComponent interface implementation
+	virtual EVCType GetType() const override { return EVCType::Texture; }
+
+};
+
+
+/**
 * Visual base interface */
 class WORLD_API IVisualBase : public IVisual
 {
 public:// IVisual interface implementation
+	//
+	virtual void Destroy(class IWorld* world) override;
 	//
 	virtual void AddComponent(TVComponentPtr comp) override;
 	//
@@ -145,5 +204,7 @@ public:// IVisual interface implementation
 
 protected:
 	std::deque<TVComponentPtr> components;
+	//
+	class IWorld* world;
 
 };

@@ -121,7 +121,11 @@ void LcWindowsApplication::Run()
         renderSystem->Create(world, hWnd, true);
     }
 
-    if (guiManager) guiManager->Init(world);
+    if (guiManager)
+    {
+        guiManager->Init(world);
+        guiManager->UpdateScreenSize(ToF(windowSize));
+    }
 
     if (initHandler) initHandler(this);
 
@@ -212,6 +216,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYUP:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up, handles->app);
         if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up);
+        break;
+    case WM_MOUSEMOVE:
+        if (handles && handles->guiManager) handles->guiManager->OnMouseMove(x, y);
         break;
     case WM_LBUTTONDOWN:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->app);

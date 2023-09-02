@@ -20,8 +20,7 @@
 using Microsoft::WRL::ComPtr;
 
 
-/**
-* Text font */
+/** Text font */
 struct ITextFontDX10 : public ITextFont
 {
 public:
@@ -34,7 +33,8 @@ public:
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
-	LcWidgetRenderDX10(IDXGISwapChain* swapChainPtr, HWND hWndPtr) : swapChain(swapChainPtr), hWnd(hWndPtr) {}
+	LcWidgetRenderDX10(class IRenderDeviceDX10& devicePtr, HWND hWndPtr) :
+		device(devicePtr), hWnd(hWndPtr), renderMode(EWRMode::Textures), features{EVCType::Texture} {}
 	//
 	~LcWidgetRenderDX10();
 	//
@@ -45,6 +45,10 @@ public:
 	void BeginRender();
 	//
 	long EndRender();
+	//
+	inline IVisual2DRender* GetTextureRender() const { return textureRender; }
+	//
+	inline const TVFeaturesList& GetFeaturesList() const { return features; }
 
 
 public:// IWidgetRender interface implementation
@@ -53,13 +57,23 @@ public:// IWidgetRender interface implementation
 	//
 	virtual void Setup() override;
 	//
-	virtual void Render(const IWidget* widget) override;
+	virtual void RenderWidget(const IWidget* widget) override;
+	//
+	virtual EWRMode GetRenderMode() const override { return renderMode; }
+	//
+	virtual void SetRenderMode(EWRMode inRenderMode) override { renderMode = inRenderMode; }
 
 
 protected:
 	HWND hWnd;
 	//
-	IDXGISwapChain* swapChain;
+	EWRMode renderMode;
+	//
+	TVFeaturesList features;
+	//
+	class IRenderDeviceDX10& device;
+	//
+	IVisual2DRender* textureRender;
 	//
 	ComPtr<ID2D1Factory> d2dFactory;
 	//

@@ -1,5 +1,5 @@
 /**
-* LcTexturedSpriteRenderDX10.h
+* TexturedVisual2DRenderDX10.h
 * 25.08.2023
 * (c) Denis Romakhov
 */
@@ -7,30 +7,32 @@
 #pragma once
 
 #include "Core/LCTypes.h"
-#include "RenderSystem/SpriteRender.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
 
 /**
-* Render system interface */
-class LcTexturedSpriteRenderDX10 : public ISpriteRender
+* Textured visual render */
+class LcTexturedVisual2DRenderDX10 : public ISpriteRender
 {
 public:
 	/**
 	* Constructor */
-	LcTexturedSpriteRenderDX10(IRenderDeviceDX10& renderDevice);
+	LcTexturedVisual2DRenderDX10(IRenderDeviceDX10& renderDevice);
 	/**
 	* Destructor */
-	~LcTexturedSpriteRenderDX10();
+	~LcTexturedVisual2DRenderDX10();
 
 
-public: // ISpriteRender interface implementation
+public:// ISpriteRender interface implementation
 	/**
 	* Setup render state */
 	virtual void Setup() override;
 	/**
 	* Render sprite */
-	virtual void Render(const ISprite* sprite) override;
+	virtual void RenderSprite(const class ISprite* sprite) override;
+	/**
+	* Render widget */
+	virtual void RenderWidget(const class IWidget* widget) override;
 	/**
 	* Checks support for the feature */
 	virtual bool Supports(const TVFeaturesList& features) const override;

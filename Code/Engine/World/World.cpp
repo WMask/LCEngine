@@ -60,7 +60,10 @@ ISprite* LcWorld::AddSprite(const LcSpriteData& inSprite)
 {
 	auto newSprite = spriteFactory ? spriteFactory->Build(inSprite) : nullptr;
 	if (newSprite)
+	{
+		newSprite->Init(this);
 		sprites.push_back(newSprite);
+	}
 	else
 		throw std::exception("LcWorld::AddSprite(): Cannot create sprite");
 
@@ -80,14 +83,21 @@ ISprite* LcWorld::AddSprite(float x, float y, float width, float height, float i
 void LcWorld::RemoveSprite(ISprite* sprite)
 {
 	auto it = std::find_if(sprites.begin(), sprites.end(), [sprite](std::shared_ptr<ISprite>& data) { return data.get() == sprite; });
-	if (it != sprites.end()) sprites.erase(it);
+	if (it != sprites.end())
+	{
+		(*it)->Destroy(this);
+		sprites.erase(it);
+	}
 }
 
 IWidget* LcWorld::AddWidget(const LcWidgetData& inWidget)
 {
 	auto newWidget = widgetFactory ? widgetFactory->Build(inWidget) : nullptr;
 	if (newWidget)
+	{
+		newWidget->Init(this);
 		widgets.push_back(newWidget);
+	}
 	else
 		throw std::exception("LcWorld::AddWidget(): Cannot create widget");
 
@@ -108,7 +118,11 @@ IWidget* LcWorld::AddWidget(float x, float y, float width, float height, bool in
 void LcWorld::RemoveWidget(IWidget* widget)
 {
 	auto it = std::find_if(widgets.begin(), widgets.end(), [widget](std::shared_ptr<IWidget>& data) { return data.get() == widget; });
-	if (it != widgets.end()) widgets.erase(it);
+	if (it != widgets.end())
+	{
+		(*it)->Destroy(this);
+		widgets.erase(it);
+	}
 }
 
 TWorldPtr GetWorld()

@@ -7,21 +7,18 @@
 #pragma once
 
 #include "World/Sprites.h"
+#include "RenderSystem.h"
 
 
 /**
 * Sprite renderer interface */
-class ISpriteRender
+class ISpriteRender : public IVisual2DRender
 {
 public:
-	/**
-	* Setup render state */
-	virtual void Setup() = 0;
-	/**
-	* Render sprite */
-	virtual void Render(const ISprite* sprite) = 0;
-	/**
-	* Checks support for the feature */
-	virtual bool Supports(const TVFeaturesList& features) const = 0;
+	virtual void RenderWidget(const class IWidget* widget) override {}
 
+
+protected:
+	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize,
+		LcFontWeight fontWeight) override { return nullptr; }
 };

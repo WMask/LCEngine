@@ -55,12 +55,12 @@ void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, in
         {
             if (!widget->IsVisible()) continue;
 
-            LcVector2 clickPt((float)x, (float)y);
+            LcVector2 point((float)x, screenSize.y - (float)y);
             LcVector2 widgetPos = To2(widget->GetPos());
-            LcRectf widgetBox = ToF(widgetPos, widgetPos + widget->GetSize());
-            if (Contains(widgetBox, clickPt))
+            LcRectf widgetBox = ToF(widgetPos - widget->GetSize() / 2.0f, widgetPos + widget->GetSize() / 2.0f);
+            if (Contains(widgetBox, point))
             {
-                auto result = ToI(clickPt);
+                auto result = ToI(point);
                 widget->OnMouseButton(btn, state, result.x, result.y);
             }
         }
@@ -77,13 +77,27 @@ void LcGuiManagerBase::OnMouseMove(int x, int y)
         {
             if (!widget->IsVisible()) continue;
 
-            LcVector2 clickPt((float)x, (float)y);
+            LcVector2 point((float)x, screenSize.y - (float)y);
             LcVector2 widgetPos = To2(widget->GetPos());
-            LcRectf widgetBox = ToF(widgetPos, widgetPos + widget->GetSize());
-            if (Contains(widgetBox, clickPt))
+            LcRectf widgetBox = ToF(widgetPos - widget->GetSize() / 2.0f, widgetPos + widget->GetSize() / 2.0f);
+
+            if (Contains(widgetBox, point))
             {
-                auto result = ToI(clickPt);
-                widget->OnMouseMove(result.x, result.y);
+                if (!widget->IsHovered())
+                {
+                    widget->SetHovered(true);
+                    widget->OnMouseEnter();
+                }
+
+                widget->OnMouseMove(To3(point));
+            }
+            else
+            {
+                if (widget->IsHovered())
+                {
+                    widget->SetHovered(false);
+                    widget->OnMouseLeave();
+                }
             }
         }
     }

@@ -16,6 +16,8 @@ LcVector4 LcDefaults::OneVec4 = LcVector4(1.0f, 1.0f, 1.0f, 1.0f);
 LcVector4 LcDefaults::ZeroVec4 = LcVector4(0.0f, 0.0f, 0.0f, 0.0f);
 LcColor4 LcDefaults::White4 = LcColor4(1.0f, 1.0f, 1.0f, 1.0f);
 LcColor3 LcDefaults::White3 = LcColor3(1.0f, 1.0f, 1.0f);
+LcColor4 LcDefaults::Black4 = LcColor4(0.0f, 0.0f, 0.0f, 1.0f);
+LcColor3 LcDefaults::Black3 = LcColor3(0.0f, 0.0f, 0.0f);
 LcSizef LcDefaults::ZeroSize = LcSizef(0.0f, 0.0f);
 
 #ifdef _WINDOWS
