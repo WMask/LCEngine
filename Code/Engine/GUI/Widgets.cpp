@@ -70,6 +70,78 @@ const void* LcWidgetButtonComponent::GetData() const
     return idle;
 }
 
+LcWidgetCheckboxComponent::LcWidgetCheckboxComponent(const LcWidgetCheckboxComponent& checkbox) : state(ECheckboxState::Unchecked)
+{
+    memcpy(unchecked, checkbox.unchecked, sizeof(LcVector4) * 4);
+    memcpy(uncheckedH, checkbox.uncheckedH, sizeof(LcVector4) * 4);
+    memcpy(checked, checkbox.checked, sizeof(LcVector4) * 4);
+    memcpy(checkedH, checkbox.checkedH, sizeof(LcVector4) * 4);
+}
+
+LcWidgetCheckboxComponent::LcWidgetCheckboxComponent(
+    LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos, LcVector2 checkedPos, LcVector2 checkedHoveredPos) : state(ECheckboxState::Unchecked)
+{
+    unchecked[0].x = uncheckedPos.x;
+    unchecked[0].y = uncheckedPos.y;
+
+    uncheckedH[0].x = uncheckedHoveredPos.x;
+    uncheckedH[0].y = uncheckedHoveredPos.y;
+
+    checked[0].x = checkedPos.x;
+    checked[0].y = checkedPos.y;
+
+    checkedH[0].x = checkedHoveredPos.x;
+    checkedH[0].y = checkedHoveredPos.y;
+}
+
+void LcWidgetCheckboxComponent::Init(class IWorld& world)
+{
+    IVisualComponent::Init(world);
+
+    if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
+    {
+        LcSizef size = owner->GetSize();
+        LcSizef texSize = texComp->texSize;
+        LcVector2 uncheckedPos{ unchecked[0].x, unchecked[0].y };
+        LcVector2 uncheckedHPos{ uncheckedH[0].x, uncheckedH[0].y };
+        LcVector2 checkedPos{ checked[0].x, checked[0].y };
+        LcVector2 checkedHPos{ checkedH[0].x, checkedH[0].y };
+
+        // generate UVs
+        unchecked[0] = To4(LcVector2(uncheckedPos.x / texSize.x, uncheckedPos.y / texSize.y));
+        unchecked[1] = To4(LcVector2((uncheckedPos.x + size.x) / texSize.x, uncheckedPos.y / texSize.y));
+        unchecked[2] = To4(LcVector2((uncheckedPos.x + size.x) / texSize.x, (uncheckedPos.y + size.y) / texSize.y));
+        unchecked[3] = To4(LcVector2(uncheckedPos.x / texSize.x, (uncheckedPos.y + size.y) / texSize.y));
+
+        uncheckedH[0] = To4(LcVector2(uncheckedHPos.x / texSize.x, uncheckedHPos.y / texSize.y));
+        uncheckedH[1] = To4(LcVector2((uncheckedHPos.x + size.x) / texSize.x, uncheckedHPos.y / texSize.y));
+        uncheckedH[2] = To4(LcVector2((uncheckedHPos.x + size.x) / texSize.x, (uncheckedHPos.y + size.y) / texSize.y));
+        uncheckedH[3] = To4(LcVector2(uncheckedHPos.x / texSize.x, (uncheckedHPos.y + size.y) / texSize.y));
+
+        checked[0] = To4(LcVector2(checkedPos.x / texSize.x, checkedPos.y / texSize.y));
+        checked[1] = To4(LcVector2((checkedPos.x + size.x) / texSize.x, checkedPos.y / texSize.y));
+        checked[2] = To4(LcVector2((checkedPos.x + size.x) / texSize.x, (checkedPos.y + size.y) / texSize.y));
+        checked[3] = To4(LcVector2(checkedPos.x / texSize.x, (checkedPos.y + size.y) / texSize.y));
+
+        checkedH[0] = To4(LcVector2(checkedHPos.x / texSize.x, checkedHPos.y / texSize.y));
+        checkedH[1] = To4(LcVector2((checkedHPos.x + size.x) / texSize.x, checkedHPos.y / texSize.y));
+        checkedH[2] = To4(LcVector2((checkedHPos.x + size.x) / texSize.x, (checkedHPos.y + size.y) / texSize.y));
+        checkedH[3] = To4(LcVector2(checkedHPos.x / texSize.x, (checkedHPos.y + size.y) / texSize.y));
+    }
+}
+
+const void* LcWidgetCheckboxComponent::GetData() const
+{
+    switch (state)
+    {
+    case ECheckboxState::UncheckedHovered:   return uncheckedH;
+    case ECheckboxState::CheckedHovered:     return checkedH;
+    case ECheckboxState::Checked:            return checked;
+    }
+
+    return unchecked;
+}
+
 void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
 {
     if (auto button = GetButtonComponent())
@@ -91,6 +163,19 @@ void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
             button->state = IsHovered() ? EBtnState::Over : EBtnState::Idle;
         }
     }
+
+    if (auto checkbox = GetCheckboxComponent())
+    {
+        if (state == LcKeyState::Down)
+        {
+            checkbox->state = checkbox->IsChecked() ? ECheckboxState::UncheckedHovered : ECheckboxState::CheckedHovered;
+
+            if (auto checkComp = GetCheckHandlerComponent())
+            {
+                if (checkComp->handler) checkComp->handler(checkbox->IsChecked());
+            }
+        }
+    }
 }
 
 void LcWidget::OnMouseEnter()
@@ -99,6 +184,11 @@ void LcWidget::OnMouseEnter()
     {
         button->state = EBtnState::Over;
     }
+
+    if (auto checkbox = GetCheckboxComponent())
+    {
+        checkbox->state = checkbox->IsChecked() ? ECheckboxState::CheckedHovered : ECheckboxState::UncheckedHovered;
+    }
 }
 
 void LcWidget::OnMouseLeave()
@@ -106,5 +196,10 @@ void LcWidget::OnMouseLeave()
     if (auto button = GetButtonComponent())
     {
         button->state = EBtnState::Idle;
+    }
+
+    if (auto checkbox = GetCheckboxComponent())
+    {
+        checkbox->state = checkbox->IsChecked() ? ECheckboxState::Checked : ECheckboxState::Unchecked;
     }
 }

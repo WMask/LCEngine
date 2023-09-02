@@ -148,8 +148,8 @@ void LcWidgetRenderDX10::Setup()
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create DirectWrite factory");
     }
 
-    auto& spriteRenders = device.GetSpriteRenderList();
-    for (auto& render : spriteRenders)
+    auto& renders = device.GetVisual2DRenderList();
+    for (auto& render : renders)
     {
         if (render->Supports(features))
         {
@@ -167,7 +167,7 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
     {
     case EWRMode::Textures:
         {
-            if (auto button = widget->GetButtonComponent())
+            if (auto button = widget->GetTextureComponent())
             {
                 textureRender->RenderWidget(widget);
             }

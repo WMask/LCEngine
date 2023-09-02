@@ -36,11 +36,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 label->AddTextComponent(L"Label Text", L"Calibri", 30, LcDefaults::White4);
             }
 
+            if (auto widget = world->AddWidget(500, 400, 32, 32))
+            {
+                auto onCheck = [](bool checked) {
+                    DebugMsg("Checkbox is %s\n", checked ? "checked" : "unchecked");
+                };
+                widget->AddCheckHandlerComponent(onCheck);
+                widget->AddCheckboxComponent("../../Assets/checkbox.png",
+                    LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
+            }
+
             if (auto button = world->AddWidget(500, 350, 124, 40))
             {
-                button->AddButtonComponent("../../Assets/button.png", LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
+                button->AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
+                button->AddButtonComponent("../../Assets/button.png",
+                    LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
                 button->AddTextComponent(L"SUBMIT", L"Calibri", 22, LcDefaults::Black4);
-                button->AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed!\n"); });
             }
         };
 

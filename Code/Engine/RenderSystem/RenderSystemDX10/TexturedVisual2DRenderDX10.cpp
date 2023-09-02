@@ -171,6 +171,11 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 	{
 		d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
 	}
+	else
+	if (auto customUV = widget->GetCheckboxComponent())
+	{
+		d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
+	}
 
 	if (widget->HasComponent(EVCType::Texture))
 	{

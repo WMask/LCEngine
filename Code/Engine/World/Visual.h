@@ -32,7 +32,9 @@ enum class EVCType : int
 	// Widgets
 	Text,
 	Button,
-	ClickHandler
+	Checkbox,
+	ClickHandler,
+	CheckHandler
 };
 
 /** Text font */

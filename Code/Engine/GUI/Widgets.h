@@ -64,7 +64,7 @@ struct LcWidgetTextComponent : public IVisualComponent
 };
 
 
-/** Visual component type */
+/** Button state */
 enum class EBtnState : int
 {
     Idle,
@@ -102,6 +102,47 @@ public:// IVisualComponent interface implementation
 };
 
 
+/** Checkbox state */
+enum class ECheckboxState : int
+{
+    Unchecked,
+    UncheckedHovered,
+    Checked,
+    CheckedHovered
+};
+
+/**
+* Widget checkbox component */
+struct GUI_API LcWidgetCheckboxComponent : public IVisualComponent
+{
+    ECheckboxState state;
+    LcVector4 unchecked[4];     // custom UVs for Unchecked state
+    LcVector4 uncheckedH[4];    // custom UVs for UncheckedHovered state
+    LcVector4 checked[4];       // custom UVs for Checked state
+    LcVector4 checkedH[4];      // custom UVs for CheckedHovered state
+    //
+    LcWidgetCheckboxComponent() : state(ECheckboxState::Unchecked) {}
+    //
+    LcWidgetCheckboxComponent(const LcWidgetCheckboxComponent& checkbox);
+    //
+    LcWidgetCheckboxComponent(LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos, LcVector2 checkedPos, LcVector2 checkedHoveredPos);
+    //
+    inline bool IsChecked() const { return state == ECheckboxState::Checked || state == ECheckboxState::CheckedHovered; }
+    //
+    const void* GetData() const;
+
+
+public:// IVisualComponent interface implementation
+    //
+    virtual void Init(class IWorld& world) override;
+    //
+    virtual EVCType GetType() const override { return EVCType::Checkbox; }
+
+};
+
+typedef LcWidgetCheckboxComponent LcCheckbox;
+
+
 /** Widget click handler */
 typedef std::function<void()> LcClickHandler;
 
@@ -118,6 +159,25 @@ struct GUI_API LcWidgetClickComponent : public IVisualComponent
     LcWidgetClickComponent(LcClickHandler inHandler) : handler(inHandler) {}
     // IVisualComponent interface implementation
     virtual EVCType GetType() const override { return EVCType::ClickHandler; }
+
+};
+
+/** Widget check handler */
+typedef std::function<void(bool)> LcCheckHandler;
+
+/**
+* Widget check component */
+struct GUI_API LcWidgetCheckComponent : public IVisualComponent
+{
+    LcCheckHandler handler;
+    //
+    LcWidgetCheckComponent() {}
+    //
+    LcWidgetCheckComponent(const LcWidgetCheckComponent& widget) : handler(widget.handler) {}
+    //
+    LcWidgetCheckComponent(LcCheckHandler inHandler) : handler(inHandler) {}
+    // IVisualComponent interface implementation
+    virtual EVCType GetType() const override { return EVCType::CheckHandler; }
 
 };
 
@@ -151,9 +211,19 @@ public:
         AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
         AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos));
     }
+    void AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
+        LcVector2 checkedPos, LcVector2 checkedHoveredPos)
+    {
+        AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
+        AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos));
+    }
     void AddClickHandlerComponent(LcClickHandler handler)
     {
         AddComponent(std::make_shared<LcWidgetClickComponent>(handler));
+    }
+    void AddCheckHandlerComponent(LcCheckHandler handler)
+    {
+        AddComponent(std::make_shared<LcWidgetCheckComponent>(handler));
     }
     //
     LcWidgetTextComponent* GetTextComponent() const { return (LcWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
@@ -162,7 +232,11 @@ public:
     //
     LcWidgetButtonComponent* GetButtonComponent() const { return (LcWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
     //
+    LcWidgetCheckboxComponent* GetCheckboxComponent() const { return (LcWidgetCheckboxComponent*)GetComponent(EVCType::Checkbox).get(); }
+    //
     LcWidgetClickComponent* GetClickHandlerComponent() const { return (LcWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
+    //
+    LcWidgetCheckComponent* GetCheckHandlerComponent() const { return (LcWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
 
 
 public:
