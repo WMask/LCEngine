@@ -44,7 +44,7 @@ public: // IApplication interface implementation
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(int width, int height) noexcept { windowSize = LcSize(width, height); }
+	virtual void SetWindowSize(int width, int height) noexcept;
 	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept { initHandler = handler; }

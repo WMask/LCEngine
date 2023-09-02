@@ -177,6 +177,34 @@ void LcWindowsApplication::OnUpdate()
     }
 }
 
+void LcWindowsApplication::SetWindowSize(int width, int height) noexcept
+{
+    auto newSize = LcSize(width, height);
+    if (windowSize == newSize) return;
+
+    windowSize = newSize;
+
+    if (renderSystem && renderSystem->CanRender())
+    {
+        RECT clientRect{ 0, 0, width, height };
+        AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
+        int winWidth = clientRect.right - clientRect.left;
+        int winHeight = clientRect.bottom - clientRect.top;
+
+        RECT winRect;
+        GetWindowRect(hWnd, &winRect);
+        SetWindowPos(hWnd, NULL, winRect.left, winRect.top, winWidth, winHeight, 0);
+        UpdateWindow(hWnd);
+
+        renderSystem->Resize(width, height);
+    }
+
+    if (guiManager)
+    {
+        guiManager->UpdateScreenSize(ToF(windowSize));
+    }
+}
+
 IWorld* LcWindowsApplication::GetWorld() noexcept
 {
     IWorld* result = nullptr;

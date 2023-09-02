@@ -44,6 +44,9 @@ public:
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
+	* Resize render system */
+	virtual void Resize(int width, int height) = 0;
+	/**
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
 	/**
@@ -82,6 +85,9 @@ public:// IRenderSystem interface implementation
 	/**
 	* Render world */
 	virtual void Render() override;
+	/**
+	* Resize render system */
+	virtual void Resize(int width, int height) override {}
 
 
 protected:

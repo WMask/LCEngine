@@ -81,7 +81,7 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 	}
 }
 
-LcRenderSystemDX10::LcRenderSystemDX10()
+LcRenderSystemDX10::LcRenderSystemDX10() : widgetRender(nullptr), renderSystemSize(0, 0)
 {
 }
 
@@ -96,7 +96,8 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
 
-	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
+	int width = clientRect.right - clientRect.left;
+	int height = clientRect.bottom - clientRect.top;
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
@@ -295,14 +296,17 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 
 	// init render system
 	LcRenderSystemBase::Create(worldPtr, this, windowed);
+
+	renderSystemSize = LcSize(width, height);
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
 
-	widgetRender = nullptr;
 	texLoader.reset();
+	visual2DRenders.clear();
+	widgetRender = nullptr;
 
 	rasterizerState.Reset();
 	blendState.Reset();
@@ -341,6 +345,72 @@ void LcRenderSystemDX10::Render()
 	LcRenderSystemBase::Render();
 
 	swapChain->Present(0, 0);
+}
+
+void LcRenderSystemDX10::Resize(int width, int height)
+{
+	bool isResized = renderSystemSize != LcSize(width, height);
+
+	if (swapChain && isResized)
+	{
+		// reset render system
+		d3dDevice->OMSetRenderTargets(0, NULL, NULL);
+		renderTargetView.Reset();
+		widgetRender->Shutdown();
+
+		// resize swap chain
+		auto hr = swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+		if (FAILED(hr))
+		{
+			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
+		}
+
+		// get back buffer
+		ComPtr<ID3D10Texture2D> backBuffer;
+		if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)backBuffer.GetAddressOf())))
+		{
+			throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
+		}
+
+		// create render target
+		if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, renderTargetView.GetAddressOf())))
+		{
+			throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
+		}
+
+		backBuffer.Reset();
+		d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
+
+		// set the viewport
+		D3D10_VIEWPORT viewPort;
+		viewPort.Width = width;
+		viewPort.Height = height;
+		viewPort.MinDepth = 0.0f;
+		viewPort.MaxDepth = 1.0f;
+		viewPort.TopLeftX = 0;
+		viewPort.TopLeftY = 0;
+
+		d3dDevice->RSSetViewports(1, &viewPort);
+
+		// update camera
+		if (auto world = worldPtr.lock())
+		{
+			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
+			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+
+			world->GetCamera().Set(cameraPos, cameraTarget);
+			UpdateCamera(0.1f, cameraPos, cameraTarget);
+		}
+
+		// update projection matrix
+		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
+
+		renderSystemSize = LcSize(width, height);
+
+		// recreate widget render
+		widgetRender->Setup();
+	}
 }
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)

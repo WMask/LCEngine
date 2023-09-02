@@ -85,6 +85,8 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Render() override;
 	//
+	virtual void Resize(int width, int height) override;
+	//
 	virtual bool CanRender() const override { return d3dDevice; }
 	//
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
@@ -158,6 +160,8 @@ protected:
 	LcWidgetRenderDX10* widgetRender;
 	//
 	TVFeaturesList prevSpriteFeatures;
+	//
+	LcSize renderSystemSize;
 
 };
 

@@ -52,10 +52,12 @@ inline LcVector2 operator*(const LcVector2& a, float f) { return LcVector2{ a.x 
 inline LcVector3 operator*(const LcVector3& a, float f) { return LcVector3{ a.x * f, a.y * f, a.z * f }; }
 inline LcVector4 operator*(const LcVector4& a, float f) { return LcVector4{ a.x * f, a.y * f, a.z * f, a.w * f }; }
 
+inline bool operator==(const LcSize& a, const LcSize& b) { return a.x == b.x && a.y == b.y; }
 inline bool operator==(const LcVector2& a, const LcVector2& b) { return a.x == b.x && a.y == b.y; }
 inline bool operator==(const LcVector3& a, const LcVector3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 inline bool operator==(const LcVector4& a, const LcVector4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
 
+inline bool operator!=(const LcSize& a, const LcSize& b) { return a.x != b.x || a.y != b.y; }
 inline bool operator!=(const LcVector2& a, const LcVector2& b) { return a.x != b.x || a.y != b.y; }
 inline bool operator!=(const LcVector3& a, const LcVector3& b) { return a.x != b.x || a.y != b.y || a.z != b.z; }
 inline bool operator!=(const LcVector4& a, const LcVector4& b) { return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w; }

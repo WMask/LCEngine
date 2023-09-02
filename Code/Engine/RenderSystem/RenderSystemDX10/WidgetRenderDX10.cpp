@@ -13,6 +13,11 @@
 
 LcWidgetRenderDX10::~LcWidgetRenderDX10()
 {
+    Shutdown();
+}
+
+void LcWidgetRenderDX10::Shutdown()
+{
     dwriteFactory.Reset();
     renderTarget.Reset();
     d2dFactory.Reset();
@@ -116,6 +121,8 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
 void LcWidgetRenderDX10::Setup()
 {
     if (!hWnd || !device.GetD3D10SwapChain()) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
+
+    if (d2dFactory) Shutdown();
 
     RECT clientRect;
     GetClientRect(hWnd, &clientRect);
