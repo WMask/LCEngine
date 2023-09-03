@@ -30,7 +30,7 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) = 0;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
@@ -43,6 +43,15 @@ public:
 	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;
+	/**
+	* Request resize */
+	virtual void RequestResize(int width, int height) = 0;
+	/**
+	* Resize render system */
+	virtual void Resize(int width, int height) = 0;
+	/**
+	* Set window mode */
+	virtual void SetMode(LcWinMode mode) = 0;
 	/**
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
@@ -67,21 +76,22 @@ public:
 
 
 public:// IRenderSystem interface implementation
-	/**
-	* Load shaders */
+	//
 	virtual void LoadShaders(const char* folderPath) override;
-	/**
-	* Create render system */
-	virtual void Create(TWeakWorld world, void* windowHandle, bool windowed) override { worldPtr = world; }
-	/**
-	* Shutdown render system */
+	//
+	virtual void Create(TWeakWorld world, void* windowHandle, LcWinMode mode) override { worldPtr = world; }
+	//
 	virtual void Shutdown() override {}
-	/**
-	* Update world */
+	//
 	virtual void Update(float deltaSeconds) override;
-	/**
-	* Render world */
+	//
 	virtual void Render() override;
+	//
+	virtual void RequestResize(int width, int height) override {}
+	//
+	virtual void Resize(int width, int height) override {}
+	//
+	virtual void SetMode(LcWinMode mode) override {}
 
 
 protected:

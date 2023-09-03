@@ -38,6 +38,8 @@ public:
 	//
 	~LcWidgetRenderDX10();
 	//
+	void Shutdown();
+	//
 	bool RemoveFont(const ITextFont* font);
 	//
 	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);

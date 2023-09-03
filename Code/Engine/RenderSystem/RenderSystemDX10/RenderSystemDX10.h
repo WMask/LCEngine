@@ -75,7 +75,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) override;
 	//
 	virtual void Shutdown() override;
 	//
@@ -84,6 +84,12 @@ public:// IRenderSystem interface implementation
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) override;
 	//
 	virtual void Render() override;
+	//
+	virtual void RequestResize(int width, int height) override;
+	//
+	virtual void Resize(int width, int height) override;
+	//
+	virtual void SetMode(LcWinMode mode) override;
 	//
 	virtual bool CanRender() const override { return d3dDevice; }
 	//
@@ -158,6 +164,8 @@ protected:
 	LcWidgetRenderDX10* widgetRender;
 	//
 	TVFeaturesList prevSpriteFeatures;
+	//
+	LcSize renderSystemSize;
 
 };
 

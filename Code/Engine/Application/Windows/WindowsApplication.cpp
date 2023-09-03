@@ -10,6 +10,9 @@
 #include "RenderSystem/WidgetRender.h"
 #include "GUI/GuiManager.h"
 
+#define WS_LC_WINDOW_MENU   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
+#define WS_LC_WINDOW         WS_POPUPWINDOW
+
 
 static const WCHAR* LcWindowClassName = L"LcWindowClassName";
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -19,6 +22,7 @@ struct LcWin32Handles
     LcKeyboardHandler keyboardHandler;
     LcMouseMoveHandler mouseMoveHandler;
     LcMouseButtonHandler mouseButtonHandler;
+    IRenderSystem* renderSystem;
     IGuiManager* guiManager;
     IApplication* app;
 };
@@ -31,6 +35,7 @@ LcWindowsApplication::LcWindowsApplication()
     cmds.clear();
     cmdsCount = 0;
     windowSize = LcSize(800, 600);
+    winMode = LcWinMode::Windowed;
 	quit = false;
     prevTick = 0;
 }
@@ -57,52 +62,53 @@ LcWindowsApplication::~LcWindowsApplication()
     }
 }
 
-void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
 {
-    world = worldPtr;
+    world = ::GetWorld();
 	hInstance = (HINSTANCE)handle;
     cmds = inCmds;
     cmdsCount = inCmdsCount;
     if (inShadersPath) shadersPath = inShadersPath;
 }
 
-void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr, const std::wstring& inCmds, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, const std::wstring& inCmds, const char* inShadersPath) noexcept
 {
-    Init(handle, worldPtr, inCmds, 1, inShadersPath);
+    Init(handle, inCmds, 1, inShadersPath);
 }
 
-void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr) noexcept
+void LcWindowsApplication::Init(void* handle) noexcept
 {
-    Init(handle, worldPtr, L"", 1, "../../../Shaders/HLSL/");
+    Init(handle, L"", 1, "../../../Shaders/HLSL/");
 }
 
 void LcWindowsApplication::Run()
 {
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
 
-    WNDCLASSEXW wcex;
+    WNDCLASSEXW wcex{};
     wcex.cbSize = sizeof(WNDCLASSEXW);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
-    wcex.hIcon = NULL;
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    wcex.lpszMenuName = NULL;
     wcex.lpszClassName = LcWindowClassName;
-    wcex.hIconSm = NULL;
     if (0 == RegisterClassExW(&wcex))
     {
         throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
     }
 
-    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
-    AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    BOOL windowedStyle = (windowSize.y < screenHeight) ? TRUE : FALSE;
+    int style = windowedStyle ? WS_LC_WINDOW_MENU : WS_LC_WINDOW;
 
-    hWnd = CreateWindowW(LcWindowClassName, L"Game Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-        clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, nullptr, nullptr, hInstance, nullptr);
+    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
+    AdjustWindowRect(&clientRect, style, FALSE);
+    int winWidth = clientRect.right - clientRect.left;
+    int winHeight = clientRect.bottom - clientRect.top;
+
+    hWnd = CreateWindowW(LcWindowClassName, L"Game Window", style, CW_USEDEFAULT, CW_USEDEFAULT,
+        winWidth, winHeight, nullptr, nullptr, hInstance, nullptr);
     if (!hWnd)
     {
         throw std::exception("LcWindowsApplication::Run(): Cannot create window");
@@ -111,14 +117,14 @@ void LcWindowsApplication::Run()
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, guiManager.get(), this };
+    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, renderSystem.get(), guiManager.get(), this };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
-        renderSystem->Create(world, hWnd, true);
+        renderSystem->Create(world, hWnd, winMode);
     }
 
     if (guiManager)
@@ -177,11 +183,28 @@ void LcWindowsApplication::OnUpdate()
     }
 }
 
-IWorld* LcWindowsApplication::GetWorld() noexcept
+void LcWindowsApplication::SetWindowSize(int width, int height)
 {
-    IWorld* result = nullptr;
-    if (auto worldPtr = world.lock()) result = worldPtr.get();
-    return result;
+    auto newSize = LcSize(width, height);
+    if (windowSize == newSize) return;
+
+    windowSize = newSize;
+
+    if (renderSystem && renderSystem->CanRender())
+    {
+        // actual resize in WM_SIZE message handler
+        renderSystem->RequestResize(width, height);
+    }
+}
+
+void LcWindowsApplication::SetWindowMode(LcWinMode mode)
+{
+    winMode = mode;
+
+    if (renderSystem && renderSystem->CanRender())
+    {
+        renderSystem->SetMode(winMode);
+    }
 }
 
 LcMouseBtn MapMouseKeys(WPARAM wParam)
@@ -208,6 +231,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
+        break;
+    case WM_MENUCHAR:
+        return MNC_CLOSE << 16; // disable exit fullscreen mode sound
+    case WM_SIZE:
+        if (handles && handles->renderSystem)
+        {
+            int width = LOWORD(lParam);
+            int height = HIWORD(lParam);
+            handles->renderSystem->Resize(width, height);
+
+            if (handles->guiManager)
+            {
+                handles->guiManager->UpdateScreenSize(ToF(LcSize(width, height)));
+            }
+        }
         break;
     case WM_KEYDOWN:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down, handles->app);

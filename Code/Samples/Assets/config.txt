@@ -1,3 +1,3 @@
 [Application]
-appWinWidth  1024
-appWinHeight 768
+appWinWidth  1280
+appWinHeight 720

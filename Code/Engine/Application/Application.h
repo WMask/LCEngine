@@ -19,24 +19,19 @@
 #pragma warning(disable : 4251)
 
 
-/**
-* Init handler */
+/** Init handler */
 typedef std::function<void(class IApplication*)> LcInitHandler;
 
-/**
-* Update handler */
+/** Update handler */
 typedef std::function<void(float, class IApplication*)> LcUpdateHandler;
 
-/**
-* Keyboard events handler */
+/** Keyboard events handler */
 typedef std::function<void(int, LcKeyState, class IApplication*)> LcKeyboardHandler;
 
-/**
-* Mouse move handler */
+/** Mouse move handler */
 typedef std::function<void(float, float, class IApplication*)> LcMouseMoveHandler;
 
-/**
-* Mouse button handler */
+/** Mouse button handler */
 typedef std::function<void(LcMouseBtn, LcKeyState, float, float, class IApplication*)> LcMouseButtonHandler;
 
 
@@ -50,13 +45,13 @@ public:
 	virtual ~IApplication();
 	/**
 	* Set app parameters */
-	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
+	virtual void Init(void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
+	virtual void Init(void* handle, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* handle, TWeakWorld worldPtr = TWeakWorld()) noexcept = 0;
+	virtual void Init(void* handle) noexcept = 0;
 	/**
 	* Set render system */
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept = 0;
@@ -65,7 +60,10 @@ public:
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(int width, int height) noexcept = 0;
+	virtual void SetWindowSize(int width, int height) = 0;
+	/**
+	* Set window mode */
+	virtual void SetWindowMode(LcWinMode mode) = 0;
 	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept = 0;
@@ -92,7 +90,7 @@ public:
 	virtual class IWorld* GetWorld() noexcept = 0;
 	/**
 	* Get World pointer */
-	virtual TWeakWorld GetWorldPtr() noexcept = 0;
+	virtual TWorldPtr GetWorldPtr() noexcept = 0;
 
 
 protected:

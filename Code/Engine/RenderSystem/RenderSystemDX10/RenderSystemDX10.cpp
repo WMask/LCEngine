@@ -81,7 +81,7 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 	}
 }
 
-LcRenderSystemDX10::LcRenderSystemDX10()
+LcRenderSystemDX10::LcRenderSystemDX10() : widgetRender(nullptr), renderSystemSize(0, 0)
 {
 }
 
@@ -90,25 +90,29 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
+void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode winMode)
 {
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
 
-	int width = clientRect.right - clientRect.left, height = clientRect.bottom - clientRect.top;
+	int width = clientRect.right - clientRect.left;
+	int height = clientRect.bottom - clientRect.top;
+
+	DXGI_MODE_DESC displayModeDesc{};
+	if (!LcFindDisplayMode(width, height, &displayModeDesc))
+	{
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot find display mode");
+	}
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 2;
-	swapChainDesc.BufferDesc.Width = width;
-	swapChainDesc.BufferDesc.Height = height;
+	swapChainDesc.BufferDesc = displayModeDesc;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
-	swapChainDesc.Windowed = true;
+	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -294,15 +298,20 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	}
 
 	// init render system
-	LcRenderSystemBase::Create(worldPtr, this, windowed);
+	LcRenderSystemBase::Create(worldPtr, this, winMode);
+
+	LcMakeWindowAssociation(hWnd);
+
+	renderSystemSize = LcSize(width, height);
 }
 
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
 
-	widgetRender = nullptr;
 	texLoader.reset();
+	visual2DRenders.clear();
+	widgetRender = nullptr;
 
 	rasterizerState.Reset();
 	blendState.Reset();
@@ -340,7 +349,89 @@ void LcRenderSystemDX10::Render()
 
 	LcRenderSystemBase::Render();
 
-	swapChain->Present(0, 0);
+	swapChain->Present(DXGI_SWAP_EFFECT_SEQUENTIAL, 0);
+}
+
+void LcRenderSystemDX10::RequestResize(int width, int height)
+{
+	DXGI_MODE_DESC displayModeDesc{};
+	if (!LcFindDisplayMode(width, height, &displayModeDesc))
+	{
+		throw std::exception("LcRenderSystemDX10::RequestResize(): Cannot find display mode");
+	}
+
+	swapChain->ResizeTarget(&displayModeDesc);
+}
+
+void LcRenderSystemDX10::Resize(int width, int height)
+{
+	LcSize newSize(width, height);
+	bool needResize = (renderSystemSize != newSize);
+
+	if (swapChain && needResize)
+	{
+		// reset render system
+		d3dDevice->OMSetRenderTargets(0, NULL, NULL);
+		renderTargetView.Reset();
+		widgetRender->Shutdown();
+
+		// resize swap chain
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)))
+		{
+			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
+		}
+
+		// get back buffer
+		ComPtr<ID3D10Texture2D> backBuffer;
+		if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)backBuffer.GetAddressOf())))
+		{
+			throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
+		}
+
+		// create render target
+		if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, renderTargetView.GetAddressOf())))
+		{
+			throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
+		}
+
+		backBuffer.Reset();
+		d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
+
+		// set the viewport
+		D3D10_VIEWPORT viewPort;
+		viewPort.Width = width;
+		viewPort.Height = height;
+		viewPort.MinDepth = 0.0f;
+		viewPort.MaxDepth = 1.0f;
+		viewPort.TopLeftX = 0;
+		viewPort.TopLeftY = 0;
+
+		d3dDevice->RSSetViewports(1, &viewPort);
+
+		// update camera
+		if (auto world = worldPtr.lock())
+		{
+			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
+			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+
+			world->GetCamera().Set(cameraPos, cameraTarget);
+			UpdateCamera(0.1f, cameraPos, cameraTarget);
+		}
+
+		// update projection matrix
+		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
+
+		renderSystemSize = newSize;
+
+		// recreate widget render
+		widgetRender->Setup();
+	}
+}
+
+void LcRenderSystemDX10::SetMode(LcWinMode winMode)
+{
+	if (swapChain) swapChain->SetFullscreenState((winMode == LcWinMode::Fullscreen), nullptr);
 }
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)

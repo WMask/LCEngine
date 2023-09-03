@@ -12,6 +12,76 @@
 #include <set>
 
 
+std::vector<ComPtr<IDXGIAdapter>> LcEnumerateAdapters()
+{
+    std::vector<ComPtr<IDXGIAdapter>> adapters;
+    ComPtr<IDXGIFactory> factory;
+
+    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)factory.GetAddressOf())))
+    {
+        return adapters;
+    }
+
+    IDXGIAdapter* adapter;
+    for (UINT i = 0; factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; i++)
+    {
+        adapters.push_back(adapter);
+    }
+
+    return adapters;
+}
+
+bool LcFindDisplayMode(int width, int height, DXGI_MODE_DESC* outMode)
+{
+    if (!outMode) return false;
+
+    outMode->Format = DXGI_FORMAT_UNKNOWN;
+
+    auto adapters = LcEnumerateAdapters();
+    for (auto adapter : adapters)
+    {
+        ComPtr<IDXGIOutput> output;
+        if (SUCCEEDED(adapter->EnumOutputs(0, output.GetAddressOf())))
+        {
+            UINT numModes = 0;
+            std::vector<DXGI_MODE_DESC> displayModes;
+            DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+            output->GetDisplayModeList(format, 0, &numModes, NULL);
+            displayModes.resize(numModes);
+
+            output->GetDisplayModeList(format, 0, &numModes, &displayModes[0]);
+            for (auto& mode : displayModes)
+            {
+                if (mode.Width == width &&
+                    mode.Height == height &&
+                    mode.RefreshRate.Numerator >= 60 &&
+                    mode.Format == DXGI_FORMAT_R8G8B8A8_UNORM)
+                {
+                    *outMode = mode;
+                    if (mode.RefreshRate.Denominator == 1) return true;
+                }
+            }
+        }
+    }
+
+    return (outMode->Format != DXGI_FORMAT_UNKNOWN);
+}
+
+void LcMakeWindowAssociation(HWND hWnd)
+{
+    ComPtr<IDXGIFactory> factory;
+    if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)factory.GetAddressOf())))
+    {
+        throw std::exception("LcMakeWindowAssociation(): Cannot create factory");
+    }
+
+    if (FAILED(factory->MakeWindowAssociation(hWnd, 0)))
+    {
+        throw std::exception("LcMakeWindowAssociation(): Cannot make window association");
+    }
+}
+
 LcTextureLoaderDX10::~LcTextureLoaderDX10()
 {
     ClearCache(nullptr);
