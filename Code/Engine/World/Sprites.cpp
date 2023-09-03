@@ -8,6 +8,11 @@
 
 #include "pch.h"
 #include "World/Sprites.h"
+#include "Core/LcUtils.h"
+
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
 
 
 void LcSpriteAnimationComponent::Update(float deltaSeconds)
@@ -44,6 +49,16 @@ LcVector4 LcSpriteAnimationComponent::GetAnimData() const
 	}
 
 	return LcDefaults::ZeroVec4;
+}
+
+LcTiledSpriteComponent::LcTiledSpriteComponent(const std::string& tiledJsonPath)
+{
+	auto tiledFile = ReadTextFile(tiledJsonPath.c_str());
+	if (tiledFile.empty()) throw std::exception("LcTiledSpriteComponent(): Cannot read tiled file");
+
+	json data = json::parse(tiledFile);
+	auto tilewidth = data["tilewidth"].get<int>();
+	auto tileheight = data["tileheight"].get<int>();
 }
 
 void LcSprite::Update(float deltaSeconds)

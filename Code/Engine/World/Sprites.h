@@ -151,6 +151,31 @@ public: // IVisualComponent interface implementation
 };
 
 
+struct TILEDSPRITEDATA
+{
+	LcVector3 pos;	// position
+	LcVector2 uv;	// uv coordinates
+};
+
+/**
+* Tiled sprite component */
+struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
+{
+	std::vector<TILEDSPRITEDATA> data;
+	//
+	LcTiledSpriteComponent() {}
+	//
+	LcTiledSpriteComponent(const LcTiledSpriteComponent& tiles) : data(tiles.data) {}
+	//
+	LcTiledSpriteComponent(const std::string& tiledJsonPath);
+	//
+	const void* GetData() const { return &data[0]; }
+	// IVisualComponent interface implementation
+	virtual EVCType GetType() const override { return EVCType::Tiled; }
+
+};
+
+
 /**
 * Sprite interface */
 class ISprite : public IVisualBase
@@ -198,6 +223,11 @@ public:
 	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
 	{
 		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
+	}
+	//
+	void AddTiledSpriteComponent(const std::string& tiledJsonPath)
+	{
+		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath));
 	}
 	//
 	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
