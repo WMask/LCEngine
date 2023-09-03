@@ -240,7 +240,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     case WM_MENUCHAR:
-        return MNC_CLOSE << 16;
+        return MNC_CLOSE << 16; // disable exit fullscreen mode sound
     case WM_SIZE:
         if (handles && handles->renderSystem)
         {

@@ -51,17 +51,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q') app->RequestQuit();
         };
 
-        auto cfg = LoadConfig("../../Assets/config.txt");
-        int winWidth = cfg["appWinWidth"].iValue;
-        int winHeight = cfg["appWinHeight"].iValue;
-
         auto app = GetApp();
         auto world = GetWorld();
         app->SetRenderSystem(GetRenderSystem());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
-        app->SetWindowSize(winWidth, winHeight);
+        app->SetWindowSize(1024, 768);
         app->Init(hInstance, world);
         app->Run();
     }
