@@ -45,13 +45,13 @@ public:
 	virtual ~IApplication();
 	/**
 	* Set app parameters */
-	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
+	virtual void Init(void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
+	virtual void Init(void* handle, const std::wstring& cmds, const char* shadersPath = nullptr) noexcept = 0;
 	/**
 	* Set app parameters */
-	virtual void Init(void* handle, TWeakWorld worldPtr = TWeakWorld()) noexcept = 0;
+	virtual void Init(void* handle) noexcept = 0;
 	/**
 	* Set render system */
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept = 0;
@@ -90,7 +90,7 @@ public:
 	virtual class IWorld* GetWorld() noexcept = 0;
 	/**
 	* Get World pointer */
-	virtual TWeakWorld GetWorldPtr() noexcept = 0;
+	virtual TWorldPtr GetWorldPtr() noexcept = 0;
 
 
 protected:

@@ -62,23 +62,23 @@ LcWindowsApplication::~LcWindowsApplication()
     }
 }
 
-void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, const std::wstring& inCmds, int inCmdsCount, const char* inShadersPath) noexcept
 {
-    world = worldPtr;
+    world = ::GetWorld();
 	hInstance = (HINSTANCE)handle;
     cmds = inCmds;
     cmdsCount = inCmdsCount;
     if (inShadersPath) shadersPath = inShadersPath;
 }
 
-void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr, const std::wstring& inCmds, const char* inShadersPath) noexcept
+void LcWindowsApplication::Init(void* handle, const std::wstring& inCmds, const char* inShadersPath) noexcept
 {
-    Init(handle, worldPtr, inCmds, 1, inShadersPath);
+    Init(handle, inCmds, 1, inShadersPath);
 }
 
-void LcWindowsApplication::Init(void* handle, TWeakWorld worldPtr) noexcept
+void LcWindowsApplication::Init(void* handle) noexcept
 {
-    Init(handle, worldPtr, L"", 1, "../../../Shaders/HLSL/");
+    Init(handle, L"", 1, "../../../Shaders/HLSL/");
 }
 
 void LcWindowsApplication::Run()
@@ -205,13 +205,6 @@ void LcWindowsApplication::SetWindowMode(LcWinMode mode)
     {
         renderSystem->SetMode(winMode);
     }
-}
-
-IWorld* LcWindowsApplication::GetWorld() noexcept
-{
-    IWorld* result = nullptr;
-    if (auto worldPtr = world.lock()) result = worldPtr.get();
-    return result;
 }
 
 LcMouseBtn MapMouseKeys(WPARAM wParam)

@@ -52,13 +52,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         };
 
         auto app = GetApp();
-        auto world = GetWorld();
         app->SetRenderSystem(GetRenderSystem());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
         app->SetWindowSize(1024, 768);
-        app->Init(hInstance, world);
+        app->Init(hInstance);
         app->Run();
     }
     catch (const std::exception& ex)

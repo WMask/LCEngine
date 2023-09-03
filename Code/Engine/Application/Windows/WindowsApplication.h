@@ -27,11 +27,11 @@ public: // IApplication interface implementation
 	//
 	virtual ~LcWindowsApplication() override;
 	//
-	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
+	virtual void Init(void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath) noexcept override;
 	//
-	virtual void Init(void* handle, TWeakWorld worldPtr, const std::wstring& cmds, const char* shadersPath) noexcept override;
+	virtual void Init(void* handle, const std::wstring& cmds, const char* shadersPath) noexcept override;
 	//
-	virtual void Init(void* handle, TWeakWorld worldPtr = TWeakWorld()) noexcept override;
+	virtual void Init(void* handle) noexcept override;
 	//
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = render; }
 	//
@@ -53,11 +53,11 @@ public: // IApplication interface implementation
 	//
 	virtual void Run() override;
 	//
-	virtual void RequestQuit() noexcept { quit = true; }
+	virtual void RequestQuit() noexcept override { quit = true; }
 	//
-	virtual class IWorld* GetWorld() noexcept;
+	virtual class IWorld* GetWorld() noexcept override { return world.get(); }
 	//
-	virtual TWeakWorld GetWorldPtr() noexcept { return world; }
+	virtual TWorldPtr GetWorldPtr() noexcept override { return world; }
 
 
 protected:
@@ -69,7 +69,7 @@ protected:
 	//
 	HWND hWnd;
 	//
-	TWeakWorld world;
+	TWorldPtr world;
 	//
 	TRenderSystemPtr renderSystem;
 	//
