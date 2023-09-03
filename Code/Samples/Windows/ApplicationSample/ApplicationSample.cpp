@@ -31,9 +31,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        bool windowedMode = true;
-
-        auto onInitHandler = [&windowedMode](IApplication* app)
+        auto onInitHandler = [](IApplication* app)
         {
             auto world = app->GetWorld();
 
@@ -63,9 +61,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto widget = world->AddWidget(195, 450, 32, 32))
             {
-                auto onToggleMode = [&windowedMode, app](bool checked) {
-                    windowedMode = !windowedMode;
-                    app->SetWindowMode(windowedMode ? LcWinMode::Windowed : LcWinMode::Fullscreen);
+                auto onToggleMode = [app](bool fullscreen) {
+                    app->SetWindowMode(fullscreen ? LcWinMode::Fullscreen : LcWinMode::Windowed);
                 };
                 widget->AddCheckHandlerComponent(onToggleMode);
                 ADD_DEFAULT_CHECKBOX(widget);
