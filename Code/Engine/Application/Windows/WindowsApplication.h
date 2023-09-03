@@ -39,7 +39,7 @@ public: // IApplication interface implementation
 	//
 	virtual void SetWindowSize(int width, int height) override;
 	//
-	virtual void SetWindowMode(bool fullscreen) override;
+	virtual void SetWindowMode(LcWinMode mode) override;
 	//
 	virtual void SetInitHandler(LcInitHandler handler) noexcept { initHandler = handler; }
 	//
@@ -84,6 +84,8 @@ protected:
 	LcSize windowSize;
 	//
 	bool quit;
+	//
+	LcWinMode winMode;
 	//
 	LcInitHandler initHandler;
 	//

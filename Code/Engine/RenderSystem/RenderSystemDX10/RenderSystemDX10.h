@@ -75,7 +75,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) override;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) override;
 	//
 	virtual void Shutdown() override;
 	//
@@ -89,7 +89,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Resize(int width, int height) override;
 	//
-	virtual void SetMode(bool fullscreen) override;
+	virtual void SetMode(LcWinMode mode) override;
 	//
 	virtual bool CanRender() const override { return d3dDevice; }
 	//

@@ -30,7 +30,7 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, bool windowed) = 0;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
@@ -50,8 +50,8 @@ public:
 	* Resize render system */
 	virtual void Resize(int width, int height) = 0;
 	/**
-	* Set window mode: fullscreen or windowed */
-	virtual void SetMode(bool fullscreen) = 0;
+	* Set window mode */
+	virtual void SetMode(LcWinMode mode) = 0;
 	/**
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
@@ -79,7 +79,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void LoadShaders(const char* folderPath) override;
 	//
-	virtual void Create(TWeakWorld world, void* windowHandle, bool windowed) override { worldPtr = world; }
+	virtual void Create(TWeakWorld world, void* windowHandle, LcWinMode mode) override { worldPtr = world; }
 	//
 	virtual void Shutdown() override {}
 	//
@@ -91,7 +91,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Resize(int width, int height) override {}
 	//
-	virtual void SetMode(bool fullscreen) override {}
+	virtual void SetMode(LcWinMode mode) override {}
 
 
 protected:

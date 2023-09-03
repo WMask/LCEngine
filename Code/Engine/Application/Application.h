@@ -19,24 +19,19 @@
 #pragma warning(disable : 4251)
 
 
-/**
-* Init handler */
+/** Init handler */
 typedef std::function<void(class IApplication*)> LcInitHandler;
 
-/**
-* Update handler */
+/** Update handler */
 typedef std::function<void(float, class IApplication*)> LcUpdateHandler;
 
-/**
-* Keyboard events handler */
+/** Keyboard events handler */
 typedef std::function<void(int, LcKeyState, class IApplication*)> LcKeyboardHandler;
 
-/**
-* Mouse move handler */
+/** Mouse move handler */
 typedef std::function<void(float, float, class IApplication*)> LcMouseMoveHandler;
 
-/**
-* Mouse button handler */
+/** Mouse button handler */
 typedef std::function<void(LcMouseBtn, LcKeyState, float, float, class IApplication*)> LcMouseButtonHandler;
 
 
@@ -67,8 +62,8 @@ public:
 	* Set window size in pixels */
 	virtual void SetWindowSize(int width, int height) = 0;
 	/**
-	* Set window mode: fullscreen or windowed */
-	virtual void SetWindowMode(bool fullscreen) = 0;
+	* Set window mode */
+	virtual void SetWindowMode(LcWinMode mode) = 0;
 	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept = 0;

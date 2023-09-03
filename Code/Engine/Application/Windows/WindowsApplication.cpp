@@ -10,6 +10,9 @@
 #include "RenderSystem/WidgetRender.h"
 #include "GUI/GuiManager.h"
 
+#define WS_LC_WINDOW_MENU   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
+#define WS_LC_WINDOW         WS_POPUPWINDOW
+
 
 static const WCHAR* LcWindowClassName = L"LcWindowClassName";
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -32,6 +35,7 @@ LcWindowsApplication::LcWindowsApplication()
     cmds.clear();
     cmdsCount = 0;
     windowSize = LcSize(800, 600);
+    winMode = LcWinMode::Windowed;
 	quit = false;
     prevTick = 0;
 }
@@ -94,11 +98,17 @@ void LcWindowsApplication::Run()
         throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
     }
 
-    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
-    AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    BOOL windowedStyle = (windowSize.y < screenHeight) ? TRUE : FALSE;
+    int style = windowedStyle ? WS_LC_WINDOW_MENU : WS_LC_WINDOW;
 
-    hWnd = CreateWindowW(LcWindowClassName, L"Game Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-        clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, nullptr, nullptr, hInstance, nullptr);
+    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
+    AdjustWindowRect(&clientRect, style, FALSE);
+    int winWidth = clientRect.right - clientRect.left;
+    int winHeight = clientRect.bottom - clientRect.top;
+
+    hWnd = CreateWindowW(LcWindowClassName, L"Game Window", style, CW_USEDEFAULT, CW_USEDEFAULT,
+        winWidth, winHeight, nullptr, nullptr, hInstance, nullptr);
     if (!hWnd)
     {
         throw std::exception("LcWindowsApplication::Run(): Cannot create window");
@@ -114,7 +124,7 @@ void LcWindowsApplication::Run()
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
-        renderSystem->Create(world, hWnd, true);
+        renderSystem->Create(world, hWnd, winMode);
     }
 
     if (guiManager)
@@ -187,11 +197,13 @@ void LcWindowsApplication::SetWindowSize(int width, int height)
     }
 }
 
-void LcWindowsApplication::SetWindowMode(bool fullscreen)
+void LcWindowsApplication::SetWindowMode(LcWinMode mode)
 {
+    winMode = mode;
+
     if (renderSystem && renderSystem->CanRender())
     {
-        renderSystem->SetMode(fullscreen);
+        renderSystem->SetMode(winMode);
     }
 }
 

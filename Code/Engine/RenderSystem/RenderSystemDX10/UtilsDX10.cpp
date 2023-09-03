@@ -55,7 +55,8 @@ bool LcFindDisplayMode(int width, int height, DXGI_MODE_DESC* outMode)
             {
                 if (mode.Width == width &&
                     mode.Height == height &&
-                    mode.RefreshRate.Numerator >= 60)
+                    mode.RefreshRate.Numerator >= 60 &&
+                    mode.Format == DXGI_FORMAT_R8G8B8A8_UNORM)
                 {
                     *outMode = mode;
                     if (mode.RefreshRate.Denominator == 1) return true;

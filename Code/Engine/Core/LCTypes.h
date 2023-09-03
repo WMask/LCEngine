@@ -40,6 +40,9 @@ enum class LcRenderSystemType
 	DX10
 };
 
+/** Window mode */
+enum class LcWinMode : int { Windowed, Fullscreen };
+
 
 /** Keys struct */
 struct CORE_API KEYS

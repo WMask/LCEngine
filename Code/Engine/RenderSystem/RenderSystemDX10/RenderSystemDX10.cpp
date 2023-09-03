@@ -90,7 +90,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool windowed)
+void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode winMode)
 {
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
@@ -111,7 +111,8 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
-	swapChainDesc.Windowed = true;
+	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -297,7 +298,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, bool wi
 	}
 
 	// init render system
-	LcRenderSystemBase::Create(worldPtr, this, windowed);
+	LcRenderSystemBase::Create(worldPtr, this, winMode);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -375,7 +376,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		widgetRender->Shutdown();
 
 		// resize swap chain
-		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0)))
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)))
 		{
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}
@@ -428,9 +429,9 @@ void LcRenderSystemDX10::Resize(int width, int height)
 	}
 }
 
-void LcRenderSystemDX10::SetMode(bool fullscreen)
+void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 {
-	if (swapChain) swapChain->SetFullscreenState(fullscreen, nullptr);
+	if (swapChain) swapChain->SetFullscreenState((winMode == LcWinMode::Fullscreen), nullptr);
 }
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
