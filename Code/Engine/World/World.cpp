@@ -70,12 +70,12 @@ ISprite* LcWorld::AddSprite(const LcSpriteData& inSprite)
 	return newSprite.get();
 }
 
-ISprite* LcWorld::AddSprite(float x, float y, float z, float width, float height, float inRotZ, bool inVisible)
+ISprite* LcWorld::AddSprite3D(float x, float y, float z, float width, float height, float inRotZ, bool inVisible)
 {
 	return AddSprite(LcSpriteData(LcVector3(x, y, z), LcSizef(width, height), inRotZ, inVisible));
 }
 
-ISprite* LcWorld::AddSprite(float x, float y, float width, float height, float inRotZ, bool inVisible)
+ISprite* LcWorld::AddSprite2D(float x, float y, float width, float height, float inRotZ, bool inVisible)
 {
 	return AddSprite(LcSpriteData(LcVector3(x, y, 0.0f), LcSizef(width, height), inRotZ, inVisible));
 }

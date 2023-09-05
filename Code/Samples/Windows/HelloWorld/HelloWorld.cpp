@@ -23,7 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](IApplication* app)
         {
-            if (auto sprite = app->GetWorld()->AddSprite(250, 400, 200, 200))
+            if (auto sprite = app->GetWorld()->AddSprite2D(250, 400, 200, 200))
             {
                 sprite->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
             }

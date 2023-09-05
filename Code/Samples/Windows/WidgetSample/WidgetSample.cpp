@@ -26,12 +26,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto world = app->GetWorld();
 
-            if (auto sprite = world->AddSprite(500, 400, 200, 200))
+            if (auto sprite = world->AddSprite2D(500, 400, 200, 200))
             {
                 sprite->AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            if (auto label = world->AddWidget(500, 450, 200, 100))
+            if (auto label = world->AddWidget(500, 350, 200, 100))
             {
                 label->AddTextComponent(L"Label Text", L"Calibri", 30, LcDefaults::White4);
             }
@@ -46,7 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                     LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
             }
 
-            if (auto button = world->AddWidget(500, 350, 124, 40))
+            if (auto button = world->AddWidget(500, 450, 124, 40))
             {
                 auto onClick = []() {
                     DebugMsg("SUBMIT button pressed\n");

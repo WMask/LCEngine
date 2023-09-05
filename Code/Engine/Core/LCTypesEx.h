@@ -104,10 +104,10 @@ inline bool Contains(const LcRect& r, const LcPoint& p)
 
 /**
 * Create ortho matrix */
-CORE_API LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane);
+CORE_API LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane, bool flipY = true);
 /**
 * Create ortho matrix */
-CORE_API LcMatrix4 OrthoMatrix(LcSize viewportSize, float nearPlane, float farPlane);
+CORE_API LcMatrix4 OrthoMatrix(LcSize viewportSize, float nearPlane, float farPlane, bool flipY = true);
 /**
 * Create look at matrix */
 CORE_API LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to);
@@ -116,7 +116,7 @@ CORE_API LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to);
 CORE_API LcMatrix4 TranslationMatrix(LcVector3 pos);
 /**
 * Create transform matrix */
-CORE_API LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ = 0.0f);
+CORE_API LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ = 0.0f, bool flipY = true);
 /**
 * Transpose matrix */
 CORE_API LcMatrix4 TransposeMatrix(const LcMatrix4& mat);

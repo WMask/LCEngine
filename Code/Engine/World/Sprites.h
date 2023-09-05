@@ -151,25 +151,25 @@ public: // IVisualComponent interface implementation
 };
 
 
-struct TILEDSPRITEDATA
+struct LC_TILES_DATA
 {
-	LcVector3 pos;	// position
-	LcVector2 uv;	// uv coordinates
+	LcVector3 pos[4];	// position
+	LcVector2 uv[4];	// uv coordinates
 };
 
 /**
 * Tiled sprite component */
 struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 {
-	std::vector<TILEDSPRITEDATA> data;
+	std::vector<LC_TILES_DATA> tiles;
 	//
 	LcTiledSpriteComponent() {}
 	//
-	LcTiledSpriteComponent(const LcTiledSpriteComponent& tiles) : data(tiles.data) {}
+	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) : tiles(sprite.tiles) {}
 	//
 	LcTiledSpriteComponent(const std::string& tiledJsonPath);
 	//
-	const void* GetData() const { return &data[0]; }
+	const void* GetData() const { return &tiles[0]; }
 	// IVisualComponent interface implementation
 	virtual EVCType GetType() const override { return EVCType::Tiled; }
 
