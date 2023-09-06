@@ -152,10 +152,11 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 
 bool LcAnimatedSpriteRenderDX10::Supports(const TVFeaturesList& features) const
 {
-	bool needAnimation = false;
+	bool needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
 		needAnimation |= (feature == EVCType::FrameAnimation);
+		needTiles |= (feature == EVCType::Tiled);
 	}
-	return needAnimation;
+	return !needTiles && needAnimation;
 }

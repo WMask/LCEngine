@@ -71,6 +71,11 @@ LcTiledVisual2DRenderDX10::~LcTiledVisual2DRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
+void LcTiledVisual2DRenderDX10::RemoveTiles(const IVisual* visual)
+{
+	vertexBuffers.erase(visual);
+}
+
 std::vector<DX10TILEDSPRITEDATA> generateTiles(const LcTiledSpriteComponent& tiledComp)
 {
 	std::vector<DX10TILEDSPRITEDATA> tiles;

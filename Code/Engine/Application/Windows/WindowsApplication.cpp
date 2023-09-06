@@ -42,6 +42,8 @@ LcWindowsApplication::LcWindowsApplication()
 
 LcWindowsApplication::~LcWindowsApplication()
 {
+    if (world) world.reset();
+
     if (guiManager)
     {
         guiManager->Shutdown();

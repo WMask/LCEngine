@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
@@ -255,6 +256,11 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     {
         texturesCache.clear();
     }
+}
+
+LcSpriteDX10::~LcSpriteDX10()
+{
+    if (tiledRender) tiledRender->RemoveTiles(this);
 }
 
 void LcSpriteDX10::AddComponent(TVComponentPtr comp)

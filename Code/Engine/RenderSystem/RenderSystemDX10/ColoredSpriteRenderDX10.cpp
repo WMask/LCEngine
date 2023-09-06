@@ -135,11 +135,12 @@ void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 
 bool LcColoredSpriteRenderDX10::Supports(const TVFeaturesList& features) const
 {
-	bool needTexture = false, needAnimation = false;
+	bool needTexture = false, needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
 		needTexture |= (feature == EVCType::Texture);
 		needAnimation |= (feature == EVCType::FrameAnimation);
+		needTiles |= (feature == EVCType::Tiled);
 	}
-	return !needAnimation && !needTexture;
+	return !needTiles && !needAnimation && !needTexture;
 }

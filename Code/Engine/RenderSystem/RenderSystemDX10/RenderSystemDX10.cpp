@@ -20,14 +20,30 @@
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
 {
 public:
-	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender), tiledRender(nullptr)
+	{
+		TVFeaturesList features = { EVCType::Tiled, EVCType::Texture };
+		auto& renders = render.GetVisual2DRenderList();
+		for (auto& render : renders)
+		{
+			if (render->Supports(features))
+			{
+				tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(render.get());
+				break;
+			}
+		}
+	}
 	//
 	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
 	{
-		return std::make_shared<LcSpriteDX10>(data, render);
+		auto newSprite = std::make_shared<LcSpriteDX10>(data, render);
+		newSprite->tiledRender = tiledRender;
+		return newSprite;
 	}
 	//
 	LcRenderSystemDX10& render;
+	//
+	LcTiledVisual2DRenderDX10* tiledRender;
 };
 
 class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
