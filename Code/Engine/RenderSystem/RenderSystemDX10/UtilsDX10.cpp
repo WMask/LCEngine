@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
+#include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
@@ -253,5 +254,44 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     else
     {
         texturesCache.clear();
+    }
+}
+
+void LcSpriteDX10::AddComponent(TVComponentPtr comp)
+{
+    LcSprite::AddComponent(comp);
+
+    if (auto texComp = GetTextureComponent())
+    {
+        LcSize texSize;
+        bool loaded = render.GetTextureLoader()->LoadTexture(
+            texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+        if (loaded)
+            texComp->texSize = ToF(texSize);
+        else
+            throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
+    }
+}
+
+void LcWidgetDX10::AddComponent(TVComponentPtr comp)
+{
+    LcWidget::AddComponent(comp);
+
+    if (auto texComp = GetTextureComponent())
+    {
+        LcSize texSize;
+        bool loaded = render.GetTextureLoader()->LoadTexture(
+            texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+        if (loaded)
+            texComp->texSize = ToF(texSize);
+        else
+            throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
+    }
+
+    if (auto textComp = GetTextComponent())
+    {
+        font = render.GetWidgetRender()->AddFont(textComp->fontName, textComp->fontSize, textComp->fontWeight);
+        if (!font)
+            throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
     }
 }

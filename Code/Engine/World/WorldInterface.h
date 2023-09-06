@@ -56,10 +56,10 @@ public:
 	virtual ISprite* AddSprite(const struct LcSpriteData& sprite) = 0;
 	/**
 	* Add sprite */
-	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual ISprite* AddSprite3D(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Add sprite */
-	virtual ISprite* AddSprite(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Remove sprite */
 	virtual void RemoveSprite(ISprite* sprite) = 0;

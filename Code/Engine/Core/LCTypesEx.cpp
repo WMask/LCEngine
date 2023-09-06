@@ -53,18 +53,20 @@ LcRect ToI(const LcRectf& rect)
 #endif
 }
 
-LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane)
+LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane, bool flipY)
 {
 #ifdef _WINDOWS
-	return DirectX::XMMatrixOrthographicLH(widthPixels, heightPixels, nearPlane, farPlane);
+	auto matrix = DirectX::XMMatrixOrthographicLH(widthPixels, heightPixels, nearPlane, farPlane);
+	if (flipY) matrix = DirectX::XMMatrixMultiply(matrix, DirectX::XMMatrixScaling(1.0f, -1.0f, 1.0f));
+	return matrix;
 #else
 	return LcMatrix4{};
 #endif
 }
 
-LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane)
+LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane, bool flipY)
 {
-	return OrthoMatrix((float)vp.x, (float)vp.y, nearPlane, farPlane);
+	return OrthoMatrix((float)vp.x, (float)vp.y, nearPlane, farPlane, flipY);
 }
 
 LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to)
@@ -89,12 +91,12 @@ LcMatrix4 TranslationMatrix(LcVector3 pos)
 #endif
 }
 
-LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ)
+LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ, bool flipY)
 {
 #ifdef _WINDOWS
 	auto matrix = DirectX::XMMatrixTransformation(
 		LcDefaults::ZeroXVec4, LcDefaults::ZeroXVec4,
-		DirectX::XMVectorSet(scale.x, scale.y, 0.0f, 1.0f),
+		DirectX::XMVectorSet(scale.x, flipY ? -scale.y : scale.y, 0.0f, 1.0f),
 		LcDefaults::ZeroXVec4,
 		DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), rotZ),
 		DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f));

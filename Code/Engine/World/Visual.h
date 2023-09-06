@@ -29,6 +29,7 @@ enum class EVCType : int
 	Texture,
 	CustomUV,
 	FrameAnimation,
+	Tiled,
 	// Widgets
 	Text,
 	Button,

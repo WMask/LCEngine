@@ -130,7 +130,6 @@ void LcWindowsApplication::Run()
     if (guiManager)
     {
         guiManager->Init(world);
-        guiManager->UpdateScreenSize(ToF(windowSize));
     }
 
     if (initHandler) initHandler(this);
@@ -240,11 +239,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int width = LOWORD(lParam);
             int height = HIWORD(lParam);
             handles->renderSystem->Resize(width, height);
-
-            if (handles->guiManager)
-            {
-                handles->guiManager->UpdateScreenSize(ToF(LcSize(width, height)));
-            }
         }
         break;
     case WM_KEYDOWN:

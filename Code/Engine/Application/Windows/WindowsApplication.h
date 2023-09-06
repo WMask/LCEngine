@@ -55,6 +55,10 @@ public: // IApplication interface implementation
 	//
 	virtual void RequestQuit() noexcept override { quit = true; }
 	//
+	virtual int GetWindowWidth() const override { return windowSize.x; }
+	//
+	virtual int GetWindowHeight() const override { return windowSize.y; }
+	//
 	virtual class IWorld* GetWorld() noexcept override { return world.get(); }
 	//
 	virtual TWorldPtr GetWorldPtr() noexcept override { return world; }

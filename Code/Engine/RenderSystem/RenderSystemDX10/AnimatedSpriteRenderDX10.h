@@ -24,15 +24,12 @@ public:
 	~LcAnimatedSpriteRenderDX10();
 
 
-public:// ISpriteRender interface implementation
-	/**
-	* Setup render state */
-	virtual void Setup() override;
-	/**
-	* Render sprite */
+public:// IVisual2DRender interface implementation
+	//
+	virtual void Setup(const IVisual* visual) override;
+	//
 	virtual void RenderSprite(const ISprite* sprite) override;
-	/**
-	* Checks support for the feature */
+	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 
 

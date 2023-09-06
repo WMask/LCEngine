@@ -51,6 +51,9 @@ public:
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
+	* Force sprite render setup. Updates shaders and buffers */
+	virtual void ForceRenderSetup() = 0;
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 
@@ -108,29 +111,23 @@ protected:// LcRenderSystemBase interface implementation
 
 
 public:// IDX10RenderDevice interface implementation
-	/**
-	* Return D3D10 device */
+	//
 	virtual ID3D10Device1* GetD3D10Device() const override { return d3dDevice.Get(); }
-	/**
-	* Return D3D10 swap chain */
+	//
 	virtual IDXGISwapChain* GetD3D10SwapChain() const override { return swapChain.Get(); }
-	/**
-	* Return matrix buffer */
+	//
 	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer.Get(); }
-	/**
-	* Return colors buffer */
+	//
 	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer.Get(); }
-	/**
-	* Return custom UV buffer */
+	//
 	virtual ID3D10Buffer* GetCustomUvBuffer() const override { return customUvBuffer.Get(); }
-	/**
-	* Return colors buffer */
+	//
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
-	/**
-	* Get sprite renders */
+	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
-	/**
-	* Get shader code */
+	//
+	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
+	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
 
@@ -165,48 +162,8 @@ protected:
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//
+	bool prevSetupRequested;
+	//
 	LcSize renderSystemSize;
-
-};
-
-
-/**
-* DirectX10 Sprite implementation */
-class LcSpriteDX10 : public LcSprite
-{
-public:
-	LcSpriteDX10(LcSpriteData inSprite, LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender) {}
-	//
-	LcRenderSystemDX10& render;
-	//
-	ComPtr<ID3D10Texture2D> texture;
-	//
-	ComPtr<ID3D10ShaderResourceView1> shaderView;
-
-
-public:// IVisual interface implementation
-	virtual void AddComponent(TVComponentPtr comp) override;
-
-};
-
-
-/**
-* DirectX10 Widget implementation */
-class LcWidgetDX10 : public LcWidget
-{
-public:
-	LcWidgetDX10(LcWidgetData inSprite, LcRenderSystemDX10& inRender) : LcWidget(inSprite), render(inRender), font(nullptr) {}
-	//
-	LcRenderSystemDX10& render;
-	//
-	ComPtr<ID3D10Texture2D> texture;
-	//
-	ComPtr<ID3D10ShaderResourceView1> shaderView;
-	//
-	const ITextFont* font;
-
-
-public:// IVisual interface implementation
-	virtual void AddComponent(TVComponentPtr comp) override;
 
 };

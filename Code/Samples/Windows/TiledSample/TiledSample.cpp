@@ -1,11 +1,11 @@
 /**
-* HelloWorld.cpp
-* 28.01.2023
+* TiledSample.cpp
+* 06.09.2023
 * (c) Denis Romakhov
 */
 
 #include "framework.h"
-#include "HelloWorld.h"
+#include "TiledSample.h"
 #include "Application/AppConfig.h"
 #include "Application/Application.h"
 #include "Application/Windows/Module.h"
@@ -23,9 +23,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](IApplication* app)
         {
-            if (auto sprite = app->GetWorld()->AddSprite2D(250, 400, 200, 200))
+            auto world = app->GetWorld();
+            float width = (float)app->GetWindowWidth();
+            float height = (float)app->GetWindowHeight();
+
+            if (auto sprite = world->AddSprite2D(width / 2, height / 2, width, height))
             {
-                sprite->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+                sprite->AddTiledSpriteComponent("../../Assets/Map1.tmj");
             }
         };
 
@@ -33,15 +37,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         auto onUpdateHandler = [&keys](float deltaSeconds, IApplication* app)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
-
-            auto sprite = app->GetWorld()->GetSprites()[0];
-
-            // move sprite
-            if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-            if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
-
-            if (keys[VK_UP]) sprite->AddRotZ(-2 * deltaSeconds);
-            if (keys[VK_DOWN]) sprite->AddRotZ(2 * deltaSeconds);
         };
 
         auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
@@ -62,7 +57,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     }
     catch (const std::exception& ex)
     {
-        DebugMsg("\n# HelloWorld error: %s\n\n", ex.what());
+        DebugMsg("\n# TiledSample error: %s\n\n", ex.what());
     }
 
     return 0;

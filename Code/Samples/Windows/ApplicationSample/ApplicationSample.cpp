@@ -31,59 +31,56 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        bool windowedMode = true;
-
-        auto onInitHandler = [&windowedMode](IApplication* app)
+        auto onInitHandler = [](IApplication* app)
         {
             auto world = app->GetWorld();
 
             // sprites
-            if (auto sprite1 = world->AddSprite(150, 150, 200, 200))
+            if (auto sprite1 = world->AddSprite2D(200, 200, 300, 300))
             {
                 sprite1->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
             }
 
-            if (auto sprite2 = world->AddSprite(450, 200, 300, 300))
+            if (auto sprite2 = world->AddSprite2D(550, 200, 300, 300))
             {
                 sprite2->AddTextureComponent("../../Assets/tree.png");
                 sprite2->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
-            if (auto sprite3 = world->AddSprite(380, 85, 100, 100))
+            if (auto sprite3 = world->AddSprite2D(460, 315, 100, 100))
             {
                 sprite3->AddTextureComponent("../../Assets/anim.png");
                 sprite3->AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
 
             // window resize controls
-            if (auto label = world->AddWidget(130, 450, 100, 32))
+            if (auto label = world->AddWidget(182, 550, 100, 32))
             {
                 label->AddTextComponent(L"Fullscreen", L"Calibri", 18, LcDefaults::White4);
             }
 
-            if (auto widget = world->AddWidget(195, 450, 32, 32))
+            if (auto widget = world->AddWidget(242, 552, 32, 32))
             {
-                auto onToggleMode = [&windowedMode, app](bool checked) {
-                    windowedMode = !windowedMode;
-                    app->SetWindowMode(windowedMode ? LcWinMode::Windowed : LcWinMode::Fullscreen);
+                auto onToggleMode = [app](bool fullscreen) {
+                    app->SetWindowMode(fullscreen ? LcWinMode::Fullscreen : LcWinMode::Windowed);
                 };
                 widget->AddCheckHandlerComponent(onToggleMode);
                 ADD_DEFAULT_CHECKBOX(widget);
             }
 
-            if (auto button1 = world->AddWidget(150, 400, 124, 40))
+            if (auto button1 = world->AddWidget(200, 500, 124, 40))
             {
                 button1->AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
                 ADD_DEFAULT_BUTTON(button1, L"1920x1080");
             }
 
-            if (auto button2 = world->AddWidget(150, 350, 124, 40))
+            if (auto button2 = world->AddWidget(200, 450, 124, 40))
             {
                 button2->AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
                 ADD_DEFAULT_BUTTON(button2, L"1600x900");
             }
 
-            if (auto button3 = world->AddWidget(150, 300, 124, 40))
+            if (auto button3 = world->AddWidget(200, 400, 124, 40))
             {
                 button3->AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
                 ADD_DEFAULT_BUTTON(button3, L"1280x720");

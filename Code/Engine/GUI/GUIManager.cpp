@@ -56,7 +56,7 @@ void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, in
             if (!widget->IsVisible()) continue;
 
             // flip Y because world's Y go up but window's Y go down
-            LcVector2 point((float)x, screenSize.y - (float)y);
+            LcVector2 point((float)x, (float)y);
             LcVector2 widgetPos = To2(widget->GetPos());
             LcRectf widgetBox = ToF(widgetPos - widget->GetSize() / 2.0f, widgetPos + widget->GetSize() / 2.0f);
             if (Contains(widgetBox, point))
@@ -79,7 +79,7 @@ void LcGuiManagerBase::OnMouseMove(int x, int y)
             if (!widget->IsVisible()) continue;
 
             // flip Y because world's Y go up but window's Y go down
-            LcVector2 point((float)x, screenSize.y - (float)y);
+            LcVector2 point((float)x, (float)y);
             LcVector2 widgetPos = To2(widget->GetPos());
             LcRectf widgetBox = ToF(widgetPos - widget->GetSize() / 2.0f, widgetPos + widget->GetSize() / 2.0f);
 
