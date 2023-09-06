@@ -23,8 +23,8 @@ void IVisualBase::AddComponent(TVComponentPtr comp)
 	if (!comp) throw std::exception("IVisualBase::AddComponent(): Invalud component");
 
 	comp->SetOwner(this);
-	comp->Init(*world);
 	components.push_back(comp);
+	components.back()->Init(*world);
 }
 
 TVComponentPtr IVisualBase::GetComponent(EVCType type) const

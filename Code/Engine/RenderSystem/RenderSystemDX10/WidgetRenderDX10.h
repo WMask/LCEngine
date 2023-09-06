@@ -57,7 +57,7 @@ public:// IWidgetRender interface implementation
 	//
 	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
 	//
-	virtual void Setup() override;
+	virtual void Setup(const IVisual* visual) override;
 	//
 	virtual void RenderWidget(const IWidget* widget) override;
 	//

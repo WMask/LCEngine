@@ -46,11 +46,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 sprite4->AddTextureComponent("../../Assets/anim.png");
                 sprite4->AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
-
-            if (auto sprite5 = world->AddSprite2D(550, 550, 300, 300))
-            {
-                sprite5->AddTiledSpriteComponent("../../Assets/Map1.tmj");
-            }
         };
 
         KEYS keys;

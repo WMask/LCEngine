@@ -92,7 +92,7 @@ LcAnimatedSpriteRenderDX10::~LcAnimatedSpriteRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcAnimatedSpriteRenderDX10::Setup()
+void LcAnimatedSpriteRenderDX10::Setup(const IVisual* visual)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("LcAnimatedSpriteRenderDX10::Setup(): Invalid render device");

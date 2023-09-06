@@ -118,7 +118,7 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
     return false;
 }
 
-void LcWidgetRenderDX10::Setup()
+void LcWidgetRenderDX10::Setup(const IVisual* visual)
 {
     if (!hWnd || !device.GetD3D10SwapChain()) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
 

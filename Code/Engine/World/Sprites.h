@@ -163,14 +163,21 @@ struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 {
 	std::vector<LC_TILES_DATA> tiles;
 	//
+	std::string tiledJsonPath;
+	//
 	LcTiledSpriteComponent() {}
 	//
 	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) : tiles(sprite.tiles) {}
 	//
-	LcTiledSpriteComponent(const std::string& tiledJsonPath);
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath) : tiledJsonPath(inTiledJsonPath) {}
 	//
 	const void* GetData() const { return &tiles[0]; }
-	// IVisualComponent interface implementation
+
+
+public:// IVisualComponent interface implementation
+	//
+	virtual void Init(class IWorld& world) override;
+	//
 	virtual EVCType GetType() const override { return EVCType::Tiled; }
 
 };

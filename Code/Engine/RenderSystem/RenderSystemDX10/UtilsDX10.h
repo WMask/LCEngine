@@ -14,6 +14,8 @@
 #include <map>
 
 #include "World/WorldInterface.h"
+#include "World/Sprites.h"
+#include "GUI/Widgets.h"
 #include "Core/LCTypesEx.h"
 
 using Microsoft::WRL::ComPtr;
@@ -58,5 +60,47 @@ protected:
 	ComPtr<IWICImagingFactory2> factory;
 	//
 	TWeakWorld world;
+
+};
+
+
+/**
+* DirectX10 Sprite implementation */
+class LcSpriteDX10 : public LcSprite
+{
+public:
+	LcSpriteDX10(LcSpriteData inSprite, class LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender) {}
+	//
+	class LcRenderSystemDX10& render;
+	//
+	ComPtr<ID3D10Texture2D> texture;
+	//
+	ComPtr<ID3D10ShaderResourceView1> shaderView;
+
+
+public:// IVisual interface implementation
+	virtual void AddComponent(TVComponentPtr comp) override;
+
+};
+
+
+/**
+* DirectX10 Widget implementation */
+class LcWidgetDX10 : public LcWidget
+{
+public:
+	LcWidgetDX10(LcWidgetData inSprite, class LcRenderSystemDX10& inRender) : LcWidget(inSprite), render(inRender), font(nullptr) {}
+	//
+	class LcRenderSystemDX10& render;
+	//
+	ComPtr<ID3D10Texture2D> texture;
+	//
+	ComPtr<ID3D10ShaderResourceView1> shaderView;
+	//
+	const ITextFont* font;
+
+
+public:// IVisual interface implementation
+	virtual void AddComponent(TVComponentPtr comp) override;
 
 };

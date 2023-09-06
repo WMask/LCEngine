@@ -89,7 +89,7 @@ LcColoredSpriteRenderDX10::~LcColoredSpriteRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcColoredSpriteRenderDX10::Setup()
+void LcColoredSpriteRenderDX10::Setup(const IVisual* visual)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10::Setup(): Invalid render device");

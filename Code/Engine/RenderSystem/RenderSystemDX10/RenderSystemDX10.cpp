@@ -9,6 +9,7 @@
 #include "RenderSystem/RenderSystemDX10/ColoredSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "Application/Application.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
@@ -29,22 +30,6 @@ public:
 	LcRenderSystemDX10& render;
 };
 
-void LcSpriteDX10::AddComponent(TVComponentPtr comp)
-{
-	LcSprite::AddComponent(comp);
-
-	if (auto texComp = GetTextureComponent())
-	{
-		LcSize texSize;
-		bool loaded = render.GetTextureLoader()->LoadTexture(
-			texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
-		if (loaded)
-			texComp->texSize = ToF(texSize);
-		else
-			throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
-	}
-}
-
 class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
 {
 public:
@@ -58,30 +43,10 @@ public:
 	LcRenderSystemDX10& render;
 };
 
-void LcWidgetDX10::AddComponent(TVComponentPtr comp)
-{
-	LcWidget::AddComponent(comp);
-
-	if (auto texComp = GetTextureComponent())
-	{
-		LcSize texSize;
-		bool loaded = render.GetTextureLoader()->LoadTexture(
-			texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
-		if (loaded)
-			texComp->texSize = ToF(texSize);
-		else
-			throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
-	}
-
-	if (auto textComp = GetTextComponent())
-	{
-		font = render.GetWidgetRender()->AddFont(textComp->fontName, textComp->fontSize, textComp->fontWeight);
-		if (!font)
-			throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
-	}
-}
-
-LcRenderSystemDX10::LcRenderSystemDX10() : widgetRender(nullptr), renderSystemSize(0, 0)
+LcRenderSystemDX10::LcRenderSystemDX10()
+	: widgetRender(nullptr)
+	, renderSystemSize(0, 0)
+	, prevSetupRequested(false)
 {
 }
 
@@ -278,13 +243,14 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMo
 	// add sprite renders
 	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
 	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
+	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(*this));
 	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
-	visual2DRenders.back()->Setup();
+	visual2DRenders.back()->Setup(nullptr);
 
 	// add widget render
 	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(*this, hWnd));
 	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
-	widgetRender->Setup();
+	widgetRender->Setup(nullptr);
 
 	// init managers
 	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
@@ -381,14 +347,13 @@ void LcRenderSystemDX10::Resize(int width, int height)
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}
 
-		// get back buffer
+		// create render target
 		ComPtr<ID3D10Texture2D> backBuffer;
 		if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)backBuffer.GetAddressOf())))
 		{
-			throw std::exception("LcRenderSystemDX10::Create(): Cannot create back buffer");
+			throw std::exception("LcRenderSystemDX10::Create(): Cannot get back buffer");
 		}
 
-		// create render target
 		if (FAILED(d3dDevice->CreateRenderTargetView(backBuffer.Get(), NULL, renderTargetView.GetAddressOf())))
 		{
 			throw std::exception("LcRenderSystemDX10::Create(): Cannot create render target");
@@ -425,7 +390,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		renderSystemSize = newSize;
 
 		// recreate widget render
-		widgetRender->Setup();
+		widgetRender->Setup(nullptr);
 	}
 }
 
@@ -442,10 +407,11 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 	{
 		if (render->Supports(sprite->GetFeaturesList()))
 		{
-			if (prevSpriteFeatures != sprite->GetFeaturesList())
+			if (prevSpriteFeatures != sprite->GetFeaturesList() || prevSetupRequested)
 			{
+				prevSetupRequested = false;
 				prevSpriteFeatures = sprite->GetFeaturesList();
-				render->Setup();
+				render->Setup(sprite);
 			}
 
 			render->RenderSprite(sprite);
@@ -475,8 +441,8 @@ void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 		case Textures:
 			if (auto textureRender = widgetRender->GetTextureRender())
 			{
-				textureRender->Setup();
-				prevSpriteFeatures = widgetRender->GetFeaturesList();
+				textureRender->Setup(nullptr);
+				ForceRenderSetup();
 			}
 			break;
 		case Text:

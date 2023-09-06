@@ -1,6 +1,6 @@
 /**
-* TexturedVisual2DRenderDX10.h
-* 25.08.2023
+* TiledVisual2DRenderDX10.h
+* 06.09.2023
 * (c) Denis Romakhov
 */
 
@@ -10,17 +10,26 @@
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
 
+struct LC_TILES_BUFFER
+{
+	ComPtr<ID3D10Buffer> buffer;
+	int vertexCount;
+};
+
+typedef std::map<const IVisual*, LC_TILES_BUFFER> LcTileBuffersList;
+
+
 /**
 * Textured visual render */
-class LcTexturedVisual2DRenderDX10 : public ISpriteRender
+class LcTiledVisual2DRenderDX10 : public ISpriteRender
 {
 public:
 	/**
 	* Constructor */
-	LcTexturedVisual2DRenderDX10(IRenderDeviceDX10& renderDevice);
+	LcTiledVisual2DRenderDX10(IRenderDeviceDX10& renderDevice);
 	/**
 	* Destructor */
-	~LcTexturedVisual2DRenderDX10();
+	~LcTiledVisual2DRenderDX10();
 
 
 public:// IVisual2DRender interface implementation
@@ -29,15 +38,13 @@ public:// IVisual2DRender interface implementation
 	//
 	virtual void RenderSprite(const class ISprite* sprite) override;
 	//
-	virtual void RenderWidget(const class IWidget* widget) override;
-	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 
 
 protected:
 	IRenderDeviceDX10& renderDevice;
 	//
-	ID3D10Buffer* vertexBuffer;
+	LcTileBuffersList vertexBuffers;
 	//
 	ID3D10InputLayout* vertexLayout;
 	//

@@ -1,5 +1,5 @@
 { "columns":16,
- "image":"D:\/Projects\/LCEngine\/Code\/Samples\/Assets\/tileset.png",
+ "image":"../../Assets/tileset.png",
  "imageheight":512,
  "imagewidth":512,
  "margin":0,

@@ -92,7 +92,7 @@ LcTexturedVisual2DRenderDX10::~LcTexturedVisual2DRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcTexturedVisual2DRenderDX10::Setup()
+void LcTexturedVisual2DRenderDX10::Setup(const IVisual* visual)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	if (!d3dDevice) throw std::exception("LcTexturedVisual2DRenderDX10::Setup(): Invalid render device");
@@ -193,11 +193,12 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 
 bool LcTexturedVisual2DRenderDX10::Supports(const TVFeaturesList& features) const
 {
-	bool needTexture = false, needAnimation = false;
+	bool needTexture = false, needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
 		needTexture |= (feature == EVCType::Texture);
 		needAnimation |= (feature == EVCType::FrameAnimation);
+		needTiles |= (feature == EVCType::Tiled);
 	}
-	return !needAnimation && needTexture;
+	return !needAnimation && !needTiles && needTexture;
 }

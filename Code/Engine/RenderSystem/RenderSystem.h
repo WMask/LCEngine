@@ -128,7 +128,7 @@ class IVisual2DRender
 public:
 	/**
 	* Setup render state */
-	virtual void Setup() = 0;
+	virtual void Setup(const IVisual* visual) = 0;
 	/**
 	* Add font */
 	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
