@@ -165,11 +165,13 @@ struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 	//
 	std::string tiledJsonPath;
 	//
-	LcTiledSpriteComponent() {}
+	LcVector2 scale;
 	//
-	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) : tiles(sprite.tiles) {}
+	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2) {}
 	//
-	LcTiledSpriteComponent(const std::string& inTiledJsonPath) : tiledJsonPath(inTiledJsonPath) {}
+	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) : tiles(sprite.tiles), scale(LcDefaults::OneVec2) {}
+	//
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath) : tiledJsonPath(inTiledJsonPath), scale(LcDefaults::OneVec2) {}
 	//
 	const void* GetData() const { return &tiles[0]; }
 
@@ -246,6 +248,8 @@ public:
 	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
 	//
 	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
+	//
+	LcTiledSpriteComponent* GetTiledComponent() const { return (LcTiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
 
 };
 

@@ -153,6 +153,9 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 			tileId++;
 		}
 	}
+
+	scale.x = owner->GetSize().x / (tilewidth * columns);
+	scale.y = owner->GetSize().y / (tileheight * rows);
 }
 
 void LcSprite::Update(float deltaSeconds)

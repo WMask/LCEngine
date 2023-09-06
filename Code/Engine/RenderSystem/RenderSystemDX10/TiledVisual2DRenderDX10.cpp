@@ -108,7 +108,7 @@ void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual)
 		// create vertex buffer
 		auto tilesData = generateTiles(*tiledComp);
 		auto& vertexBuffer = vertexBuffers[visual];
-		vertexBuffer.vertexCount = tilesData.size();
+		vertexBuffer.vertexCount = (int)tilesData.size();
 
 		D3D10_BUFFER_DESC bufferDesc;
 		bufferDesc.Usage = D3D10_USAGE_DYNAMIC;
@@ -159,7 +159,10 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcMatrix4 trans = TransformMatrix(sprite->GetPos(), LcSizef{1.0f, 1.0f}, sprite->GetRotZ(), false);
+	LcVector2 scale = LcDefaults::OneVec2;
+	if (auto tiledComp = sprite->GetTiledComponent()) scale = tiledComp->scale;
+
+	LcMatrix4 trans = TransformMatrix(sprite->GetPos(), scale, sprite->GetRotZ(), false);
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 	// render sprite
