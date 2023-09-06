@@ -86,6 +86,12 @@ public:
 	* Request application quit */
 	virtual void RequestQuit() noexcept = 0;
 	/**
+	* Get window width in pixels */
+	virtual int GetWindowWidth() const = 0;
+	/**
+	* Get window height in pixels */
+	virtual int GetWindowHeight() const = 0;
+	/**
 	* Get World */
 	virtual class IWorld* GetWorld() noexcept = 0;
 	/**
