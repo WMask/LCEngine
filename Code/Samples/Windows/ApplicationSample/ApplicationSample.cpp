@@ -16,15 +16,6 @@
 #include "Core/LCUtils.h"
 
 
-#define ADD_DEFAULT_BUTTON(button, text) \
-    button->AddButtonComponent("../../Assets/button.png", LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f)); \
-    button->AddTextComponent(text, L"Calibri", 22, LcDefaults::Black4);
-
-#define ADD_DEFAULT_CHECKBOX(checkbox) \
-    checkbox->AddCheckboxComponent("../../Assets/checkbox.png", \
-        LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
-
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
@@ -56,7 +47,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             // window resize controls
             if (auto label = world->AddWidget(182, 550, 100, 32))
             {
-                label->AddTextComponent(L"Fullscreen", L"Calibri", 18, LcDefaults::White4);
+                label->AddTextComponent(L"Fullscreen", LcDefaults::White4, L"Calibri", 18);
             }
 
             if (auto widget = world->AddWidget(242, 552, 32, 32))
@@ -65,25 +56,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                     app->SetWindowMode(fullscreen ? LcWinMode::Fullscreen : LcWinMode::Windowed);
                 };
                 widget->AddCheckHandlerComponent(onToggleMode);
-                ADD_DEFAULT_CHECKBOX(widget);
             }
 
             if (auto button1 = world->AddWidget(200, 500, 124, 40))
             {
                 button1->AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
-                ADD_DEFAULT_BUTTON(button1, L"1920x1080");
+                button1->AddTextComponent(L"1920x1080");
             }
 
             if (auto button2 = world->AddWidget(200, 450, 124, 40))
             {
                 button2->AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
-                ADD_DEFAULT_BUTTON(button2, L"1600x900");
+                button2->AddTextComponent(L"1600x900");
             }
 
             if (auto button3 = world->AddWidget(200, 400, 124, 40))
             {
                 button3->AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
-                ADD_DEFAULT_BUTTON(button3, L"1280x720");
+                button3->AddTextComponent(L"1280x720");
             }
         };
 
