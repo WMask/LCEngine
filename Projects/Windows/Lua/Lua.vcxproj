@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)x64\Debug;..\..\..\Code\Engine\Lua\src;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;lua546.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,72 +146,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.h" />
     <ClInclude Include="..\..\..\Code\Engine\Lua\Module.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lapi.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lauxlib.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lcode.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lctype.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\ldebug.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\ldo.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lfunc.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lgc.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\ljumptab.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\llex.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\llimits.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lmem.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lobject.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lopcodes.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lopnames.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lparser.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lprefix.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lstate.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lstring.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\ltable.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\ltm.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lua.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lua.hpp" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\luaconf.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lualib.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lundump.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lvm.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\src\lzio.h" />
     <ClInclude Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.h" />
     <ClInclude Include="framework.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lapi.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lauxlib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lbaselib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lcode.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lcorolib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lctype.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ldblib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ldebug.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ldo.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ldump.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lfunc.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lgc.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\linit.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\liolib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\llex.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lmathlib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lmem.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\loadlib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lobject.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lopcodes.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\loslib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lparser.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lstate.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lstring.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lstrlib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ltable.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ltablib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\ltm.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\luac.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lundump.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lutf8lib.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lvm.c" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\src\lzio.c" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>

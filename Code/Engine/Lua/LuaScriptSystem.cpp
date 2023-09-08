@@ -5,6 +5,7 @@
 */
 
 #include "Lua/LuaScriptSystem.h"
+// put headers and lua546.lib compiled static library into Code/Engine/Lua/src folder
 #include "src/lua.hpp"
 
 
