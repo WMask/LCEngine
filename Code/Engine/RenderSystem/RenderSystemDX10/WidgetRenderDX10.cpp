@@ -124,10 +124,6 @@ void LcWidgetRenderDX10::Setup(const IVisual* visual)
 
     if (d2dFactory) Shutdown();
 
-    RECT clientRect;
-    GetClientRect(hWnd, &clientRect);
-    screenHeight = clientRect.bottom - clientRect.top;
-
     if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
     {
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create Direct2D factory");
