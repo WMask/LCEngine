@@ -248,6 +248,9 @@ public:
     /**
     * Keyboard key event */
     virtual void OnKeyboard(int btn, LcKeyState state) = 0;
+    /**
+    * Recreate font after World scale change */
+    virtual void RecreateFont() = 0;
 	/**
 	* Set active state */
 	virtual void SetActive(bool active) = 0;
@@ -289,6 +292,8 @@ public:
 public:// IWidget interface implementation
     //
     virtual void OnKeyboard(int btn, LcKeyState state) override {}
+    //
+    virtual void RecreateFont() override {}
     //
     virtual void SetActive(bool inActive) override { widget.active = inActive; }
     //

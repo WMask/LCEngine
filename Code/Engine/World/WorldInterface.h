@@ -11,6 +11,10 @@
 
 #include <deque>
 #include <memory>
+#include <functional>
+#include <set>
+
+#pragma warning(disable : 4251)
 
 
 /**
@@ -29,6 +33,38 @@ typedef std::shared_ptr<TWorldFactory<class ISprite, struct LcSpriteData>> TSpri
 /**
 * Widget factory pointer */
 typedef std::shared_ptr<TWorldFactory<class IWidget, struct LcWidgetData>> TWidgetFactoryPtr;
+
+
+/**
+* Game world scaling parameters for different resolutions.
+* For resolutions not added to scaleList scale selected by resolution.y >= newScreenSize.y
+*/
+struct WORLD_API LcWorldScale
+{
+	LcWorldScale();
+	//
+	LcWorldScale(const LcWorldScale& scale) = default;
+	//
+	LcWorldScale& operator=(const LcWorldScale& scale) = default;
+	//
+	void Scale(LcVector3* newPos, LcSizef* newSize);
+	//
+	void UpdateWorldScale(LcSize newScreenSize);
+	//
+	std::function<void()> ScaleUpdatedHandler;
+	//
+	struct ScalePair
+	{
+		LcSize resolution;
+		LcVector2 scale;
+		inline bool operator<(const ScalePair& s) const { return resolution.y < s.resolution.y; }
+	};
+	std::set<ScalePair> scaleList;
+	//
+	LcVector2 scale;
+	//
+	bool scaleFonts;
+};
 
 
 /**
@@ -87,5 +123,11 @@ public:
 	/**
 	* Get camera */
 	virtual class LcCamera& GetCamera() = 0;
+	/**
+	* Get world scale */
+	virtual const LcWorldScale& GetWorldScale() const = 0;
+	/**
+	* Get world scale */
+	virtual LcWorldScale& GetWorldScale() = 0;
 
 };

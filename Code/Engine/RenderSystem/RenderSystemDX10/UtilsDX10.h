@@ -104,7 +104,15 @@ public:
 	const ITextFont* font;
 
 
+protected:
+	unsigned short GetFontSize(const struct LcWidgetTextComponent& textComp) const;
+
+
 public:// IVisual interface implementation
 	virtual void AddComponent(TVComponentPtr comp) override;
+
+
+public:// IWidget interface implementation
+	virtual void RecreateFont() override;
 
 };

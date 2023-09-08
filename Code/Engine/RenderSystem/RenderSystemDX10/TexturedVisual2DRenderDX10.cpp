@@ -113,7 +113,8 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto uvsBuffer = renderDevice.GetCustomUvBuffer();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !sprite)
+	auto world = renderDevice.GetWorld();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !world || !sprite)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
@@ -147,7 +148,11 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcMatrix4 trans = TransformMatrix(sprite->GetPos(), sprite->GetSize(), sprite->GetRotZ());
+	LcVector3 spritePos = sprite->GetPos();
+	LcVector2 spriteSize = sprite->GetSize();
+	world->GetWorldScale().Scale(&spritePos, &spriteSize);
+
+	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 	// render sprite
@@ -160,7 +165,8 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto uvsBuffer = renderDevice.GetCustomUvBuffer();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !widget)
+	auto world = renderDevice.GetWorld();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !world || !widget)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderWidget(): Invalid render params");
 
 	// update components
@@ -184,7 +190,11 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 	}
 
 	// update transform
-	LcMatrix4 trans = TransformMatrix(widget->GetPos(), widget->GetSize());
+	LcVector3 widgetPos = widget->GetPos();
+	LcVector2 widgetSize = widget->GetSize();
+	world->GetWorldScale().Scale(&widgetPos, &widgetSize);
+
+	LcMatrix4 trans = TransformMatrix(widgetPos, widgetSize);
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 	// render sprite

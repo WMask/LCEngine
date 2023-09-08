@@ -279,6 +279,17 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
     }
 }
 
+unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp) const
+{
+    float scale = 1.0f;
+    if (auto world = render.GetWorld())
+    {
+        if (world->GetWorldScale().scaleFonts) scale = world->GetWorldScale().scale.y;
+    }
+
+    return static_cast<unsigned short>(static_cast<float>(textComp.fontSize) * scale);
+}
+
 void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 {
     LcWidget::AddComponent(comp);
@@ -296,8 +307,18 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 
     if (auto textComp = GetTextComponent())
     {
-        font = render.GetWidgetRender()->AddFont(textComp->fontName, textComp->fontSize, textComp->fontWeight);
+        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
         if (!font)
             throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
+    }
+}
+
+void LcWidgetDX10::RecreateFont()
+{
+    if (auto textComp = GetTextComponent())
+    {
+        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
+        if (!font)
+            throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
     }
 }

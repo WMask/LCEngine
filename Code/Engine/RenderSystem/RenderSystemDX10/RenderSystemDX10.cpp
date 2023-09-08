@@ -71,7 +71,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode winMode)
+void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode)
 {
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
@@ -269,10 +269,10 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMo
 	widgetRender->Setup(nullptr);
 
 	// init managers
-	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
+	texLoader.reset(new LcTextureLoaderDX10(inWorld));
 
 	// add sprite factory
-	if (auto world = worldPtr.lock())
+	if (auto world = inWorld.lock())
 	{
 		world->GetCamera().Set(cameraPos, cameraTarget);
 		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
@@ -280,7 +280,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMo
 	}
 
 	// init render system
-	LcRenderSystemBase::Create(worldPtr, this, winMode);
+	LcRenderSystemBase::Create(inWorld, this, winMode);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -389,12 +389,16 @@ void LcRenderSystemDX10::Resize(int width, int height)
 
 		d3dDevice->RSSetViewports(1, &viewPort);
 
+		// recreate widget render
+		widgetRender->Setup(nullptr);
+
 		// update camera
 		if (auto world = worldPtr.lock())
 		{
 			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
+			world->GetWorldScale().UpdateWorldScale(newSize);
 			world->GetCamera().Set(cameraPos, cameraTarget);
 			UpdateCamera(0.1f, cameraPos, cameraTarget);
 		}
@@ -404,9 +408,6 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
 		renderSystemSize = newSize;
-
-		// recreate widget render
-		widgetRender->Setup(nullptr);
 	}
 }
 
