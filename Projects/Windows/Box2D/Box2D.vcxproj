@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Box2D\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Projects\LCEngine\Code\Engine\Box2D\build\bin\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\..\..\Code\Engine\Box2D\build\bin\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
