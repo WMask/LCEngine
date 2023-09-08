@@ -46,6 +46,10 @@ public:
 	~LcBox2DWorld();
 	//
 	void Update(float deltaSeconds);
+	//
+	void AddStaticBox(LcVector2 pos, LcSizef size);
+	//
+	class b2Body* AddDynamicBox(LcVector2 pos, LcSizef size, bool fixedRotation = true);
 
 
 protected:

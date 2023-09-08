@@ -27,3 +27,34 @@ void LcBox2DWorld::Update(float deltaSeconds)
 {
 	box2DWorld->Step(deltaSeconds, config.velocityIterations, config.positionIterations);
 }
+
+void LcBox2DWorld::AddStaticBox(LcVector2 pos, LcSizef size)
+{
+    b2BodyDef bodyDef;
+    bodyDef.position.Set(pos.x, pos.y);
+    b2Body* body = box2DWorld->CreateBody(&bodyDef);
+
+    b2PolygonShape box;
+    box.SetAsBox(size.x / 2.0f, size.y / 2.0f);
+    body->CreateFixture(&box, 0.0f);
+}
+
+b2Body* LcBox2DWorld::AddDynamicBox(LcVector2 pos, LcSizef size, bool fixedRotation)
+{
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.position.Set(pos.x, pos.y);
+    bodyDef.fixedRotation = fixedRotation;
+    b2Body* body = box2DWorld->CreateBody(&bodyDef);
+
+    b2PolygonShape box;
+    box.SetAsBox(32.0f, 32.0f);
+
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &box;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.3f;
+    body->CreateFixture(&fixtureDef);
+
+    return body;
+}
