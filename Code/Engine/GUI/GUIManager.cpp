@@ -50,15 +50,18 @@ void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, in
     if (auto world = worldPtr.lock())
     {
         auto& widgetList = world->GetWidgets();
+        auto scale2 = world->GetWorldScale().scale;
+        auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
         for (auto& widget : widgetList)
         {
             if (!widget->IsVisible()) continue;
 
-            // flip Y because world's Y go up but window's Y go down
             LcVector2 point((float)x, (float)y);
-            LcVector2 widgetPos = To2(widget->GetPos());
-            LcRectf widgetBox = ToF(widgetPos - widget->GetSize() / 2.0f, widgetPos + widget->GetSize() / 2.0f);
+            LcVector2 widgetPos = To2(widget->GetPos() * scale3);
+            LcRectf widgetBox = ToF(
+                widgetPos - widget->GetSize() / 2.0f * scale2,
+                widgetPos + widget->GetSize() / 2.0f * scale2);
             if (Contains(widgetBox, point))
             {
                 auto result = ToI(point);
@@ -73,15 +76,18 @@ void LcGuiManagerBase::OnMouseMove(int x, int y)
     if (auto world = worldPtr.lock())
     {
         auto& widgetList = world->GetWidgets();
+        auto scale2 = world->GetWorldScale().scale;
+        auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
         for (auto& widget : widgetList)
         {
             if (!widget->IsVisible()) continue;
 
-            // flip Y because world's Y go up but window's Y go down
             LcVector2 point((float)x, (float)y);
-            LcVector2 widgetPos = To2(widget->GetPos());
-            LcRectf widgetBox = ToF(widgetPos - widget->GetSize() / 2.0f, widgetPos + widget->GetSize() / 2.0f);
+            LcVector2 widgetPos = To2(widget->GetPos() * scale3);
+            LcRectf widgetBox = ToF(
+                widgetPos - widget->GetSize() / 2.0f * scale2,
+                widgetPos + widget->GetSize() / 2.0f * scale2);
 
             if (Contains(widgetBox, point))
             {

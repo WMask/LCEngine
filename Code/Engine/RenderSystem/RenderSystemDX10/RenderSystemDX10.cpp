@@ -93,7 +93,6 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
-	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -358,7 +357,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		widgetRender->Shutdown();
 
 		// resize swap chain
-		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)))
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0)))
 		{
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}
@@ -392,13 +391,22 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		// recreate widget render
 		widgetRender->Setup(nullptr);
 
-		// update camera
+		// update world settings
 		if (auto world = worldPtr.lock())
 		{
 			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
+			auto oldWorldScale = world->GetWorldScale().scale;
 			world->GetWorldScale().UpdateWorldScale(newSize);
+
+			// recreate widget fonts
+			if (oldWorldScale != world->GetWorldScale().scale && world->GetWorldScale().scaleFonts)
+			{
+				auto& widgets = world->GetWidgets();
+				for (auto widget : widgets) widget->RecreateFont();
+			}
+
 			world->GetCamera().Set(cameraPos, cameraTarget);
 			UpdateCamera(0.1f, cameraPos, cameraTarget);
 		}
