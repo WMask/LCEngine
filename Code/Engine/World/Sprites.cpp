@@ -8,7 +8,6 @@
 
 #include "pch.h"
 #include "World/Sprites.h"
-#include "Core/Physics.h"
 #include "Core/LcUtils.h"
 
 #include <filesystem>
@@ -115,7 +114,6 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 	float offsetX = tilewidth * columns / -2.0f;
 	float offsetY = tileheight * rows / -2.0f;
 
-	// add tiles
 	for (auto layer : tilesObject["layers"])
 	{
 		auto curLayerName = layer["name"].get<std::string>();
@@ -124,6 +122,7 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 		bool validLayer = layerFound || layerNames.empty();
 		if (!validLayer) continue;
 
+		// add tiles
 		auto layerTiles = layer["data"];
 		if (layerTiles.is_array() && (curLayerType == LcTiles::Type::TileLayer))
 		{
@@ -159,25 +158,53 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 
 				tileId++;
 			}
+
+			continue;
 		}
 
+		// process objects
 		auto layerObjects = layer["objects"];
-		if (layerObjects.is_array() && (curLayerType == LcTiles::Type::ObjectGroup))
+		if (layerObjects.is_array() && (curLayerType == LcTiles::Type::ObjectGroup) && objectHandler)
 		{
 			for (auto object : layerObjects)
 			{
-				if (physWorld &&
-					curLayerName == LcTiles::Layers::Collision &&
-					curLayerType == LcTiles::Type::ObjectGroup)
-				{
-					auto x = object["x"].get<float>();
-					auto y = object["y"].get<float>();
-					auto width = object["width"].get<float>();
-					auto height = object["height"].get<float>();
+				auto x = object["x"].get<float>();
+				auto y = object["y"].get<float>();
+				auto width = object["width"].get<float>();
+				auto height = object["height"].get<float>();
+				LcVector2 pos(x + width / 2.0f, y + height / 2.0f);
+				LcSizef size(width, height);
 
-					physWorld->AddStaticBox(LcVector2(x + width / 2.0f, y + height / 2.0f), LcSizef(width, height));
+				auto objectName = object["name"].get<std::string>();
+				auto objectType = object["type"].get<std::string>();
+				auto properties = object["properties"];
+
+				LcObjectProps props;
+				if (properties.is_array())
+				{
+					for (auto entry : properties)
+					{
+						std::pair<std::string, LcAny> newProp;
+						newProp.first = entry["name"].get<std::string>();
+
+						auto type = entry["type"].get<std::string>();
+						if (type == "int")
+							newProp.second.iValue = entry["value"].get<int>();
+						else if (type == "float")
+							newProp.second.fValue = entry["value"].get<float>();
+						else if (type == "bool")
+							newProp.second.bValue = entry["value"].get<bool>();
+						else if (type == "string")
+							newProp.second.sValue = entry["value"].get<std::string>();
+
+						props.push_back(newProp);
+					}
 				}
+
+				objectHandler(curLayerName, objectName, objectType, props, pos, size);
 			}
+
+			continue;
 		}
 	}
 

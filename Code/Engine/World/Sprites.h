@@ -9,6 +9,8 @@
 #include "Module.h"
 #include "World/Visual.h"
 
+#include <functional>
+
 
 /**
 * Sprite data */
@@ -173,26 +175,41 @@ namespace LcTiles
 	}
 }
 
-typedef std::vector<std::string> LcLayersList;
+typedef std::deque<std::string> LcLayersList;
+typedef std::deque<std::pair<std::string, LcAny>> LcObjectProps;
+typedef std::function<void(
+	const std::string&,		// layer name
+	const std::string&,		// object name
+	const std::string&,		// object type
+	const LcObjectProps&,	// object properties
+	LcVector2,				// object position
+	LcSizef					// object size
+)>
+LcObjectHandler;
+
+// void objectHandler(const std::string& layer, const std::string& name, const std::string& type,
+//		const LcObjectProps& props, LcVector2 pos, LcSizef size)
 
 /**
 * Tiled sprite component */
 struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 {
 	std::vector<LC_TILES_DATA> tiles;
-	class IPhysicsWorld* physWorld;	// if not null - adds static box tiles from LcTiles::Layers::Collision layer to physics world
 	std::string tiledJsonPath;
+	LcObjectHandler objectHandler;
 	LcLayersList layerNames;
 	LcVector2 scale;
 	//
-	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2), physWorld(nullptr){}
+	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2) {}
 	//
-	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) :
-		tiles(sprite.tiles), layerNames(sprite.layerNames), scale(LcDefaults::OneVec2), physWorld(nullptr) {}
+	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) = default;
 	//
-	LcTiledSpriteComponent(const std::string& inTiledJsonPath, class IPhysicsWorld* inPhysWorld = nullptr,
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}) :
+		tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames), scale(LcDefaults::OneVec2) {}
+	//
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, LcObjectHandler inObjectHandler,
 		const LcLayersList& inLayerNames = LcLayersList{}) : tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames),
-		scale(LcDefaults::OneVec2), physWorld(inPhysWorld) {}
+		objectHandler(inObjectHandler), scale(LcDefaults::OneVec2) {}
 
 
 public:// IVisualComponent interface implementation
@@ -253,10 +270,14 @@ public:
 		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
 	}
 	//
-	void AddTiledSpriteComponent(const std::string& tiledJsonPath, class IPhysicsWorld* inPhysWorld = nullptr,
-		const LcLayersList& inLayerNames = LcLayersList{})
+	void AddTiledSpriteComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{})
 	{
-		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inPhysWorld, inLayerNames));
+		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames));
+	}
+	//
+	void AddTiledSpriteComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{})
+	{
+		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames));
 	}
 	//
 	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
