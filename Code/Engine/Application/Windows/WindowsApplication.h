@@ -37,6 +37,8 @@ public: // IApplication interface implementation
 	//
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
 	//
+	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept { physWorld = inPhysWorld; }
+	//
 	virtual void SetWindowSize(int width, int height) override;
 	//
 	virtual void SetWindowMode(LcWinMode mode) override;
@@ -62,6 +64,10 @@ public: // IApplication interface implementation
 	virtual class IWorld* GetWorld() noexcept override { return world.get(); }
 	//
 	virtual TWorldPtr GetWorldPtr() noexcept override { return world; }
+	//
+	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept override { return physWorld.get(); }
+	//
+	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept override { return physWorld; }
 
 
 protected:
@@ -73,24 +79,32 @@ protected:
 	//
 	HWND hWnd;
 	//
+	std::wstring cmds;
+	//
+	int cmdsCount;
+	//
+	bool quit;
+	//
+	LcSize windowSize;
+	//
+	LcWinMode winMode;
+	//
+	ULONGLONG prevTick;
+	//
+	std::string shadersPath;
+
+
+protected:
 	TWorldPtr world;
 	//
 	TRenderSystemPtr renderSystem;
 	//
 	TGuiManagerPtr guiManager;
 	//
-	std::wstring cmds;
-	//
-	int cmdsCount;
-	//
-	std::string shadersPath;
-	//
-	LcSize windowSize;
-	//
-	bool quit;
-	//
-	LcWinMode winMode;
-	//
+	TPhysicsWorldPtr physWorld;
+
+
+protected:
 	LcInitHandler initHandler;
 	//
 	LcUpdateHandler updateHandler;
@@ -100,7 +114,5 @@ protected:
 	LcMouseMoveHandler mouseMoveHandler;
 	//
 	LcMouseButtonHandler mouseButtonHandler;
-	//
-	ULONGLONG prevTick;
 
 };

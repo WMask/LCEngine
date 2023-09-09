@@ -72,7 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Box2D\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\..\Code\Engine\Box2D\build\bin\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Box2D\build\bin\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>Lc$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,10 +122,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Lc$(TargetName)$(TargetExt)</OutputFile>
-      <ImportLibrary>$(OutDir)Lc$(TargetName).lib</ImportLibrary>
-      <ProgramDatabaseFile>$(OutDir)Lc$(TargetName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>Core.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

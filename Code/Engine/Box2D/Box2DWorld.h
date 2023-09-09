@@ -7,11 +7,12 @@
 #pragma once
 
 #include "Module.h"
-#include "Core/LCTypesEx.h"
+#include "Core/Physics.h"
 
 #include <memory>
 
 #pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
 
 /** Box2D config */
@@ -22,7 +23,7 @@ struct LcBox2DConfig
 	{
 	}
 	LcBox2DConfig(float gravity)
-		: gravity(LcVector2(0.0f, -gravity)), velocityIterations(8), positionIterations(3)
+		: gravity(LcVector2(0.0f, gravity)), velocityIterations(8), positionIterations(3)
 	{
 	}
 	LcVector2 gravity;
@@ -36,7 +37,7 @@ struct LcBox2DConfig
 /**
 * Box2D game world
 */
-class BOX2D_API LcBox2DWorld
+class BOX2D_API LcBox2DWorld : public IPhysicsWorld
 {
 public:
 	LcBox2DWorld(const LcBox2DConfig& config);
@@ -44,16 +45,29 @@ public:
 	LcBox2DWorld(float gravity);
 	//
 	~LcBox2DWorld();
+
+
+public:// IPhysicsWorld interface implementation
 	//
-	void Update(float deltaSeconds);
+	virtual void Clear() override;
 	//
-	void AddStaticBox(LcVector2 pos, LcSizef size);
+	virtual void Update(float deltaSeconds) override;
 	//
-	class b2Body* AddDynamicBox(LcVector2 pos, LcSizef size, bool fixedRotation = true);
+	virtual void AddStaticBox(LcVector2 pos, LcSizef size) override;
+	//
+	virtual IPhysicsBody* AddDynamic(LcVector2 pos, float radius, float density, bool fixedRotation = true) override;
+	//
+	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation = true) override;
+	//
+	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies; }
+	//
+	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies; }
 
 
 protected:
 	std::unique_ptr<class b2World> box2DWorld;
+	//
+	TBodiesList dynamicBodies;
 	//
 	LcBox2DConfig config;
 

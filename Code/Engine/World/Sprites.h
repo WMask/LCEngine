@@ -157,23 +157,42 @@ struct LC_TILES_DATA
 	LcVector2 uv[4];	// uv coordinates
 };
 
+namespace LcTiles
+{
+	namespace Layers
+	{
+		static const std::string All = "All";
+		static const std::string Default = "Default";
+		static const std::string Collision = "Collision";
+		static const std::string Objects = "Objects";
+	}
+	namespace Type
+	{
+		static const std::string TileLayer = "tilelayer";
+		static const std::string ObjectGroup = "objectgroup";
+	}
+}
+
+typedef std::vector<std::string> LcLayersList;
+
 /**
 * Tiled sprite component */
 struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 {
 	std::vector<LC_TILES_DATA> tiles;
-	//
+	class IPhysicsWorld* physWorld;	// if not null - adds static box tiles from LcTiles::Layers::Collision layer to physics world
 	std::string tiledJsonPath;
-	//
+	LcLayersList layerNames;
 	LcVector2 scale;
 	//
-	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2) {}
+	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2), physWorld(nullptr){}
 	//
-	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) : tiles(sprite.tiles), scale(LcDefaults::OneVec2) {}
+	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) :
+		tiles(sprite.tiles), layerNames(sprite.layerNames), scale(LcDefaults::OneVec2), physWorld(nullptr) {}
 	//
-	LcTiledSpriteComponent(const std::string& inTiledJsonPath) : tiledJsonPath(inTiledJsonPath), scale(LcDefaults::OneVec2) {}
-	//
-	const void* GetData() const { return &tiles[0]; }
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, class IPhysicsWorld* inPhysWorld = nullptr,
+		const LcLayersList& inLayerNames = LcLayersList{}) : tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames),
+		scale(LcDefaults::OneVec2), physWorld(inPhysWorld) {}
 
 
 public:// IVisualComponent interface implementation
@@ -234,9 +253,10 @@ public:
 		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
 	}
 	//
-	void AddTiledSpriteComponent(const std::string& tiledJsonPath)
+	void AddTiledSpriteComponent(const std::string& tiledJsonPath, class IPhysicsWorld* inPhysWorld = nullptr,
+		const LcLayersList& inLayerNames = LcLayersList{})
 	{
-		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath));
+		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inPhysWorld, inLayerNames));
 	}
 	//
 	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }

@@ -42,6 +42,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Core\Physics.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

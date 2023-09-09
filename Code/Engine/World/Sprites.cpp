@@ -8,6 +8,7 @@
 
 #include "pch.h"
 #include "World/Sprites.h"
+#include "Core/Physics.h"
 #include "Core/LcUtils.h"
 
 #include <filesystem>
@@ -117,40 +118,66 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 	// add tiles
 	for (auto layer : tilesObject["layers"])
 	{
+		auto curLayerName = layer["name"].get<std::string>();
+		auto curLayerType = layer["type"].get<std::string>();
+		bool layerFound = std::find(layerNames.begin(), layerNames.end(), curLayerName) != layerNames.end();
+		bool validLayer = layerFound || layerNames.empty();
+		if (!validLayer) continue;
+
 		auto layerTiles = layer["data"];
-		if (!layerTiles.is_array()) continue;
-
-		int tileId = 0;
-		for (size_t id = 0; id < layerTiles.size(); id++)
+		if (layerTiles.is_array() && (curLayerType == LcTiles::Type::TileLayer))
 		{
-			int uvTileId = layerTiles[id].get<int>();
-			if (uvTileId != 0)
+			int tileId = 0;
+			for (size_t id = 0; id < layerTiles.size(); id++)
 			{
-				uvTileId--; // 0 - means invalid, starts from 1, remap to 0
+				int uvTileId = layerTiles[id].get<int>();
+				if (uvTileId != 0)
+				{
+					uvTileId--; // 0 - means invalid, starts from 1, remap to 0
 
-				int row = tileId / columns;
-				int column = tileId % columns;
-				float x = tilewidth * column + offsetX;
-				float y = tileheight * row + offsetY;
+					int row = tileId / columns;
+					int column = tileId % columns;
+					float x = tilewidth * column + offsetX;
+					float y = tileheight * row + offsetY;
 
-				int uvRow = uvTileId / uvColumns;
-				int uvColumn = uvTileId % uvColumns;
-				float ox = uvx * uvColumn;
-				float oy = uvy * uvRow;
+					int uvRow = uvTileId / uvColumns;
+					int uvColumn = uvTileId % uvColumns;
+					float ox = uvx * uvColumn;
+					float oy = uvy * uvRow;
 
-				LC_TILES_DATA tile{};
-				tile.pos[0] = LcVector3(x, y, 0.0f);
-				tile.pos[1] = LcVector3(x + tilewidth, y + tileheight, 0.0f);
-				tile.pos[2] = LcVector3(x + tilewidth, y, 0.0f);
-				tile.pos[3] = LcVector3(x, y + tileheight, 0.0f);
-				tile.uv[0] = LcVector2(ox, oy);
-				tile.uv[1] = LcVector2(ox + uvx, oy + uvy);
-				tile.uv[2] = LcVector2(ox + uvx, oy);
-				tile.uv[3] = LcVector2(ox, oy + uvy);
-				tiles.push_back(tile);
+					LC_TILES_DATA tile{};
+					tile.pos[0] = LcVector3(x, y, 0.0f);
+					tile.pos[1] = LcVector3(x + tilewidth, y + tileheight, 0.0f);
+					tile.pos[2] = LcVector3(x + tilewidth, y, 0.0f);
+					tile.pos[3] = LcVector3(x, y + tileheight, 0.0f);
+					tile.uv[0] = LcVector2(ox, oy);
+					tile.uv[1] = LcVector2(ox + uvx, oy + uvy);
+					tile.uv[2] = LcVector2(ox + uvx, oy);
+					tile.uv[3] = LcVector2(ox, oy + uvy);
+					tiles.push_back(tile);
+				}
+
+				tileId++;
 			}
+		}
 
-			tileId++;
+		auto layerObjects = layer["objects"];
+		if (layerObjects.is_array() && (curLayerType == LcTiles::Type::ObjectGroup))
+		{
+			for (auto object : layerObjects)
+			{
+				if (physWorld &&
+					curLayerName == LcTiles::Layers::Collision &&
+					curLayerType == LcTiles::Type::ObjectGroup)
+				{
+					auto x = object["x"].get<float>();
+					auto y = object["y"].get<float>();
+					auto width = object["width"].get<float>();
+					auto height = object["height"].get<float>();
+
+					physWorld->AddStaticBox(LcVector2(x + width / 2.0f, y + height / 2.0f), LcSizef(width, height));
+				}
+			}
 		}
 	}
 
