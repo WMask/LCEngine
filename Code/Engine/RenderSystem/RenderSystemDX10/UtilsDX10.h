@@ -69,9 +69,13 @@ protected:
 class LcSpriteDX10 : public LcSprite
 {
 public:
-	LcSpriteDX10(LcSpriteData inSprite, class LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender) {}
+	LcSpriteDX10(LcSpriteData inSprite, class LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender), tiledRender(nullptr) {}
+	//
+	~LcSpriteDX10();
 	//
 	class LcRenderSystemDX10& render;
+	//
+	class LcTiledVisual2DRenderDX10* tiledRender;
 	//
 	ComPtr<ID3D10Texture2D> texture;
 	//
@@ -100,7 +104,15 @@ public:
 	const ITextFont* font;
 
 
+protected:
+	unsigned short GetFontSize(const struct LcWidgetTextComponent& textComp) const;
+
+
 public:// IVisual interface implementation
 	virtual void AddComponent(TVComponentPtr comp) override;
+
+
+public:// IWidget interface implementation
+	virtual void RecreateFont() override;
 
 };

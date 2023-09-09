@@ -186,8 +186,8 @@ struct LcWidgetCheckComponent : public IVisualComponent
 class IWidget : public IVisualBase
 {
 public:
-    void AddTextComponent(const std::wstring& inText, const std::wstring& inFontName, unsigned short inFontSize,
-        LcColor4 inTextColor, LcFontWeight inFontWeight = LcFontWeight::Normal)
+    void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
+        const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22, LcFontWeight inFontWeight = LcFontWeight::Normal)
     {
         AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight));
     }
@@ -216,13 +216,19 @@ public:
         AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
         AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos));
     }
-    void AddClickHandlerComponent(LcClickHandler handler)
+    void AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin = true)
     {
         AddComponent(std::make_shared<LcWidgetClickComponent>(handler));
+
+        if (addDefaultSkin) AddButtonComponent("../../Assets/button.png",
+            LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
     }
-    void AddCheckHandlerComponent(LcCheckHandler handler)
+    void AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin = true)
     {
         AddComponent(std::make_shared<LcWidgetCheckComponent>(handler));
+
+        if (addDefaultSkin) AddCheckboxComponent("../../Assets/checkbox.png",
+            LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
     }
     //
     LcWidgetTextComponent* GetTextComponent() const { return (LcWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
@@ -242,6 +248,9 @@ public:
     /**
     * Keyboard key event */
     virtual void OnKeyboard(int btn, LcKeyState state) = 0;
+    /**
+    * Recreate font after World scale change */
+    virtual void RecreateFont() = 0;
 	/**
 	* Set active state */
 	virtual void SetActive(bool active) = 0;
@@ -283,6 +292,8 @@ public:
 public:// IWidget interface implementation
     //
     virtual void OnKeyboard(int btn, LcKeyState state) override {}
+    //
+    virtual void RecreateFont() override {}
     //
     virtual void SetActive(bool inActive) override { widget.active = inActive; }
     //

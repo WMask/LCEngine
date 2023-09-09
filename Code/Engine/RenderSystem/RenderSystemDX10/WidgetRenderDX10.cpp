@@ -124,10 +124,6 @@ void LcWidgetRenderDX10::Setup(const IVisual* visual)
 
     if (d2dFactory) Shutdown();
 
-    RECT clientRect;
-    GetClientRect(hWnd, &clientRect);
-    screenHeight = clientRect.bottom - clientRect.top;
-
     if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
     {
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create Direct2D factory");
@@ -203,7 +199,15 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
     if (!renderTarget) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid renderer");
     if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
-    D2D1_RECT_F frect{ rect.left + 0.5f, rect.top + 0.5f, rect.right + 0.5f, rect.bottom + 0.5f };
+    auto scale = LcDefaults::OneVec2;
+    if (auto world = device.GetWorld()) scale = world->GetWorldScale().scale;
+
+    D2D1_RECT_F frect{
+        (rect.left + 0.5f) * scale.x,
+        (rect.top + 0.5f) * scale.y,
+        (rect.right + 0.5f) * scale.x,
+        (rect.bottom + 0.5f) * scale.y
+    };
     D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
     auto fontDX10 = (ITextFontDX10*)font;
 

@@ -48,6 +48,9 @@ inline LcVector2 operator/(const LcVector2& a, float f) { return LcVector2{ a.x 
 inline LcVector3 operator/(const LcVector3& a, float f) { return LcVector3{ a.x / f, a.y / f, a.z / f }; }
 inline LcVector4 operator/(const LcVector4& a, float f) { return LcVector4{ a.x / f, a.y / f, a.z / f, a.w / f }; }
 
+inline LcVector2 operator*(const LcVector2& a, const LcVector2& b) { return LcVector2{ a.x * b.x, a.y * b.y }; }
+inline LcVector3 operator*(const LcVector3& a, const LcVector3& b) { return LcVector3{ a.x * b.x, a.y * b.y, a.z * b.z }; }
+
 inline LcVector2 operator*(const LcVector2& a, float f) { return LcVector2{ a.x * f, a.y * f }; }
 inline LcVector3 operator*(const LcVector3& a, float f) { return LcVector3{ a.x * f, a.y * f, a.z * f }; }
 inline LcVector4 operator*(const LcVector4& a, float f) { return LcVector4{ a.x * f, a.y * f, a.z * f, a.w * f }; }

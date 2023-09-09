@@ -125,6 +125,43 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	}
 }
 
+LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scaleFonts(true)
+{
+	UpdateWorldScale(scaleList.begin()->resolution);
+}
+
+void LcWorldScale::Scale(LcVector3* newPos, LcSizef* newSize)
+{
+	if (newPos && newSize)
+	{
+		*newPos = *newPos * LcVector3(scale.x, scale.y, 1.0f);
+		*newSize = *newSize * scale;
+	}
+}
+
+void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
+{
+	for (auto entry : scaleList)
+	{
+		if (entry.resolution == newScreenSize)
+		{
+			scale = entry.scale;
+			if (ScaleUpdatedHandler) ScaleUpdatedHandler();
+			return;
+		}
+	}
+
+	for (auto entry : scaleList)
+	{
+		if (entry.resolution.y >= newScreenSize.y)
+		{
+			scale = entry.scale;
+			if (ScaleUpdatedHandler) ScaleUpdatedHandler();
+			return;
+		}
+	}
+}
+
 TWorldPtr GetWorld()
 {
 	return std::make_shared<LcWorld>();

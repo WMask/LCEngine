@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
@@ -257,6 +258,11 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     }
 }
 
+LcSpriteDX10::~LcSpriteDX10()
+{
+    if (tiledRender) tiledRender->RemoveTiles(this);
+}
+
 void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 {
     LcSprite::AddComponent(comp);
@@ -271,6 +277,17 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
         else
             throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
     }
+}
+
+unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp) const
+{
+    float scale = 1.0f;
+    if (auto world = render.GetWorld())
+    {
+        if (world->GetWorldScale().scaleFonts) scale = world->GetWorldScale().scale.y;
+    }
+
+    return static_cast<unsigned short>(static_cast<float>(textComp.fontSize) * scale);
 }
 
 void LcWidgetDX10::AddComponent(TVComponentPtr comp)
@@ -290,8 +307,18 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 
     if (auto textComp = GetTextComponent())
     {
-        font = render.GetWidgetRender()->AddFont(textComp->fontName, textComp->fontSize, textComp->fontWeight);
+        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
         if (!font)
             throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
+    }
+}
+
+void LcWidgetDX10::RecreateFont()
+{
+    if (auto textComp = GetTextComponent())
+    {
+        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
+        if (!font)
+            throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
     }
 }

@@ -3,6 +3,95 @@
  "infinite":false,
  "layers":[
         {
+         "draworder":"topdown",
+         "id":3,
+         "name":"Objects",
+         "objects":[
+                {
+                 "height":32,
+                 "id":6,
+                 "name":"Lava Field",
+                 "properties":[
+                        {
+                         "name":"Damage",
+                         "type":"float",
+                         "value":100
+                        }],
+                 "rotation":0,
+                 "type":"LcDamageArea",
+                 "visible":true,
+                 "width":384,
+                 "x":480,
+                 "y":736
+                }, 
+                {
+                 "height":32,
+                 "id":7,
+                 "name":"Armor Boost",
+                 "properties":[
+                        {
+                         "name":"Amount",
+                         "type":"float",
+                         "value":10
+                        }],
+                 "rotation":0,
+                 "type":"LcArmorBoost",
+                 "visible":true,
+                 "width":32,
+                 "x":960,
+                 "y":640
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":5,
+         "name":"Collision",
+         "objects":[
+                {
+                 "height":96,
+                 "id":9,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":512,
+                 "x":0,
+                 "y":672
+                }, 
+                {
+                 "height":32,
+                 "id":10,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":640,
+                 "y":672
+                }, 
+                {
+                 "height":96,
+                 "id":11,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":192,
+                 "x":832,
+                 "y":672
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
          "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -28,8 +117,8 @@
             132, 134, 131, 132, 134, 134, 134, 132, 132, 131, 134, 132, 134, 134, 131, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 131, 131, 132, 131, 134,
             19, 24, 18, 23, 24, 24, 23, 22, 18, 22, 22, 24, 23, 19, 24, 44, 43, 44, 42, 41, 44, 42, 43, 44, 44, 42, 41, 25, 24, 22, 24, 19],
          "height":24,
-         "id":1,
-         "name":"Tile Layer 1",
+         "id":2,
+         "name":"Default",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
@@ -37,8 +126,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":2,
- "nextobjectid":1,
+ "nextlayerid":6,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",

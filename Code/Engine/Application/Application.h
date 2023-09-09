@@ -14,7 +14,7 @@
 #include "GUI/Module.h"
 #include "World/Module.h"
 #include "RenderSystem/Module.h"
-#include "Core/LCTypes.h"
+#include "Core/Physics.h"
 
 #pragma warning(disable : 4251)
 
@@ -59,6 +59,9 @@ public:
 	* Set GUI manager */
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
 	/**
+	* Set physics world */
+	virtual void SetPhysicsWorld(TPhysicsWorldPtr physWorld) noexcept = 0;
+	/**
 	* Set window size in pixels */
 	virtual void SetWindowSize(int width, int height) = 0;
 	/**
@@ -92,11 +95,17 @@ public:
 	* Get window height in pixels */
 	virtual int GetWindowHeight() const = 0;
 	/**
-	* Get World */
+	* Get World pointer */
 	virtual class IWorld* GetWorld() noexcept = 0;
 	/**
 	* Get World pointer */
 	virtual TWorldPtr GetWorldPtr() noexcept = 0;
+	/**
+	* Get Physics World pointer */
+	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept = 0;
+	/**
+	* Get Physics World pointer */
+	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept = 0;
 
 
 protected:

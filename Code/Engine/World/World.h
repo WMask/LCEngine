@@ -17,54 +17,42 @@
 class LcWorld : public IWorld
 {
 public: // IWorld interface implementation
-	/**
-	* Constructor */
+	//
 	LcWorld();
-	/**
-	* Destructor */
+	//
 	~LcWorld();
-	/**
-	* Set sprite factory */
+	//
 	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
-	/**
-	* Set widget factory */
+	//
 	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
-	/**
-	* Add sprite */
+	//
 	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
-	/**
-	* Add sprite */
+	//
 	virtual ISprite* AddSprite3D(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) override;
-	/**
-	* Add sprite */
+	//
 	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) override;
-	/**
-	* Remove sprite */
+	//
 	virtual void RemoveSprite(ISprite* sprite) override;
-	/**
-	* Get sprites */
+	//
 	virtual SPRITE_LIST& GetSprites() override { return sprites; }
-	/**
-	* Add widget */
+	//
 	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
-	/**
-	* Add widget */
+	//
 	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) override;
-	/**
-	* Add widget */
+	//
 	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) override;
-	/**
-	* Remove widget */
+	//
 	virtual void RemoveWidget(IWidget* widget) override;
-	/**
-	* Get widgets */
+	//
 	virtual WIDGET_LIST& GetWidgets() override { return widgets; }
-	/**
-	* Get camera */
+	//
 	virtual const LcCamera& GetCamera() const override { return camera; }
-	/**
-	* Get camera */
+	//
 	virtual LcCamera& GetCamera() override { return camera; }
+	//
+	virtual const LcWorldScale& GetWorldScale() const override { return worldScale; }
+	//
+	virtual LcWorldScale& GetWorldScale() override { return worldScale; }
 
 
 protected:
@@ -83,6 +71,8 @@ protected:
 	TSpriteFactoryPtr spriteFactory;
 	//
 	TWidgetFactoryPtr widgetFactory;
+	//
+	LcWorldScale worldScale;
 	//
 	LcCamera camera;
 

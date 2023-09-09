@@ -20,14 +20,30 @@
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
 {
 public:
-	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender), tiledRender(nullptr)
+	{
+		TVFeaturesList features = { EVCType::Tiled, EVCType::Texture };
+		auto& renders = render.GetVisual2DRenderList();
+		for (auto& render : renders)
+		{
+			if (render->Supports(features))
+			{
+				tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(render.get());
+				break;
+			}
+		}
+	}
 	//
 	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
 	{
-		return std::make_shared<LcSpriteDX10>(data, render);
+		auto newSprite = std::make_shared<LcSpriteDX10>(data, render);
+		newSprite->tiledRender = tiledRender;
+		return newSprite;
 	}
 	//
 	LcRenderSystemDX10& render;
+	//
+	LcTiledVisual2DRenderDX10* tiledRender;
 };
 
 class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
@@ -55,7 +71,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode winMode)
+void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode)
 {
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
@@ -77,7 +93,6 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMo
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
-	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -253,10 +268,10 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMo
 	widgetRender->Setup(nullptr);
 
 	// init managers
-	texLoader.reset(new LcTextureLoaderDX10(worldPtr));
+	texLoader.reset(new LcTextureLoaderDX10(inWorld));
 
 	// add sprite factory
-	if (auto world = worldPtr.lock())
+	if (auto world = inWorld.lock())
 	{
 		world->GetCamera().Set(cameraPos, cameraTarget);
 		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
@@ -264,7 +279,7 @@ void LcRenderSystemDX10::Create(TWeakWorld worldPtr, void* windowHandle, LcWinMo
 	}
 
 	// init render system
-	LcRenderSystemBase::Create(worldPtr, this, winMode);
+	LcRenderSystemBase::Create(inWorld, this, winMode);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -342,7 +357,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		widgetRender->Shutdown();
 
 		// resize swap chain
-		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)))
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0)))
 		{
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}
@@ -373,11 +388,24 @@ void LcRenderSystemDX10::Resize(int width, int height)
 
 		d3dDevice->RSSetViewports(1, &viewPort);
 
-		// update camera
+		// recreate widget render
+		widgetRender->Setup(nullptr);
+
+		// update world settings
 		if (auto world = worldPtr.lock())
 		{
 			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+
+			auto oldWorldScale = world->GetWorldScale().scale;
+			world->GetWorldScale().UpdateWorldScale(newSize);
+
+			// recreate widget fonts
+			if (oldWorldScale != world->GetWorldScale().scale && world->GetWorldScale().scaleFonts)
+			{
+				auto& widgets = world->GetWidgets();
+				for (auto widget : widgets) widget->RecreateFont();
+			}
 
 			world->GetCamera().Set(cameraPos, cameraTarget);
 			UpdateCamera(0.1f, cameraPos, cameraTarget);
@@ -388,9 +416,6 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
 		renderSystemSize = newSize;
-
-		// recreate widget render
-		widgetRender->Setup(nullptr);
 	}
 }
 

@@ -13,36 +13,36 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Lua">
-      <UniqueIdentifier>{2d2b2a93-5312-410f-bfe8-fb8a173fbb42}</UniqueIdentifier>
+    <Filter Include="Source Files\Box2D">
+      <UniqueIdentifier>{c9f1565a-d68d-4b4e-9e4a-f094d17eca4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Lua">
-      <UniqueIdentifier>{bf5f4d5e-ba47-4f79-8713-9046f7e92ac9}</UniqueIdentifier>
+    <Filter Include="Header Files\Box2D">
+      <UniqueIdentifier>{c237379a-cc29-4d83-bc86-2be4f4c8e673}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Lua\Module.h">
-      <Filter>Header Files\Lua</Filter>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.h">
-      <Filter>Header Files\Lua</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Box2D\Box2DWorld.h">
+      <Filter>Header Files\Box2D</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.h">
-      <Filter>Header Files\Lua</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Box2D\Module.h">
+      <Filter>Header Files\Box2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.cpp">
-      <Filter>Source Files\Lua</Filter>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.cpp">
-      <Filter>Source Files\Lua</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\Box2D\Box2DWorld.cpp">
+      <Filter>Source Files\Box2D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

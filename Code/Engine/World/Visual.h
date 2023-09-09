@@ -195,6 +195,10 @@ struct LcVisualTextureComponent : public IVisualComponent
 * Visual base interface */
 class WORLD_API IVisualBase : public IVisual
 {
+public:
+	IVisualBase() : world(nullptr) {}
+
+
 public:// IVisual interface implementation
 	//
 	virtual void Destroy(class IWorld* world) override;

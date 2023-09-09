@@ -11,7 +11,8 @@
 *.idb
 *.pdb
 *.bin
-Code/Engine/json/*
+Code/Engine/Json/*
+Code/Engine/Box2D/*
 Code/Engine/Lua/src/*
 Code/Engine/Json/nlohmann/*
 Code/Samples/Windows/HelloWorld/x64/*
@@ -21,6 +22,7 @@ Code/Samples/Windows/WidgetSample/x64/*
 Code/Samples/Windows/TiledSample/x64/*
 Code/Samples/Windows/LuaSample/x64/*
 Projects/Windows/Core/x64/*
+Projects/Windows/Box2D/x64/*
 Projects/Windows/Application/x64/*
 Projects/Windows/WindowsApplication/x64/*
 Projects/Windows/RenderSystem/x64/*

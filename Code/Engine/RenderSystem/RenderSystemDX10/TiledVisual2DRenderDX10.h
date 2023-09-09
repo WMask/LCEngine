@@ -30,6 +30,9 @@ public:
 	/**
 	* Destructor */
 	~LcTiledVisual2DRenderDX10();
+	/**
+	* Removes tile's vertex buffer */
+	void RemoveTiles(const IVisual* visual);
 
 
 public:// IVisual2DRender interface implementation

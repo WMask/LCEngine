@@ -33,7 +33,7 @@ public:
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
-	LcWidgetRenderDX10(class IRenderDeviceDX10& devicePtr, HWND hWndPtr) :
+	LcWidgetRenderDX10(class IRenderDeviceDX10& devicePtr, HWND hWndPtr) : textureRender(nullptr),
 		device(devicePtr), hWnd(hWndPtr), renderMode(EWRMode::Textures), features{EVCType::Texture} {}
 	//
 	~LcWidgetRenderDX10();
@@ -84,7 +84,5 @@ protected:
 	ComPtr<IDWriteFactory> dwriteFactory;
 	//
 	std::map<std::wstring, std::shared_ptr<ITextFont>> fonts;
-	//
-	unsigned int screenHeight;
 
 };

@@ -54,6 +54,9 @@ public:
 	* Force sprite render setup. Updates shaders and buffers */
 	virtual void ForceRenderSetup() = 0;
 	/**
+	* Get world pointer */
+	virtual TWorldPtr GetWorld() const = 0;
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 
@@ -78,7 +81,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) override;
+	virtual void Create(TWeakWorld inWorld, void* windowHandle, LcWinMode mode) override;
 	//
 	virtual void Shutdown() override;
 	//
@@ -127,6 +130,8 @@ public:// IDX10RenderDevice interface implementation
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
 	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
+	//
+	virtual TWorldPtr GetWorld() const override { return worldPtr.lock(); }
 	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 

@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCUtils.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Core\Physics.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\ScriptSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />

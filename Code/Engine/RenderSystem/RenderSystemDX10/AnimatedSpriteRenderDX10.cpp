@@ -113,7 +113,8 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto animBuffer = renderDevice.GetFrameAnimBuffer();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !animBuffer || !sprite)
+	auto world = renderDevice.GetWorld();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !animBuffer || !world || !sprite)
 		throw std::exception("LcAnimatedSpriteRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
@@ -143,7 +144,11 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcMatrix4 trans = TransformMatrix(sprite->GetPos(), sprite->GetSize(), sprite->GetRotZ());
+	LcVector3 spritePos = sprite->GetPos();
+	LcVector2 spriteSize = sprite->GetSize();
+	world->GetWorldScale().Scale(&spritePos, &spriteSize);
+
+	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 	// render sprite
@@ -152,10 +157,11 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 
 bool LcAnimatedSpriteRenderDX10::Supports(const TVFeaturesList& features) const
 {
-	bool needAnimation = false;
+	bool needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
 		needAnimation |= (feature == EVCType::FrameAnimation);
+		needTiles |= (feature == EVCType::Tiled);
 	}
-	return needAnimation;
+	return !needTiles && needAnimation;
 }
