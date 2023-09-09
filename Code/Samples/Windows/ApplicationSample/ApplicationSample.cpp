@@ -104,6 +104,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         int winHeight = cfg["appWinHeight"].iValue;
 
         auto app = GetApp();
+        app->SetVSync(true);
         app->SetRenderSystem(GetRenderSystem());
         app->SetGuiManager(GetGuiManager());
         app->SetInitHandler(onInitHandler);

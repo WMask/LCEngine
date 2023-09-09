@@ -71,7 +71,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode)
+void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode, bool inVSync)
 {
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
@@ -93,6 +93,7 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
+	swapChainDesc.SwapEffect = inVSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -279,7 +280,7 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	}
 
 	// init render system
-	LcRenderSystemBase::Create(inWorld, this, winMode);
+	LcRenderSystemBase::Create(inWorld, this, winMode, inVSync);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -330,7 +331,7 @@ void LcRenderSystemDX10::Render()
 
 	LcRenderSystemBase::Render();
 
-	swapChain->Present(DXGI_SWAP_EFFECT_SEQUENTIAL, 0);
+	swapChain->Present(vSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD, 0);
 }
 
 void LcRenderSystemDX10::RequestResize(int width, int height)

@@ -81,7 +81,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(TWeakWorld inWorld, void* windowHandle, LcWinMode mode) override;
+	virtual void Create(TWeakWorld inWorld, void* windowHandle, LcWinMode mode, bool inVSync) override;
 	//
 	virtual void Shutdown() override;
 	//

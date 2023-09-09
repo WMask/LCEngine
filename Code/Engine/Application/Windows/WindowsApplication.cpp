@@ -30,14 +30,16 @@ struct LcWin32Handles
 
 LcWindowsApplication::LcWindowsApplication()
 {
-	hInstance = nullptr;
+    hInstance = nullptr;
     hWnd = nullptr;
     cmds.clear();
     cmdsCount = 0;
     windowSize = LcSize(800, 600);
     winMode = LcWinMode::Windowed;
-	quit = false;
-    prevTick = 0;
+    quit = false;
+    vSync = true;
+    prevTime.QuadPart = 0;
+    frequency.QuadPart = 0;
 }
 
 LcWindowsApplication::~LcWindowsApplication()
@@ -126,7 +128,7 @@ void LcWindowsApplication::Run()
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
-        renderSystem->Create(world, hWnd, winMode);
+        renderSystem->Create(world, hWnd, winMode, vSync);
     }
 
     if (guiManager)
@@ -136,7 +138,9 @@ void LcWindowsApplication::Run()
 
     if (initHandler) initHandler(this);
 
-	prevTick = GetTickCount64();
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&prevTime);
+
     MSG msg;
 	while (!quit)
 	{
@@ -148,7 +152,6 @@ void LcWindowsApplication::Run()
         }
         else
         {
-            Sleep(1);
             OnUpdate();
         }
 	}
@@ -158,28 +161,31 @@ void LcWindowsApplication::Run()
 
 void LcWindowsApplication::OnUpdate()
 {
-    auto curTick = GetTickCount64();
-    auto ticksCount = (double)curTick - (double)prevTick;
-    float deltaSeconds = float(ticksCount / 1000.0);
+    LARGE_INTEGER curTime, deltaTime;
+    QueryPerformanceCounter(&curTime);
+    deltaTime.QuadPart = (curTime.QuadPart - prevTime.QuadPart);
 
-    if (curTick != prevTick)
+    if (curTime.QuadPart != prevTime.QuadPart)
     {
-        prevTick = curTick;
+        prevTime.QuadPart = curTime.QuadPart;
+
+        double deltaSeconds = static_cast<double>(deltaTime.QuadPart) / 10000000.0;
+        float deltaFloat = static_cast<float>(deltaSeconds);
 
         if (renderSystem)
         {
-            renderSystem->Update(deltaSeconds);
+            renderSystem->Update(deltaFloat);
             renderSystem->Render();
         }
 
         if (guiManager)
         {
-            guiManager->Update(deltaSeconds);
+            guiManager->Update(deltaFloat);
         }
 
         if (updateHandler)
         {
-            updateHandler(deltaSeconds, this);
+            updateHandler(deltaFloat, this);
         }
     }
 }

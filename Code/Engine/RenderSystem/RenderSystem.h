@@ -30,7 +30,7 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) = 0;
+	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode, bool vSync) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
@@ -72,14 +72,14 @@ class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
 public:
 	typedef std::map<std::string, std::string> SHADERS_MAP;
 	//
-	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3) {}
+	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3), vSync(false) {}
 
 
 public:// IRenderSystem interface implementation
 	//
 	virtual void LoadShaders(const char* folderPath) override;
 	//
-	virtual void Create(TWeakWorld world, void* windowHandle, LcWinMode mode) override { worldPtr = world; }
+	virtual void Create(TWeakWorld world, void* windowHandle, LcWinMode mode, bool vSync) override;
 	//
 	virtual void Shutdown() override {}
 	//
@@ -117,6 +117,8 @@ protected:
 	LcVector3 cameraPos;
 	//
 	LcVector3 cameraTarget;
+	//
+	bool vSync;
 
 };
 

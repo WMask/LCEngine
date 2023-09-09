@@ -33,6 +33,12 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     }
 }
 
+void LcRenderSystemBase::Create(TWeakWorld world, void* windowHandle, LcWinMode mode, bool inVSync)
+{
+    worldPtr = world;
+    vSync = inVSync;
+}
+
 void LcRenderSystemBase::Update(float deltaSeconds)
 {
     if (auto world = worldPtr.lock())
