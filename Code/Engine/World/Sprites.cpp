@@ -8,7 +8,8 @@
 
 #include "pch.h"
 #include "World/Sprites.h"
-#include "Core/LcUtils.h"
+#include "Core/LCException.h"
+#include "Core/LCUtils.h"
 
 #include <filesystem>
 
@@ -106,6 +107,8 @@ LcVector4 LcSpriteAnimationComponent::GetAnimData() const
 
 void LcTiledSpriteComponent::Init(class IWorld& world)
 {
+	LC_TRY
+
 	if (!owner) throw std::exception("LcTiledSpriteComponent::Init(): Cannot get owner");
 
 	auto tilesFileText = ReadTextFile(tiledJsonPath.c_str());
@@ -260,6 +263,8 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 
 	scale.x = owner->GetSize().x / (tilewidth * columns);
 	scale.y = owner->GetSize().y / (tileheight * rows);
+
+	LC_CATCH { LC_THROW("LcTiledSpriteComponent::Init()") }
 }
 
 void LcSprite::Update(float deltaSeconds)

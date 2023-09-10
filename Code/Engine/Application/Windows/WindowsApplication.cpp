@@ -8,6 +8,7 @@
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/WidgetRender.h"
+#include "Core/LCException.h"
 #include "GUI/GuiManager.h"
 
 #define WS_LC_WINDOW_MENU   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
@@ -87,6 +88,8 @@ void LcWindowsApplication::Init(void* handle) noexcept
 
 void LcWindowsApplication::Run()
 {
+    LC_TRY
+
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
 
     WNDCLASSEXW wcex{};
@@ -136,7 +139,14 @@ void LcWindowsApplication::Run()
         guiManager->Init(world);
     }
 
-    if (initHandler) initHandler(this);
+    if (initHandler)
+    {
+        LC_TRY
+
+        initHandler(this);
+
+        LC_CATCH{ LC_THROW("LcWindowsApplication::Run(onInitHandler)") }
+    }
 
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&prevTime);
@@ -157,10 +167,14 @@ void LcWindowsApplication::Run()
 	}
 
     SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::Run()") }
 }
 
 void LcWindowsApplication::OnUpdate()
 {
+    LC_TRY
+
     LARGE_INTEGER curTime, deltaTime;
     QueryPerformanceCounter(&curTime);
     deltaTime.QuadPart = (curTime.QuadPart - prevTime.QuadPart);
@@ -174,20 +188,34 @@ void LcWindowsApplication::OnUpdate()
 
         if (renderSystem)
         {
+            LC_TRY
+
             renderSystem->Update(deltaFloat);
             renderSystem->Render();
+
+            LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
         }
 
         if (guiManager)
         {
+            LC_TRY
+
             guiManager->Update(deltaFloat);
+
+            LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onGuiUpdate)") }
         }
 
         if (updateHandler)
         {
+            LC_TRY
+
             updateHandler(deltaFloat, this);
+
+            LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onAppUpdate)") }
         }
     }
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate()") }
 }
 
 void LcWindowsApplication::SetWindowSize(int width, int height)
@@ -277,5 +305,5 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 TAppPtr GetApp()
 {
-    return std::make_shared<LcWindowsApplication>();
+    return std::make_unique<LcWindowsApplication>();
 }

@@ -15,6 +15,7 @@
 #include "World/Sprites.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
+#include "Core/LCException.h"
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -73,6 +74,8 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 
 void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode, bool inVSync)
 {
+	LC_TRY
+
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
@@ -285,6 +288,8 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	LcMakeWindowAssociation(hWnd);
 
 	renderSystemSize = LcSize(width, height);
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -321,6 +326,8 @@ void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVe
 
 void LcRenderSystemDX10::Render()
 {
+	LC_TRY
+
 	if (!d3dDevice || !swapChain)
 	{
 		throw std::exception("LcRenderSystemDX10::Render(): Invalid render device");
@@ -332,10 +339,14 @@ void LcRenderSystemDX10::Render()
 	LcRenderSystemBase::Render();
 
 	swapChain->Present(vSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD, 0);
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Render()") }
 }
 
 void LcRenderSystemDX10::RequestResize(int width, int height)
 {
+	LC_TRY
+
 	DXGI_MODE_DESC displayModeDesc{};
 	if (!LcFindDisplayMode(width, height, &displayModeDesc))
 	{
@@ -343,10 +354,14 @@ void LcRenderSystemDX10::RequestResize(int width, int height)
 	}
 
 	swapChain->ResizeTarget(&displayModeDesc);
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RequestResize()") }
 }
 
 void LcRenderSystemDX10::Resize(int width, int height)
 {
+	LC_TRY
+
 	LcSize newSize(width, height);
 	bool needResize = (renderSystemSize != newSize);
 
@@ -418,6 +433,8 @@ void LcRenderSystemDX10::Resize(int width, int height)
 
 		renderSystemSize = newSize;
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Resize()") }
 }
 
 void LcRenderSystemDX10::SetMode(LcWinMode winMode)
@@ -427,6 +444,8 @@ void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 {
+	LC_TRY
+
 	if (!sprite) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
 
 	for (auto& render : visual2DRenders)
@@ -444,20 +463,28 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			break;
 		}
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderSprite()") }
 }
 
 void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
 {
+	LC_TRY
+
 	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid sprite");
 
 	if (widgetRender)
 	{
 		widgetRender->RenderWidget(widget);
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderWidget()") }
 }
 
 void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 {
+	LC_TRY
+
 	if (widgetRender)
 	{
 		widgetRender->SetRenderMode(mode);
@@ -476,6 +503,8 @@ void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 			break;
 		}
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::PreRenderWidgets()") }
 }
 
 void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode)

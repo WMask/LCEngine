@@ -13,11 +13,14 @@
 #include "World/Camera.h"
 #include "GUI/Widgets.h"
 #include "Core/LCUtils.h"
+#include "Core/LCException.h"
 
 
 void LcRenderSystemBase::LoadShaders(const char* folderPath)
 {
     using namespace std::filesystem;
+
+    LC_TRY
 
     for (auto& entry : directory_iterator(folderPath))
     {
@@ -31,6 +34,8 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
             }
         }
     }
+
+    LC_CATCH{ LC_THROW("LcRenderSystemBase::LoadShaders()") }
 }
 
 void LcRenderSystemBase::Create(TWeakWorld world, void* windowHandle, LcWinMode mode, bool inVSync)
@@ -41,6 +46,8 @@ void LcRenderSystemBase::Create(TWeakWorld world, void* windowHandle, LcWinMode 
 
 void LcRenderSystemBase::Update(float deltaSeconds)
 {
+    LC_TRY
+
     if (auto world = worldPtr.lock())
     {
         const auto& sprites = world->GetSprites();
@@ -60,10 +67,14 @@ void LcRenderSystemBase::Update(float deltaSeconds)
             cameraTarget = newTarget;
         }
     }
+
+    LC_CATCH{ LC_THROW("LcRenderSystemBase::Update()") }
 }
 
 void LcRenderSystemBase::Render()
 {
+    LC_TRY
+
     if (auto world = worldPtr.lock())
     {
         const auto& sprites = world->GetSprites();
@@ -92,4 +103,6 @@ void LcRenderSystemBase::Render()
 
         PostRenderWidgets(EWRMode::Text);
     }
+
+    LC_CATCH{ LC_THROW("LcRenderSystemBase::Render()") }
 }

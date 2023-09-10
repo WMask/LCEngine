@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "Core/LCException.h"
 
 #include <sstream>
 
@@ -55,6 +56,8 @@ struct LcTextFontDX10 : public ITextFontDX10
 public:
     LcTextFontDX10(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight, IDWriteFactory* dwriteFactory)
     {
+        LC_TRY
+
         if (!dwriteFactory) throw std::exception("LcTextFont(): Invalid DWrite factory");
 
         data.fontName = fontName;
@@ -73,6 +76,8 @@ public:
 
         data.font.Get()->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
         data.font.Get()->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+        LC_CATCH{ LC_THROW("LcTextFontDX10()") }
     }
     //
     virtual ~LcTextFontDX10() override {}
@@ -94,6 +99,10 @@ protected:
 
 const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight)
 {
+    std::shared_ptr<LcTextFontDX10> newFont;
+
+    LC_TRY
+
     if (!dwriteFactory) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid DirectWrite factory");
 
     for (auto entry : fonts)
@@ -102,8 +111,10 @@ const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsig
         if (font->GetData() == LC_FONT_DATA{fontName, fontWeight, fontSize}) return entry.second.get();
     }
 
-    auto newFont = std::make_shared<LcTextFontDX10>(fontName, fontSize, fontWeight, dwriteFactory.Get());
+    newFont = std::make_shared<LcTextFontDX10>(fontName, fontSize, fontWeight, dwriteFactory.Get());
     fonts[newFont->GetFontName()] = newFont;
+
+    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::AddFont()") }
 
     return newFont.get();
 }
@@ -120,6 +131,8 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
 
 void LcWidgetRenderDX10::Setup(const IVisual* visual)
 {
+    LC_TRY
+
     if (!hWnd || !device.GetD3D10SwapChain()) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
 
     if (d2dFactory) Shutdown();
@@ -160,10 +173,14 @@ void LcWidgetRenderDX10::Setup(const IVisual* visual)
             break;
         }
     }
+
+    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::Setup()") }
 }
 
 void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
 {
+    LC_TRY
+
     const LcWidgetDX10* widget = (LcWidgetDX10*)widgetPtr;
 
     switch (renderMode)
@@ -192,10 +209,14 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
         }
         break;
     }
+
+    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::RenderWidget()") }
 }
 
 void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font)
 {
+    LC_TRY
+
     if (!renderTarget) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid renderer");
     if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
@@ -214,6 +235,8 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
     ComPtr<ID2D1SolidColorBrush> brush;
     renderTarget->CreateSolidColorBrush(fcolor, brush.GetAddressOf());
     renderTarget->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10->GetFont(), frect, brush.Get());
+
+    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::RenderText()") }
 }
 
 void LcWidgetRenderDX10::BeginRender()

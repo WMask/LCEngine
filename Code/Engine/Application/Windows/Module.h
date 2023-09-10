@@ -16,8 +16,7 @@
 #endif
 
 
-typedef std::shared_ptr<class IApplication> TAppPtr;
-typedef std::weak_ptr<class IApplication> TWeakApp;
+typedef std::unique_ptr<class IApplication> TAppPtr;
 
 
 /**
