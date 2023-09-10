@@ -40,7 +40,7 @@ void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state)
 
         for (auto& widget : widgetList)
         {
-            if (widget->IsVisible() && widget->IsActive()) widget->OnKeyboard(btn, state);
+            if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state);
         }
     }
 }

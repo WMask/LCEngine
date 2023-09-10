@@ -6,12 +6,10 @@
 
 #include "framework.h"
 #include "HelloWorld.h"
-#include "Application/AppConfig.h"
-#include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
+#include "World/Spriteinterface.h"
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
 #include "Core/LCUtils.h"
 
 

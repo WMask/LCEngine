@@ -7,13 +7,10 @@
 #pragma once
 
 #include "Module.h"
-#include "World/Visual.h"
-
-#include <functional>
+#include "SpriteInterface.h"
 
 
-/**
-* Sprite data */
+/** Spride data */
 struct LcSpriteData
 {
 	LcVector3 pos;	// [0,0] - leftBottom, x - right, y - up
@@ -159,37 +156,6 @@ struct LC_TILES_DATA
 	LcVector2 uv[4];	// uv coordinates
 };
 
-namespace LcTiles
-{
-	namespace Layers
-	{
-		static const std::string All = "All";
-		static const std::string Default = "Default";
-		static const std::string Collision = "Collision";
-		static const std::string Objects = "Objects";
-	}
-	namespace Type
-	{
-		static const std::string TileLayer = "tilelayer";
-		static const std::string ObjectGroup = "objectgroup";
-	}
-}
-
-typedef std::deque<std::string> LcLayersList;
-typedef std::deque<std::pair<std::string, LcAny>> LcObjectProps;
-typedef std::function<void(
-	const std::string&,		// layer name
-	const std::string&,		// object name
-	const std::string&,		// object type
-	const LcObjectProps&,	// object properties
-	LcVector2,				// object position
-	LcSizef					// object size
-)>
-LcObjectHandler;
-
-// void objectHandler(const std::string& layer, const std::string& name, const std::string& type,
-//		const LcObjectProps& props, LcVector2 pos, LcSizef size)
-
 /**
 * Tiled sprite component */
 struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
@@ -217,80 +183,6 @@ public:// IVisualComponent interface implementation
 	virtual void Init(class IWorld& world) override;
 	//
 	virtual EVCType GetType() const override { return EVCType::Tiled; }
-
-};
-
-
-/**
-* Sprite interface */
-class ISprite : public IVisualBase
-{
-public:
-	virtual ~ISprite() {}
-	//
-	virtual const TVFeaturesList& GetFeaturesList() const = 0;
-	//
-	void AddTintComponent(LcColor4 tint)
-	{
-		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
-	}
-	//
-	void AddTintComponent(LcColor3 tint)
-	{
-		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
-	}
-	//
-	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom)
-	{
-		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
-	}
-	//
-	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom)
-	{
-		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
-	}
-	//
-	void AddTextureComponent(const std::string& inTexture)
-	{
-		AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
-	}
-	//
-	void AddTextureComponent(const LcBytes& inData)
-	{
-		AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
-	}
-	//
-	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
-	{
-		AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
-	}
-	//
-	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
-	{
-		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
-	}
-	//
-	void AddTiledSpriteComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{})
-	{
-		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames));
-	}
-	//
-	void AddTiledSpriteComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{})
-	{
-		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames));
-	}
-	//
-	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
-	//
-	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
-	//
-	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
-	//
-	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
-	//
-	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
-	//
-	LcTiledSpriteComponent* GetTiledComponent() const { return (LcTiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
 
 };
 

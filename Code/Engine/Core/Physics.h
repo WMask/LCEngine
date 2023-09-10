@@ -89,5 +89,3 @@ public:
 	virtual TBodiesList& GetDynamicBodies() = 0;
 
 };
-
-typedef std::shared_ptr<IPhysicsWorld> TPhysicsWorldPtr;

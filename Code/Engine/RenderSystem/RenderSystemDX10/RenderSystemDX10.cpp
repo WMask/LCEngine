@@ -10,7 +10,7 @@
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
-#include "Application/Application.h"
+#include "Application/ApplicationInterface.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"

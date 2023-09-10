@@ -6,8 +6,6 @@
 
 #include "framework.h"
 #include "SpritesSample.h"
-#include "Application/AppConfig.h"
-#include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"

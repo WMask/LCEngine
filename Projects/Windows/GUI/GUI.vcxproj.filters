@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\..\Code\Engine\GUI\Widgets.h">
       <Filter>Header Files\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\GUI\WidgetInterface.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

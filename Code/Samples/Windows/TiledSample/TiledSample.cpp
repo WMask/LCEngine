@@ -6,14 +6,12 @@
 
 #include "framework.h"
 #include "TiledSample.h"
-#include "Application/AppConfig.h"
-#include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
+#include "World/SpriteInterface.h"
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
-#include "Core/LCUtils.h"
 #include "Box2D/Module.h"
+#include "Core/LCUtils.h"
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)

@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\GUI\GUIManager.h" />
     <ClInclude Include="..\..\..\Code\Engine\GUI\Module.h" />
+    <ClInclude Include="..\..\..\Code\Engine\GUI\WidgetInterface.h" />
     <ClInclude Include="..\..\..\Code\Engine\GUI\Widgets.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />

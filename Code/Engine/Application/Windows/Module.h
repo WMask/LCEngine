@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <memory>
+#include "Application/ApplicationInterface.h"
 
 
 #ifndef WINDOWSAPPLICATION_EXPORTS

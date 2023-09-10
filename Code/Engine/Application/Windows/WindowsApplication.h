@@ -9,7 +9,7 @@
 #include <windows.h>
 
 #include "Module.h"
-#include "Application/Application.h"
+#include "Application/ApplicationInterface.h"
 #include "Core/LCTypesEx.h"
 
 

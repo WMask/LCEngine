@@ -18,6 +18,56 @@
 using json = nlohmann::json;
 
 
+void ISprite::AddTintComponent(LcColor4 tint)
+{
+	AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+}
+
+void ISprite::AddTintComponent(LcColor3 tint)
+{
+	AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+}
+
+void ISprite::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom)
+{
+	AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+}
+
+void ISprite::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom)
+{
+	AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+}
+
+void ISprite::AddTextureComponent(const std::string& inTexture)
+{
+	AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
+}
+
+void ISprite::AddTextureComponent(const LcBytes& inData)
+{
+	AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
+}
+
+void ISprite::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
+{
+	AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+}
+
+void ISprite::AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
+{
+	AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
+}
+
+void ISprite::AddTiledSpriteComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames)
+{
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames));
+}
+
+void ISprite::AddTiledSpriteComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames)
+{
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames));
+}
+
 void LcSpriteAnimationComponent::Update(float deltaSeconds)
 {
 	double curGameTime = (double)GetTickCount64();

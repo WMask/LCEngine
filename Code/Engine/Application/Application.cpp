@@ -5,7 +5,7 @@
 */
 
 #include "pch.h"
-#include "Application/Application.h"
+#include "Application/ApplicationInterface.h"
 
 
 IApplication::IApplication()

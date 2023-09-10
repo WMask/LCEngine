@@ -45,6 +45,9 @@
     <ClInclude Include="..\..\..\Code\Engine\World\Camera.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\World\SpriteInterface.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

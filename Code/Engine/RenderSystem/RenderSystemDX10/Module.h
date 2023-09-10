@@ -6,9 +6,7 @@
 
 #pragma once
 
-#include "RenderSystem/RenderSystem.h"
-
-#include <memory>
+#include "RenderSystem/Module.h"
 
 
 #ifndef RENDERSYSTEMDX10_EXPORTS

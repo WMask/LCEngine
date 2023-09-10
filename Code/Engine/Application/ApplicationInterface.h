@@ -1,6 +1,6 @@
 /**
-* Application.h
-* 28.01.2023
+* ApplicationInterface.h
+* 10.09.2023
 * (c) Denis Romakhov
 */
 
@@ -14,7 +14,8 @@
 #include "GUI/Module.h"
 #include "World/Module.h"
 #include "RenderSystem/Module.h"
-#include "Core/Physics.h"
+#include "Core/LCTypes.h"
+#include "Core/Module.h"
 
 #pragma warning(disable : 4251)
 
