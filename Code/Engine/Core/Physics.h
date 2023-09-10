@@ -8,6 +8,7 @@
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
+#include "Core/LCDelegate.h"
 
 #include <memory>
 #include <deque>
@@ -72,6 +73,9 @@ public:
 	/**
 	* Update world */
 	virtual void Update(float deltaSeconds) = 0;
+	/**
+	* Subscribe to world scale delegate */
+	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) = 0;
 	/**
 	* Add static box */
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) = 0;

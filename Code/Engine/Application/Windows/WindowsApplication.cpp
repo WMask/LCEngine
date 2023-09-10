@@ -8,7 +8,9 @@
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/WidgetRender.h"
+#include "World/WorldInterface.h"
 #include "Core/LCException.h"
+#include "Core/Physics.h"
 #include "GUI/GuiManager.h"
 
 #define WS_LC_WINDOW_MENU   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
@@ -138,6 +140,13 @@ void LcWindowsApplication::Run()
     {
         guiManager->Init(world);
     }
+
+    if (physWorld)
+    {
+        physWorld->Subscribe(world->GetWorldScale().scaleUpdatedHandler);
+    }
+
+    world->GetWorldScale().UpdateWorldScale(windowSize);
 
     if (initHandler)
     {

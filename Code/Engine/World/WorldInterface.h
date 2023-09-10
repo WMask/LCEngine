@@ -7,11 +7,11 @@
 #pragma once
 
 #include "Module.h"
-#include "Core/LcTypesEx.h"
+#include "Core/LCTypesEx.h"
+#include "Core/LCDelegate.h"
 
 #include <deque>
 #include <memory>
-#include <functional>
 #include <set>
 
 #pragma warning(disable : 4251)
@@ -51,7 +51,7 @@ struct WORLD_API LcWorldScale
 	//
 	void UpdateWorldScale(LcSize newScreenSize);
 	//
-	std::function<void()> ScaleUpdatedHandler;
+	LcDelegate<void(LcVector2)> scaleUpdatedHandler;
 	//
 	struct ScalePair
 	{

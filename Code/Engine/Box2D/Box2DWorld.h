@@ -45,6 +45,8 @@ public:
 	LcBox2DWorld(float gravity);
 	//
 	~LcBox2DWorld();
+	//
+	LcVector2 GetWorldScale() const { return worldScale; }
 
 
 public:// IPhysicsWorld interface implementation
@@ -52,6 +54,8 @@ public:// IPhysicsWorld interface implementation
 	virtual void Clear() override;
 	//
 	virtual void Update(float deltaSeconds) override;
+	//
+	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) override;
 	//
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) override;
 	//
@@ -70,5 +74,7 @@ protected:
 	TBodiesList dynamicBodies;
 	//
 	LcBox2DConfig config;
+	//
+	LcVector2 worldScale;
 
 };

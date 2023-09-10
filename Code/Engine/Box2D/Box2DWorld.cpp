@@ -49,8 +49,8 @@ struct LcBodyQueryHandler : public b2QueryCallback
 class LcBox2DBody : public IPhysicsBody
 {
 public:
-    LcBox2DBody(b2World* inWorld, b2Body* inBody, LcSizef inSize) :
-        world(inWorld), body(inBody), size(inSize.x / BOX2D_SCALE, inSize.y / BOX2D_SCALE) {}
+    LcBox2DBody(LcBox2DWorld& box2DWorld, b2World* inWorld, b2Body* inBody, LcSizef inSize) :
+        worldRef(box2DWorld), world(inWorld), body(inBody), size(inSize.x / BOX2D_SCALE, inSize.y / BOX2D_SCALE) {}
 	//
     ~LcBox2DBody() {}
 
@@ -65,7 +65,11 @@ public:// IPhysicsBody interface implementation
     //
     virtual LcVector2 GetVelocity() const override { return ToLC(body->GetLinearVelocity(), false); }
 	//
-	virtual LcVector2 GetPos() const override { return ToLC(body->GetPosition()); }
+	virtual LcVector2 GetPos() const override
+    {
+        auto pos = ToLC(body->GetPosition());
+        return pos * worldRef.GetWorldScale();
+    }
 	//
 	virtual float GetRotation() const override { return body->GetAngle(); }
     //
@@ -89,6 +93,8 @@ public:// IPhysicsBody interface implementation
 
 
 protected:
+    LcBox2DWorld& worldRef;
+    //
     b2World* world;
     //
     b2Body* body;
@@ -98,7 +104,7 @@ protected:
 };
 
 
-LcBox2DWorld::LcBox2DWorld(const LcBox2DConfig& inConfig) : config(inConfig)
+LcBox2DWorld::LcBox2DWorld(const LcBox2DConfig& inConfig) : config(inConfig), worldScale(1.0f, 1.0f)
 {
     box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
 }
@@ -120,6 +126,13 @@ void LcBox2DWorld::Clear()
 void LcBox2DWorld::Update(float deltaSeconds)
 {
 	if (box2DWorld) box2DWorld->Step(deltaSeconds, config.velocityIterations, config.positionIterations);
+}
+
+void LcBox2DWorld::Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated)
+{
+    worldScaleUpdated.AddListener([this](LcVector2 newScale) {
+        worldScale = newScale;
+    });
 }
 
 void LcBox2DWorld::AddStaticBox(LcVector2 pos, LcSizef size)
@@ -154,7 +167,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamicBox(LcVector2 pos, LcSizef size, float den
     fixtureDef.friction = 0.3f;
     body->CreateFixture(&fixtureDef);
 
-    dynamicBodies.push_back(std::make_shared<LcBox2DBody>(box2DWorld.get(), body, size));
+    dynamicBodies.push_back(std::make_shared<LcBox2DBody>(*this, box2DWorld.get(), body, size));
 
     return dynamicBodies.back().get();
 }
@@ -179,7 +192,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
     body->CreateFixture(&fixtureDef);
 
     LcSizef size(radius * 2.0f, radius * 2.0f);
-    dynamicBodies.push_back(std::make_shared<LcBox2DBody>(box2DWorld.get(), body, size));
+    dynamicBodies.push_back(std::make_shared<LcBox2DBody>(*this, box2DWorld.get(), body, size));
 
     return dynamicBodies.back().get();
 }

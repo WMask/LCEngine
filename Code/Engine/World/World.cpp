@@ -143,22 +143,39 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 {
 	for (auto entry : scaleList)
 	{
+		// check equal
 		if (entry.resolution == newScreenSize)
 		{
 			scale = entry.scale;
-			if (ScaleUpdatedHandler) ScaleUpdatedHandler();
+
+			auto& listeners = scaleUpdatedHandler.GetListeners();
+			for (auto& listener : listeners) listener(scale);
+
 			return;
 		}
 	}
 
 	for (auto entry : scaleList)
 	{
+		// check greater
 		if (entry.resolution.y >= newScreenSize.y)
 		{
 			scale = entry.scale;
-			if (ScaleUpdatedHandler) ScaleUpdatedHandler();
+
+			auto& listeners = scaleUpdatedHandler.GetListeners();
+			for (auto& listener : listeners) listener(scale);
+
 			return;
 		}
+	}
+
+	if (scaleList.size() > 0)
+	{
+		// accept any
+		scale = scaleList.begin()->scale;
+
+		auto& listeners = scaleUpdatedHandler.GetListeners();
+		for (auto& listener : listeners) listener(scale);
 	}
 }
 
