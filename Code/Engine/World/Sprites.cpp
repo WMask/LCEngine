@@ -167,6 +167,9 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 	float offsetX = tilewidth * columns / -2.0f;
 	float offsetY = tileheight * rows / -2.0f;
 
+	scale.x = owner->GetSize().x / (tilewidth * columns);
+	scale.y = owner->GetSize().y / (tileheight * rows);
+
 	for (auto layer : tilesObject["layers"])
 	{
 		auto curLayerName = layer["name"].get<std::string>();
@@ -225,8 +228,8 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 				auto y = object["y"].get<float>();
 				auto width = object["width"].get<float>();
 				auto height = object["height"].get<float>();
-				LcVector2 pos(x + width / 2.0f, y + height / 2.0f);
-				LcSizef size(width, height);
+				auto pos = LcVector2(x + width / 2.0f, y + height / 2.0f) * scale;
+				auto size = LcSizef(width, height) * scale;
 
 				auto objectName = object["name"].get<std::string>();
 				auto objectType = object["type"].get<std::string>();
@@ -260,9 +263,6 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 			continue;
 		}
 	}
-
-	scale.x = owner->GetSize().x / (tilewidth * columns);
-	scale.y = owner->GetSize().y / (tileheight * rows);
 
 	LC_CATCH { LC_THROW("LcTiledSpriteComponent::Init()") }
 }
