@@ -9,7 +9,8 @@
 #include "Module.h"
 #include "GUI/Module.h"
 #include "World/Visual.h"
-#include "Core/LcTypesEx.h"
+#include "Core/LCTypesEx.h"
+#include "Core/LCDelegate.h"
 
 #include <map>
 #include <string>
@@ -31,6 +32,9 @@ public:
 	/**
 	* Create render system */
 	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode, bool vSync) = 0;
+	/**
+	* Subscribe to world scale delegate */
+	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;

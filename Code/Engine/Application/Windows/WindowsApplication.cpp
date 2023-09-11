@@ -94,6 +94,17 @@ void LcWindowsApplication::Run()
 
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
 
+    // get window size
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    BOOL windowedStyle = (windowSize.y < screenHeight) ? TRUE : FALSE;
+    int style = windowedStyle ? WS_LC_WINDOW_MENU : WS_LC_WINDOW;
+
+    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
+    AdjustWindowRect(&clientRect, style, FALSE);
+    int winWidth = clientRect.right - clientRect.left;
+    int winHeight = clientRect.bottom - clientRect.top;
+
+    // create window
     WNDCLASSEXW wcex{};
     wcex.cbSize = sizeof(WNDCLASSEXW);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -106,15 +117,6 @@ void LcWindowsApplication::Run()
     {
         throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
     }
-
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    BOOL windowedStyle = (windowSize.y < screenHeight) ? TRUE : FALSE;
-    int style = windowedStyle ? WS_LC_WINDOW_MENU : WS_LC_WINDOW;
-
-    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
-    AdjustWindowRect(&clientRect, style, FALSE);
-    int winWidth = clientRect.right - clientRect.left;
-    int winHeight = clientRect.bottom - clientRect.top;
 
     hWnd = CreateWindowW(LcWindowClassName, L"Game Window", style, CW_USEDEFAULT, CW_USEDEFAULT,
         winWidth, winHeight, nullptr, nullptr, hInstance, nullptr);
@@ -129,6 +131,13 @@ void LcWindowsApplication::Run()
     LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, renderSystem.get(), guiManager.get(), this };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
+    // set initial world size
+    if (physWorld) physWorld->Subscribe(world->GetWorldScale().scaleUpdatedHandler);
+    if (renderSystem) renderSystem->Subscribe(world->GetWorldScale().scaleUpdatedHandler);
+
+    world->GetWorldScale().UpdateWorldScale(windowSize);
+
+    // init subsystems
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
@@ -141,13 +150,6 @@ void LcWindowsApplication::Run()
         guiManager->Init(world);
     }
 
-    if (physWorld)
-    {
-        physWorld->Subscribe(world->GetWorldScale().scaleUpdatedHandler);
-    }
-
-    world->GetWorldScale().UpdateWorldScale(windowSize);
-
     if (initHandler)
     {
         LC_TRY
@@ -157,6 +159,7 @@ void LcWindowsApplication::Run()
         LC_CATCH{ LC_THROW("LcWindowsApplication::Run(onInitHandler)") }
     }
 
+    // run game loop
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&prevTime);
 

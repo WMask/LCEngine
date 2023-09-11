@@ -127,7 +127,6 @@ void LcWorld::RemoveWidget(IWidget* widget)
 
 LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scaleFonts(true)
 {
-	UpdateWorldScale(scaleList.begin()->resolution);
 }
 
 void LcWorldScale::Scale(LcVector3* newPos, LcSizef* newSize)
@@ -141,6 +140,8 @@ void LcWorldScale::Scale(LcVector3* newPos, LcSizef* newSize)
 
 void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 {
+	auto prevScale = scale;
+
 	for (auto entry : scaleList)
 	{
 		// check equal
@@ -148,8 +149,11 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		{
 			scale = entry.scale;
 
-			auto& listeners = scaleUpdatedHandler.GetListeners();
-			for (auto& listener : listeners) listener(scale);
+			if (prevScale != scale)
+			{
+				auto& listeners = scaleUpdatedHandler.GetListeners();
+				for (auto& listener : listeners) listener(scale);
+			}
 
 			return;
 		}
@@ -162,8 +166,11 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		{
 			scale = entry.scale;
 
-			auto& listeners = scaleUpdatedHandler.GetListeners();
-			for (auto& listener : listeners) listener(scale);
+			if (prevScale != scale)
+			{
+				auto& listeners = scaleUpdatedHandler.GetListeners();
+				for (auto& listener : listeners) listener(scale);
+			}
 
 			return;
 		}
@@ -174,8 +181,11 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		// accept any
 		scale = scaleList.begin()->scale;
 
-		auto& listeners = scaleUpdatedHandler.GetListeners();
-		for (auto& listener : listeners) listener(scale);
+		if (prevScale != scale)
+		{
+			auto& listeners = scaleUpdatedHandler.GetListeners();
+			for (auto& listener : listeners) listener(scale);
+		}
 	}
 }
 

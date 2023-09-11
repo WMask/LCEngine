@@ -83,6 +83,8 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Create(TWeakWorld inWorld, void* windowHandle, LcWinMode mode, bool inVSync) override;
 	//
+	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) override;
+	//
 	virtual void Shutdown() override;
 	//
 	virtual void Update(float deltaSeconds) override;

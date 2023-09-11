@@ -292,6 +292,20 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
 }
 
+void LcRenderSystemDX10::Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated)
+{
+	worldScaleUpdated.AddListener([this](LcVector2 newScale) {
+		if (auto world = worldPtr.lock())
+		{
+			if (world->GetWorldScale().scaleFonts)
+			{
+				auto& widgets = world->GetWidgets();
+				for (auto widget : widgets) widget->RecreateFont();
+			}
+		}
+	});
+}
+
 void LcRenderSystemDX10::Shutdown()
 {
 	LcRenderSystemBase::Shutdown();
@@ -362,8 +376,8 @@ void LcRenderSystemDX10::Resize(int width, int height)
 {
 	LC_TRY
 
-	LcSize newSize(width, height);
-	bool needResize = (renderSystemSize != newSize);
+	LcSize newViewportSize(width, height);
+	bool needResize = (renderSystemSize != newViewportSize);
 
 	if (swapChain && needResize)
 	{
@@ -413,16 +427,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-			auto oldWorldScale = world->GetWorldScale().scale;
-			world->GetWorldScale().UpdateWorldScale(newSize);
-
-			// recreate widget fonts
-			if (oldWorldScale != world->GetWorldScale().scale && world->GetWorldScale().scaleFonts)
-			{
-				auto& widgets = world->GetWidgets();
-				for (auto widget : widgets) widget->RecreateFont();
-			}
-
+			world->GetWorldScale().UpdateWorldScale(newViewportSize);
 			world->GetCamera().Set(cameraPos, cameraTarget);
 			UpdateCamera(0.1f, cameraPos, cameraTarget);
 		}
@@ -431,7 +436,7 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
-		renderSystemSize = newSize;
+		renderSystemSize = newViewportSize;
 	}
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Resize()") }
