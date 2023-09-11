@@ -63,6 +63,8 @@ public:
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: widgetRender(nullptr)
 	, renderSystemSize(0, 0)
+	, worldScale(1.0f, 1.0f, 1.0f)
+	, worldScaleFonts(false)
 	, prevSetupRequested(false)
 {
 }
@@ -72,7 +74,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode, bool inVSync)
+void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode winMode, bool inVSync)
 {
 	LC_TRY
 
@@ -272,18 +274,17 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	widgetRender->Setup(nullptr);
 
 	// init managers
-	texLoader.reset(new LcTextureLoaderDX10(inWorld));
+	texLoader.reset(new LcTextureLoaderDX10());
 
 	// add sprite factory
-	if (auto world = inWorld.lock())
-	{
-		world->GetCamera().Set(cameraPos, cameraTarget);
-		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
-		world->SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
-	}
+	world.GetCamera().Set(cameraPos, cameraTarget);
+	world.SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
+	world.SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
+
+	worldScaleFonts = world.GetWorldScale().scaleFonts;
 
 	// init render system
-	LcRenderSystemBase::Create(inWorld, this, winMode, inVSync);
+	LcRenderSystemBase::Create(world, this, winMode, inVSync);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -291,19 +292,28 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
 }
-
-void LcRenderSystemDX10::Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated)
+#include "Core/LCUtils.h"
+void LcRenderSystemDX10::Subscribe(IWorld* world)
 {
-	worldScaleUpdated.AddListener([this](LcVector2 newScale) {
-		if (auto world = worldPtr.lock())
+	if (world)
+	{
+		world->GetWorldScale().scaleUpdatedHandler.AddListener([this, world](LcVector2 newScale)
 		{
+			LC_TRY
+
+			DebugMsg("Fonts scaled: %.3f, %.3f\n", newScale.x, newScale.y);
+
+			worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
+
 			if (world->GetWorldScale().scaleFonts)
 			{
 				auto& widgets = world->GetWidgets();
 				for (auto widget : widgets) widget->RecreateFont();
 			}
-		}
-	});
+
+			LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+		});
+	}
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -327,9 +337,9 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
-void LcRenderSystemDX10::Update(float deltaSeconds)
+void LcRenderSystemDX10::Update(float deltaSeconds, IWorld& world)
 {
-	LcRenderSystemBase::Update(deltaSeconds);
+	LcRenderSystemBase::Update(deltaSeconds, world);
 }
 
 void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
@@ -338,7 +348,7 @@ void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVe
 	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
-void LcRenderSystemDX10::Render()
+void LcRenderSystemDX10::Render(IWorld& world)
 {
 	LC_TRY
 
@@ -350,7 +360,7 @@ void LcRenderSystemDX10::Render()
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
 
-	LcRenderSystemBase::Render();
+	LcRenderSystemBase::Render(world);
 
 	swapChain->Present(vSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD, 0);
 
@@ -372,7 +382,7 @@ void LcRenderSystemDX10::RequestResize(int width, int height)
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RequestResize()") }
 }
 
-void LcRenderSystemDX10::Resize(int width, int height)
+void LcRenderSystemDX10::Resize(int width, int height, IWorld& world)
 {
 	LC_TRY
 
@@ -422,15 +432,12 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		widgetRender->Setup(nullptr);
 
 		// update world settings
-		if (auto world = worldPtr.lock())
-		{
-			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
-			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
+		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-			world->GetWorldScale().UpdateWorldScale(newViewportSize);
-			world->GetCamera().Set(cameraPos, cameraTarget);
-			UpdateCamera(0.1f, cameraPos, cameraTarget);
-		}
+		world.GetWorldScale().UpdateWorldScale(newViewportSize);
+		world.GetCamera().Set(cameraPos, cameraTarget);
+		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
 		// update projection matrix
 		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);

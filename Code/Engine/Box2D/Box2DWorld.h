@@ -55,7 +55,7 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual void Update(float deltaSeconds) override;
 	//
-	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) override;
+	virtual void Subscribe(class IWorld* world) override;
 	//
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) override;
 	//

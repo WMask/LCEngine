@@ -221,7 +221,7 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
     if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
     auto scale = LcDefaults::OneVec2;
-    if (auto world = device.GetWorld()) scale = world->GetWorldScale().scale;
+    if (device.GetWorldScaleFonts()) scale = To2(device.GetWorldScale());
 
     D2D1_RECT_F frect{
         (rect.left + 0.5f) * scale.x,

@@ -146,8 +146,8 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 {
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transBuffer = renderDevice.GetTransformBuffer();
-	auto world = renderDevice.GetWorld();
-	if (!d3dDevice || !transBuffer || !world || !sprite)
+	auto worldScale = renderDevice.GetWorldScale();
+	if (!d3dDevice || !transBuffer || !sprite)
 		throw std::exception("LcTiledVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
 	auto vbIt = vertexBuffers.find(sprite);
@@ -161,10 +161,9 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcVector3 spritePos = sprite->GetPos();
+	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = LcDefaults::OneVec2;
-	if (auto tiledComp = sprite->GetTiledComponent()) spriteSize = tiledComp->scale;
-	world->GetWorldScale().Scale(&spritePos, &spriteSize);
+	if (auto tiledComp = sprite->GetTiledComponent()) spriteSize = tiledComp->scale * To2(worldScale);
 
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, 0.0f, false);
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);

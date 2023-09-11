@@ -109,8 +109,8 @@ void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	auto d3dDevice = renderDevice.GetD3D10Device();
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	auto world = renderDevice.GetWorld();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !world || !sprite)
+	auto worldScale = renderDevice.GetWorldScale();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite)
 		throw std::exception("LcColoredSpriteRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
@@ -128,10 +128,8 @@ void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcVector3 spritePos = sprite->GetPos();
-	LcVector2 spriteSize = sprite->GetSize();
-	world->GetWorldScale().Scale(&spritePos, &spriteSize);
-
+	LcVector3 spritePos = sprite->GetPos() * worldScale;
+	LcVector2 spriteSize = sprite->GetSize() * To2(worldScale);
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

@@ -129,15 +129,6 @@ LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVe
 {
 }
 
-void LcWorldScale::Scale(LcVector3* newPos, LcSizef* newSize)
-{
-	if (newPos && newSize)
-	{
-		*newPos = *newPos * LcVector3(scale.x, scale.y, 1.0f);
-		*newSize = *newSize * scale;
-	}
-}
-
 void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 {
 	auto prevScale = scale;

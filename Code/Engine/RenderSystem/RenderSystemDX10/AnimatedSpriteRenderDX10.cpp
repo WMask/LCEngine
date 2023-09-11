@@ -113,8 +113,8 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto animBuffer = renderDevice.GetFrameAnimBuffer();
-	auto world = renderDevice.GetWorld();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !animBuffer || !world || !sprite)
+	auto worldScale = renderDevice.GetWorldScale();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !animBuffer || !sprite)
 		throw std::exception("LcAnimatedSpriteRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
@@ -144,10 +144,8 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcVector3 spritePos = sprite->GetPos();
-	LcVector2 spriteSize = sprite->GetSize();
-	world->GetWorldScale().Scale(&spritePos, &spriteSize);
-
+	LcVector3 spritePos = sprite->GetPos() * worldScale;
+	LcVector2 spriteSize = sprite->GetSize() * To2(worldScale);
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

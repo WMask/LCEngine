@@ -6,9 +6,11 @@
 
 #include "pch.h"
 #include "Box2D/Box2DWorld.h"
+#include "World/WorldInterface.h"
+#include "Core/LCUtils.h"
+
 // put Box2D library into Code/Engine/Box2D folder
 #include "box2d/box2d.h"
-#include "Core/LCUtils.h"
 
 static const float BOX2D_SCALE = 100.0f;
 
@@ -128,11 +130,15 @@ void LcBox2DWorld::Update(float deltaSeconds)
 	if (box2DWorld) box2DWorld->Step(deltaSeconds, config.velocityIterations, config.positionIterations);
 }
 
-void LcBox2DWorld::Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated)
+void LcBox2DWorld::Subscribe(class IWorld* world)
 {
-    worldScaleUpdated.AddListener([this](LcVector2 newScale) {
-        worldScale = newScale;
-    });
+    if (world)
+    {
+        world->GetWorldScale().scaleUpdatedHandler.AddListener([this](LcVector2 newScale)
+        {
+            worldScale = newScale;
+        });
+    }
 }
 
 void LcBox2DWorld::AddStaticBox(LcVector2 pos, LcSizef size)

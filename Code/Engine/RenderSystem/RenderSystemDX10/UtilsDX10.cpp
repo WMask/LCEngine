@@ -295,10 +295,7 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp) const
 {
     float scale = 1.0f;
-    if (auto world = render.GetWorld())
-    {
-        if (world->GetWorldScale().scaleFonts) scale = world->GetWorldScale().scale.y;
-    }
+    if (render.GetWorldScaleFonts()) scale = world->GetWorldScale().scale.y;
 
     return static_cast<unsigned short>(static_cast<float>(textComp.fontSize) * scale);
 }

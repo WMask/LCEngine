@@ -75,7 +75,7 @@ public:
 	virtual void Update(float deltaSeconds) = 0;
 	/**
 	* Subscribe to world scale delegate */
-	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) = 0;
+	virtual void Subscribe(class IWorld* world) = 0;
 	/**
 	* Add static box */
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) = 0;

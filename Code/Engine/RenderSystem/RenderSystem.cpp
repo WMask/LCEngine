@@ -9,9 +9,9 @@
 #include "RenderSystem/WidgetRender.h"
 #include "GUI/GuiManager.h"
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
+#include "World/SpriteInterface.h"
 #include "World/Camera.h"
-#include "GUI/Widgets.h"
+#include "GUI/WidgetInterface.h"
 #include "Core/LCUtils.h"
 #include "Core/LCException.h"
 
@@ -38,71 +38,64 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     LC_CATCH{ LC_THROW("LcRenderSystemBase::LoadShaders()") }
 }
 
-void LcRenderSystemBase::Create(TWeakWorld world, void* windowHandle, LcWinMode mode, bool inVSync)
+void LcRenderSystemBase::Create(IWorld& world, void* windowHandle, LcWinMode mode, bool inVSync)
 {
-    worldPtr = world;
     vSync = inVSync;
 }
 
-void LcRenderSystemBase::Update(float deltaSeconds)
+void LcRenderSystemBase::Update(float deltaSeconds, IWorld& world)
 {
     LC_TRY
 
-    if (auto world = worldPtr.lock())
+    const auto& sprites = world.GetSprites();
+
+    for (const auto& sprite : sprites)
     {
-        const auto& sprites = world->GetSprites();
+        if (sprite->IsVisible()) sprite->Update(deltaSeconds);
+    }
 
-        for (const auto& sprite : sprites)
-        {
-            if (sprite->IsVisible()) sprite->Update(deltaSeconds);
-        }
+    auto newPos = world.GetCamera().GetPosition();
+    auto newTarget = world.GetCamera().GetTarget();
+    if (newPos != cameraPos || newTarget != cameraTarget)
+    {
+        UpdateCamera(deltaSeconds, newPos, newTarget);
 
-        auto newPos = world->GetCamera().GetPosition();
-        auto newTarget = world->GetCamera().GetTarget();
-        if (newPos != cameraPos || newTarget != cameraTarget)
-        {
-            UpdateCamera(deltaSeconds, newPos, newTarget);
-
-            cameraPos = newPos;
-            cameraTarget = newTarget;
-        }
+        cameraPos = newPos;
+        cameraTarget = newTarget;
     }
 
     LC_CATCH{ LC_THROW("LcRenderSystemBase::Update()") }
 }
 
-void LcRenderSystemBase::Render()
+void LcRenderSystemBase::Render(IWorld& world)
 {
     LC_TRY
 
-    if (auto world = worldPtr.lock())
+    const auto& sprites = world.GetSprites();
+    const auto& widgets = world.GetWidgets();
+
+    for (const auto& sprite : sprites)
     {
-        const auto& sprites = world->GetSprites();
-        const auto& widgets = world->GetWidgets();
-
-        for (const auto& sprite : sprites)
-        {
-            if (sprite->IsVisible()) RenderSprite(sprite.get());
-        }
-
-        PreRenderWidgets(EWRMode::Textures);
-
-        for (const auto& widget : widgets)
-        {
-            if (widget->IsVisible()) RenderWidget(widget.get());
-        }
-
-        PostRenderWidgets(EWRMode::Textures);
-
-        PreRenderWidgets(EWRMode::Text);
-
-        for (const auto& widget : widgets)
-        {
-            if (widget->IsVisible()) RenderWidget(widget.get());
-        }
-
-        PostRenderWidgets(EWRMode::Text);
+        if (sprite->IsVisible()) RenderSprite(sprite.get());
     }
+
+    PreRenderWidgets(EWRMode::Textures);
+
+    for (const auto& widget : widgets)
+    {
+        if (widget->IsVisible()) RenderWidget(widget.get());
+    }
+
+    PostRenderWidgets(EWRMode::Textures);
+
+    PreRenderWidgets(EWRMode::Text);
+
+    for (const auto& widget : widgets)
+    {
+        if (widget->IsVisible()) RenderWidget(widget.get());
+    }
+
+    PostRenderWidgets(EWRMode::Text);
 
     LC_CATCH{ LC_THROW("LcRenderSystemBase::Render()") }
 }

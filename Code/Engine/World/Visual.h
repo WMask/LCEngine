@@ -201,7 +201,9 @@ public:
 
 public:// IVisual interface implementation
 	//
-	virtual void Destroy(class IWorld* world) override;
+	virtual void Init(class IWorld* inWorld) { world = inWorld; }
+	//
+	virtual void Destroy(class IWorld* inWorld) override;
 	//
 	virtual void AddComponent(TVComponentPtr comp) override;
 	//

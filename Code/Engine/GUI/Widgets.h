@@ -188,6 +188,7 @@ public:// IWidget interface implementation
 
 
 public:// IVisual interface implementation
+    //
     virtual void Update(float DeltaSeconds) {}
     //
     virtual void SetSize(LcSizef inSize) override { widget.size = inSize; }

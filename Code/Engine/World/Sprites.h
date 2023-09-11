@@ -200,10 +200,12 @@ public:
 
 
 public:// ISprite interface implementation
+	//
 	virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
 
 
 public:// IVisual interface implementation
+	//
 	virtual void Update(float deltaSeconds);
 	//
 	virtual void AddComponent(TVComponentPtr comp) override;

@@ -47,8 +47,6 @@ struct WORLD_API LcWorldScale
 	//
 	LcWorldScale& operator=(const LcWorldScale& scale) = default;
 	//
-	void Scale(LcVector3* newPos, LcSizef* newSize);
-	//
 	void UpdateWorldScale(LcSize newScreenSize);
 	//
 	LcDelegate<void(LcVector2)> scaleUpdatedHandler;

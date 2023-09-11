@@ -54,8 +54,11 @@ public:
 	* Force sprite render setup. Updates shaders and buffers */
 	virtual void ForceRenderSetup() = 0;
 	/**
-	* Get world pointer */
-	virtual TWorldPtr GetWorld() const = 0;
+	* Get world scale */
+	virtual LcVector3 GetWorldScale() const = 0;
+	/**
+	* Get world scale fonts option */
+	virtual bool GetWorldScaleFonts() const = 0;
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
@@ -81,21 +84,21 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(TWeakWorld inWorld, void* windowHandle, LcWinMode mode, bool inVSync) override;
+	virtual void Create(class IWorld& world, void* windowHandle, LcWinMode mode, bool inVSync) override;
 	//
-	virtual void Subscribe(LcDelegate<void(LcVector2)>& worldScaleUpdated) override;
+	virtual void Subscribe(class IWorld* world) override;
 	//
 	virtual void Shutdown() override;
 	//
-	virtual void Update(float deltaSeconds) override;
+	virtual void Update(float deltaSeconds, class IWorld& world) override;
 	//
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) override;
 	//
-	virtual void Render() override;
+	virtual void Render(class IWorld& world) override;
 	//
 	virtual void RequestResize(int width, int height) override;
 	//
-	virtual void Resize(int width, int height) override;
+	virtual void Resize(int width, int height, class IWorld& world) override;
 	//
 	virtual void SetMode(LcWinMode mode) override;
 	//
@@ -133,7 +136,9 @@ public:// IDX10RenderDevice interface implementation
 	//
 	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
 	//
-	virtual TWorldPtr GetWorld() const override { return worldPtr.lock(); }
+	virtual LcVector3 GetWorldScale() const override { return worldScale; }
+	//
+	virtual bool GetWorldScaleFonts() const override { return worldScaleFonts; }
 	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
@@ -169,8 +174,12 @@ protected:
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//
-	bool prevSetupRequested;
-	//
 	LcSize renderSystemSize;
+	//
+	LcVector3 worldScale;
+	//
+	bool worldScaleFonts;
+	//
+	bool prevSetupRequested;
 
 };

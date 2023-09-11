@@ -9,9 +9,10 @@
 #include "pch.h"
 #include "World/Visual.h"
 
-void IVisualBase::Destroy(class IWorld* worldPtr)
+
+void IVisualBase::Destroy(class IWorld* inWorld)
 {
-	world = worldPtr;
+	world = inWorld;
 	if (world)
 	{
 		for (auto& comp : components) comp->Destroy(*world);

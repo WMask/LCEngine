@@ -93,6 +93,7 @@ void LcWindowsApplication::Run()
     LC_TRY
 
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
+    if (!world) throw std::exception("LcWindowsApplication::Run(): Invalid world");
 
     // get window size
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -132,8 +133,8 @@ void LcWindowsApplication::Run()
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     // set initial world size
-    if (physWorld) physWorld->Subscribe(world->GetWorldScale().scaleUpdatedHandler);
-    if (renderSystem) renderSystem->Subscribe(world->GetWorldScale().scaleUpdatedHandler);
+    if (physWorld) physWorld->Subscribe(world.get());
+    if (renderSystem) renderSystem->Subscribe(world.get());
 
     world->GetWorldScale().UpdateWorldScale(windowSize);
 
@@ -142,14 +143,10 @@ void LcWindowsApplication::Run()
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
-        renderSystem->Create(world, hWnd, winMode, vSync);
+        renderSystem->Create(*world.get(), hWnd, winMode, vSync);
     }
 
-    if (guiManager)
-    {
-        guiManager->Init(world);
-    }
-
+    // call app init handler
     if (initHandler)
     {
         LC_TRY
@@ -187,6 +184,8 @@ void LcWindowsApplication::OnUpdate()
 {
     LC_TRY
 
+    if (!world) throw std::exception("LcWindowsApplication::Run(): Invalid world");
+
     LARGE_INTEGER curTime, deltaTime;
     QueryPerformanceCounter(&curTime);
     deltaTime.QuadPart = (curTime.QuadPart - prevTime.QuadPart);
@@ -198,12 +197,12 @@ void LcWindowsApplication::OnUpdate()
         double deltaSeconds = static_cast<double>(deltaTime.QuadPart) / 10000000.0;
         float deltaFloat = static_cast<float>(deltaSeconds);
 
-        if (renderSystem)
+        if (renderSystem && world)
         {
             LC_TRY
 
-            renderSystem->Update(deltaFloat);
-            renderSystem->Render();
+            renderSystem->Update(deltaFloat, *world.get());
+            renderSystem->Render(*world.get());
 
             LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
         }
@@ -212,7 +211,7 @@ void LcWindowsApplication::OnUpdate()
         {
             LC_TRY
 
-            guiManager->Update(deltaFloat);
+            guiManager->Update(deltaFloat, *world.get());
 
             LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onGuiUpdate)") }
         }
@@ -268,8 +267,11 @@ LcMouseBtn MapMouseKeys(WPARAM wParam)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LcWin32Handles* handles = reinterpret_cast<LcWin32Handles*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    IWorld* world = (handles && handles->app) ? handles->app->GetWorld() : nullptr;
     int x = GET_X_LPARAM(lParam);
     int y = GET_Y_LPARAM(lParam);
+
+    LC_TRY
 
     switch (message)
     {
@@ -282,35 +284,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MENUCHAR:
         return MNC_CLOSE << 16; // disable exit fullscreen mode sound
     case WM_SIZE:
-        if (handles && handles->renderSystem)
+        if (handles && handles->renderSystem && world)
         {
             int width = LOWORD(lParam);
             int height = HIWORD(lParam);
-            handles->renderSystem->Resize(width, height);
+            handles->renderSystem->Resize(width, height, *world);
         }
         break;
     case WM_KEYDOWN:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down, handles->app);
-        if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Down);
+        if (handles && handles->guiManager && world) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Down, *world);
         break;
     case WM_KEYUP:
         if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up, handles->app);
-        if (handles && handles->guiManager) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up);
+        if (handles && handles->guiManager && world) handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up, *world);
         break;
     case WM_MOUSEMOVE:
-        if (handles && handles->guiManager) handles->guiManager->OnMouseMove(x, y);
+        if (handles && handles->guiManager && world) handles->guiManager->OnMouseMove(x, y, *world);
         break;
     case WM_LBUTTONDOWN:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->app);
-        if (handles && handles->guiManager) handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y);
+        if (handles && handles->guiManager && world) handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y, *world);
         break;
     case WM_LBUTTONUP:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, handles->app);
-        if (handles && handles->guiManager) handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y);
+        if (handles && handles->guiManager && world) handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y, *world);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::WndProc()") }
 
     return 0;
 }
