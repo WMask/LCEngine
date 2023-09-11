@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             float width = (float)app->GetWindowWidth();
             float height = (float)app->GetWindowHeight();
 
-            if (auto sprite = world->AddSprite2D(width / 2, height / 2, width, height))
+            if (auto sprite = world->AddSprite2D(512, 384, 1024, 768))
             {
                 auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
                     const std::string& type, const LcObjectProps& props, LcVector2 pos, LcSizef size)

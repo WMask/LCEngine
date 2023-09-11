@@ -133,7 +133,6 @@ void LcWindowsApplication::Run()
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     // set initial world size
-    if (physWorld) physWorld->Subscribe(world.get());
     if (renderSystem) renderSystem->Subscribe(world.get());
 
     world->GetWorldScale().UpdateWorldScale(windowSize);

@@ -125,7 +125,7 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	}
 }
 
-LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scaleFonts(true)
+LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scale(1.0f, 1.0f), scaleFonts(true)
 {
 }
 
