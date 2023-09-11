@@ -1,6 +1,6 @@
 /**
-* Application.h
-* 28.01.2023
+* ApplicationInterface.h
+* 10.09.2023
 * (c) Denis Romakhov
 */
 
@@ -14,7 +14,8 @@
 #include "GUI/Module.h"
 #include "World/Module.h"
 #include "RenderSystem/Module.h"
-#include "Core/Physics.h"
+#include "Core/LCTypes.h"
+#include "Core/Module.h"
 
 #pragma warning(disable : 4251)
 
@@ -68,6 +69,9 @@ public:
 	* Set window mode */
 	virtual void SetWindowMode(LcWinMode mode) = 0;
 	/**
+	* Set vertical synchronization mode */
+	virtual void SetVSync(bool inVSync) noexcept = 0;
+	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept = 0;
 	/**
@@ -94,6 +98,9 @@ public:
 	/**
 	* Get window height in pixels */
 	virtual int GetWindowHeight() const = 0;
+	/**
+	* Get vertical synchronization mode */
+	virtual bool GetVSync() const noexcept = 0;
 	/**
 	* Get World pointer */
 	virtual class IWorld* GetWorld() noexcept = 0;

@@ -6,14 +6,12 @@
 
 #include "framework.h"
 #include "TiledSample.h"
-#include "Application/AppConfig.h"
-#include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
+#include "World/SpriteInterface.h"
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
-#include "Core/LCUtils.h"
 #include "Box2D/Module.h"
+#include "Core/LCUtils.h"
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -31,7 +29,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto sprite = world->AddSprite2D(width / 2, height / 2, width, height))
             {
-                sprite->AddTiledSpriteComponent("../../Assets/Map1.tmj", physWorld);
+                auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
+                    const std::string& type, const LcObjectProps& props, LcVector2 pos, LcSizef size)
+                {
+                    if (layer == LcTiles::Layers::Collision)
+                    {
+                        physWorld->AddStaticBox(pos, size);
+                    }
+                };
+                sprite->AddTiledSpriteComponent("../../Assets/Map1.tmj", objectHandler);
             }
 
             if (auto hero = world->AddSprite2D(100, 600, 64, 64))

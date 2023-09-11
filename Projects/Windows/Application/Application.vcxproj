@@ -147,7 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\Application\AppConfig.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Application\Application.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Application\ApplicationInterface.h" />
     <ClInclude Include="..\..\..\Code\Engine\Application\Module.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />

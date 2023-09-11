@@ -21,23 +21,20 @@ public:
 	* Destructor */
 	virtual ~IGuiManager() {}
 	/**
-	* Init GUI manager */
-	virtual void Init(TWeakWorld world) = 0;
-	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() = 0;
 	/**
 	* Update GUI */
-	virtual void Update(float DeltaSeconds) = 0;
+	virtual void Update(float deltaSeconds, class IWorld& world) = 0;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state) = 0;
+	virtual void OnKeyboard(int btn, LcKeyState state, class IWorld& world) = 0;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, class IWorld& world) = 0;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y) = 0;
+	virtual void OnMouseMove(int x, int y, class IWorld& world) = 0;
 
 };
 
@@ -51,26 +48,19 @@ public:
 	* Constructor */
 	LcGuiManagerBase() {}
 	/**
-	* Init GUI manager */
-	virtual void Init(TWeakWorld world) override;
-	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override {}
 	/**
 	* Update GUI */
-	virtual void Update(float DeltaSeconds) override;
+	virtual void Update(float deltaSeconds, class IWorld& world) override;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state) override;
+	virtual void OnKeyboard(int btn, LcKeyState state, class IWorld& world) override;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, class IWorld& world) override;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y) override;
-
-
-protected:
-	TWeakWorld worldPtr;
+	virtual void OnMouseMove(int x, int y, class IWorld& world) override;
 
 };

@@ -113,8 +113,8 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto uvsBuffer = renderDevice.GetCustomUvBuffer();
-	auto world = renderDevice.GetWorld();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !world || !sprite)
+	auto worldScale = renderDevice.GetWorldScale();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !sprite)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
 	// update components
@@ -148,10 +148,8 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
-	LcVector3 spritePos = sprite->GetPos();
-	LcVector2 spriteSize = sprite->GetSize();
-	world->GetWorldScale().Scale(&spritePos, &spriteSize);
-
+	LcVector3 spritePos = sprite->GetPos() * worldScale;
+	LcVector2 spriteSize = sprite->GetSize() * To2(worldScale);
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
@@ -165,8 +163,8 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 	auto transBuffer = renderDevice.GetTransformBuffer();
 	auto colorsBuffer = renderDevice.GetColorsBuffer();
 	auto uvsBuffer = renderDevice.GetCustomUvBuffer();
-	auto world = renderDevice.GetWorld();
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !world || !widget)
+	auto worldScale = renderDevice.GetWorldScale();
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !widget)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderWidget(): Invalid render params");
 
 	// update components
@@ -190,10 +188,8 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 	}
 
 	// update transform
-	LcVector3 widgetPos = widget->GetPos();
-	LcVector2 widgetSize = widget->GetSize();
-	world->GetWorldScale().Scale(&widgetPos, &widgetSize);
-
+	LcVector3 widgetPos = widget->GetPos() * worldScale;
+	LcVector2 widgetSize = widget->GetSize() * To2(worldScale);
 	LcMatrix4 trans = TransformMatrix(widgetPos, widgetSize);
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\World\Camera.h" />
+    <ClInclude Include="..\..\..\Code\Engine\World\SpriteInterface.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Sprites.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\Visual.h" />
     <ClInclude Include="..\..\..\Code\Engine\World\World.h" />

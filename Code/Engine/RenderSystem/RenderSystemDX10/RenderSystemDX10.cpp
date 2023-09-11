@@ -10,11 +10,12 @@
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
-#include "Application/Application.h"
+#include "Application/ApplicationInterface.h"
 #include "World/WorldInterface.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
+#include "Core/LCException.h"
 
 
 class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
@@ -62,6 +63,8 @@ public:
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: widgetRender(nullptr)
 	, renderSystemSize(0, 0)
+	, worldScale(1.0f, 1.0f, 1.0f)
+	, worldScaleFonts(false)
 	, prevSetupRequested(false)
 {
 }
@@ -71,8 +74,10 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMode winMode)
+void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode winMode, bool inVSync)
 {
+	LC_TRY
+
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
@@ -93,6 +98,7 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
+	swapChainDesc.SwapEffect = inVSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -268,22 +274,46 @@ void LcRenderSystemDX10::Create(TWeakWorld inWorld, void* windowHandle, LcWinMod
 	widgetRender->Setup(nullptr);
 
 	// init managers
-	texLoader.reset(new LcTextureLoaderDX10(inWorld));
+	texLoader.reset(new LcTextureLoaderDX10());
 
 	// add sprite factory
-	if (auto world = inWorld.lock())
-	{
-		world->GetCamera().Set(cameraPos, cameraTarget);
-		world->SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
-		world->SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
-	}
+	world.GetCamera().Set(cameraPos, cameraTarget);
+	world.SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
+	world.SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
+
+	worldScaleFonts = world.GetWorldScale().scaleFonts;
 
 	// init render system
-	LcRenderSystemBase::Create(inWorld, this, winMode);
+	LcRenderSystemBase::Create(world, this, winMode, inVSync);
 
 	LcMakeWindowAssociation(hWnd);
 
 	renderSystemSize = LcSize(width, height);
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
+}
+#include "Core/LCUtils.h"
+void LcRenderSystemDX10::Subscribe(IWorld* world)
+{
+	if (world)
+	{
+		world->GetWorldScale().scaleUpdatedHandler.AddListener([this, world](LcVector2 newScale)
+		{
+			LC_TRY
+
+			DebugMsg("Fonts scaled: %.3f, %.3f\n", newScale.x, newScale.y);
+
+			worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
+
+			if (world->GetWorldScale().scaleFonts)
+			{
+				auto& widgets = world->GetWidgets();
+				for (auto widget : widgets) widget->RecreateFont();
+			}
+
+			LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+		});
+	}
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -307,9 +337,9 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
-void LcRenderSystemDX10::Update(float deltaSeconds)
+void LcRenderSystemDX10::Update(float deltaSeconds, IWorld& world)
 {
-	LcRenderSystemBase::Update(deltaSeconds);
+	LcRenderSystemBase::Update(deltaSeconds, world);
 }
 
 void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
@@ -318,8 +348,10 @@ void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVe
 	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
-void LcRenderSystemDX10::Render()
+void LcRenderSystemDX10::Render(IWorld& world)
 {
+	LC_TRY
+
 	if (!d3dDevice || !swapChain)
 	{
 		throw std::exception("LcRenderSystemDX10::Render(): Invalid render device");
@@ -328,13 +360,17 @@ void LcRenderSystemDX10::Render()
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
 
-	LcRenderSystemBase::Render();
+	LcRenderSystemBase::Render(world);
 
-	swapChain->Present(DXGI_SWAP_EFFECT_SEQUENTIAL, 0);
+	swapChain->Present(vSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD, 0);
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Render()") }
 }
 
 void LcRenderSystemDX10::RequestResize(int width, int height)
 {
+	LC_TRY
+
 	DXGI_MODE_DESC displayModeDesc{};
 	if (!LcFindDisplayMode(width, height, &displayModeDesc))
 	{
@@ -342,12 +378,16 @@ void LcRenderSystemDX10::RequestResize(int width, int height)
 	}
 
 	swapChain->ResizeTarget(&displayModeDesc);
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RequestResize()") }
 }
 
-void LcRenderSystemDX10::Resize(int width, int height)
+void LcRenderSystemDX10::Resize(int width, int height, IWorld& world)
 {
-	LcSize newSize(width, height);
-	bool needResize = (renderSystemSize != newSize);
+	LC_TRY
+
+	LcSize newViewportSize(width, height);
+	bool needResize = (renderSystemSize != newViewportSize);
 
 	if (swapChain && needResize)
 	{
@@ -392,31 +432,21 @@ void LcRenderSystemDX10::Resize(int width, int height)
 		widgetRender->Setup(nullptr);
 
 		// update world settings
-		if (auto world = worldPtr.lock())
-		{
-			cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
-			cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
+		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-			auto oldWorldScale = world->GetWorldScale().scale;
-			world->GetWorldScale().UpdateWorldScale(newSize);
-
-			// recreate widget fonts
-			if (oldWorldScale != world->GetWorldScale().scale && world->GetWorldScale().scaleFonts)
-			{
-				auto& widgets = world->GetWidgets();
-				for (auto widget : widgets) widget->RecreateFont();
-			}
-
-			world->GetCamera().Set(cameraPos, cameraTarget);
-			UpdateCamera(0.1f, cameraPos, cameraTarget);
-		}
+		world.GetWorldScale().UpdateWorldScale(newViewportSize);
+		world.GetCamera().Set(cameraPos, cameraTarget);
+		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
 		// update projection matrix
 		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
 		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
-		renderSystemSize = newSize;
+		renderSystemSize = newViewportSize;
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Resize()") }
 }
 
 void LcRenderSystemDX10::SetMode(LcWinMode winMode)
@@ -426,6 +456,8 @@ void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 {
+	LC_TRY
+
 	if (!sprite) throw std::exception("LcRenderSystemDX10::RenderSprite(): Invalid sprite");
 
 	for (auto& render : visual2DRenders)
@@ -443,20 +475,28 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			break;
 		}
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderSprite()") }
 }
 
 void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
 {
+	LC_TRY
+
 	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid sprite");
 
 	if (widgetRender)
 	{
 		widgetRender->RenderWidget(widget);
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderWidget()") }
 }
 
 void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 {
+	LC_TRY
+
 	if (widgetRender)
 	{
 		widgetRender->SetRenderMode(mode);
@@ -475,6 +515,8 @@ void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 			break;
 		}
 	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemDX10::PreRenderWidgets()") }
 }
 
 void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode)

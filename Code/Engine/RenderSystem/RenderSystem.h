@@ -9,7 +9,8 @@
 #include "Module.h"
 #include "GUI/Module.h"
 #include "World/Visual.h"
-#include "Core/LcTypesEx.h"
+#include "Core/LCTypesEx.h"
+#include "Core/LCDelegate.h"
 
 #include <map>
 #include <string>
@@ -30,16 +31,19 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(TWeakWorld worldPtr, void* windowHandle, LcWinMode mode) = 0;
+	virtual void Create(class IWorld& world, void* windowHandle, LcWinMode mode, bool vSync) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
 	/**
+	* Subscribe to world scale delegate */
+	virtual void Subscribe(class IWorld* world) = 0;
+	/**
 	* Update world */
-	virtual void Update(float deltaSeconds) = 0;
+	virtual void Update(float deltaSeconds, class IWorld& world) = 0;
 	/**
 	* Render world */
-	virtual void Render() = 0;
+	virtual void Render(class IWorld& world) = 0;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;
@@ -48,7 +52,7 @@ public:
 	virtual void RequestResize(int width, int height) = 0;
 	/**
 	* Resize render system */
-	virtual void Resize(int width, int height) = 0;
+	virtual void Resize(int width, int height, class IWorld& world) = 0;
 	/**
 	* Set window mode */
 	virtual void SetMode(LcWinMode mode) = 0;
@@ -72,24 +76,24 @@ class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
 public:
 	typedef std::map<std::string, std::string> SHADERS_MAP;
 	//
-	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3) {}
+	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3), vSync(false) {}
 
 
 public:// IRenderSystem interface implementation
 	//
 	virtual void LoadShaders(const char* folderPath) override;
 	//
-	virtual void Create(TWeakWorld world, void* windowHandle, LcWinMode mode) override { worldPtr = world; }
+	virtual void Create(class IWorld& world, void* windowHandle, LcWinMode mode, bool vSync) override;
 	//
 	virtual void Shutdown() override {}
 	//
-	virtual void Update(float deltaSeconds) override;
+	virtual void Update(float deltaSeconds, class IWorld& world) override;
 	//
-	virtual void Render() override;
+	virtual void Render(class IWorld& world) override;
 	//
 	virtual void RequestResize(int width, int height) override {}
 	//
-	virtual void Resize(int width, int height) override {}
+	virtual void Resize(int width, int height, class IWorld& world) override {}
 	//
 	virtual void SetMode(LcWinMode mode) override {}
 
@@ -110,13 +114,13 @@ protected:
 
 
 protected:
-	TWeakWorld worldPtr;
-	//
 	SHADERS_MAP shaders;
 	//
 	LcVector3 cameraPos;
 	//
 	LcVector3 cameraTarget;
+	//
+	bool vSync;
 
 };
 

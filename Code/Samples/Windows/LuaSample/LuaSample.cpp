@@ -6,7 +6,6 @@
 
 #include "framework.h"
 #include "LuaSample.h"
-#include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "Lua/ApplicationLuaModule.h"
 #include "Lua/LuaScriptSystem.h"

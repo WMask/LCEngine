@@ -8,8 +8,8 @@
 
 #include "pch.h"
 #include "World/Sprites.h"
-#include "Core/Physics.h"
-#include "Core/LcUtils.h"
+#include "Core/LCException.h"
+#include "Core/LCUtils.h"
 
 #include <filesystem>
 
@@ -18,6 +18,56 @@
 
 using json = nlohmann::json;
 
+
+void ISprite::AddTintComponent(LcColor4 tint)
+{
+	AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+}
+
+void ISprite::AddTintComponent(LcColor3 tint)
+{
+	AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+}
+
+void ISprite::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom)
+{
+	AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+}
+
+void ISprite::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom)
+{
+	AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+}
+
+void ISprite::AddTextureComponent(const std::string& inTexture)
+{
+	AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
+}
+
+void ISprite::AddTextureComponent(const LcBytes& inData)
+{
+	AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
+}
+
+void ISprite::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
+{
+	AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+}
+
+void ISprite::AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
+{
+	AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
+}
+
+void ISprite::AddTiledSpriteComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames)
+{
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames));
+}
+
+void ISprite::AddTiledSpriteComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames)
+{
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames));
+}
 
 void LcSpriteAnimationComponent::Update(float deltaSeconds)
 {
@@ -57,6 +107,8 @@ LcVector4 LcSpriteAnimationComponent::GetAnimData() const
 
 void LcTiledSpriteComponent::Init(class IWorld& world)
 {
+	LC_TRY
+
 	if (!owner) throw std::exception("LcTiledSpriteComponent::Init(): Cannot get owner");
 
 	auto tilesFileText = ReadTextFile(tiledJsonPath.c_str());
@@ -115,7 +167,9 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 	float offsetX = tilewidth * columns / -2.0f;
 	float offsetY = tileheight * rows / -2.0f;
 
-	// add tiles
+	scale.x = owner->GetSize().x / (tilewidth * columns);
+	scale.y = owner->GetSize().y / (tileheight * rows);
+
 	for (auto layer : tilesObject["layers"])
 	{
 		auto curLayerName = layer["name"].get<std::string>();
@@ -124,6 +178,7 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 		bool validLayer = layerFound || layerNames.empty();
 		if (!validLayer) continue;
 
+		// add tiles
 		auto layerTiles = layer["data"];
 		if (layerTiles.is_array() && (curLayerType == LcTiles::Type::TileLayer))
 		{
@@ -159,30 +214,57 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 
 				tileId++;
 			}
+
+			continue;
 		}
 
+		// process objects
 		auto layerObjects = layer["objects"];
-		if (layerObjects.is_array() && (curLayerType == LcTiles::Type::ObjectGroup))
+		if (layerObjects.is_array() && (curLayerType == LcTiles::Type::ObjectGroup) && objectHandler)
 		{
 			for (auto object : layerObjects)
 			{
-				if (physWorld &&
-					curLayerName == LcTiles::Layers::Collision &&
-					curLayerType == LcTiles::Type::ObjectGroup)
-				{
-					auto x = object["x"].get<float>();
-					auto y = object["y"].get<float>();
-					auto width = object["width"].get<float>();
-					auto height = object["height"].get<float>();
+				auto x = object["x"].get<float>();
+				auto y = object["y"].get<float>();
+				auto width = object["width"].get<float>();
+				auto height = object["height"].get<float>();
+				auto pos = LcVector2(x + width / 2.0f, y + height / 2.0f) * scale;
+				auto size = LcSizef(width, height) * scale;
 
-					physWorld->AddStaticBox(LcVector2(x + width / 2.0f, y + height / 2.0f), LcSizef(width, height));
+				auto objectName = object["name"].get<std::string>();
+				auto objectType = object["type"].get<std::string>();
+				auto properties = object["properties"];
+
+				LcObjectProps props;
+				if (properties.is_array())
+				{
+					for (auto entry : properties)
+					{
+						std::pair<std::string, LcAny> newProp;
+						newProp.first = entry["name"].get<std::string>();
+
+						auto type = entry["type"].get<std::string>();
+						if (type == "int")
+							newProp.second.iValue = entry["value"].get<int>();
+						else if (type == "float")
+							newProp.second.fValue = entry["value"].get<float>();
+						else if (type == "bool")
+							newProp.second.bValue = entry["value"].get<bool>();
+						else if (type == "string")
+							newProp.second.sValue = entry["value"].get<std::string>();
+
+						props.push_back(newProp);
+					}
 				}
+
+				objectHandler(curLayerName, objectName, objectType, props, pos, size);
 			}
+
+			continue;
 		}
 	}
 
-	scale.x = owner->GetSize().x / (tilewidth * columns);
-	scale.y = owner->GetSize().y / (tileheight * rows);
+	LC_CATCH { LC_THROW("LcTiledSpriteComponent::Init()") }
 }
 
 void LcSprite::Update(float deltaSeconds)

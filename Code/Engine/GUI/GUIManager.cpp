@@ -12,100 +12,82 @@
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Init(TWeakWorld weakWorld)
+void LcGuiManagerBase::Update(float deltaSeconds, IWorld& world)
 {
-    worldPtr = weakWorld;
-}
-
-void LcGuiManagerBase::Update(float DeltaSeconds)
-{
-    if (auto world = worldPtr.lock())
+    auto& widgetList = world.GetWidgets();
+    if (!widgetList.empty())
     {
-        auto& widgetList = world->GetWidgets();
-        if (!widgetList.empty())
+        for (auto& widget : widgetList)
         {
-            for (auto& widget : widgetList)
-            {
-                if (widget->IsVisible()) widget->Update(DeltaSeconds);
-            }
+            if (widget->IsVisible()) widget->Update(deltaSeconds);
         }
     }
 }
 
-void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state)
+void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state, IWorld& world)
 {
-    if (auto world = worldPtr.lock())
+    auto& widgetList = world.GetWidgets();
+    for (auto& widget : widgetList)
     {
-        auto& widgetList = world->GetWidgets();
+        if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state);
+    }
+}
 
-        for (auto& widget : widgetList)
+void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, IWorld& world)
+{
+    auto& widgetList = world.GetWidgets();
+    auto scale2 = world.GetWorldScale().scale;
+    auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
+
+    for (auto& widget : widgetList)
+    {
+        if (!widget->IsVisible()) continue;
+
+        LcVector2 point((float)x, (float)y);
+        LcVector2 widgetPos = To2(widget->GetPos() * scale3);
+        LcRectf widgetBox = ToF(
+            widgetPos - widget->GetSize() / 2.0f * scale2,
+            widgetPos + widget->GetSize() / 2.0f * scale2);
+        if (Contains(widgetBox, point))
         {
-            if (widget->IsVisible() && widget->IsActive()) widget->OnKeyboard(btn, state);
+            auto result = ToI(point);
+            widget->OnMouseButton(btn, state, result.x, result.y);
         }
     }
 }
 
-void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
+void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
 {
-    if (auto world = worldPtr.lock())
+    auto& widgetList = world.GetWidgets();
+    auto scale2 = world.GetWorldScale().scale;
+    auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
+
+    for (auto& widget : widgetList)
     {
-        auto& widgetList = world->GetWidgets();
-        auto scale2 = world->GetWorldScale().scale;
-        auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
+        if (!widget->IsVisible()) continue;
 
-        for (auto& widget : widgetList)
+        LcVector2 point((float)x, (float)y);
+        LcVector2 widgetPos = To2(widget->GetPos() * scale3);
+        LcRectf widgetBox = ToF(
+            widgetPos - widget->GetSize() / 2.0f * scale2,
+            widgetPos + widget->GetSize() / 2.0f * scale2);
+
+        if (Contains(widgetBox, point))
         {
-            if (!widget->IsVisible()) continue;
-
-            LcVector2 point((float)x, (float)y);
-            LcVector2 widgetPos = To2(widget->GetPos() * scale3);
-            LcRectf widgetBox = ToF(
-                widgetPos - widget->GetSize() / 2.0f * scale2,
-                widgetPos + widget->GetSize() / 2.0f * scale2);
-            if (Contains(widgetBox, point))
+            if (!widget->IsHovered())
             {
-                auto result = ToI(point);
-                widget->OnMouseButton(btn, state, result.x, result.y);
+                widget->SetHovered(true);
+                widget->OnMouseEnter();
             }
+
+            widget->OnMouseMove(To3(point));
         }
-    }
-}
-
-void LcGuiManagerBase::OnMouseMove(int x, int y)
-{
-    if (auto world = worldPtr.lock())
-    {
-        auto& widgetList = world->GetWidgets();
-        auto scale2 = world->GetWorldScale().scale;
-        auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
-
-        for (auto& widget : widgetList)
+        else
         {
-            if (!widget->IsVisible()) continue;
-
-            LcVector2 point((float)x, (float)y);
-            LcVector2 widgetPos = To2(widget->GetPos() * scale3);
-            LcRectf widgetBox = ToF(
-                widgetPos - widget->GetSize() / 2.0f * scale2,
-                widgetPos + widget->GetSize() / 2.0f * scale2);
-
-            if (Contains(widgetBox, point))
+            if (widget->IsHovered())
             {
-                if (!widget->IsHovered())
-                {
-                    widget->SetHovered(true);
-                    widget->OnMouseEnter();
-                }
-
-                widget->OnMouseMove(To3(point));
-            }
-            else
-            {
-                if (widget->IsHovered())
-                {
-                    widget->SetHovered(false);
-                    widget->OnMouseLeave();
-                }
+                widget->SetHovered(false);
+                widget->OnMouseLeave();
             }
         }
     }

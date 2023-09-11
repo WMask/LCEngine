@@ -6,19 +6,26 @@
 
 #include "pch.h"
 #include "LCUtils.h"
+#include "LCException.h"
 
 
 std::string ReadTextFile(const char* filePath)
 {
 	using namespace std::filesystem;
 
+	std::string result;
+
+	LC_TRY
+
 	path path;
 	path.assign(filePath);
 	std::ifstream stream(path, std::ios::in | std::ios::binary);
 
 	const auto sz = file_size(path);
-	std::string result(sz, '\0');
+	result = std::string(sz, '\0');
 	stream.read(result.data(), sz);
+
+	LC_CATCH{ LC_THROW_EX("ReadTextFile('", filePath, "')"); }
 
 	return result;
 }
@@ -27,13 +34,19 @@ LcBytes ReadBinaryFile(const char* filePath)
 {
 	using namespace std::filesystem;
 
+	LcBytes result;
+
+	LC_TRY
+
 	path path;
 	path.assign(filePath);
 	std::ifstream stream(path, std::ios::in | std::ios::binary);
 
 	const auto sz = file_size(path);
-	LcBytes result(sz);
+	result = LcBytes(sz);
 	stream.read((char*)result.data(), sz);
+
+	LC_CATCH{ LC_THROW_EX("ReadBinaryFile('", filePath, "')"); }
 
 	return result;
 }

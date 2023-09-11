@@ -9,6 +9,7 @@
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "World/Sprites.h"
+#include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
 #include <set>
@@ -91,6 +92,8 @@ LcTextureLoaderDX10::~LcTextureLoaderDX10()
 
 bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
 {
+    LC_TRY
+
     if (!device) return false;
     if (!texture && !view) return false;
 
@@ -221,11 +224,15 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
         return true;
     }
 
+    LC_CATCH{ LC_THROW_EX("LcTextureLoaderDX10::LoadTexture('", texPath, "')"); }
+
     return false;
 }
 
 void LcTextureLoaderDX10::ClearCache(IWorld* world)
 {
+    LC_TRY
+
     if (world)
     {
         std::set<std::string> aliveTexList;
@@ -256,6 +263,8 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     {
         texturesCache.clear();
     }
+
+    LC_CATCH{ LC_THROW("LcTextureLoaderDX10::ClearCache()") }
 }
 
 LcSpriteDX10::~LcSpriteDX10()
@@ -265,6 +274,8 @@ LcSpriteDX10::~LcSpriteDX10()
 
 void LcSpriteDX10::AddComponent(TVComponentPtr comp)
 {
+    LC_TRY
+
     LcSprite::AddComponent(comp);
 
     if (auto texComp = GetTextureComponent())
@@ -277,21 +288,22 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
         else
             throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
     }
+
+    LC_CATCH{ LC_THROW("LcSpriteDX10::AddComponent()") }
 }
 
 unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp) const
 {
     float scale = 1.0f;
-    if (auto world = render.GetWorld())
-    {
-        if (world->GetWorldScale().scaleFonts) scale = world->GetWorldScale().scale.y;
-    }
+    if (render.GetWorldScaleFonts()) scale = world->GetWorldScale().scale.y;
 
     return static_cast<unsigned short>(static_cast<float>(textComp.fontSize) * scale);
 }
 
 void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 {
+    LC_TRY
+
     LcWidget::AddComponent(comp);
 
     if (auto texComp = GetTextureComponent())
@@ -311,14 +323,20 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
         if (!font)
             throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
     }
+
+    LC_CATCH{ LC_THROW("LcWidgetDX10::AddComponent()") }
 }
 
 void LcWidgetDX10::RecreateFont()
 {
+    LC_TRY
+
     if (auto textComp = GetTextComponent())
     {
         font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
         if (!font)
             throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
     }
+
+    LC_CATCH{ LC_THROW("LcWidgetDX10::RecreateFont()") }
 }

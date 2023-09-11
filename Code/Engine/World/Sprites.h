@@ -7,11 +7,10 @@
 #pragma once
 
 #include "Module.h"
-#include "World/Visual.h"
+#include "SpriteInterface.h"
 
 
-/**
-* Sprite data */
+/** Spride data */
 struct LcSpriteData
 {
 	LcVector3 pos;	// [0,0] - leftBottom, x - right, y - up
@@ -157,42 +156,26 @@ struct LC_TILES_DATA
 	LcVector2 uv[4];	// uv coordinates
 };
 
-namespace LcTiles
-{
-	namespace Layers
-	{
-		static const std::string All = "All";
-		static const std::string Default = "Default";
-		static const std::string Collision = "Collision";
-		static const std::string Objects = "Objects";
-	}
-	namespace Type
-	{
-		static const std::string TileLayer = "tilelayer";
-		static const std::string ObjectGroup = "objectgroup";
-	}
-}
-
-typedef std::vector<std::string> LcLayersList;
-
 /**
 * Tiled sprite component */
 struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 {
 	std::vector<LC_TILES_DATA> tiles;
-	class IPhysicsWorld* physWorld;	// if not null - adds static box tiles from LcTiles::Layers::Collision layer to physics world
 	std::string tiledJsonPath;
+	LcObjectHandler objectHandler;
 	LcLayersList layerNames;
 	LcVector2 scale;
 	//
-	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2), physWorld(nullptr){}
+	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2) {}
 	//
-	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) :
-		tiles(sprite.tiles), layerNames(sprite.layerNames), scale(LcDefaults::OneVec2), physWorld(nullptr) {}
+	LcTiledSpriteComponent(const LcTiledSpriteComponent& sprite) = default;
 	//
-	LcTiledSpriteComponent(const std::string& inTiledJsonPath, class IPhysicsWorld* inPhysWorld = nullptr,
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}) :
+		tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames), scale(LcDefaults::OneVec2) {}
+	//
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, LcObjectHandler inObjectHandler,
 		const LcLayersList& inLayerNames = LcLayersList{}) : tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames),
-		scale(LcDefaults::OneVec2), physWorld(inPhysWorld) {}
+		objectHandler(inObjectHandler), scale(LcDefaults::OneVec2) {}
 
 
 public:// IVisualComponent interface implementation
@@ -200,76 +183,6 @@ public:// IVisualComponent interface implementation
 	virtual void Init(class IWorld& world) override;
 	//
 	virtual EVCType GetType() const override { return EVCType::Tiled; }
-
-};
-
-
-/**
-* Sprite interface */
-class ISprite : public IVisualBase
-{
-public:
-	virtual ~ISprite() {}
-	//
-	virtual const TVFeaturesList& GetFeaturesList() const = 0;
-	//
-	void AddTintComponent(LcColor4 tint)
-	{
-		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
-	}
-	//
-	void AddTintComponent(LcColor3 tint)
-	{
-		AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
-	}
-	//
-	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom)
-	{
-		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
-	}
-	//
-	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom)
-	{
-		AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
-	}
-	//
-	void AddTextureComponent(const std::string& inTexture)
-	{
-		AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
-	}
-	//
-	void AddTextureComponent(const LcBytes& inData)
-	{
-		AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
-	}
-	//
-	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
-	{
-		AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
-	}
-	//
-	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
-	{
-		AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
-	}
-	//
-	void AddTiledSpriteComponent(const std::string& tiledJsonPath, class IPhysicsWorld* inPhysWorld = nullptr,
-		const LcLayersList& inLayerNames = LcLayersList{})
-	{
-		AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inPhysWorld, inLayerNames));
-	}
-	//
-	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
-	//
-	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
-	//
-	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
-	//
-	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
-	//
-	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
-	//
-	LcTiledSpriteComponent* GetTiledComponent() const { return (LcTiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
 
 };
 
@@ -287,10 +200,12 @@ public:
 
 
 public:// ISprite interface implementation
+	//
 	virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
 
 
 public:// IVisual interface implementation
+	//
 	virtual void Update(float deltaSeconds);
 	//
 	virtual void AddComponent(TVComponentPtr comp) override;

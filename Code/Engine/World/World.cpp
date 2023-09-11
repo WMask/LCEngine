@@ -127,37 +127,55 @@ void LcWorld::RemoveWidget(IWidget* widget)
 
 LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scaleFonts(true)
 {
-	UpdateWorldScale(scaleList.begin()->resolution);
-}
-
-void LcWorldScale::Scale(LcVector3* newPos, LcSizef* newSize)
-{
-	if (newPos && newSize)
-	{
-		*newPos = *newPos * LcVector3(scale.x, scale.y, 1.0f);
-		*newSize = *newSize * scale;
-	}
 }
 
 void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 {
+	auto prevScale = scale;
+
 	for (auto entry : scaleList)
 	{
+		// check equal
 		if (entry.resolution == newScreenSize)
 		{
 			scale = entry.scale;
-			if (ScaleUpdatedHandler) ScaleUpdatedHandler();
+
+			if (prevScale != scale)
+			{
+				auto& listeners = scaleUpdatedHandler.GetListeners();
+				for (auto& listener : listeners) listener(scale);
+			}
+
 			return;
 		}
 	}
 
 	for (auto entry : scaleList)
 	{
+		// check greater
 		if (entry.resolution.y >= newScreenSize.y)
 		{
 			scale = entry.scale;
-			if (ScaleUpdatedHandler) ScaleUpdatedHandler();
+
+			if (prevScale != scale)
+			{
+				auto& listeners = scaleUpdatedHandler.GetListeners();
+				for (auto& listener : listeners) listener(scale);
+			}
+
 			return;
+		}
+	}
+
+	if (scaleList.size() > 0)
+	{
+		// accept any
+		scale = scaleList.begin()->scale;
+
+		if (prevScale != scale)
+		{
+			auto& listeners = scaleUpdatedHandler.GetListeners();
+			for (auto& listener : listeners) listener(scale);
 		}
 	}
 }

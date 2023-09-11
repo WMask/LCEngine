@@ -9,7 +9,7 @@
 #include <windows.h>
 
 #include "Module.h"
-#include "Application/Application.h"
+#include "Application/ApplicationInterface.h"
 #include "Core/LCTypesEx.h"
 
 
@@ -43,6 +43,8 @@ public: // IApplication interface implementation
 	//
 	virtual void SetWindowMode(LcWinMode mode) override;
 	//
+	virtual void SetVSync(bool inVSync) noexcept override { vSync = inVSync; }
+	//
 	virtual void SetInitHandler(LcInitHandler handler) noexcept { initHandler = handler; }
 	//
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept { updateHandler = handler; }
@@ -60,6 +62,8 @@ public: // IApplication interface implementation
 	virtual int GetWindowWidth() const override { return windowSize.x; }
 	//
 	virtual int GetWindowHeight() const override { return windowSize.y; }
+	//
+	virtual bool GetVSync() const noexcept override { return vSync; }
 	//
 	virtual class IWorld* GetWorld() noexcept override { return world.get(); }
 	//
@@ -85,11 +89,15 @@ protected:
 	//
 	bool quit;
 	//
+	bool vSync;
+	//
 	LcSize windowSize;
 	//
 	LcWinMode winMode;
 	//
-	ULONGLONG prevTick;
+	LARGE_INTEGER prevTime;
+	//
+	LARGE_INTEGER frequency;
 	//
 	std::string shadersPath;
 

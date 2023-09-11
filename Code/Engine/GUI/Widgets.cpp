@@ -10,6 +10,56 @@
 #include "GUI/Widgets.h"
 
 
+void IWidget::AddTextComponent(const std::wstring& inText, LcColor4 inTextColor, const std::wstring& inFontName,
+    unsigned short inFontSize, LcFontWeight inFontWeight)
+{
+    AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight));
+}
+
+void IWidget::AddTextureComponent(const std::string& texture)
+{
+    AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
+}
+
+void IWidget::AddTextureComponent(const LcBytes& inData)
+{
+    AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
+}
+
+void IWidget::AddButtonComponent()
+{
+    AddComponent(std::make_shared<LcWidgetButtonComponent>());
+}
+
+void IWidget::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
+{
+    AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
+    AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos));
+}
+
+void IWidget::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
+    LcVector2 checkedPos, LcVector2 checkedHoveredPos)
+{
+    AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
+    AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos));
+}
+
+void IWidget::AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin)
+{
+    AddComponent(std::make_shared<LcWidgetClickComponent>(handler));
+
+    if (addDefaultSkin) AddButtonComponent("../../Assets/button.png",
+        LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
+}
+
+void IWidget::AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin)
+{
+    AddComponent(std::make_shared<LcWidgetCheckComponent>(handler));
+
+    if (addDefaultSkin) AddCheckboxComponent("../../Assets/checkbox.png",
+        LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
+}
+
 LcWidgetButtonComponent::LcWidgetButtonComponent(const LcWidgetButtonComponent& button) : state(EBtnState::Idle)
 {
     memcpy(idle, button.idle, sizeof(LcVector4) * 4);

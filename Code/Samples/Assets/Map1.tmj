@@ -13,7 +13,7 @@
                  "name":"Lava Field",
                  "properties":[
                         {
-                         "name":"Damage",
+                         "name":"Value",
                          "type":"float",
                          "value":100
                         }],
@@ -30,7 +30,7 @@
                  "name":"Armor Boost",
                  "properties":[
                         {
-                         "name":"Amount",
+                         "name":"Value",
                          "type":"float",
                          "value":10
                         }],

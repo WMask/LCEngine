@@ -7,12 +7,11 @@
 #include "framework.h"
 #include "ApplicationSample.h"
 #include "Application/AppConfig.h"
-#include "Application/Application.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"
+#include "GUI/WidgetInterface.h"
 #include "World/Sprites.h"
-#include "GUI/Widgets.h"
 #include "Core/LCUtils.h"
 
 
@@ -104,6 +103,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         int winHeight = cfg["appWinHeight"].iValue;
 
         auto app = GetApp();
+        app->SetVSync(true);
         app->SetRenderSystem(GetRenderSystem());
         app->SetGuiManager(GetGuiManager());
         app->SetInitHandler(onInitHandler);
