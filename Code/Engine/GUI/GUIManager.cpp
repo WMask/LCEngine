@@ -13,7 +13,7 @@
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Update(float deltaSeconds, IWorld& world)
+void LcGuiManager::Update(float deltaSeconds, IWorld& world)
 {
     LC_TRY
 
@@ -26,10 +26,10 @@ void LcGuiManagerBase::Update(float deltaSeconds, IWorld& world)
         }
     }
 
-    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
+    LC_CATCH{ LC_THROW("LcGuiManager::Update()") }
 }
 
-void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state, IWorld& world)
+void LcGuiManager::OnKeyboard(int btn, LcKeyState state, IWorld& world)
 {
     LC_TRY
 
@@ -39,10 +39,10 @@ void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state, IWorld& world)
         if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state);
     }
 
-    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
+    LC_CATCH{ LC_THROW("LcGuiManager::OnKeyboard()") }
 }
 
-void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, IWorld& world)
+void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, IWorld& world)
 {
     LC_TRY
 
@@ -66,10 +66,10 @@ void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, in
         }
     }
 
-    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
+    LC_CATCH{ LC_THROW("LcGuiManager::OnMouseButton()") }
 }
 
-void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
+void LcGuiManager::OnMouseMove(int x, int y, IWorld& world)
 {
     LC_TRY
 
@@ -107,10 +107,10 @@ void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
         }
     }
 
-    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
+    LC_CATCH{ LC_THROW("LcGuiManager::OnMouseMove()") }
 }
 
 TGuiManagerPtr GetGuiManager()
 {
-    return std::make_shared<LcGuiManagerBase>();
+    return std::make_shared<LcGuiManager>();
 }

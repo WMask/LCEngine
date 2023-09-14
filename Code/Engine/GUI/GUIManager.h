@@ -40,13 +40,13 @@ public:
 
 
 /**
-* GUI manager base */
-class LcGuiManagerBase : public IGuiManager
+* GUI manager */
+class LcGuiManager : public IGuiManager
 {
 public:
 	/**
 	* Constructor */
-	LcGuiManagerBase() {}
+	LcGuiManager() {}
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override {}
