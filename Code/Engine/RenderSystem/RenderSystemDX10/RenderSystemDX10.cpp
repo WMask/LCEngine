@@ -103,7 +103,7 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
 		D3D10_DRIVER_TYPE_HARDWARE, NULL, D3D10_CREATE_DEVICE_BGRA_SUPPORT,
-		D3D10_FEATURE_LEVEL_10_0, D3D10_1_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), d3dDevice.GetAddressOf())))
+		D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), d3dDevice.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create D3D device");
 	}
@@ -122,7 +122,34 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	}
 
 	backBuffer.Reset();
-	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
+
+	// setup depth buffer
+	D3D10_TEXTURE2D_DESC descDepth{};
+	descDepth.Width = width;
+	descDepth.Height = height;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.Usage = D3D10_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+
+	if (FAILED(d3dDevice->CreateTexture2D(&descDepth, NULL, depthStencil.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create depth buffer");
+	}
+
+	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV{};
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+
+	if (FAILED(d3dDevice->CreateDepthStencilView(depthStencil.Get(), &descDSV, depthStencilView.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create depth stencil view");
+	}
+
+	// set render targets
+	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 
 	// set the viewport
 	D3D10_VIEWPORT viewPort;
@@ -292,7 +319,7 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
 }
-#include "Core/LCUtils.h"
+
 void LcRenderSystemDX10::Subscribe(IWorld* world)
 {
 	if (world)
@@ -300,8 +327,6 @@ void LcRenderSystemDX10::Subscribe(IWorld* world)
 		world->GetWorldScale().scaleUpdatedHandler.AddListener([this, world](LcVector2 newScale)
 		{
 			LC_TRY
-
-			DebugMsg("Fonts scaled: %.3f, %.3f\n", newScale.x, newScale.y);
 
 			worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
 
@@ -324,6 +349,8 @@ void LcRenderSystemDX10::Shutdown()
 	visual2DRenders.clear();
 	widgetRender = nullptr;
 
+	depthStencilView.Reset();
+	depthStencil.Reset();
 	rasterizerState.Reset();
 	blendState.Reset();
 	frameAnimBuffer.Reset();
@@ -359,6 +386,7 @@ void LcRenderSystemDX10::Render(IWorld& world)
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
+	d3dDevice->ClearDepthStencilView(depthStencilView.Get(), D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, 1.0f, 0);
 
 	LcRenderSystemBase::Render(world);
 

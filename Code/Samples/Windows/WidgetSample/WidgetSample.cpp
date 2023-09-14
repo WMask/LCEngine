@@ -24,7 +24,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto world = app->GetWorld();
 
-            if (auto sprite = world->AddSprite2D(500, 400, 200, 200))
+            if (auto sprite = world->AddSprite3D(500, 400, -0.1f, 200, 200))
             {
                 sprite->AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }

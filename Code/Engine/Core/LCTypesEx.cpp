@@ -58,7 +58,7 @@ LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, fl
 #ifdef _WINDOWS
 	auto matrix = DirectX::XMMatrixOrthographicLH(widthPixels, heightPixels, nearPlane, farPlane);
 	if (flipY) matrix = DirectX::XMMatrixMultiply(matrix, DirectX::XMMatrixScaling(1.0f, -1.0f, 1.0f));
-	return matrix;
+	return TransposeMatrix(matrix);
 #else
 	return LcMatrix4{};
 #endif

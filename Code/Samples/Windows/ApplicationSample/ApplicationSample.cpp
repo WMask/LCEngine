@@ -35,7 +35,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 sprite1->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
             }
 
-            if (auto sprite2 = world->AddSprite2D(550, 200, 300, 300))
+            if (auto sprite2 = world->AddSprite3D(550, 200, -0.1f, 300, 300))
             {
                 sprite2->AddTextureComponent("../../Assets/tree.png");
                 sprite2->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
