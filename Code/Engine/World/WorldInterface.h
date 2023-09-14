@@ -17,6 +17,22 @@
 #pragma warning(disable : 4251)
 
 
+/** 2D object layers. Z0 - front, Z9 - back. */
+namespace LcLayers
+{
+	static const float Z0 =  0.0f;
+	static const float Z1 = -0.1f;
+	static const float Z2 = -0.2f;
+	static const float Z3 = -0.3f;
+	static const float Z4 = -0.4f;
+	static const float Z5 = -0.5f;
+	static const float Z6 = -0.6f;
+	static const float Z7 = -0.7f;
+	static const float Z8 = -0.8f;
+	static const float Z9 = -0.9f;
+};
+
+
 /**
 * World object factory */
 template<typename C, typename D>
@@ -89,10 +105,10 @@ public:
 	* Add sprite */
 	virtual ISprite* AddSprite(const struct LcSpriteData& sprite) = 0;
 	/**
-	* Add sprite */
-	virtual ISprite* AddSprite3D(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	* Add sprite to layer z */
+	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
-	* Add sprite */
+	* Add sprite to layer 0 */
 	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Remove sprite */

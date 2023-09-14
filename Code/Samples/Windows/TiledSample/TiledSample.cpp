@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             float width = (float)app->GetWindowWidth();
             float height = (float)app->GetWindowHeight();
 
-            if (auto sprite = world->AddSprite3D(512, 384, -0.1f, 1024, 768))
+            if (auto sprite = world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
             {
                 auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
                     const std::string& type, const LcObjectProps& props, LcVector2 pos, LcSizef size)
@@ -78,7 +78,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto body = physWorld->GetDynamicBodies()[0];
 
             if (key == 'Q') app->RequestQuit();
-            if (key == VK_UP && (keyEvent == LcKeyState::Down) && !body->IsFalling())
+
+            bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
+            if (key == VK_UP && (keyEvent == LcKeyState::Down) && canJump)
             {
                 body->ApplyImpulse(LcVector2(0.0f, -4.0f));
             }
