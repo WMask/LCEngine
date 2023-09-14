@@ -76,6 +76,11 @@ void DebugMsgW(const wchar_t* fmt, ...)
 	OutputDebugStringW(dbg_out);
 }
 
+void ShowMessageModal(const char* message, const char* title)
+{
+	MessageBoxA(NULL, message, title, MB_OK | MB_SERVICE_NOTIFICATION);
+}
+
 #else
 
 void DebugMsg(const char* fmt, ...) {}

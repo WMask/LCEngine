@@ -23,3 +23,7 @@ CORE_API void DebugMsg(const char* fmt, ...);
 /**
 * Print debug string */
 CORE_API void DebugMsgW(const wchar_t* fmt, ...);
+
+/**
+* Show message dialog and wait */
+CORE_API void ShowMessageModal(const char* message, const char* title);
