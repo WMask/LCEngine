@@ -9,11 +9,14 @@
 #include "GUI/GUIManager.h"
 #include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
+#include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
 
 void LcGuiManagerBase::Update(float deltaSeconds, IWorld& world)
 {
+    LC_TRY
+
     auto& widgetList = world.GetWidgets();
     if (!widgetList.empty())
     {
@@ -22,19 +25,27 @@ void LcGuiManagerBase::Update(float deltaSeconds, IWorld& world)
             if (widget->IsVisible()) widget->Update(deltaSeconds);
         }
     }
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
 }
 
 void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state, IWorld& world)
 {
+    LC_TRY
+
     auto& widgetList = world.GetWidgets();
     for (auto& widget : widgetList)
     {
         if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state);
     }
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
 }
 
 void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, IWorld& world)
 {
+    LC_TRY
+
     auto& widgetList = world.GetWidgets();
     auto scale2 = world.GetWorldScale().scale;
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
@@ -54,10 +65,14 @@ void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, in
             widget->OnMouseButton(btn, state, result.x, result.y);
         }
     }
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
 }
 
 void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
 {
+    LC_TRY
+
     auto& widgetList = world.GetWidgets();
     auto scale2 = world.GetWorldScale().scale;
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
@@ -91,6 +106,8 @@ void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
             }
         }
     }
+
+    LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
 }
 
 TGuiManagerPtr GetGuiManager()

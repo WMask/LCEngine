@@ -198,30 +198,18 @@ void LcWindowsApplication::OnUpdate()
 
         if (renderSystem && world)
         {
-            LC_TRY
-
             renderSystem->Update(deltaFloat, *world.get());
             renderSystem->Render(*world.get());
-
-            LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onRenderUpdate)") }
         }
 
         if (guiManager)
         {
-            LC_TRY
-
             guiManager->Update(deltaFloat, *world.get());
-
-            LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onGuiUpdate)") }
         }
 
         if (updateHandler)
         {
-            LC_TRY
-
             updateHandler(deltaFloat, this);
-
-            LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate(onAppUpdate)") }
         }
     }
 
