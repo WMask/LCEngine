@@ -47,7 +47,7 @@ public:
 	virtual void* GetUserData() const = 0;
 	/**
 	* Get user class */
-	template<class T> T* GetUserClass() const { return static_cast<T*>(GetUserData()); }
+	template<class T> T* GetUserObject() const { return static_cast<T*>(GetUserData()); }
 	/**
 	* Check area below the body. Depth - bottom offset in pixels */
 	virtual bool IsFalling(float depth = 2.0f, bool checkStaticOnly = true) const = 0;

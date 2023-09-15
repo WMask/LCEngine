@@ -64,7 +64,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (keys[VK_LEFT]) body->SetVelocity(LcVector2(-1.2f, vel.y));
             if (keys[VK_RIGHT]) body->SetVelocity(LcVector2(1.2f, vel.y));
 
-            if (auto hero = body->GetUserClass<ISprite>())
+            if (auto hero = body->GetUserObject<ISprite>())
             {
                 hero->SetPos(To3(body->GetPos()));
             }
