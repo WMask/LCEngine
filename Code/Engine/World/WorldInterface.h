@@ -32,6 +32,12 @@ namespace LcLayers
 	static const float Z9 = -0.9f;
 };
 
+static const float LcMinLayer = LcLayers::Z9;
+static const float LcMaxLayer = LcLayers::Z0;
+
+/** Ranged float (-0.9f, 0.0f) */
+typedef LcRange<float, LcMinLayer, LcMaxLayer> LcLayersRange;
+
 
 /**
 * World object factory */
@@ -106,7 +112,7 @@ public:
 	virtual ISprite* AddSprite(const struct LcSpriteData& sprite) = 0;
 	/**
 	* Add sprite to layer z */
-	virtual ISprite* AddSprite(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Add sprite to layer 0 */
 	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
