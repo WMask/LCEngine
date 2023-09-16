@@ -8,56 +8,73 @@
 
 #include "pch.h"
 #include "GUI/Widgets.h"
+#include "World/WorldInterface.h"
 
 
-void IWidget::AddTextComponent(const std::wstring& inText, LcColor4 inTextColor, const std::wstring& inFontName,
-    unsigned short inFontSize, LcFontWeight inFontWeight)
+void LcWidgetHelper::AddTextComponent(const std::wstring& inText, LcColor4 inTextColor, const std::wstring& inFontName,
+    unsigned short inFontSize, LcFontWeight inFontWeight) const
 {
-    AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight));
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight), context);
+    }
 }
 
-void IWidget::AddTextureComponent(const std::string& texture)
+void LcWidgetHelper::AddTextureComponent(const std::string& texture) const
 {
-    AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
+    }
 }
 
-void IWidget::AddTextureComponent(const LcBytes& inData)
+void LcWidgetHelper::AddTextureComponent(const LcBytes& inData) const
 {
-    AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
+    }
 }
 
-void IWidget::AddButtonComponent()
+void LcWidgetHelper::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const
 {
-    AddComponent(std::make_shared<LcWidgetButtonComponent>());
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
+        visual->AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos), context);
+    }
 }
 
-void IWidget::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
+void LcWidgetHelper::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
+    LcVector2 checkedPos, LcVector2 checkedHoveredPos) const
 {
-    AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
-    AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos));
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
+        visual->AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos), context);
+    }
 }
 
-void IWidget::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
-    LcVector2 checkedPos, LcVector2 checkedHoveredPos)
+void LcWidgetHelper::AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin) const
 {
-    AddComponent(std::make_shared<LcVisualTextureComponent>(texture));
-    AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos));
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcWidgetClickComponent>(handler), context);
+
+        if (addDefaultSkin) AddButtonComponent("../../Assets/button.png",
+            LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
+    }
 }
 
-void IWidget::AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin)
+void LcWidgetHelper::AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin) const
 {
-    AddComponent(std::make_shared<LcWidgetClickComponent>(handler));
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcWidgetCheckComponent>(handler), context);
 
-    if (addDefaultSkin) AddButtonComponent("../../Assets/button.png",
-        LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
-}
-
-void IWidget::AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin)
-{
-    AddComponent(std::make_shared<LcWidgetCheckComponent>(handler));
-
-    if (addDefaultSkin) AddCheckboxComponent("../../Assets/checkbox.png",
-        LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
+        if (addDefaultSkin) AddCheckboxComponent("../../Assets/checkbox.png",
+            LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
+    }
 }
 
 LcWidgetButtonComponent::LcWidgetButtonComponent(const LcWidgetButtonComponent& button) : state(EBtnState::Idle)
@@ -79,9 +96,9 @@ LcWidgetButtonComponent::LcWidgetButtonComponent(LcVector2 idlePos, LcVector2 ov
     pressed[0].y = pressedPos.y;
 }
 
-void LcWidgetButtonComponent::Init(class IWorld& world)
+void LcWidgetButtonComponent::Init(const LcAppContext& context)
 {
-    IVisualComponent::Init(world);
+    IVisualComponent::Init(context);
 
     if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
     {
@@ -144,9 +161,9 @@ LcWidgetCheckboxComponent::LcWidgetCheckboxComponent(
     checkedH[0].y = checkedHoveredPos.y;
 }
 
-void LcWidgetCheckboxComponent::Init(class IWorld& world)
+void LcWidgetCheckboxComponent::Init(const LcAppContext& context)
 {
-    IVisualComponent::Init(world);
+    IVisualComponent::Init(context);
 
     if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
     {
@@ -192,7 +209,11 @@ const void* LcWidgetCheckboxComponent::GetData() const
     return unchecked;
 }
 
-void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
+void IWidget::Update(float DeltaSeconds, const LcAppContext& context)
+{
+}
+
+void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
     {
@@ -228,7 +249,7 @@ void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y)
     }
 }
 
-void LcWidget::OnMouseEnter()
+void LcWidget::OnMouseEnter(const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
     {
@@ -241,7 +262,7 @@ void LcWidget::OnMouseEnter()
     }
 }
 
-void LcWidget::OnMouseLeave()
+void LcWidget::OnMouseLeave(const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
     {

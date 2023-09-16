@@ -24,10 +24,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto physWorld = app->GetPhysicsWorld();
             auto world = app->GetWorld();
-            float width = (float)app->GetWindowWidth();
-            float height = (float)app->GetWindowHeight();
 
-            if (auto sprite = world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
+            auto& spriteHelper = world->GetSpriteHelper();
+            if (world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
             {
                 auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
                     const std::string& type, const LcObjectProps& props, LcVector2 pos, LcSizef size)
@@ -37,13 +36,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         physWorld->AddStaticBox(pos, size);
                     }
                 };
-                sprite->AddTiledSpriteComponent("../../Assets/Map1.tmj", objectHandler);
+                spriteHelper.AddTiledComponent("../../Assets/Map1.tmj", objectHandler);
             }
 
             if (auto hero = world->AddSprite2D(100, 600, 64, 64))
             {
-                hero->AddTextureComponent("../../Assets/anim.png");
-                hero->AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddTextureComponent("../../Assets/anim.png");
+                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
 
                 auto body = physWorld->AddDynamicBox(LcVector2(100, 600), LcSizef(35, 45), 5);
                 body->SetUserData(hero);

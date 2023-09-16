@@ -13,6 +13,7 @@
 #include "Core/LCUtils.h"
 
 #include <set>
+#include <cmath>
 
 
 std::vector<ComPtr<IDXGIAdapter>> LcEnumerateAdapters()
@@ -267,22 +268,28 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     LC_CATCH{ LC_THROW("LcTextureLoaderDX10::ClearCache()") }
 }
 
-LcSpriteDX10::~LcSpriteDX10()
+void LcSpriteDX10::Destroy(const LcAppContext& context)
 {
-    if (tiledRender) tiledRender->RemoveTiles(this);
+    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
+    if (auto tiledRender = renderDX10 ? renderDX10->GetTiledRender() : nullptr)
+    {
+        tiledRender->RemoveTiles(this);
+    }
 }
 
-void LcSpriteDX10::AddComponent(TVComponentPtr comp)
+void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context)
 {
     LC_TRY
 
-    LcSprite::AddComponent(comp);
+    LcSprite::AddComponent(comp, context);
 
-    if (auto texComp = GetTextureComponent())
+    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
+    auto texComp = GetTextureComponent();
+    if (texComp && renderDX10)
     {
         LcSize texSize;
-        bool loaded = render.GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+        bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
+            texComp->texture.c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
         if (loaded)
             texComp->texSize = ToF(texSize);
         else
@@ -292,25 +299,30 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp)
     LC_CATCH{ LC_THROW("LcSpriteDX10::AddComponent()") }
 }
 
-unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp) const
+unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp, const LcAppContext& context) const
 {
     float scale = 1.0f;
-    if (render.GetWorldScaleFonts()) scale = world->GetWorldScale().scale.y;
+    if (context.world.GetWorldScale().scaleFonts) scale = context.world.GetWorldScale().scale.y;
 
-    return static_cast<unsigned short>(static_cast<float>(textComp.fontSize) * scale);
+    auto fsize = static_cast<float>(textComp.fontSize) * scale;
+    return static_cast<unsigned short>(std::lround(fsize));
 }
 
-void LcWidgetDX10::AddComponent(TVComponentPtr comp)
+void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context)
 {
     LC_TRY
 
-    LcWidget::AddComponent(comp);
+    LcWidget::AddComponent(comp, context);
+
+    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
+    if (!renderDX10)
+        throw std::exception("LcWidgetDX10::AddComponent(): Invalid render");
 
     if (auto texComp = GetTextureComponent())
     {
         LcSize texSize;
-        bool loaded = render.GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+        bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
+            texComp->texture.c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
         if (loaded)
             texComp->texSize = ToF(texSize);
         else
@@ -319,7 +331,7 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
 
     if (auto textComp = GetTextComponent())
     {
-        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
+        font = renderDX10->GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp, context), textComp->fontWeight);
         if (!font)
             throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
     }
@@ -327,13 +339,17 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp)
     LC_CATCH{ LC_THROW("LcWidgetDX10::AddComponent()") }
 }
 
-void LcWidgetDX10::RecreateFont()
+void LcWidgetDX10::RecreateFont(const LcAppContext& context)
 {
     LC_TRY
 
+    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
+    if (!renderDX10)
+        throw std::exception("LcWidgetDX10::RecreateFont(): Invalid render");
+
     if (auto textComp = GetTextComponent())
     {
-        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
+        font = renderDX10->GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp, context), textComp->fontWeight);
         if (!font)
             throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
     }

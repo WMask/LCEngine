@@ -195,11 +195,13 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
         break;
     case EWRMode::Text:
         {
+            auto pos = widget->GetPos();
+            auto size = widget->GetSize();
             LcRectf rect{
-                widget->widget.pos.x - widget->widget.size.x / 2.0f,
-                widget->widget.pos.y - widget->widget.size.y / 2.0f,
-                widget->widget.pos.x + widget->widget.size.x / 2.0f,
-                widget->widget.pos.y + widget->widget.size.y / 2.0f
+                pos.x - size.x / 2.0f,
+                pos.y - size.y / 2.0f,
+                pos.x + size.x / 2.0f,
+                pos.y + size.y / 2.0f
             };
 
             if (auto text = widget->GetTextComponent())

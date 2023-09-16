@@ -35,8 +35,7 @@ struct LcBox2DConfig
 
 
 /**
-* Box2D game world
-*/
+* Box2D game world */
 class BOX2D_API LcBox2DWorld : public IPhysicsWorld
 {
 public:
@@ -59,15 +58,15 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation = true) override;
 	//
-	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies; }
+	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies.GetList(); }
 	//
-	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies; }
+	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies.GetList(); }
 
 
 protected:
 	std::unique_ptr<class b2World> box2DWorld;
 	//
-	TBodiesList dynamicBodies;
+	LcCreator<IPhysicsBody, class LcBox2DBody> dynamicBodies;
 	//
 	LcBox2DConfig config;
 

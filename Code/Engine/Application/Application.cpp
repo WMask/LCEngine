@@ -6,21 +6,3 @@
 
 #include "pch.h"
 #include "Application/ApplicationInterface.h"
-
-
-IApplication::IApplication()
-{
-}
-
-IApplication::~IApplication()
-{
-}
-
-IApplication::IApplication(const IApplication&)
-{
-}
-
-IApplication& IApplication::operator=(const IApplication&)
-{
-	return *this;
-}

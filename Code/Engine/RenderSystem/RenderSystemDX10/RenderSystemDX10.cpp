@@ -11,57 +11,41 @@
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "Application/ApplicationInterface.h"
-#include "World/WorldInterface.h"
+#include "World/World.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCException.h"
 
 
-class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
+class LcSpriteLifetimeStrategyDX10 : public LcLifetimeStrategy<ISprite>
 {
 public:
-	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender), tiledRender(nullptr)
-	{
-		TVFeaturesList features = { EVCType::Tiled, EVCType::Texture };
-		auto& renders = render.GetVisual2DRenderList();
-		for (auto& render : renders)
-		{
-			if (render->Supports(features))
-			{
-				tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(render.get());
-				break;
-			}
-		}
-	}
+	LcSpriteLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
-	{
-		auto newSprite = std::make_shared<LcSpriteDX10>(data, render);
-		newSprite->tiledRender = tiledRender;
-		return newSprite;
-	}
+	virtual ~LcSpriteLifetimeStrategyDX10() {}
 	//
-	LcRenderSystemDX10& render;
+	virtual std::shared_ptr<ISprite> Create() override { return std::make_shared<LcSpriteDX10>(); }
 	//
-	LcTiledVisual2DRenderDX10* tiledRender;
+	virtual void Destroy(ISprite& item) override {}
 };
 
-class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
+class LcWidgetLifetimeStrategyDX10 : public LcLifetimeStrategy<IWidget>
 {
 public:
-	LcWidgetFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	LcWidgetLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override
-	{
-		return std::make_shared<LcWidgetDX10>(data, render);
-	}
+	virtual ~LcWidgetLifetimeStrategyDX10() {}
 	//
-	LcRenderSystemDX10& render;
+	virtual std::shared_ptr<IWidget> Create() override { return std::make_shared<LcWidgetDX10>(); }
+	//
+	virtual void Destroy(IWidget& item) override {}
 };
+
 
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: widgetRender(nullptr)
+	, tiledRender(nullptr)
 	, renderSystemSize(0, 0)
 	, worldScale(1.0f, 1.0f, 1.0f)
 	, worldScaleFonts(false)
@@ -74,7 +58,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode winMode, bool inVSync)
+void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVSync, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -292,6 +276,7 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
 	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
 	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(*this));
+	tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(visual2DRenders.back().get());
 	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
 	visual2DRenders.back()->Setup(nullptr);
 
@@ -303,15 +288,17 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	// init managers
 	texLoader.reset(new LcTextureLoaderDX10());
 
-	// add sprite factory
-	world.GetCamera().Set(cameraPos, cameraTarget);
-	world.SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
-	world.SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
+	// setup world
+	context.world.GetCamera().Set(cameraPos, cameraTarget);
+	worldScaleFonts = context.world.GetWorldScale().scaleFonts;
 
-	worldScaleFonts = world.GetWorldScale().scaleFonts;
+	// add sprite factories
+	LcWorld& worldRef = static_cast<LcWorld&>(context.world);
+	worldRef.SetSpriteLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategyDX10>());
+	worldRef.SetWidgetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategyDX10>());
 
 	// init render system
-	LcRenderSystemBase::Create(world, this, winMode, inVSync);
+	LcRenderSystemBase::Create(this, winMode, inVSync, context);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -320,25 +307,23 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
 }
 
-void LcRenderSystemDX10::Subscribe(IWorld* world)
+void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 {
-	if (world)
+	auto contextPtr = &context;
+	context.world.GetWorldScale().scaleUpdatedHandler.AddListener([this, contextPtr](LcVector2 newScale)
 	{
-		world->GetWorldScale().scaleUpdatedHandler.AddListener([this, world](LcVector2 newScale)
+		LC_TRY
+
+		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
+
+		if (contextPtr->world.GetWorldScale().scaleFonts)
 		{
-			LC_TRY
+			auto& widgets = contextPtr->world.GetWidgets();
+			for (auto widget : widgets) widget->RecreateFont(*contextPtr);
+		}
 
-			worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
-
-			if (world->GetWorldScale().scaleFonts)
-			{
-				auto& widgets = world->GetWidgets();
-				for (auto widget : widgets) widget->RecreateFont();
-			}
-
-			LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
-		});
-	}
+		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+	});
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -364,9 +349,9 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
-void LcRenderSystemDX10::Update(float deltaSeconds, IWorld& world)
+void LcRenderSystemDX10::Update(float deltaSeconds, const LcAppContext& context)
 {
-	LcRenderSystemBase::Update(deltaSeconds, world);
+	LcRenderSystemBase::Update(deltaSeconds, context);
 }
 
 void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
@@ -375,7 +360,7 @@ void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVe
 	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
-void LcRenderSystemDX10::Render(IWorld& world)
+void LcRenderSystemDX10::Render(const LcAppContext& context)
 {
 	LC_TRY
 
@@ -388,7 +373,7 @@ void LcRenderSystemDX10::Render(IWorld& world)
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
 	d3dDevice->ClearDepthStencilView(depthStencilView.Get(), D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, 1.0f, 0);
 
-	LcRenderSystemBase::Render(world);
+	LcRenderSystemBase::Render(context);
 
 	swapChain->Present(vSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD, 0);
 
@@ -410,7 +395,7 @@ void LcRenderSystemDX10::RequestResize(int width, int height)
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RequestResize()") }
 }
 
-void LcRenderSystemDX10::Resize(int width, int height, IWorld& world)
+void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -463,8 +448,8 @@ void LcRenderSystemDX10::Resize(int width, int height, IWorld& world)
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-		world.GetWorldScale().UpdateWorldScale(newViewportSize);
-		world.GetCamera().Set(cameraPos, cameraTarget);
+		context.world.GetWorldScale().UpdateWorldScale(newViewportSize);
+		context.world.GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
 		// update projection matrix

@@ -35,6 +35,8 @@ public: // IApplication interface implementation
 	//
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = render; }
 	//
+	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept { scriptSystem = scripts; }
+	//
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
 	//
 	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept { physWorld = inPhysWorld; }
@@ -72,6 +74,10 @@ public: // IApplication interface implementation
 	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept override { return physWorld.get(); }
 	//
 	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept override { return physWorld; }
+	//
+	virtual class IScriptSystem* GetScriptSystem() noexcept override { return scriptSystem.get(); }
+	//
+	virtual TScriptSystemPtr GetScriptSystemPtr() noexcept override { return scriptSystem; }
 
 
 protected:
@@ -107,9 +113,13 @@ protected:
 	//
 	TRenderSystemPtr renderSystem;
 	//
+	TScriptSystemPtr scriptSystem;
+	//
 	TGuiManagerPtr guiManager;
 	//
 	TPhysicsWorldPtr physWorld;
+	//
+	LcAppContext context;
 
 
 protected:

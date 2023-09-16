@@ -10,22 +10,18 @@
 #include "World/Visual.h"
 
 
-void IVisualBase::Destroy(class IWorld* inWorld)
+void IVisualBase::Destroy(const LcAppContext& context)
 {
-	world = inWorld;
-	if (world)
-	{
-		for (auto& comp : components) comp->Destroy(*world);
-	}
+	for (auto& comp : components) comp->Destroy(context);
 }
 
-void IVisualBase::AddComponent(TVComponentPtr comp)
+void IVisualBase::AddComponent(TVComponentPtr comp, const LcAppContext& context)
 {
 	if (!comp) throw std::exception("IVisualBase::AddComponent(): Invalud component");
 
 	comp->SetOwner(this);
 	components.push_back(comp);
-	components.back()->Init(*world);
+	components.back()->Init(context);
 }
 
 TVComponentPtr IVisualBase::GetComponent(EVCType type) const

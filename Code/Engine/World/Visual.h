@@ -61,16 +61,16 @@ public:
 	virtual ~IVisual() {}
 	/**
 	* Init visual */
-	virtual void Init(class IWorld* world) {}
+	virtual void Init(const LcAppContext& context) = 0;
 	/**
 	* Destroy visual */
-	virtual void Destroy(class IWorld* world) {}
+	virtual void Destroy(const LcAppContext& context) = 0;
 	/**
 	* Update visual */
-	virtual void Update(float deltaSeconds) {}
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Add component */
-	virtual void AddComponent(TVComponentPtr comp) = 0;
+	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) = 0;
 	/**
 	* Get component */
 	virtual TVComponentPtr GetComponent(EVCType type) const = 0;
@@ -109,16 +109,16 @@ public:
 	virtual bool IsVisible() const = 0;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) = 0;
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(LcVector3 pos) = 0;
+	virtual void OnMouseMove(LcVector3 pos, const LcAppContext& context) = 0;
 	/**
 	* Mouse enter event */
-	virtual void OnMouseEnter() = 0;
+	virtual void OnMouseEnter(const LcAppContext& context) = 0;
 	/**
 	* Mouse leave event */
-	virtual void OnMouseLeave() = 0;
+	virtual void OnMouseLeave(const LcAppContext& context) = 0;
 
 };
 
@@ -140,13 +140,13 @@ public:
 	virtual ~IVisualComponent() {}
 	/**
 	* Init component */
-	virtual void Init(class IWorld& world) {}
+	virtual void Init(const LcAppContext& context) {}
 	/**
 	* Destroy component */
-	virtual void Destroy(class IWorld& world) {}
+	virtual void Destroy(const LcAppContext& context) {}
 	/**
 	* Update component */
-	virtual void Update(float deltaSeconds) {}
+	virtual void Update(float deltaSeconds, const LcAppContext& context) {}
 	/**
 	* Get type */
 	virtual EVCType GetType() const = 0;
@@ -161,6 +161,29 @@ public:
 protected:
 	class IVisual* owner;
 	friend class IVisual;
+
+};
+
+
+/**
+* Visual base interface */
+class WORLD_API IVisualBase : public IVisual
+{
+public:// IVisual interface implementation
+	//
+	virtual void Init(const LcAppContext& context) override {}
+	//
+	virtual void Destroy(const LcAppContext& context) override;
+	//
+	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
+	//
+	virtual TVComponentPtr GetComponent(EVCType type) const override;
+	//
+	virtual bool HasComponent(EVCType type) const override;
+
+
+protected:
+	std::deque<TVComponentPtr> components;
 
 };
 
@@ -187,34 +210,5 @@ struct LcVisualTextureComponent : public IVisualComponent
 	}
 	// IVisualComponent interface implementation
 	virtual EVCType GetType() const override { return EVCType::Texture; }
-
-};
-
-
-/**
-* Visual base interface */
-class WORLD_API IVisualBase : public IVisual
-{
-public:
-	IVisualBase() : world(nullptr) {}
-
-
-public:// IVisual interface implementation
-	//
-	virtual void Init(class IWorld* inWorld) { world = inWorld; }
-	//
-	virtual void Destroy(class IWorld* inWorld) override;
-	//
-	virtual void AddComponent(TVComponentPtr comp) override;
-	//
-	virtual TVComponentPtr GetComponent(EVCType type) const override;
-	//
-	virtual bool HasComponent(EVCType type) const override;
-
-
-protected:
-	std::deque<TVComponentPtr> components;
-	//
-	class IWorld* world;
 
 };

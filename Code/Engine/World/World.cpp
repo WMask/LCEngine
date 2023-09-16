@@ -12,117 +12,102 @@
 #include "GUI/Widgets.h"
 
 
-/** Default Sprite factory implementation */
-class LcSpriteFactory : public TWorldFactory<ISprite, LcSpriteData>
+class LcSpriteLifetimeStrategy : public LcLifetimeStrategy<ISprite>
 {
 public:
-	LcSpriteFactory() {}
+	LcSpriteLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
-	{
-		return std::make_shared<LcSprite>(data);
-	}
+	virtual ~LcSpriteLifetimeStrategy() {}
+	//
+	virtual std::shared_ptr<ISprite> Create() override { return std::make_shared<LcSprite>(); }
+	//
+	virtual void Destroy(ISprite& item) override {}
 };
 
-/** Default Sprite factory implementation */
-class LcWidgetFactory : public TWorldFactory<IWidget, LcWidgetData>
+class LcWidgetLifetimeStrategy : public LcLifetimeStrategy<IWidget>
 {
 public:
-	LcWidgetFactory() {}
+	LcWidgetLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override
-	{
-		return std::make_shared<LcWidget>(data);
-	}
+	virtual ~LcWidgetLifetimeStrategy() {}
+	//
+	virtual std::shared_ptr<IWidget> Create() override { return std::make_shared<LcWidget>(); }
+	//
+	virtual void Destroy(IWidget& item) override {}
 };
 
 
-LcWorld::LcWorld()
+LcWorld::LcWorld(const LcAppContext& inContext)
+	: context(inContext)
+	, spriteHelper(std::make_unique<LcSpriteHelper>(inContext))
+	, widgetHelper(std::make_unique<LcWidgetHelper>(inContext))
+	, lastVisual(nullptr)
 {
-	spriteFactory = TSpriteFactoryPtr(new LcSpriteFactory());
-	widgetFactory = TWidgetFactoryPtr(new LcWidgetFactory());
+	sprites.SetLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategy>());
+	widgets.SetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategy>());
 }
 
-LcWorld::~LcWorld()
+ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ, bool visible)
 {
-}
-
-LcWorld::LcWorld(const LcWorld&)
-{
-}
-
-LcWorld& LcWorld::operator=(const LcWorld&)
-{
-	return *this;
-}
-
-ISprite* LcWorld::AddSprite(const LcSpriteData& inSprite)
-{
-	auto newSprite = spriteFactory ? spriteFactory->Build(inSprite) : nullptr;
+	auto newSprite = sprites.Add();
 	if (newSprite)
 	{
-		newSprite->Init(this);
-		sprites.push_back(newSprite);
+		newSprite->SetPos(LcVector3(x, y, z));
+		newSprite->SetSize(LcSizef(width, height));
+		newSprite->SetRotZ(rotZ);
+		newSprite->SetVisible(visible);
+		newSprite->Init(context);
 	}
 	else
+	{
 		throw std::exception("LcWorld::AddSprite(): Cannot create sprite");
+	}
 
-	return newSprite.get();
-}
-
-ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, float height, float inRotZ, bool inVisible)
-{
-	return AddSprite(LcSpriteData(LcVector3(x, y, z), LcSizef(width, height), inRotZ, inVisible));
+	lastVisual = newSprite;
+	return newSprite;
 }
 
 ISprite* LcWorld::AddSprite2D(float x, float y, float width, float height, float inRotZ, bool inVisible)
 {
-	return AddSprite(LcSpriteData(LcVector3(x, y, LcLayers::Z0), LcSizef(width, height), inRotZ, inVisible));
+	return AddSprite(x, y, LcLayers::Z0, width, height, inRotZ, inVisible);
 }
 
 void LcWorld::RemoveSprite(ISprite* sprite)
 {
-	auto it = std::find_if(sprites.begin(), sprites.end(), [sprite](std::shared_ptr<ISprite>& data) { return data.get() == sprite; });
-	if (it != sprites.end())
-	{
-		(*it)->Destroy(this);
-		sprites.erase(it);
-	}
+	if (lastVisual == sprite) lastVisual = nullptr;
+
+	sprites.Remove(sprite);
 }
 
-IWidget* LcWorld::AddWidget(const LcWidgetData& inWidget)
+IWidget* LcWorld::AddWidget(float x, float y, float z, float width, float height, bool visible)
 {
-	auto newWidget = widgetFactory ? widgetFactory->Build(inWidget) : nullptr;
+	auto newWidget = widgets.Add();
 	if (newWidget)
 	{
-		newWidget->Init(this);
-		widgets.push_back(newWidget);
+		newWidget->SetPos(LcVector3(x, y, z));
+		newWidget->SetSize(LcSizef(width, height));
+		newWidget->SetVisible(visible);
+		newWidget->Init(context);
 	}
 	else
+	{
 		throw std::exception("LcWorld::AddWidget(): Cannot create widget");
+	}
 
-	return newWidget.get();
-}
-
-IWidget* LcWorld::AddWidget(float x, float y, float z, float width, float height, bool inVisible)
-{
-	return AddWidget(LcWidgetData(LcVector3(x, y, z), LcSizef(width, height), inVisible));
-
+	lastVisual = newWidget;
+	return newWidget;
 }
 
 IWidget* LcWorld::AddWidget(float x, float y, float width, float height, bool inVisible)
 {
-	return AddWidget(LcWidgetData(LcVector3(x, y, 0.0f), LcSizef(width, height), inVisible));
+	return AddWidget(x, y, LcLayers::Z0, width, height, inVisible);
 }
 
 void LcWorld::RemoveWidget(IWidget* widget)
 {
-	auto it = std::find_if(widgets.begin(), widgets.end(), [widget](std::shared_ptr<IWidget>& data) { return data.get() == widget; });
-	if (it != widgets.end())
-	{
-		(*it)->Destroy(this);
-		widgets.erase(it);
-	}
+	if (lastVisual == widget) lastVisual = nullptr;
+
+	widgets.Remove(widget);
 }
 
 LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scale(1.0f, 1.0f), scaleFonts(true)
@@ -180,7 +165,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 	}
 }
 
-TWorldPtr GetWorld()
+TWorldPtr GetWorld(LcAppContext& context)
 {
-	return std::make_shared<LcWorld>();
+	return std::make_shared<LcWorld>(context);
 }

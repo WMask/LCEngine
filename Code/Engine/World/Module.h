@@ -17,9 +17,8 @@
 
 
 typedef std::shared_ptr<class IWorld> TWorldPtr;
-typedef std::weak_ptr<class IWorld> TWeakWorld;
 
 
 /**
 * Get game world manager */
-WORLD_API TWorldPtr GetWorld();
+WORLD_API TWorldPtr GetWorld(struct LcAppContext& context);

@@ -54,14 +54,17 @@ public:
 
 };
 
-typedef std::shared_ptr<IPhysicsBody> TBodyPtr;
-typedef std::deque<TBodyPtr> TBodiesList;
-
 
 /**
 * Physics world */
 class IPhysicsWorld
 {
+public:
+	typedef std::shared_ptr<IPhysicsBody> TBodyPtr;
+	//
+	typedef std::deque<TBodyPtr> TBodiesList;
+
+
 public:
 	/**
 	* Destructor */

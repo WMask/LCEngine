@@ -20,6 +20,7 @@ using namespace Microsoft::WRL;
 #include "GUI/Widgets.h"
 
 #pragma warning(disable : 4251)
+#pragma warning(disable : 5046)
 
 
 typedef std::deque<std::shared_ptr<IVisual2DRender>> TVisual2DRenderList;
@@ -77,6 +78,8 @@ public:
 	//
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 	//
+	class LcTiledVisual2DRenderDX10* GetTiledRender() { return tiledRender; }
+	//
 	class LcWidgetRenderDX10* GetWidgetRender() { return widgetRender; }
 
 
@@ -84,21 +87,21 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(class IWorld& world, void* windowHandle, LcWinMode mode, bool inVSync) override;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool inVSync, const LcAppContext& context) override;
 	//
-	virtual void Subscribe(class IWorld* world) override;
+	virtual void Subscribe(const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override;
 	//
-	virtual void Update(float deltaSeconds, class IWorld& world) override;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) override;
 	//
-	virtual void Render(class IWorld& world) override;
+	virtual void Render(const LcAppContext& context) override;
 	//
 	virtual void RequestResize(int width, int height) override;
 	//
-	virtual void Resize(int width, int height, class IWorld& world) override;
+	virtual void Resize(int width, int height, const LcAppContext& context) override;
 	//
 	virtual void SetMode(LcWinMode mode) override;
 	//
@@ -175,6 +178,8 @@ protected:
 	TVisual2DRenderList visual2DRenders;
 	//
 	LcWidgetRenderDX10* widgetRender;
+	//
+	class LcTiledVisual2DRenderDX10* tiledRender;
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//

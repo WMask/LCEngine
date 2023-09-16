@@ -9,8 +9,15 @@
 #include "Module.h"
 #include "World/Visual.h"
 
-#include <string>
 #include <functional>
+#include <string>
+
+
+struct LcWidgetTextComponent;
+struct LcWidgetButtonComponent;
+struct LcWidgetCheckboxComponent;
+struct LcWidgetClickComponent;
+struct LcWidgetCheckComponent;
 
 
 /** Button state */
@@ -36,38 +43,12 @@ typedef std::function<void()> LcClickHandler;
 /** Widget check handler */
 typedef std::function<void(bool)> LcCheckHandler;
 
-typedef struct LcSpriteTextureComponent LcWidgetTextureComponent;
-
-struct LcWidgetTextComponent;
-struct LcWidgetButtonComponent;
-struct LcWidgetCheckboxComponent;
-struct LcWidgetClickComponent;
-struct LcWidgetCheckComponent;
-
 
 /**
 * Widget interface */
 class GUI_API IWidget : public IVisualBase
 {
 public:
-    void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
-        const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22,
-        LcFontWeight inFontWeight = LcFontWeight::Normal);
-    //
-    void AddTextureComponent(const std::string& texture);
-    //
-    void AddTextureComponent(const LcBytes& inData);
-    //
-    void AddButtonComponent();
-    //
-    void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos);
-    //
-    void AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos,
-        LcVector2 uncheckedHoveredPos, LcVector2 checkedPos, LcVector2 checkedHoveredPos);
-    //
-    void AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin = true);
-    //
-    void AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin = true);
     //
     LcWidgetTextComponent* GetTextComponent() const { return (LcWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
     //
@@ -82,13 +63,18 @@ public:
     LcWidgetCheckComponent* GetCheckHandlerComponent() const { return (LcWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
 
 
+public: // IVisual interface implementation
+    //
+    virtual void Update(float DeltaSeconds, const LcAppContext& context) override;
+
+
 public:
     /**
     * Keyboard key event */
-    virtual void OnKeyboard(int btn, LcKeyState state) = 0;
+    virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) = 0;
     /**
     * Recreate font after World scale change */
-    virtual void RecreateFont() = 0;
+    virtual void RecreateFont(const LcAppContext& context) = 0;
     /**
     * Set disabled state */
     virtual void SetDisabled(bool disabled) = 0;
@@ -107,5 +93,45 @@ public:
     /**
     * Focused state */
     virtual bool HasFocus() const = 0;
+
+};
+
+
+/** Widget helper */
+class GUI_API LcWidgetHelper
+{
+public:
+    LcWidgetHelper(const LcAppContext& inContext) : context(inContext) {}
+
+
+public:
+    /**
+    * Add texture component to the last added sprite or widget */
+    void AddTextureComponent(const std::string& inTexture) const;
+    /**
+    * Add texture component to the last added sprite or widget */
+    void AddTextureComponent(const LcBytes& inData) const;
+    /**
+    * Add text component to the last added widget */
+    void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
+        const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22,
+        LcFontWeight inFontWeight = LcFontWeight::Normal) const;
+    /**
+    * Add button component to the last added widget */
+    void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const;
+    /**
+    * Add checkbox component to the last added widget */
+    void AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos,
+        LcVector2 uncheckedHoveredPos, LcVector2 checkedPos, LcVector2 checkedHoveredPos) const;
+    /**
+    * Add click handler component to the last added widget */
+    void AddClickHandlerComponent(LcClickHandler handler, bool addDefaultButtonSkin = true) const;
+    /**
+    * Add check handler component to the last added widget */
+    void AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultCheckboxSkin = true) const;
+
+
+protected:
+    const LcAppContext& context;
 
 };

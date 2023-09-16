@@ -6,9 +6,16 @@
 
 #pragma once
 
+#include "Core/ScriptSystem.h"
+
 
 #ifndef LUA_EXPORTS
 #define LCLUA_API __declspec (dllimport)
 #else
 #define LCLUA_API __declspec (dllexport)
 #endif
+
+
+/**
+* Lua script system */
+LCLUA_API TScriptSystemPtr GetScriptSystem();

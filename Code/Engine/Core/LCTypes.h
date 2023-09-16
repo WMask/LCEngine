@@ -10,6 +10,8 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+#include <deque>
 
 
 /** vector of unsigned chars */
@@ -85,4 +87,39 @@ struct LcRange
 	inline operator T () const { return value; }
 	//
 	T value;
+};
+
+/** Object creator interface */
+template<class T>
+class ICreator
+{
+public:
+	typedef std::deque<std::shared_ptr<T>> TItemsList;
+
+
+public:
+	virtual T* Add() = 0;
+	//
+	virtual void Remove(T* item) = 0;
+	//
+	virtual const TItemsList& GetList() const = 0;
+	//
+	virtual TItemsList& GetList() = 0;
+
+};
+
+/** Application context */
+struct LcAppContext
+{
+	LcAppContext(class IWorld& inWorld) : world(inWorld), render(nullptr), scripts(nullptr), physics(nullptr) {}
+	//
+	class IWorld* GetWorldPtr() const { return &world; }
+	//
+	class IWorld& world;
+	//
+	class IRenderSystem* render;
+	//
+	class IScriptSystem* scripts;
+	//
+	class IPhysicsWorld* physics;
 };

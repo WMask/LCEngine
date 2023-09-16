@@ -67,21 +67,17 @@ protected:
 class LcSpriteDX10 : public LcSprite
 {
 public:
-	LcSpriteDX10(LcSpriteData inSprite, class LcRenderSystemDX10& inRender) : LcSprite(inSprite), render(inRender), tiledRender(nullptr) {}
-	//
-	~LcSpriteDX10();
-	//
-	class LcRenderSystemDX10& render;
-	//
-	class LcTiledVisual2DRenderDX10* tiledRender;
+	LcSpriteDX10() {}
 	//
 	ComPtr<ID3D10Texture2D> texture;
 	//
 	ComPtr<ID3D10ShaderResourceView1> shaderView;
 
 
-public:// IVisual interface implementation
-	virtual void AddComponent(TVComponentPtr comp) override;
+public:// IVisualBase interface implementation
+	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
+	//
+	virtual void Destroy(const LcAppContext& context) override;
 
 };
 
@@ -91,9 +87,7 @@ public:// IVisual interface implementation
 class LcWidgetDX10 : public LcWidget
 {
 public:
-	LcWidgetDX10(LcWidgetData inSprite, class LcRenderSystemDX10& inRender) : LcWidget(inSprite), render(inRender), font(nullptr) {}
-	//
-	class LcRenderSystemDX10& render;
+	LcWidgetDX10() : font(nullptr) {}
 	//
 	ComPtr<ID3D10Texture2D> texture;
 	//
@@ -103,14 +97,14 @@ public:
 
 
 protected:
-	unsigned short GetFontSize(const struct LcWidgetTextComponent& textComp) const;
+	unsigned short GetFontSize(const struct LcWidgetTextComponent& textComp, const LcAppContext& context) const;
 
 
-public:// IVisual interface implementation
-	virtual void AddComponent(TVComponentPtr comp) override;
+public:// IVisualBase interface implementation
+	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
 
 
 public:// IWidget interface implementation
-	virtual void RecreateFont() override;
+	virtual void RecreateFont(const LcAppContext& context) override;
 
 };

@@ -90,3 +90,8 @@ LcAny LcLuaScriptSystem::RunScriptEx(const std::string& script)
 
 	return result;
 }
+
+TScriptSystemPtr GetScriptSystem()
+{
+	return std::make_shared<LcLuaScriptSystem>();
+}
