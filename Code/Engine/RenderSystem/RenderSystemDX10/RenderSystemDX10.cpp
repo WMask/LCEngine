@@ -10,6 +10,7 @@
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "Application/ApplicationInterface.h"
 #include "World/World.h"
 #include "World/Sprites.h"
@@ -284,7 +285,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	// add widget render
 	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(hWnd));
 	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
-	widgetRender->Setup(nullptr, context);
+	widgetRender->Init(context);
 
 	// init managers
 	texLoader.reset(new LcTextureLoaderDX10());
@@ -306,25 +307,6 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	renderSystemSize = LcSize(width, height);
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
-}
-
-void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
-{
-	auto contextPtr = &context;
-	context.world.GetWorldScale().scaleUpdatedHandler.AddListener([this, contextPtr](LcVector2 newScale)
-	{
-		LC_TRY
-
-		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
-
-		if (contextPtr->world.GetWorldScale().scaleFonts)
-		{
-			auto& widgets = contextPtr->world.GetWidgets();
-			for (auto widget : widgets) widget->RecreateFont(*contextPtr);
-		}
-
-		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
-	});
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -443,7 +425,7 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		d3dDevice->RSSetViewports(1, &viewPort);
 
 		// recreate widget render
-		widgetRender->Setup(nullptr, context);
+		widgetRender->Init(context);
 
 		// update world settings
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
@@ -497,45 +479,21 @@ void LcRenderSystemDX10::RenderWidget(const IWidget* widget, const LcAppContext&
 {
 	LC_TRY
 
-	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid sprite");
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
 
 	if (widgetRender)
 	{
+		if (prevSpriteFeatures != widgetRender->GetFeaturesList() || prevSetupRequested)
+		{
+			prevSetupRequested = false;
+			prevSpriteFeatures = widgetRender->GetFeaturesList();
+			widgetRender->Setup(widget, context);
+		}
+
 		widgetRender->RenderWidget(widget, context);
 	}
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderWidget()") }
-}
-
-void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode, const LcAppContext& context)
-{
-	LC_TRY
-
-	if (widgetRender)
-	{
-		widgetRender->SetRenderMode(mode);
-
-		switch (mode)
-		{
-		case Textures:
-			if (textureRender)
-			{
-				textureRender->Setup(nullptr, context);
-				ForceRenderSetup();
-			}
-			break;
-		case Text:
-			widgetRender->BeginRender();
-			break;
-		}
-	}
-
-	LC_CATCH{ LC_THROW("LcRenderSystemDX10::PreRenderWidgets()") }
-}
-
-void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode, const LcAppContext& context)
-{
-	if (widgetRender) widgetRender->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

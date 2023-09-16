@@ -50,7 +50,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // window resize controls
             auto& widgetHelper = world->GetWidgetHelper();
-            if (world->AddWidget(182, 550, 100, 32))
+            if (world->AddWidget(182, 550, 94, 32))
             {
                 widgetHelper.AddTextComponent(L"Fullscreen", LcDefaults::White4, L"Calibri", 18);
             }

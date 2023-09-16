@@ -7,8 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "World/Sprites.h"
-#include "GUI/Widgets.h"
+#include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 
 
 static const char* tiledSpriteShaderName = "TiledSprite2d.shader";
@@ -159,7 +158,7 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppC
 	// update components
 	if (sprite->HasComponent(EVCType::Texture))
 	{
-		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
+		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
 	}
 

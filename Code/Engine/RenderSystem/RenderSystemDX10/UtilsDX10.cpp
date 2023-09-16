@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "World/Sprites.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
@@ -213,8 +212,8 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
         {
             D3D10_SHADER_RESOURCE_VIEW_DESC1 SRVDesc{};
             SRVDesc.Format = desc.Format;
-            SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-            SRVDesc.Texture2D.MipLevels = 1u;
+            SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+            SRVDesc.Texture2D.MipLevels = 1;
 
             result = device->CreateShaderResourceView1(*texture, &SRVDesc, view);
             if (FAILED(result)) return false;
@@ -266,93 +265,4 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     }
 
     LC_CATCH{ LC_THROW("LcTextureLoaderDX10::ClearCache()") }
-}
-
-void LcSpriteDX10::Destroy(const LcAppContext& context)
-{
-    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-    if (auto tiledRender = renderDX10 ? renderDX10->GetTiledRender() : nullptr)
-    {
-        tiledRender->RemoveTiles(this);
-    }
-}
-
-void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context)
-{
-    LC_TRY
-
-    LcSprite::AddComponent(comp, context);
-
-    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-    auto texComp = GetTextureComponent();
-    if (texComp && renderDX10)
-    {
-        LcSize texSize;
-        bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
-        if (loaded)
-            texComp->texSize = ToF(texSize);
-        else
-            throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
-    }
-
-    LC_CATCH{ LC_THROW("LcSpriteDX10::AddComponent()") }
-}
-
-unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp, const LcAppContext& context) const
-{
-    float scale = 1.0f;
-    if (context.world.GetWorldScale().scaleFonts) scale = context.world.GetWorldScale().scale.y;
-
-    auto fsize = static_cast<float>(textComp.fontSize) * scale;
-    return static_cast<unsigned short>(std::lround(fsize));
-}
-
-void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context)
-{
-    LC_TRY
-
-    LcWidget::AddComponent(comp, context);
-
-    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-    if (!renderDX10)
-        throw std::exception("LcWidgetDX10::AddComponent(): Invalid render");
-
-    if (auto texComp = GetTextureComponent())
-    {
-        LcSize texSize;
-        bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
-        if (loaded)
-            texComp->texSize = ToF(texSize);
-        else
-            throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
-    }
-
-    if (auto textComp = GetTextComponent())
-    {
-        font = renderDX10->GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp, context), textComp->fontWeight);
-        if (!font)
-            throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
-    }
-
-    LC_CATCH{ LC_THROW("LcWidgetDX10::AddComponent()") }
-}
-
-void LcWidgetDX10::RecreateFont(const LcAppContext& context)
-{
-    LC_TRY
-
-    auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-    if (!renderDX10)
-        throw std::exception("LcWidgetDX10::RecreateFont(): Invalid render");
-
-    if (auto textComp = GetTextComponent())
-    {
-        font = renderDX10->GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp, context), textComp->fontWeight);
-        if (!font)
-            throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
-    }
-
-    LC_CATCH{ LC_THROW("LcWidgetDX10::RecreateFont()") }
 }

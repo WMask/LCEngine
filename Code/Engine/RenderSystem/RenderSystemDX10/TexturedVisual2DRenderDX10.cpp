@@ -7,8 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "World/Sprites.h"
-#include "GUI/Widgets.h"
+#include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 
 
 static const char* texturedSpriteShaderName = "TexturedSprite2d.shader";
@@ -186,10 +185,15 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcA
 		d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
 	}
 
+	auto widgetDX10 = static_cast<const LcWidgetDX10*>(widget);
 	if (widget->HasComponent(EVCType::Texture))
 	{
-		const LcWidgetDX10* widgetDX10 = (LcWidgetDX10*)widget;
-		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->shaderView.GetAddressOf());
+		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->spriteTextureSV.GetAddressOf());
+	}
+	else
+	{
+		ID3D10ShaderResourceView* nullSRV[1] = { nullptr };
+		d3dDevice->PSSetShaderResources(0, 1, nullSRV);
 	}
 
 	// update transform
@@ -202,6 +206,22 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcA
 
 	// render sprite
 	d3dDevice->Draw(4, 0);
+
+	if (widgetDX10->textTextureSV)
+	{
+		// set text texture
+		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->textTextureSV.GetAddressOf());
+
+		static LcVector4 defaultUVs[] = { To4(LcVector2(0.0, 0.0)), To4(LcVector2(1.0, 0.0)), To4(LcVector2(1.0, 1.0)), To4(LcVector2(0.0, 1.0)) };
+		d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
+
+		// move to the front of sprite
+		trans.r[2].m128_f32[3] = widget->GetPos().z + 0.01f;
+		d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
+
+		// render text texture
+		d3dDevice->Draw(4, 0);
+	}
 }
 
 bool LcTexturedVisual2DRenderDX10::Supports(const TVFeaturesList& features) const

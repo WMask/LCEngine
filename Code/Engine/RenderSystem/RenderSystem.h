@@ -66,9 +66,6 @@ public:
 };
 
 
-/** Widget render mode */
-enum EWRMode { Textures, Text };
-
 /**
 * Render system interface */
 class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
@@ -86,6 +83,8 @@ public:// IRenderSystem interface implementation
 	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override {}
+	//
+	virtual void Subscribe(const LcAppContext& context) {}
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
@@ -105,12 +104,6 @@ protected:
 	/**
 	* Render widget */
 	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
-	/**
-	* Pre render widgets */
-	virtual void PreRenderWidgets(EWRMode mode, const LcAppContext& context) = 0;
-	/**
-	* Post render widgets */
-	virtual void PostRenderWidgets(EWRMode mode, const LcAppContext& context) = 0;
 
 
 protected:
@@ -133,9 +126,6 @@ public:
 	/**
 	* Setup render state */
 	virtual void Setup(const IVisual* visual, const LcAppContext& context) = 0;
-	/**
-	* Add font */
-	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
 	/**
 	* Render sprite */
 	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;

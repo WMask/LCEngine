@@ -33,46 +33,42 @@ public:
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
-	LcWidgetRenderDX10(HWND hWndPtr) : hWnd(hWndPtr), renderMode(EWRMode::Textures), features{EVCType::Texture} {}
+	LcWidgetRenderDX10(HWND hWndPtr) : hWnd(hWndPtr), features{EVCType::Texture} {}
 	//
 	~LcWidgetRenderDX10();
 	//
+	void Init(const LcAppContext& context);
+	//
 	void Shutdown();
 	//
-	bool RemoveFont(const ITextFont* font);
+	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font,
+		ID2D1RenderTarget* target, const LcAppContext& context);
 	//
-	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font, const LcAppContext& context);
-	//
-	void BeginRender();
-	//
-	long EndRender();
+	void CreateTextureAndRenderTarget(class LcWidgetDX10& widget, const LcAppContext& context);
 	//
 	inline const TVFeaturesList& GetFeaturesList() const { return features; }
 
 
-public:// IWidgetRender interface implementation
+public: // IWidgetRender interface implementation
 	//
-	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
+	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) override;
+	//
+	virtual bool RemoveFont(const ITextFont* font) override;
+
+
+public: // IVisual2DRender interface implementation
 	//
 	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
 	virtual void RenderWidget(const IWidget* widget, const LcAppContext& context) override;
-	//
-	virtual EWRMode GetRenderMode() const override { return renderMode; }
-	//
-	virtual void SetRenderMode(EWRMode inRenderMode) override { renderMode = inRenderMode; }
 
 
 protected:
 	HWND hWnd;
 	//
-	EWRMode renderMode;
-	//
 	TVFeaturesList features;
 	//
 	ComPtr<ID2D1Factory> d2dFactory;
-	//
-	ComPtr<ID2D1RenderTarget> renderTarget;
 	//
 	ComPtr<IDWriteFactory> dwriteFactory;
 	//

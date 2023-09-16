@@ -85,8 +85,6 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Create(void* windowHandle, LcWinMode mode, bool inVSync, const LcAppContext& context) override;
 	//
-	virtual void Subscribe(const LcAppContext& context) override;
-	//
 	virtual void Shutdown() override;
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
@@ -111,10 +109,6 @@ protected:// LcRenderSystemBase interface implementation
 	virtual void RenderSprite(const ISprite* sprite, const LcAppContext& context) override;
 	//
 	virtual void RenderWidget(const IWidget* widget, const LcAppContext& context) override;
-	//
-	virtual void PreRenderWidgets(EWRMode mode, const LcAppContext& context) override;
-	//
-	virtual void PostRenderWidgets(EWRMode mode, const LcAppContext& context) override;
 
 
 public:// IDX10RenderDevice interface implementation
