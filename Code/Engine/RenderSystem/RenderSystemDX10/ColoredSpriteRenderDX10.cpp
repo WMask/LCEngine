@@ -15,16 +15,18 @@ struct DX10COLOREDSPRITEDATA
 	unsigned int index;	// vertex index
 };
 
-LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
+LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(const LcAppContext& context)
 {
 	vs = nullptr;
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
-	auto d3dDevice = renderDevice.GetD3D10Device();
+
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10(): Invalid arguments");
 
-	auto shaderCode = renderDevice.GetShaderCode(coloredSpriteShaderName);
+	auto shaderCode = render->GetShaderCode(coloredSpriteShaderName);
 
 	ComPtr<ID3D10Blob> vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, vertexBlob.GetAddressOf(), NULL)))
@@ -89,9 +91,10 @@ LcColoredSpriteRenderDX10::~LcColoredSpriteRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcColoredSpriteRenderDX10::Setup(const IVisual* visual)
+void LcColoredSpriteRenderDX10::Setup(const IVisual* visual, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcColoredSpriteRenderDX10::Setup(): Invalid render device");
 
 	d3dDevice->VSSetShader(vs);
@@ -104,12 +107,12 @@ void LcColoredSpriteRenderDX10::Setup(const IVisual* visual)
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
+void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transBuffer = renderDevice.GetTransformBuffer();
-	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	auto worldScale = renderDevice.GetWorldScale();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
+	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
+	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite)
 		throw std::exception("LcColoredSpriteRenderDX10::RenderSprite(): Invalid render params");
 
@@ -128,8 +131,10 @@ void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
+	LcVector2 worldScale2D(context.world.GetWorldScale().scale);
+	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
-	LcVector2 spriteSize = sprite->GetSize() * To2(worldScale);
+	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

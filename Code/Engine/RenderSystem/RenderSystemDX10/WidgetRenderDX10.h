@@ -33,8 +33,7 @@ public:
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
-	LcWidgetRenderDX10(class IRenderDeviceDX10& devicePtr, HWND hWndPtr) : textureRender(nullptr),
-		device(devicePtr), hWnd(hWndPtr), renderMode(EWRMode::Textures), features{EVCType::Texture} {}
+	LcWidgetRenderDX10(HWND hWndPtr) : hWnd(hWndPtr), renderMode(EWRMode::Textures), features{EVCType::Texture} {}
 	//
 	~LcWidgetRenderDX10();
 	//
@@ -42,13 +41,11 @@ public:
 	//
 	bool RemoveFont(const ITextFont* font);
 	//
-	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font);
+	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font, const LcAppContext& context);
 	//
 	void BeginRender();
 	//
 	long EndRender();
-	//
-	inline IVisual2DRender* GetTextureRender() const { return textureRender; }
 	//
 	inline const TVFeaturesList& GetFeaturesList() const { return features; }
 
@@ -57,9 +54,9 @@ public:// IWidgetRender interface implementation
 	//
 	const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
 	//
-	virtual void Setup(const IVisual* visual) override;
+	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderWidget(const IWidget* widget) override;
+	virtual void RenderWidget(const IWidget* widget, const LcAppContext& context) override;
 	//
 	virtual EWRMode GetRenderMode() const override { return renderMode; }
 	//
@@ -72,10 +69,6 @@ protected:
 	EWRMode renderMode;
 	//
 	TVFeaturesList features;
-	//
-	class IRenderDeviceDX10& device;
-	//
-	IVisual2DRender* textureRender;
 	//
 	ComPtr<ID2D1Factory> d2dFactory;
 	//

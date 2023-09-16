@@ -202,13 +202,13 @@ void LcWindowsApplication::OnUpdate()
 
         if (renderSystem && world)
         {
-            renderSystem->Update(deltaFloat, *world.get());
-            renderSystem->Render(*world.get());
+            renderSystem->Update(deltaFloat, context);
+            renderSystem->Render(context);
         }
 
         if (guiManager)
         {
-            guiManager->Update(deltaFloat, *world.get());
+            guiManager->Update(deltaFloat, context);
         }
 
         if (updateHandler)
@@ -258,7 +258,6 @@ LcMouseBtn MapMouseKeys(WPARAM wParam)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LcWin32Handles* handles = reinterpret_cast<LcWin32Handles*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-    IWorld* world = (handles && handles->app) ? handles->app->GetWorld() : nullptr;
     int x = GET_X_LPARAM(lParam);
     int y = GET_Y_LPARAM(lParam);
 
@@ -275,11 +274,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MENUCHAR:
         return MNC_CLOSE << 16; // disable exit fullscreen mode sound
     case WM_SIZE:
-        if (handles && handles->appContext && handles->appContext->render && world)
+        if (handles && handles->appContext && handles->appContext->render)
         {
             int width = LOWORD(lParam);
             int height = HIWORD(lParam);
-            handles->appContext->render->Resize(width, height, *world);
+            handles->appContext->render->Resize(width, height, *handles->appContext);
         }
         break;
     case WM_KEYDOWN:

@@ -76,26 +76,26 @@ void LcRenderSystemBase::Render(const LcAppContext& context)
 
     for (const auto& sprite : sprites)
     {
-        if (sprite->IsVisible()) RenderSprite(sprite.get());
+        if (sprite->IsVisible()) RenderSprite(sprite.get(), context);
     }
 
-    PreRenderWidgets(EWRMode::Textures);
+    PreRenderWidgets(EWRMode::Textures, context);
 
     for (const auto& widget : widgets)
     {
-        if (widget->IsVisible()) RenderWidget(widget.get());
+        if (widget->IsVisible()) RenderWidget(widget.get(), context);
     }
 
-    PostRenderWidgets(EWRMode::Textures);
+    PostRenderWidgets(EWRMode::Textures, context);
 
-    PreRenderWidgets(EWRMode::Text);
+    PreRenderWidgets(EWRMode::Text, context);
 
     for (const auto& widget : widgets)
     {
-        if (widget->IsVisible()) RenderWidget(widget.get());
+        if (widget->IsVisible()) RenderWidget(widget.get(), context);
     }
 
-    PostRenderWidgets(EWRMode::Text);
+    PostRenderWidgets(EWRMode::Text, context);
 
     LC_CATCH{ LC_THROW("LcRenderSystemBase::Render()") }
 }

@@ -129,11 +129,13 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
     return false;
 }
 
-void LcWidgetRenderDX10::Setup(const IVisual* visual)
+void LcWidgetRenderDX10::Setup(const IVisual* visual, const LcAppContext& context)
 {
     LC_TRY
 
-    if (!hWnd || !device.GetD3D10SwapChain()) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
+    auto render = static_cast<LcRenderSystemDX10*>(context.render);
+    auto swapChain = render ? render->GetD3D10SwapChain() : nullptr;
+    if (!hWnd || !swapChain) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid arguments");
 
     if (d2dFactory) Shutdown();
 
@@ -143,7 +145,7 @@ void LcWidgetRenderDX10::Setup(const IVisual* visual)
     }
 
     ComPtr<IDXGISurface1> backBuffer;
-    if (FAILED(device.GetD3D10SwapChain()->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
+    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
     {
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot get back buffer");
     }
@@ -164,24 +166,15 @@ void LcWidgetRenderDX10::Setup(const IVisual* visual)
         throw std::exception("LcWidgetRenderDX10::Setup(): Cannot create DirectWrite factory");
     }
 
-    auto& renders = device.GetVisual2DRenderList();
-    for (auto& render : renders)
-    {
-        if (render->Supports(features))
-        {
-            textureRender = render.get();
-            break;
-        }
-    }
-
     LC_CATCH{ LC_THROW("LcWidgetRenderDX10::Setup()") }
 }
 
-void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
+void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr, const LcAppContext& context)
 {
     LC_TRY
 
-    const LcWidgetDX10* widget = (LcWidgetDX10*)widgetPtr;
+    const LcWidgetDX10* widget = static_cast<const LcWidgetDX10*>(widgetPtr);
+    LcRenderSystemDX10* render = static_cast<LcRenderSystemDX10*>(context.render);
 
     switch (renderMode)
     {
@@ -189,7 +182,7 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
         {
             if (auto button = widget->GetTextureComponent())
             {
-                textureRender->RenderWidget(widget);
+                render->GetTextureRender()->RenderWidget(widget, context);
             }
         }
         break;
@@ -206,7 +199,7 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
 
             if (auto text = widget->GetTextComponent())
             {
-                RenderText(text->text, rect, text->textColor, widget->font);
+                RenderText(text->text, rect, text->textColor, widget->font, context);
             }
         }
         break;
@@ -215,7 +208,7 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widgetPtr)
     LC_CATCH{ LC_THROW("LcWidgetRenderDX10::RenderWidget()") }
 }
 
-void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font)
+void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font, const LcAppContext& context)
 {
     LC_TRY
 
@@ -223,7 +216,7 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
     if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
     auto scale = LcDefaults::OneVec2;
-    if (device.GetWorldScaleFonts()) scale = To2(device.GetWorldScale());
+    if (context.world.GetWorldScale().scaleFonts) scale = context.world.GetWorldScale().scale;
 
     D2D1_RECT_F frect{
         (rect.left + 0.5f) * scale.x,

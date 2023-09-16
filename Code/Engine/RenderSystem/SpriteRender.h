@@ -15,7 +15,7 @@
 class ISpriteRender : public IVisual2DRender
 {
 public:
-	virtual void RenderWidget(const class IWidget* widget) override {}
+	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) override {}
 
 
 protected:

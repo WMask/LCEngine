@@ -18,16 +18,18 @@ struct DX10TEXTUREDSPRITEDATA
 	unsigned int index;	// vertex index
 };
 
-LcTexturedVisual2DRenderDX10::LcTexturedVisual2DRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
+LcTexturedVisual2DRenderDX10::LcTexturedVisual2DRenderDX10(const LcAppContext& context)
 {
 	vs = nullptr;
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
-	auto d3dDevice = renderDevice.GetD3D10Device();
+
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcTexturedVisual2DRenderDX10(): Invalid arguments");
 
-	auto shaderCode = renderDevice.GetShaderCode(texturedSpriteShaderName);
+	auto shaderCode = render->GetShaderCode(texturedSpriteShaderName);
 
 	ComPtr<ID3D10Blob> vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, vertexBlob.GetAddressOf(), NULL)))
@@ -92,9 +94,10 @@ LcTexturedVisual2DRenderDX10::~LcTexturedVisual2DRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcTexturedVisual2DRenderDX10::Setup(const IVisual* visual)
+void LcTexturedVisual2DRenderDX10::Setup(const IVisual* visual, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcTexturedVisual2DRenderDX10::Setup(): Invalid render device");
 
 	d3dDevice->VSSetShader(vs);
@@ -107,13 +110,13 @@ void LcTexturedVisual2DRenderDX10::Setup(const IVisual* visual)
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
+void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transBuffer = renderDevice.GetTransformBuffer();
-	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	auto uvsBuffer = renderDevice.GetCustomUvBuffer();
-	auto worldScale = renderDevice.GetWorldScale();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
+	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
+	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
+	auto uvsBuffer = render ? render->GetCustomUvBuffer() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !sprite)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
@@ -148,8 +151,10 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	}
 
 	// update transform
+	LcVector2 worldScale2D(context.world.GetWorldScale().scale);
+	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
-	LcVector2 spriteSize = sprite->GetSize() * To2(worldScale);
+	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
@@ -157,13 +162,13 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	d3dDevice->Draw(4, 0);
 }
 
-void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
+void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transBuffer = renderDevice.GetTransformBuffer();
-	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	auto uvsBuffer = renderDevice.GetCustomUvBuffer();
-	auto worldScale = renderDevice.GetWorldScale();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
+	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
+	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
+	auto uvsBuffer = render ? render->GetCustomUvBuffer() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !widget)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderWidget(): Invalid render params");
 
@@ -188,8 +193,10 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget)
 	}
 
 	// update transform
+	LcVector2 worldScale2D(context.world.GetWorldScale().scale);
+	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 widgetPos = widget->GetPos() * worldScale;
-	LcVector2 widgetSize = widget->GetSize() * To2(worldScale);
+	LcVector2 widgetSize = widget->GetSize() * worldScale2D;
 	LcMatrix4 trans = TransformMatrix(widgetPos, widgetSize);
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

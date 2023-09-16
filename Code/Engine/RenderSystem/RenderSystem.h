@@ -101,16 +101,16 @@ public:// IRenderSystem interface implementation
 protected:
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;
 	/**
 	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget) = 0;
+	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
 	/**
 	* Pre render widgets */
-	virtual void PreRenderWidgets(EWRMode mode) = 0;
+	virtual void PreRenderWidgets(EWRMode mode, const LcAppContext& context) = 0;
 	/**
 	* Post render widgets */
-	virtual void PostRenderWidgets(EWRMode mode) = 0;
+	virtual void PostRenderWidgets(EWRMode mode, const LcAppContext& context) = 0;
 
 
 protected:
@@ -132,16 +132,16 @@ class IVisual2DRender
 public:
 	/**
 	* Setup render state */
-	virtual void Setup(const IVisual* visual) = 0;
+	virtual void Setup(const IVisual* visual, const LcAppContext& context) = 0;
 	/**
 	* Add font */
 	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;
 	/**
 	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget) = 0;
+	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
 	/**
 	* Checks support for the feature */
 	virtual bool Supports(const TVFeaturesList& features) const = 0;

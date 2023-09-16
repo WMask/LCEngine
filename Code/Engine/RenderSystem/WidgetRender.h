@@ -15,7 +15,7 @@
 class IWidgetRender : public IVisual2DRender
 {
 public:
-	virtual void RenderSprite(const class ISprite* sprite) override {}
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) override {}
 	//
 	virtual EWRMode GetRenderMode() const = 0;
 	//

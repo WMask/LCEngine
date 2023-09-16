@@ -273,17 +273,18 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	d3dDevice->RSSetState(rasterizerState.Get());
 
 	// add sprite renders
-	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
-	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
-	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(*this));
+	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(context));
+	textureRender = static_cast<ISpriteRender*>(visual2DRenders.back().get());
+	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(context));
+	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(context));
 	tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(visual2DRenders.back().get());
-	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
-	visual2DRenders.back()->Setup(nullptr);
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(context));
+	visual2DRenders.back()->Setup(nullptr, context);
 
 	// add widget render
-	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(*this, hWnd));
+	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(hWnd));
 	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
-	widgetRender->Setup(nullptr);
+	widgetRender->Setup(nullptr, context);
 
 	// init managers
 	texLoader.reset(new LcTextureLoaderDX10());
@@ -442,7 +443,7 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		d3dDevice->RSSetViewports(1, &viewPort);
 
 		// recreate widget render
-		widgetRender->Setup(nullptr);
+		widgetRender->Setup(nullptr, context);
 
 		// update world settings
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
@@ -467,7 +468,7 @@ void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 	if (swapChain) swapChain->SetFullscreenState((winMode == LcWinMode::Fullscreen), nullptr);
 }
 
-void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
+void LcRenderSystemDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -481,10 +482,10 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			{
 				prevSetupRequested = false;
 				prevSpriteFeatures = sprite->GetFeaturesList();
-				render->Setup(sprite);
+				render->Setup(sprite, context);
 			}
 
-			render->RenderSprite(sprite);
+			render->RenderSprite(sprite, context);
 			break;
 		}
 	}
@@ -492,7 +493,7 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderSprite()") }
 }
 
-void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
+void LcRenderSystemDX10::RenderWidget(const IWidget* widget, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -500,13 +501,13 @@ void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
 
 	if (widgetRender)
 	{
-		widgetRender->RenderWidget(widget);
+		widgetRender->RenderWidget(widget, context);
 	}
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderWidget()") }
 }
 
-void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
+void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -517,9 +518,9 @@ void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 		switch (mode)
 		{
 		case Textures:
-			if (auto textureRender = widgetRender->GetTextureRender())
+			if (textureRender)
 			{
-				textureRender->Setup(nullptr);
+				textureRender->Setup(nullptr, context);
 				ForceRenderSetup();
 			}
 			break;
@@ -532,7 +533,7 @@ void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::PreRenderWidgets()") }
 }
 
-void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode)
+void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode, const LcAppContext& context)
 {
 	if (widgetRender) widgetRender->EndRender();
 }

@@ -55,12 +55,6 @@ public:
 	* Force sprite render setup. Updates shaders and buffers */
 	virtual void ForceRenderSetup() = 0;
 	/**
-	* Get world scale */
-	virtual LcVector3 GetWorldScale() const = 0;
-	/**
-	* Get world scale fonts option */
-	virtual bool GetWorldScaleFonts() const = 0;
-	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 
@@ -79,6 +73,8 @@ public:
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 	//
 	class LcTiledVisual2DRenderDX10* GetTiledRender() { return tiledRender; }
+	//
+	class ISpriteRender* GetTextureRender() { return textureRender; }
 	//
 	class LcWidgetRenderDX10* GetWidgetRender() { return widgetRender; }
 
@@ -112,13 +108,13 @@ public:// IRenderSystem interface implementation
 
 protected:// LcRenderSystemBase interface implementation
 	//
-	virtual void RenderSprite(const ISprite* sprite) override;
+	virtual void RenderSprite(const ISprite* sprite, const LcAppContext& context) override;
 	//
-	virtual void RenderWidget(const IWidget* widget) override;
+	virtual void RenderWidget(const IWidget* widget, const LcAppContext& context) override;
 	//
-	virtual void PreRenderWidgets(EWRMode mode) override;
+	virtual void PreRenderWidgets(EWRMode mode, const LcAppContext& context) override;
 	//
-	virtual void PostRenderWidgets(EWRMode mode) override;
+	virtual void PostRenderWidgets(EWRMode mode, const LcAppContext& context) override;
 
 
 public:// IDX10RenderDevice interface implementation
@@ -138,10 +134,6 @@ public:// IDX10RenderDevice interface implementation
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
 	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
-	//
-	virtual LcVector3 GetWorldScale() const override { return worldScale; }
-	//
-	virtual bool GetWorldScaleFonts() const override { return worldScaleFonts; }
 	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
@@ -180,6 +172,8 @@ protected:
 	LcWidgetRenderDX10* widgetRender;
 	//
 	class LcTiledVisual2DRenderDX10* tiledRender;
+	//
+	class ISpriteRender* textureRender;
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//

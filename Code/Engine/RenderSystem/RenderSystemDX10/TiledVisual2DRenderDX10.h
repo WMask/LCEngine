@@ -26,7 +26,7 @@ class LcTiledVisual2DRenderDX10 : public ISpriteRender
 public:
 	/**
 	* Constructor */
-	LcTiledVisual2DRenderDX10(IRenderDeviceDX10& renderDevice);
+	LcTiledVisual2DRenderDX10(const LcAppContext& context);
 	/**
 	* Destructor */
 	~LcTiledVisual2DRenderDX10();
@@ -37,15 +37,14 @@ public:
 
 public:// IVisual2DRender interface implementation
 	//
-	virtual void Setup(const IVisual* visual) override;
+	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderSprite(const class ISprite* sprite) override;
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) override;
 	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 
 
 protected:
-	IRenderDeviceDX10& renderDevice;
 	//
 	LcTileBuffersList vertexBuffers;
 	//
