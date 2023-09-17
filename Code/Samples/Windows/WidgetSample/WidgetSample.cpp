@@ -25,15 +25,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto world = app->GetWorld();
 
             auto& spriteHelper = world->GetSpriteHelper();
-            if (world->AddSprite(500, 400, LcLayers::Z1, 200, 200))
+            if (world->AddSprite(500, 400, LcLayers::Z2, 200, 200))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            auto& widgetHelper = world->GetWidgetHelper();
-            if (world->AddWidget(500, 350, 200, 100))
+            if (world->AddSprite(500, 340, LcLayers::Z1, 180, 60))
             {
-                widgetHelper.AddTextComponent(L"Label Text", LcDefaults::White4, L"Calibri", 30);
+                spriteHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
+            }
+
+            auto& widgetHelper = world->GetWidgetHelper();
+            if (world->AddWidget(500, 340, 200, 50))
+            {
+                widgetHelper.AddTextComponent(L"Label Text", LcDefaults::Black4, L"Calibri", 30);
             }
 
             if (world->AddWidget(500, 400, 32, 32))
