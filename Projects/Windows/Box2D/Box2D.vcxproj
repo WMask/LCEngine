@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Box2D\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Box2D\build\bin\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Box2D\src\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Box2D\src\build\bin\Debug;$(LibraryPath)</LibraryPath>
     <TargetName>Lc$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
