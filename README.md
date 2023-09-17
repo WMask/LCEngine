@@ -3,11 +3,6 @@ LC Engine
 
 Welcome to the LCEngine source code!
 
-**Languages:**
-- C++17
-- HLSL
-- Lua
-
 **Features:**
 - DirectX 10 render system
 - DirectWrite text rendering
@@ -24,7 +19,7 @@ Welcome to the LCEngine source code!
 
 Prerequisites: **Visual Studio 2022**
 
-1. Download LCEngine from GitHub.
+1. Download **LCEngine** from GitHub.
 2. Put Lua 5.4.6 sources and libs to **Code/Engine/Lua/src**.
 3. Put nlohmann's Json sources to **Code/Engine/Json**.
 4. Put Box2D source to **Code/Engine/Box2D**. Build it.
