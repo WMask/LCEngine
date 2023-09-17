@@ -188,7 +188,7 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcA
 	auto widgetDX10 = static_cast<const LcWidgetDX10*>(widget);
 	if (widget->HasComponent(EVCType::Texture))
 	{
-		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->spriteTextureSV.GetAddressOf());
+		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&widgetDX10->spriteTextureSV);
 	}
 	else
 	{

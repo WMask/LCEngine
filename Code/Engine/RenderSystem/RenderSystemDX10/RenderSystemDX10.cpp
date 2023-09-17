@@ -283,7 +283,8 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	visual2DRenders.back()->Setup(nullptr, context);
 
 	// add widget render
-	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(hWnd));
+	float dpi = (float)GetDpiForWindow(hWnd);
+	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(dpi));
 	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
 	widgetRender->Init(context);
 
@@ -294,7 +295,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	context.world.GetCamera().Set(cameraPos, cameraTarget);
 	worldScaleFonts = context.world.GetWorldScale().scaleFonts;
 
-	// add sprite factories
+	// add factories
 	LcWorld& worldRef = static_cast<LcWorld&>(context.world);
 	worldRef.SetSpriteLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategyDX10>());
 	worldRef.SetWidgetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategyDX10>());
@@ -330,6 +331,25 @@ void LcRenderSystemDX10::Shutdown()
 	renderTargetView.Reset();
 	swapChain.Reset();
 	d3dDevice.Reset();
+}
+
+void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
+{
+	auto contextPtr = &context;
+	context.world.GetWorldScale().scaleUpdatedHandler.AddListener([this, contextPtr](LcVector2 newScale)
+	{
+		LC_TRY
+
+		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
+
+		if (contextPtr->world.GetWorldScale().scaleFonts)
+		{
+			auto& widgets = contextPtr->world.GetWidgets();
+			for (auto widget : widgets) widget->RecreateFont(*contextPtr);
+		}
+
+		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+	});
 }
 
 void LcRenderSystemDX10::Update(float deltaSeconds, const LcAppContext& context)

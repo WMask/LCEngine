@@ -87,6 +87,8 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Shutdown() override;
 	//
+	virtual void Subscribe(const LcAppContext& context);
+	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) override;

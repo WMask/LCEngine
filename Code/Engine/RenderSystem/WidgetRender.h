@@ -17,7 +17,7 @@ class IWidgetRender : public IVisual2DRender
 public:
 	/**
 	* Add font */
-	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
+	virtual const struct ITextFont* AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
 	/**
 	* Remove font */
 	virtual bool RemoveFont(const ITextFont* font) = 0;

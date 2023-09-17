@@ -33,7 +33,7 @@ public:
 class LcWidgetRenderDX10 : public IWidgetRender
 {
 public:
-	LcWidgetRenderDX10(HWND hWndPtr) : hWnd(hWndPtr), features{EVCType::Texture} {}
+	LcWidgetRenderDX10(float inDpi) : dpi(inDpi), features{EVCType::Texture} {}
 	//
 	~LcWidgetRenderDX10();
 	//
@@ -41,17 +41,17 @@ public:
 	//
 	void Shutdown();
 	//
-	void RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font,
+	void RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, const ITextFont* font,
 		ID2D1RenderTarget* target, const LcAppContext& context);
 	//
-	void CreateTextureAndRenderTarget(class LcWidgetDX10& widget, const LcAppContext& context);
+	void CreateTextureAndRenderTarget(class LcWidgetDX10& widget, LcVector2 scale, const LcAppContext& context);
 	//
 	inline const TVFeaturesList& GetFeaturesList() const { return features; }
 
 
 public: // IWidgetRender interface implementation
 	//
-	virtual const ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) override;
+	virtual const ITextFont* AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) override;
 	//
 	virtual bool RemoveFont(const ITextFont* font) override;
 
@@ -64,8 +64,6 @@ public: // IVisual2DRender interface implementation
 
 
 protected:
-	HWND hWnd;
-	//
 	TVFeaturesList features;
 	//
 	ComPtr<ID2D1Factory> d2dFactory;
@@ -73,5 +71,7 @@ protected:
 	ComPtr<IDWriteFactory> dwriteFactory;
 	//
 	std::map<std::wstring, std::shared_ptr<ITextFont>> fonts;
+	//
+	float dpi;
 
 };

@@ -44,11 +44,11 @@ public:// IVisualBase interface implementation
 class LcWidgetDX10 : public LcWidget
 {
 public:
-	LcWidgetDX10() : font(nullptr) {}
+	LcWidgetDX10() : spriteTexture(nullptr), spriteTextureSV(nullptr), font(nullptr) {}
 	//
-	ComPtr<ID3D10Texture2D> spriteTexture;
+	ID3D10Texture2D* spriteTexture;
 	//
-	ComPtr<ID3D10ShaderResourceView1> spriteTextureSV;
+	ID3D10ShaderResourceView1* spriteTextureSV;
 	//
 	ComPtr<ID3D10Texture2D> textTexture;
 	//
@@ -61,9 +61,13 @@ public:
 
 public: // IVisualBase interface implementation
 	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
+	//
+	virtual void RecreateFont(const LcAppContext& context) override;
 
 
 protected:
 	void RedrawText(struct ID3D10Device1* d3dDevice, class LcWidgetRenderDX10* widgetRender, const LcAppContext& context);
+	//
+	float GetFontSize(const LcWidgetTextComponent& textComp, const LcAppContext& context) const;
 
 };

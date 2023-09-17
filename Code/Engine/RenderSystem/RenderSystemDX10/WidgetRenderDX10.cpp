@@ -13,17 +13,6 @@
 #include <sstream>
 
 
-LcWidgetRenderDX10::~LcWidgetRenderDX10()
-{
-    Shutdown();
-}
-
-void LcWidgetRenderDX10::Shutdown()
-{
-    dwriteFactory.Reset();
-    d2dFactory.Reset();
-}
-
 DWRITE_FONT_WEIGHT ConvertDWeight(LcFontWeight weight)
 {
     switch (weight)
@@ -41,7 +30,7 @@ struct LC_FONT_DATA
     //
     LcFontWeight fontWeight = LcFontWeight::Normal;
     //
-    unsigned short fontSize = 0;
+    float fontSize = 0.0f;
     //
     ComPtr<IDWriteTextFormat> font;
 };
@@ -54,11 +43,11 @@ inline bool operator==(const LC_FONT_DATA& a, const LC_FONT_DATA& b)
 struct LcTextFontDX10 : public ITextFontDX10
 {
 public:
-    LcTextFontDX10(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight, IDWriteFactory* dwriteFactory)
+    LcTextFontDX10(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight, IDWriteFactory* dwriteFactory)
     {
         LC_TRY
 
-        if (!dwriteFactory) throw std::exception("LcTextFont(): Invalid DWrite factory");
+            if (!dwriteFactory) throw std::exception("LcTextFont(): Invalid DWrite factory");
 
         data.fontName = fontName;
         data.fontSize = fontSize;
@@ -97,7 +86,19 @@ protected:
     LC_FONT_DATA data;
 };
 
-const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight)
+
+LcWidgetRenderDX10::~LcWidgetRenderDX10()
+{
+    Shutdown();
+}
+
+void LcWidgetRenderDX10::Shutdown()
+{
+    dwriteFactory.Reset();
+    d2dFactory.Reset();
+}
+
+const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight)
 {
     std::shared_ptr<LcTextFontDX10> newFont;
 
@@ -135,7 +136,7 @@ void LcWidgetRenderDX10::Init(const LcAppContext& context)
 
     auto render = static_cast<LcRenderSystemDX10*>(context.render);
     auto swapChain = render ? render->GetD3D10SwapChain() : nullptr;
-    if (!hWnd || !swapChain) throw std::exception("LcWidgetRenderDX10::Init(): Invalid arguments");
+    if (!swapChain) throw std::exception("LcWidgetRenderDX10::Init(): Invalid swap chain");
 
     if (d2dFactory) Shutdown();
 
@@ -177,7 +178,7 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widget, const LcAppContext&
     textureRender->RenderWidget(widget, context);
 }
 
-void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rect, const LcColor4& color, const ITextFont* font,
+void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, const ITextFont* font,
     ID2D1RenderTarget* target, const LcAppContext& context)
 {
     LC_TRY
@@ -199,7 +200,7 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, const LcRectf& rec
     LC_CATCH{ LC_THROW("LcWidgetRenderDX10::RenderText()") }
 }
 
-void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, const LcAppContext& context)
+void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, LcVector2 scale, const LcAppContext& context)
 {
     auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
     auto d3dDevice = renderDX10 ? renderDX10->GetD3D10Device() : nullptr;
@@ -211,8 +212,8 @@ void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, cons
     texDesc.SampleDesc.Count = 1;
     texDesc.BindFlags = D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
     texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    texDesc.Width = static_cast<UINT>(widget.GetSize().x + 0.01f);
-    texDesc.Height = static_cast<UINT>(widget.GetSize().y + 0.01f);
+    texDesc.Width = static_cast<UINT>(widget.GetSize().x * scale.x + 0.01f);
+    texDesc.Height = static_cast<UINT>(widget.GetSize().y * scale.y + 0.01f);
 
     if (FAILED(d3dDevice->CreateTexture2D(&texDesc, NULL, widget.textTexture.GetAddressOf())))
     {
@@ -235,7 +236,6 @@ void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, cons
         throw std::exception("LcWidgetRenderDX10::CreateTextureAndRenderTarget(): Cannot create text surface");
     }
 
-    float dpi = (float)GetDpiForWindow(hWnd);
     D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
         D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpi, dpi);
 
