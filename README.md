@@ -22,13 +22,15 @@ Welcome to the LCEngine source code!
 ----------------
 **Windows**
 
-Prerequisites: Visual Studio 2022
+Prerequisites: **Visual Studio 2022**
 
 1. Download LCEngine from GitHub.
 2. Put Lua 5.4.6 sources and libs to **Code/Engine/Lua/src**.
 3. Put nlohmann's Json sources to **Code/Engine/Json**.
-4. Put Box2D source to **Code/Engine/Box2D**. Build it. Remove all Box2D files and folders except of: **build** and **include**.
-5. Open **Projects/Windows/LCEngine.sln**. Build project.
+4. Put Box2D source to **Code/Engine/Box2D**. Build it.
+5. Remove all Box2D files and folders except of: **build** and **include**.
+6. Open **Projects/Windows/LCEngine.sln**. Build all projects multiple times to create all libs.
+7. Select HelloWorld project as startup. Start.
 
 **Hello World**
 ---------------
