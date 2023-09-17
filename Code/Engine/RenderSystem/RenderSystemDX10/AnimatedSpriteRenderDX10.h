@@ -16,25 +16,22 @@
 class LcAnimatedSpriteRenderDX10 : public ISpriteRender
 {
 public:
-	/**
-	* Constructor */
-	LcAnimatedSpriteRenderDX10(IRenderDeviceDX10& renderDevice);
-	/**
-	* Destructor */
+	//
+	LcAnimatedSpriteRenderDX10(const LcAppContext& context);
+	//
 	~LcAnimatedSpriteRenderDX10();
 
 
 public:// IVisual2DRender interface implementation
 	//
-	virtual void Setup(const IVisual* visual) override;
+	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderSprite(const ISprite* sprite) override;
+	virtual void RenderSprite(const ISprite* sprite, const LcAppContext& context) override;
 	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 
 
 protected:
-	IRenderDeviceDX10& renderDevice;
 	//
 	ID3D10Buffer* vertexBuffer;
 	//

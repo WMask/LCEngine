@@ -14,6 +14,7 @@
 #include "GUI/Module.h"
 #include "World/Module.h"
 #include "RenderSystem/Module.h"
+#include "Core/ScriptSystem.h"
 #include "Core/LCTypes.h"
 #include "Core/Module.h"
 
@@ -41,9 +42,18 @@ typedef std::function<void(LcMouseBtn, LcKeyState, float, float, class IApplicat
 class APPLICATION_API IApplication
 {
 public:
+	//
+	IApplication() {}
+	//
+	IApplication(const IApplication&) = delete;
+	//
+	IApplication& operator=(const IApplication&) = delete;
+
+
+public:
 	/**
 	* Virtual destructor */
-	virtual ~IApplication();
+	virtual ~IApplication() {}
 	/**
 	* Set app parameters */
 	virtual void Init(void* handle, const std::wstring& cmds, int cmdsCount, const char* shadersPath = nullptr) noexcept = 0;
@@ -56,6 +66,9 @@ public:
 	/**
 	* Set render system */
 	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept = 0;
+	/**
+	* Set script system */
+	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept = 0;
 	/**
 	* Set GUI manager */
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
@@ -113,13 +126,11 @@ public:
 	/**
 	* Get Physics World pointer */
 	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept = 0;
-
-
-protected:
-	IApplication();
-	//
-	IApplication(const IApplication&);
-	//
-	IApplication& operator=(const IApplication&);
+	/**
+	* Get Script system pointer */
+	virtual class IScriptSystem* GetScriptSystem() noexcept = 0;
+	/**
+	* Get Script system pointer */
+	virtual TScriptSystemPtr GetScriptSystemPtr() noexcept = 0;
 
 };

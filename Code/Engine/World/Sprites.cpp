@@ -19,57 +19,87 @@
 using json = nlohmann::json;
 
 
-void ISprite::AddTintComponent(LcColor4 tint)
+void LcSpriteHelper::AddTintComponent(LcColor4 tint) const
 {
-	AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcSpriteTintComponent>(tint), context);
+	}
 }
 
-void ISprite::AddTintComponent(LcColor3 tint)
+void LcSpriteHelper::AddTintComponent(LcColor3 tint) const
 {
-	AddComponent(std::make_shared<LcSpriteTintComponent>(tint));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcSpriteTintComponent>(tint), context);
+	}
 }
 
-void ISprite::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom)
+void LcSpriteHelper::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const
 {
-	AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
+	}
 }
 
-void ISprite::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom)
+void LcSpriteHelper::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const
 {
-	AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
+	}
 }
 
-void ISprite::AddTextureComponent(const std::string& inTexture)
+void LcSpriteHelper::AddTextureComponent(const std::string& inTexture) const
 {
-	AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture), context);
+	}
 }
 
-void ISprite::AddTextureComponent(const LcBytes& inData)
+void LcSpriteHelper::AddTextureComponent(const LcBytes& inData) const
 {
-	AddComponent(std::make_shared<LcVisualTextureComponent>(inData));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
+	}
 }
 
-void ISprite::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
+void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const
 {
-	AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
+	}
 }
 
-void ISprite::AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
+void LcSpriteHelper::AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const
 {
-	AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond), context);
+	}
 }
 
-void ISprite::AddTiledSpriteComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames)
+void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames) const
 {
-	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames), context);
+	}
 }
 
-void ISprite::AddTiledSpriteComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames)
+void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames) const
 {
-	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames));
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), context);
+	}
 }
 
-void LcSpriteAnimationComponent::Update(float deltaSeconds)
+void LcSpriteAnimationComponent::Update(float deltaSeconds, const LcAppContext& context)
 {
 	double curGameTime = (double)GetTickCount64();
 	double frameDelta = curGameTime - lastFrameSeconds;
@@ -105,7 +135,7 @@ LcVector4 LcSpriteAnimationComponent::GetAnimData() const
 	return LcDefaults::ZeroVec4;
 }
 
-void LcTiledSpriteComponent::Init(class IWorld& world)
+void LcTiledSpriteComponent::Init(const LcAppContext& context)
 {
 	LC_TRY
 
@@ -138,7 +168,7 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 	auto texPath = tilsetObject["image"].get<std::string>();
 	if (!texPath.empty())
 	{
-		owner->AddComponent(std::make_shared<LcVisualTextureComponent>(texPath));
+		owner->AddComponent(std::make_shared<LcVisualTextureComponent>(texPath), context);
 	}
 
 	// check parameters
@@ -267,17 +297,17 @@ void LcTiledSpriteComponent::Init(class IWorld& world)
 	LC_CATCH { LC_THROW("LcTiledSpriteComponent::Init()") }
 }
 
-void LcSprite::Update(float deltaSeconds)
+void LcSprite::Update(float deltaSeconds, const LcAppContext& context)
 {
 	if (auto anim = GetAnimationComponent())
 	{
-		anim->Update(deltaSeconds);
+		anim->Update(deltaSeconds, context);
 	}
 }
 
-void LcSprite::AddComponent(TVComponentPtr comp)
+void LcSprite::AddComponent(TVComponentPtr comp, const LcAppContext& context)
 {
-	IVisualBase::AddComponent(comp);
+	IVisualBase::AddComponent(comp, context);
 
 	features.insert(comp->GetType());
 }

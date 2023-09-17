@@ -22,27 +22,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         auto onInitHandler = [](IApplication* app)
         {
             auto world = app->GetWorld();
+            auto& spriteHelper = world->GetSpriteHelper();
 
-            if (auto sprite1 = world->AddSprite2D(200, 550, 250, 250))
+            if (world->AddSprite2D(200, 550, 250, 250))
             {
-                sprite1->AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+                spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
             }
 
-            if (auto sprite2 = world->AddSprite2D(200, 200, 300, 300))
+            if (world->AddSprite2D(200, 200, 300, 300))
             {
-                sprite2->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
             }
 
-            if (auto sprite3 = world->AddSprite2D(550, 200, 300, 300))
+            if (world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
             {
-                sprite3->AddTextureComponent("../../Assets/tree.png");
-                sprite3->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+                spriteHelper.AddTextureComponent("../../Assets/tree.png");
+                spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
-            if (auto sprite4 = world->AddSprite2D(460, 315, 100, 100))
+            if (world->AddSprite2D(460, 315, 100, 100))
             {
-                sprite4->AddTextureComponent("../../Assets/anim.png");
-                sprite4->AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddTextureComponent("../../Assets/anim.png");
+                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
         };
 

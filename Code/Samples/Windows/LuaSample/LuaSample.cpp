@@ -18,33 +18,38 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        LcLuaScriptSystem lua;
-
-        auto onInitHandler = [&lua](IApplication* app)
+        auto onInitHandler = [](IApplication* app)
         {
-            // Add requestQuit() function
-            GetApplicationLuaModule(*app).AddTo(lua);
+            if (auto lua = app->GetScriptSystem())
+            {
+                // Add requestQuit() function
+                GetApplicationLuaModule(*app).AddTo(*lua);
+            }
         };
 
-        auto onKeyboardHandler = [&lua](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeyboardHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            if (key == 'Q' && (keyEvent == LcKeyState::Down))
+            if (auto lua = app->GetScriptSystem())
             {
-                lua.RunScript("print(\"Quit request!\"); requestQuit()");
-                OutputDebugStringA("\n");
-            }
-            if (key == 'P' && (keyEvent == LcKeyState::Down))
-            {
-                // Override luaB_print in lbaselib.c to print in Output window
-                const char* script = "print(\"Hello from Lua!\"); return 77.7";
-                auto result = lua.RunScriptEx(script);
-                OutputDebugStringA("\n");
+                if (key == 'Q' && (keyEvent == LcKeyState::Down))
+                {
+                    lua->RunScript("print(\"Quit request!\"); requestQuit()");
+                    OutputDebugStringA("\n");
+                }
+                if (key == 'P' && (keyEvent == LcKeyState::Down))
+                {
+                    // Override luaB_print in lbaselib.c to print in Output window
+                    const char* script = "print(\"Hello from Lua!\"); return 77.7";
+                    auto result = lua->RunScriptEx(script);
+                    OutputDebugStringA("\n");
+                }
             }
         };
 
         auto app = GetApp();
         app->SetInitHandler(onInitHandler);
         app->SetKeyboardHandler(onKeyboardHandler);
+        app->SetScriptSystem(GetScriptSystem());
         app->SetWindowSize(800, 600);
         app->Init(hInstance);
         app->Run();

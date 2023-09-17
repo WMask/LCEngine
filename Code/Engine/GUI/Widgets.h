@@ -10,29 +10,6 @@
 #include "GUI/WidgetInterface.h"
 
 #include <string>
-#include <functional>
-
-
-/** Widget data */
-struct LcWidgetData
-{
-    LcVector3 pos;	// [0,0] - leftBottom, x - right, y - up
-    LcSizef size;	// widget size in pixels
-    bool visible;
-    bool disabled;
-    //
-    LcWidgetData() : pos(LcDefaults::ZeroVec3), size(LcDefaults::ZeroSize), visible(true), disabled(false) {}
-    //
-    LcWidgetData(LcVector3 inPos, LcSizef inSize, bool inVisible = true, bool inDisabled = false)
-        : pos(inPos), size(inSize), visible(inVisible), disabled(inDisabled)
-    {
-    }
-    //
-    LcWidgetData(LcVector2 inPos, LcSizef inSize, bool inVisible = true, bool inDisabled = false)
-        : pos(To3(inPos)), size(inSize), visible(inVisible), disabled(inDisabled)
-    {
-    }
-};
 
 
 /**
@@ -81,7 +58,7 @@ struct GUI_API LcWidgetButtonComponent : public IVisualComponent
 
 public:// IVisualComponent interface implementation
     //
-    virtual void Init(class IWorld& world) override;
+    virtual void Init(const LcAppContext& context) override;
     //
     virtual EVCType GetType() const override { return EVCType::Button; }
 
@@ -111,7 +88,7 @@ struct GUI_API LcWidgetCheckboxComponent : public IVisualComponent
 
 public:// IVisualComponent interface implementation
     //
-    virtual void Init(class IWorld& world) override;
+    virtual void Init(const LcAppContext& context) override;
     //
     virtual EVCType GetType() const override { return EVCType::Checkbox; }
 
@@ -157,26 +134,28 @@ struct LcWidgetCheckComponent : public IVisualComponent
 class GUI_API LcWidget : public IWidget
 {
 public:
-    LcWidget(LcWidgetData inWidget) : widget(inWidget), focused(false), hovered(false) {}
+    LcWidget()
+        : pos(LcDefaults::ZeroVec3)
+        , size(LcDefaults::ZeroSize)
+        , visible(true)
+        , disabled(false)
+        , focused(false)
+        , hovered(false)
+    {
+    }
     //
     ~LcWidget() {}
-    //
-    LcWidgetData widget;
-    //
-    bool hovered;
-    //
-    bool focused;
 
 
 public:// IWidget interface implementation
     //
-    virtual void OnKeyboard(int btn, LcKeyState state) override {}
+    virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) override {}
     //
-    virtual void RecreateFont() override {}
+    virtual void RecreateFont(const LcAppContext& context) override {}
     //
-    virtual void SetDisabled(bool inDisabled) override { widget.disabled = inDisabled; }
+    virtual void SetDisabled(bool inDisabled) override { disabled = inDisabled; }
     //
-    virtual bool IsDisabled() const override { return widget.disabled; }
+    virtual bool IsDisabled() const override { return disabled; }
     //
     virtual void SetHovered(bool inHovered) override { hovered = inHovered; }
     //
@@ -189,17 +168,15 @@ public:// IWidget interface implementation
 
 public:// IVisual interface implementation
     //
-    virtual void Update(float DeltaSeconds) {}
+    virtual void SetSize(LcSizef inSize) override { size = inSize; }
     //
-    virtual void SetSize(LcSizef inSize) override { widget.size = inSize; }
+    virtual LcSizef GetSize() const override { return size; }
     //
-    virtual LcSizef GetSize() const override { return widget.size; }
+    virtual void SetPos(LcVector3 inPos) override { pos = inPos; }
     //
-    virtual void SetPos(LcVector3 inPos) override {}
+    virtual void AddPos(LcVector3 inPos) override { pos = pos + inPos; }
     //
-    virtual void AddPos(LcVector3 inPos) override {}
-    //
-    virtual LcVector3 GetPos() const override { return widget.pos; }
+    virtual LcVector3 GetPos() const override { return pos; }
     //
     virtual void SetRotZ(float inRotZ) override {}
     //
@@ -207,16 +184,31 @@ public:// IVisual interface implementation
     //
     virtual float GetRotZ() const override { return 0.0f; }
     //
-    virtual void SetVisible(bool inVisible) override { widget.visible = inVisible; }
+    virtual void SetVisible(bool inVisible) override { visible = inVisible; }
     //
-    virtual bool IsVisible() const override { return widget.visible; }
+    virtual bool IsVisible() const override { return visible; }
     //
-    virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) override;
+    virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) override;
     //
-    virtual void OnMouseMove(LcVector3 pos) override {}
+    virtual void OnMouseMove(LcVector3 pos, const LcAppContext& context) override {}
     //
-    virtual void OnMouseEnter() override;
+    virtual void OnMouseEnter(const LcAppContext& context) override;
     //
-    virtual void OnMouseLeave() override;
+    virtual void OnMouseLeave(const LcAppContext& context) override;
+
+
+protected:
+    // [0,0] - leftTop, x - right, y - down
+    LcVector3 pos;
+    // widget size in pixels
+    LcSizef size;
+    //
+    bool visible;
+    //
+    bool disabled;
+    //
+    bool hovered;
+    //
+    bool focused;
 
 };

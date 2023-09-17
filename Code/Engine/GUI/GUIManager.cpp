@@ -9,34 +9,45 @@
 #include "GUI/GUIManager.h"
 #include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
+#include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
 
-void LcGuiManagerBase::Update(float deltaSeconds, IWorld& world)
+void LcGuiManager::Update(float deltaSeconds, const LcAppContext& context)
 {
-    auto& widgetList = world.GetWidgets();
+    LC_TRY
+
+    auto& widgetList = context.world.GetWidgets();
     if (!widgetList.empty())
     {
         for (auto& widget : widgetList)
         {
-            if (widget->IsVisible()) widget->Update(deltaSeconds);
+            if (widget->IsVisible()) widget->Update(deltaSeconds, context);
         }
     }
+
+    LC_CATCH{ LC_THROW("LcGuiManager::Update()") }
 }
 
-void LcGuiManagerBase::OnKeyboard(int btn, LcKeyState state, IWorld& world)
+void LcGuiManager::OnKeyboard(int btn, LcKeyState state, const LcAppContext& context)
 {
-    auto& widgetList = world.GetWidgets();
+    LC_TRY
+
+    auto& widgetList = context.world.GetWidgets();
     for (auto& widget : widgetList)
     {
-        if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state);
+        if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state, context);
     }
+
+    LC_CATCH{ LC_THROW("LcGuiManager::OnKeyboard()") }
 }
 
-void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, IWorld& world)
+void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)
 {
-    auto& widgetList = world.GetWidgets();
-    auto scale2 = world.GetWorldScale().scale;
+    LC_TRY
+
+    auto& widgetList = context.world.GetWidgets();
+    auto scale2 = context.world.GetWorldScale().scale;
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
     for (auto& widget : widgetList)
@@ -51,15 +62,19 @@ void LcGuiManagerBase::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, in
         if (Contains(widgetBox, point))
         {
             auto result = ToI(point);
-            widget->OnMouseButton(btn, state, result.x, result.y);
+            widget->OnMouseButton(btn, state, result.x, result.y, context);
         }
     }
+
+    LC_CATCH{ LC_THROW("LcGuiManager::OnMouseButton()") }
 }
 
-void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
+void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
 {
-    auto& widgetList = world.GetWidgets();
-    auto scale2 = world.GetWorldScale().scale;
+    LC_TRY
+
+    auto& widgetList = context.world.GetWidgets();
+    auto scale2 = context.world.GetWorldScale().scale;
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
     for (auto& widget : widgetList)
@@ -77,23 +92,25 @@ void LcGuiManagerBase::OnMouseMove(int x, int y, IWorld& world)
             if (!widget->IsHovered())
             {
                 widget->SetHovered(true);
-                widget->OnMouseEnter();
+                widget->OnMouseEnter(context);
             }
 
-            widget->OnMouseMove(To3(point));
+            widget->OnMouseMove(To3(point), context);
         }
         else
         {
             if (widget->IsHovered())
             {
                 widget->SetHovered(false);
-                widget->OnMouseLeave();
+                widget->OnMouseLeave(context);
             }
         }
     }
+
+    LC_CATCH{ LC_THROW("LcGuiManager::OnMouseMove()") }
 }
 
 TGuiManagerPtr GetGuiManager()
 {
-    return std::make_shared<LcGuiManagerBase>();
+    return std::make_shared<LcGuiManager>();
 }

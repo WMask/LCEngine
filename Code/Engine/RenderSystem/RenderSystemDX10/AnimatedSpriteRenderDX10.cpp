@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
+#include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 
 
 static const char* animatedSpriteShaderName = "AnimatedSprite2d.shader";
@@ -17,16 +18,18 @@ struct DX10ANIMATEDSPRITEDATA
 	unsigned int index;	// vertex index
 };
 
-LcAnimatedSpriteRenderDX10::LcAnimatedSpriteRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
+LcAnimatedSpriteRenderDX10::LcAnimatedSpriteRenderDX10(const LcAppContext& context)
 {
 	vs = nullptr;
 	ps = nullptr;
 	vertexBuffer = nullptr;
 	vertexLayout = nullptr;
-	auto d3dDevice = renderDevice.GetD3D10Device();
+
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcAnimatedSpriteRenderDX10(): Invalid arguments");
 
-	auto shaderCode = renderDevice.GetShaderCode(animatedSpriteShaderName);
+	auto shaderCode = render->GetShaderCode(animatedSpriteShaderName);
 
 	ComPtr<ID3D10Blob> vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, vertexBlob.GetAddressOf(), NULL)))
@@ -92,9 +95,10 @@ LcAnimatedSpriteRenderDX10::~LcAnimatedSpriteRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcAnimatedSpriteRenderDX10::Setup(const IVisual* visual)
+void LcAnimatedSpriteRenderDX10::Setup(const IVisual* visual, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcAnimatedSpriteRenderDX10::Setup(): Invalid render device");
 
 	d3dDevice->VSSetShader(vs);
@@ -107,13 +111,13 @@ void LcAnimatedSpriteRenderDX10::Setup(const IVisual* visual)
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
+void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transBuffer = renderDevice.GetTransformBuffer();
-	auto colorsBuffer = renderDevice.GetColorsBuffer();
-	auto animBuffer = renderDevice.GetFrameAnimBuffer();
-	auto worldScale = renderDevice.GetWorldScale();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
+	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
+	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
+	auto animBuffer = render ? render->GetFrameAnimBuffer() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !animBuffer || !sprite)
 		throw std::exception("LcAnimatedSpriteRenderDX10::RenderSprite(): Invalid render params");
 
@@ -139,13 +143,15 @@ void LcAnimatedSpriteRenderDX10::RenderSprite(const ISprite* sprite)
 
 	if (sprite->HasComponent(EVCType::Texture))
 	{
-		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
+		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
 	}
 
 	// update transform
+	LcVector2 worldScale2D(context.world.GetWorldScale().scale);
+	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
-	LcVector2 spriteSize = sprite->GetSize() * To2(worldScale);
+	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

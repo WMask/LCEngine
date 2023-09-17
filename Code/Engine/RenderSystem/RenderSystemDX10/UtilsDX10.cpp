@@ -7,12 +7,12 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "World/Sprites.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
 #include <set>
+#include <cmath>
 
 
 std::vector<ComPtr<IDXGIAdapter>> LcEnumerateAdapters()
@@ -212,8 +212,8 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
         {
             D3D10_SHADER_RESOURCE_VIEW_DESC1 SRVDesc{};
             SRVDesc.Format = desc.Format;
-            SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-            SRVDesc.Texture2D.MipLevels = 1u;
+            SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+            SRVDesc.Texture2D.MipLevels = 1;
 
             result = device->CreateShaderResourceView1(*texture, &SRVDesc, view);
             if (FAILED(result)) return false;
@@ -265,78 +265,4 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     }
 
     LC_CATCH{ LC_THROW("LcTextureLoaderDX10::ClearCache()") }
-}
-
-LcSpriteDX10::~LcSpriteDX10()
-{
-    if (tiledRender) tiledRender->RemoveTiles(this);
-}
-
-void LcSpriteDX10::AddComponent(TVComponentPtr comp)
-{
-    LC_TRY
-
-    LcSprite::AddComponent(comp);
-
-    if (auto texComp = GetTextureComponent())
-    {
-        LcSize texSize;
-        bool loaded = render.GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
-        if (loaded)
-            texComp->texSize = ToF(texSize);
-        else
-            throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
-    }
-
-    LC_CATCH{ LC_THROW("LcSpriteDX10::AddComponent()") }
-}
-
-unsigned short LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp) const
-{
-    float scale = 1.0f;
-    if (render.GetWorldScaleFonts()) scale = world->GetWorldScale().scale.y;
-
-    return static_cast<unsigned short>(static_cast<float>(textComp.fontSize) * scale);
-}
-
-void LcWidgetDX10::AddComponent(TVComponentPtr comp)
-{
-    LC_TRY
-
-    LcWidget::AddComponent(comp);
-
-    if (auto texComp = GetTextureComponent())
-    {
-        LcSize texSize;
-        bool loaded = render.GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), render.GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
-        if (loaded)
-            texComp->texSize = ToF(texSize);
-        else
-            throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
-    }
-
-    if (auto textComp = GetTextComponent())
-    {
-        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
-        if (!font)
-            throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
-    }
-
-    LC_CATCH{ LC_THROW("LcWidgetDX10::AddComponent()") }
-}
-
-void LcWidgetDX10::RecreateFont()
-{
-    LC_TRY
-
-    if (auto textComp = GetTextComponent())
-    {
-        font = render.GetWidgetRender()->AddFont(textComp->fontName, GetFontSize(*textComp), textComp->fontWeight);
-        if (!font)
-            throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
-    }
-
-    LC_CATCH{ LC_THROW("LcWidgetDX10::RecreateFont()") }
 }

@@ -7,8 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "World/Sprites.h"
-#include "GUI/Widgets.h"
+#include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 
 
 static const char* tiledSpriteShaderName = "TiledSprite2d.shader";
@@ -18,15 +17,17 @@ struct DX10TILEDSPRITEDATA
 	LcVector2 uv;		// UV texture coordinates
 };
 
-LcTiledVisual2DRenderDX10::LcTiledVisual2DRenderDX10(IRenderDeviceDX10& inRenderDevice) : renderDevice(inRenderDevice)
+LcTiledVisual2DRenderDX10::LcTiledVisual2DRenderDX10(const LcAppContext& context)
 {
 	vs = nullptr;
 	ps = nullptr;
 	vertexLayout = nullptr;
-	auto d3dDevice = renderDevice.GetD3D10Device();
+
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcTiledVisual2DRenderDX10(): Invalid arguments");
 
-	auto shaderCode = renderDevice.GetShaderCode(tiledSpriteShaderName);
+	auto shaderCode = render->GetShaderCode(tiledSpriteShaderName);
 
 	ComPtr<ID3D10Blob> vertexBlob;
 	if (FAILED(D3D10CompileShader(shaderCode.c_str(), shaderCode.length(), NULL, NULL, NULL, "VShader", "vs_4_0", 0, vertexBlob.GetAddressOf(), NULL)))
@@ -94,9 +95,10 @@ std::vector<DX10TILEDSPRITEDATA> generateTiles(const LcTiledSpriteComponent& til
 	return tiles;
 }
 
-void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual)
+void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcTiledVisual2DRenderDX10::Setup(): Invalid render device");
 
 	auto tiledComp = static_cast<LcTiledSpriteComponent*>(visual ? visual->GetComponent(EVCType::Tiled).get() : nullptr);
@@ -139,14 +141,14 @@ void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual)
 	d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// force setup because next sprite anyway will have another vertex buffer
-	renderDevice.ForceRenderSetup();
+	render->ForceRenderSetup();
 }
 
-void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
+void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
 {
-	auto d3dDevice = renderDevice.GetD3D10Device();
-	auto transBuffer = renderDevice.GetTransformBuffer();
-	auto worldScale = renderDevice.GetWorldScale();
+	auto render = static_cast<LcRenderSystemDX10*>(context.render);
+	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
+	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
 	if (!d3dDevice || !transBuffer || !sprite)
 		throw std::exception("LcTiledVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
@@ -156,13 +158,15 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite)
 	// update components
 	if (sprite->HasComponent(EVCType::Texture))
 	{
-		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
+		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
 	}
 
 	// update transform
+	LcVector2 worldScale2D(context.world.GetWorldScale().scale);
+	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
-	LcVector2 spriteSize = LcDefaults::OneVec2;
+	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	if (auto tiledComp = sprite->GetTiledComponent()) spriteSize = tiledComp->scale * To2(worldScale);
 
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, 0.0f, false);

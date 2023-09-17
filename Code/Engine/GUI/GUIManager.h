@@ -25,42 +25,42 @@ public:
 	virtual void Shutdown() = 0;
 	/**
 	* Update GUI */
-	virtual void Update(float deltaSeconds, class IWorld& world) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state, class IWorld& world) = 0;
+	virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) = 0;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, class IWorld& world) = 0;
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y, class IWorld& world) = 0;
+	virtual void OnMouseMove(int x, int y, const LcAppContext& context) = 0;
 
 };
 
 
 /**
-* GUI manager base */
-class LcGuiManagerBase : public IGuiManager
+* GUI manager */
+class LcGuiManager : public IGuiManager
 {
 public:
 	/**
 	* Constructor */
-	LcGuiManagerBase() {}
+	LcGuiManager() {}
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override {}
 	/**
 	* Update GUI */
-	virtual void Update(float deltaSeconds, class IWorld& world) override;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state, class IWorld& world) override;
+	virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) override;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, class IWorld& world) override;
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) override;
 	/**
 	* Mouse move event */
-	virtual void OnMouseMove(int x, int y, class IWorld& world) override;
+	virtual void OnMouseMove(int x, int y, const LcAppContext& context) override;
 
 };

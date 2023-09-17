@@ -38,24 +38,24 @@ void LcRenderSystemBase::LoadShaders(const char* folderPath)
     LC_CATCH{ LC_THROW("LcRenderSystemBase::LoadShaders()") }
 }
 
-void LcRenderSystemBase::Create(IWorld& world, void* windowHandle, LcWinMode mode, bool inVSync)
+void LcRenderSystemBase::Create(void* windowHandle, LcWinMode mode, bool inVSync, const LcAppContext& context)
 {
     vSync = inVSync;
 }
 
-void LcRenderSystemBase::Update(float deltaSeconds, IWorld& world)
+void LcRenderSystemBase::Update(float deltaSeconds, const LcAppContext& context)
 {
     LC_TRY
 
-    const auto& sprites = world.GetSprites();
+    const auto& sprites = context.world.GetSprites();
 
     for (const auto& sprite : sprites)
     {
-        if (sprite->IsVisible()) sprite->Update(deltaSeconds);
+        if (sprite->IsVisible()) sprite->Update(deltaSeconds, context);
     }
 
-    auto newPos = world.GetCamera().GetPosition();
-    auto newTarget = world.GetCamera().GetTarget();
+    auto newPos = context.world.GetCamera().GetPosition();
+    auto newTarget = context.world.GetCamera().GetTarget();
     if (newPos != cameraPos || newTarget != cameraTarget)
     {
         UpdateCamera(deltaSeconds, newPos, newTarget);
@@ -67,35 +67,22 @@ void LcRenderSystemBase::Update(float deltaSeconds, IWorld& world)
     LC_CATCH{ LC_THROW("LcRenderSystemBase::Update()") }
 }
 
-void LcRenderSystemBase::Render(IWorld& world)
+void LcRenderSystemBase::Render(const LcAppContext& context)
 {
     LC_TRY
 
-    const auto& sprites = world.GetSprites();
-    const auto& widgets = world.GetWidgets();
+    const auto& sprites = context.world.GetSprites();
+    const auto& widgets = context.world.GetWidgets();
 
     for (const auto& sprite : sprites)
     {
-        if (sprite->IsVisible()) RenderSprite(sprite.get());
+        if (sprite->IsVisible()) RenderSprite(sprite.get(), context);
     }
-
-    PreRenderWidgets(EWRMode::Textures);
 
     for (const auto& widget : widgets)
     {
-        if (widget->IsVisible()) RenderWidget(widget.get());
+        if (widget->IsVisible()) RenderWidget(widget.get(), context);
     }
-
-    PostRenderWidgets(EWRMode::Textures);
-
-    PreRenderWidgets(EWRMode::Text);
-
-    for (const auto& widget : widgets)
-    {
-        if (widget->IsVisible()) RenderWidget(widget.get());
-    }
-
-    PostRenderWidgets(EWRMode::Text);
 
     LC_CATCH{ LC_THROW("LcRenderSystemBase::Render()") }
 }

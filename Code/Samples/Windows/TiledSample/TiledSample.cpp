@@ -24,10 +24,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto physWorld = app->GetPhysicsWorld();
             auto world = app->GetWorld();
-            float width = (float)app->GetWindowWidth();
-            float height = (float)app->GetWindowHeight();
 
-            if (auto sprite = world->AddSprite2D(width / 2, height / 2, width, height))
+            auto& spriteHelper = world->GetSpriteHelper();
+            if (world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
             {
                 auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
                     const std::string& type, const LcObjectProps& props, LcVector2 pos, LcSizef size)
@@ -37,13 +36,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         physWorld->AddStaticBox(pos, size);
                     }
                 };
-                sprite->AddTiledSpriteComponent("../../Assets/Map1.tmj", objectHandler);
+                spriteHelper.AddTiledComponent("../../Assets/Map1.tmj", objectHandler);
             }
 
             if (auto hero = world->AddSprite2D(100, 600, 64, 64))
             {
-                hero->AddTextureComponent("../../Assets/anim.png");
-                hero->AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddTextureComponent("../../Assets/anim.png");
+                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
 
                 auto body = physWorld->AddDynamicBox(LcVector2(100, 600), LcSizef(35, 45), 5);
                 body->SetUserData(hero);
@@ -64,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (keys[VK_LEFT]) body->SetVelocity(LcVector2(-1.2f, vel.y));
             if (keys[VK_RIGHT]) body->SetVelocity(LcVector2(1.2f, vel.y));
 
-            if (auto hero = body->GetUserClass<ISprite>())
+            if (auto hero = body->GetUserObject<ISprite>())
             {
                 hero->SetPos(To3(body->GetPos()));
             }
@@ -78,7 +77,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto body = physWorld->GetDynamicBodies()[0];
 
             if (key == 'Q') app->RequestQuit();
-            if (key == VK_UP && (keyEvent == LcKeyState::Down) && !body->IsFalling())
+
+            bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
+            if (key == VK_UP && (keyEvent == LcKeyState::Down) && canJump)
             {
                 body->ApplyImpulse(LcVector2(0.0f, -4.0f));
             }

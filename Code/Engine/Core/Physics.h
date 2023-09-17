@@ -8,7 +8,6 @@
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
-#include "Core/LCDelegate.h"
 
 #include <memory>
 #include <deque>
@@ -48,21 +47,24 @@ public:
 	virtual void* GetUserData() const = 0;
 	/**
 	* Get user class */
-	template<class T> T* GetUserClass() const { return static_cast<T*>(GetUserData()); }
+	template<class T> T* GetUserObject() const { return static_cast<T*>(GetUserData()); }
 	/**
 	* Check area below the body. Depth - bottom offset in pixels */
 	virtual bool IsFalling(float depth = 2.0f, bool checkStaticOnly = true) const = 0;
 
 };
 
-typedef std::shared_ptr<IPhysicsBody> TBodyPtr;
-typedef std::deque<TBodyPtr> TBodiesList;
-
 
 /**
 * Physics world */
 class IPhysicsWorld
 {
+public:
+	typedef std::shared_ptr<IPhysicsBody> TBodyPtr;
+	//
+	typedef std::deque<TBodyPtr> TBodiesList;
+
+
 public:
 	/**
 	* Destructor */
@@ -73,9 +75,6 @@ public:
 	/**
 	* Update world */
 	virtual void Update(float deltaSeconds) = 0;
-	/**
-	* Subscribe to world scale delegate */
-	virtual void Subscribe(class IWorld* world) = 0;
 	/**
 	* Add static box */
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) = 0;

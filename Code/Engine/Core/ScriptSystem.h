@@ -29,6 +29,8 @@ public:
 
 };
 
+typedef std::shared_ptr<IScriptSystem> TScriptSystemPtr;
+
 
 /**
 * Script module */

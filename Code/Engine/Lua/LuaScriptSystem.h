@@ -20,7 +20,7 @@ public:
 	LcLuaScriptSystem(bool openBaseDefaultLibs = true, bool openAllDefaultLibs = false);
 	/**
 	* Get Lua state */
-	struct lua_State* GetState() const { return luaState; }
+	struct lua_State* GetState() { return luaState; }
 
 
 public: // IScriptSystem interface implementation

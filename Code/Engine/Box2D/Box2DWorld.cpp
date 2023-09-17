@@ -7,12 +7,14 @@
 #include "pch.h"
 #include "Box2D/Box2DWorld.h"
 #include "World/WorldInterface.h"
+#include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
 // put Box2D library into Code/Engine/Box2D folder
 #include "box2d/box2d.h"
 
 static const float BOX2D_SCALE = 100.0f;
+
 
 inline LcVector2 ToLC(const b2Vec2& v, bool scale = true)
 {
@@ -22,7 +24,6 @@ inline b2Vec2 FromLC(const LcVector2& v, bool scale = true)
 {
     return b2Vec2(v.x / (scale ? BOX2D_SCALE : 1.0f), v.y / (scale ? BOX2D_SCALE : 1.0f));
 }
-
 
 struct LcBodyQueryHandler : public b2QueryCallback
 {
@@ -51,10 +52,17 @@ struct LcBodyQueryHandler : public b2QueryCallback
 class LcBox2DBody : public IPhysicsBody
 {
 public:
-    LcBox2DBody(LcBox2DWorld& box2DWorld, b2World* inWorld, b2Body* inBody, LcSizef inSize) :
-        worldRef(box2DWorld), world(inWorld), body(inBody), size(inSize.x / BOX2D_SCALE, inSize.y / BOX2D_SCALE) {}
+    LcBox2DBody() : world(nullptr), body(nullptr), size(LcDefaults::ZeroSize) {}
 	//
     ~LcBox2DBody() {}
+    //
+    void Init(b2World* inWorld, b2Body* inBody, LcSizef inSize)
+    {
+        world = inWorld;
+        body = inBody;
+        size.x = inSize.x / BOX2D_SCALE;
+        size.y = inSize.y / BOX2D_SCALE;
+    }
 
 
 public:// IPhysicsBody interface implementation
@@ -67,11 +75,7 @@ public:// IPhysicsBody interface implementation
     //
     virtual LcVector2 GetVelocity() const override { return ToLC(body->GetLinearVelocity(), false); }
 	//
-	virtual LcVector2 GetPos() const override
-    {
-        auto pos = ToLC(body->GetPosition());
-        return pos * worldRef.GetWorldScale();
-    }
+	virtual LcVector2 GetPos() const override { return ToLC(body->GetPosition()); }
 	//
 	virtual float GetRotation() const override { return body->GetAngle(); }
     //
@@ -95,8 +99,6 @@ public:// IPhysicsBody interface implementation
 
 
 protected:
-    LcBox2DWorld& worldRef;
-    //
     b2World* world;
     //
     b2Body* body;
@@ -105,10 +107,23 @@ protected:
 
 };
 
+class LcBodyLifetimeStrategy : public LcLifetimeStrategy<IPhysicsBody>
+{
+public:
+    LcBodyLifetimeStrategy() {}
+    //
+    virtual ~LcBodyLifetimeStrategy() {}
+    //
+    virtual std::shared_ptr<IPhysicsBody> Create() override { return std::make_shared<LcBox2DBody>(); }
+    //
+    virtual void Destroy(IPhysicsBody& item) override {}
+};
 
-LcBox2DWorld::LcBox2DWorld(const LcBox2DConfig& inConfig) : config(inConfig), worldScale(1.0f, 1.0f)
+
+LcBox2DWorld::LcBox2DWorld(const LcBox2DConfig& inConfig) : config(inConfig)
 {
     box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
+    dynamicBodies.SetLifetimeStrategy(std::make_shared<LcBodyLifetimeStrategy>());
 }
 
 LcBox2DWorld::LcBox2DWorld(float gravity) : LcBox2DWorld(LcBox2DConfig(gravity))
@@ -121,24 +136,13 @@ LcBox2DWorld::~LcBox2DWorld()
 
 void LcBox2DWorld::Clear()
 {
-    dynamicBodies.clear();
+    dynamicBodies.GetList().clear();
     box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
 }
 
 void LcBox2DWorld::Update(float deltaSeconds)
 {
 	if (box2DWorld) box2DWorld->Step(deltaSeconds, config.velocityIterations, config.positionIterations);
-}
-
-void LcBox2DWorld::Subscribe(class IWorld* world)
-{
-    if (world)
-    {
-        world->GetWorldScale().scaleUpdatedHandler.AddListener([this](LcVector2 newScale)
-        {
-            worldScale = newScale;
-        });
-    }
 }
 
 void LcBox2DWorld::AddStaticBox(LcVector2 pos, LcSizef size)
@@ -148,6 +152,7 @@ void LcBox2DWorld::AddStaticBox(LcVector2 pos, LcSizef size)
     b2BodyDef bodyDef;
     bodyDef.position.Set(pos.x / BOX2D_SCALE, pos.y / BOX2D_SCALE);
     b2Body* body = box2DWorld->CreateBody(&bodyDef);
+    if (!body) throw std::exception("LcBox2DWorld::AddStaticBox(): Cannot create body");
 
     b2PolygonShape box;
     box.SetAsBox(size.x / BOX2D_SCALE / 2.0f, size.y / BOX2D_SCALE / 2.0f);
@@ -163,6 +168,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamicBox(LcVector2 pos, LcSizef size, float den
     bodyDef.position.Set(pos.x / BOX2D_SCALE, pos.y / BOX2D_SCALE);
     bodyDef.fixedRotation = fixedRotation;
     b2Body* body = box2DWorld->CreateBody(&bodyDef);
+    if (!body) throw std::exception("LcBox2DWorld::AddDynamicBox(): Cannot create body");
 
     b2PolygonShape shape;
     shape.SetAsBox(size.x / BOX2D_SCALE / 2.0f, size.y / BOX2D_SCALE / 2.0f);
@@ -173,9 +179,12 @@ IPhysicsBody* LcBox2DWorld::AddDynamicBox(LcVector2 pos, LcSizef size, float den
     fixtureDef.friction = 0.3f;
     body->CreateFixture(&fixtureDef);
 
-    dynamicBodies.push_back(std::make_shared<LcBox2DBody>(*this, box2DWorld.get(), body, size));
+    auto newBody = dynamicBodies.AddT<LcBox2DBody>();
+    if (!newBody) throw std::exception("LcBox2DWorld::AddDynamicBox(): Cannot create dynamic body");
 
-    return dynamicBodies.back().get();
+    newBody->Init(box2DWorld.get(), body, size);
+
+    return newBody;
 }
 
 IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float density, bool fixedRotation)
@@ -187,6 +196,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
     bodyDef.position.Set(pos.x / BOX2D_SCALE, pos.y / BOX2D_SCALE);
     bodyDef.fixedRotation = fixedRotation;
     b2Body* body = box2DWorld->CreateBody(&bodyDef);
+    if (!body) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create body");
 
     b2CircleShape shape;
     shape.m_radius = radius / BOX2D_SCALE;
@@ -198,9 +208,12 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
     body->CreateFixture(&fixtureDef);
 
     LcSizef size(radius * 2.0f, radius * 2.0f);
-    dynamicBodies.push_back(std::make_shared<LcBox2DBody>(*this, box2DWorld.get(), body, size));
+    auto newBody = dynamicBodies.AddT<LcBox2DBody>();
+    if (!newBody) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create dynamic body");
 
-    return dynamicBodies.back().get();
+    newBody->Init(box2DWorld.get(), body, size);
+
+    return newBody;
 }
 
 TPhysicsWorldPtr GetPhysicsWorld()

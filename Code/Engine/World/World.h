@@ -16,35 +16,43 @@
 * Game world manager. Contains default sprite implementation */
 class LcWorld : public IWorld
 {
+public:
+	typedef std::shared_ptr<LcLifetimeStrategy<ISprite>> TSpriteLifetime;
+	typedef std::shared_ptr<LcLifetimeStrategy<IWidget>> TWidgetLifetime;
+	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
+	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
+
+public:
+	LcWorld(const LcAppContext& context);
+	//
+	LcWorld(const LcWorld&) = delete;
+	//
+	LcWorld& operator=(const LcWorld&) = delete;
+	//
+	void SetSpriteLifetimeStrategy(TSpriteLifetime inSpriteLifetime) { sprites.SetLifetimeStrategy(inSpriteLifetime); }
+	//
+	void SetWidgetLifetimeStrategy(TWidgetLifetime inWidgetLifetime) { widgets.SetLifetimeStrategy(inWidgetLifetime); }
+
+
 public: // IWorld interface implementation
 	//
-	LcWorld();
+	virtual ~LcWorld() override {}
 	//
-	~LcWorld();
+	virtual ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ = 0.0f, bool visible = true) override;
 	//
-	virtual void SetSpriteFactory(TSpriteFactoryPtr inSpriteFactory) override { spriteFactory = inSpriteFactory; }
-	//
-	virtual void SetWidgetFactory(TWidgetFactoryPtr inWidgetFactory) override { widgetFactory = inWidgetFactory; }
-	//
-	virtual ISprite* AddSprite(const LcSpriteData& sprite) override;
-	//
-	virtual ISprite* AddSprite3D(float x, float y, float z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) override;
-	//
-	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) override;
+	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float rotZ = 0.0f, bool visible = true) override;
 	//
 	virtual void RemoveSprite(ISprite* sprite) override;
 	//
-	virtual SPRITE_LIST& GetSprites() override { return sprites; }
+	virtual TSpriteList& GetSprites() override { return sprites.GetList(); }
 	//
-	virtual IWidget* AddWidget(const LcWidgetData& widget) override;
+	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool visible = true) override;
 	//
-	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) override;
-	//
-	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) override;
+	virtual IWidget* AddWidget(float x, float y, float width, float height, bool visible = true) override;
 	//
 	virtual void RemoveWidget(IWidget* widget) override;
 	//
-	virtual WIDGET_LIST& GetWidgets() override { return widgets; }
+	virtual TWidgetList& GetWidgets() override { return widgets.GetList(); }
 	//
 	virtual const LcCamera& GetCamera() const override { return camera; }
 	//
@@ -53,27 +61,29 @@ public: // IWorld interface implementation
 	virtual const LcWorldScale& GetWorldScale() const override { return worldScale; }
 	//
 	virtual LcWorldScale& GetWorldScale() override { return worldScale; }
+	//
+	virtual IVisual* GetLastAddedVisual() const override { return lastVisual; }
+	//
+	virtual const class LcSpriteHelper& GetSpriteHelper() const override { return *spriteHelper.get(); }
+	//
+	virtual const class LcWidgetHelper& GetWidgetHelper() const override { return *widgetHelper.get(); }
 
 
 protected:
-	LcWorld(const LcWorld&);
+	const LcAppContext& context;
 	//
-	LcWorld& operator=(const LcWorld&);
+	LcCreator<class ISprite, class LcSprite> sprites;
 	//
-	friend WORLD_API TWorldPtr GetWorld();
-
-
-protected:
-	SPRITE_LIST sprites;
+	LcCreator<class IWidget, class LcWidget> widgets;
 	//
-	WIDGET_LIST widgets;
+	TSpriteHelperPtr spriteHelper;
 	//
-	TSpriteFactoryPtr spriteFactory;
-	//
-	TWidgetFactoryPtr widgetFactory;
+	TWidgetHelperPtr widgetHelper;
 	//
 	LcWorldScale worldScale;
 	//
 	LcCamera camera;
+	//
+	IVisual* lastVisual;
 
 };

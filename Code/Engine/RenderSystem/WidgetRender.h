@@ -15,14 +15,18 @@
 class IWidgetRender : public IVisual2DRender
 {
 public:
-	virtual void RenderSprite(const class ISprite* sprite) override {}
-	//
-	virtual EWRMode GetRenderMode() const = 0;
-	//
-	virtual void SetRenderMode(EWRMode inRenderMode) = 0;
+	/**
+	* Add font */
+	virtual const struct ITextFont* AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
+	/**
+	* Remove font */
+	virtual bool RemoveFont(const ITextFont* font) = 0;
 
 
-protected:
+public: // IVisual2DRender interface implementation
+	//
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) override {}
+	//
 	virtual bool Supports(const TVFeaturesList& features) const override { return false; }
 
 };

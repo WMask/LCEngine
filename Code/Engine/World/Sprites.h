@@ -8,6 +8,7 @@
 
 #include "Module.h"
 #include "SpriteInterface.h"
+#include "World/WorldInterface.h"
 
 
 /** Spride data */
@@ -144,7 +145,9 @@ struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
 
 
 public: // IVisualComponent interface implementation
-	virtual void Update(float deltaSeconds) override;
+	//
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
 	virtual EVCType GetType() const override { return EVCType::FrameAnimation; }
 
 };
@@ -180,7 +183,7 @@ struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 
 public:// IVisualComponent interface implementation
 	//
-	virtual void Init(class IWorld& world) override;
+	virtual void Init(const LcAppContext& context) override;
 	//
 	virtual EVCType GetType() const override { return EVCType::Tiled; }
 
@@ -192,54 +195,60 @@ public:// IVisualComponent interface implementation
 class WORLD_API LcSprite : public ISprite
 {
 public:
-	LcSprite(LcSpriteData inSprite) : sprite(inSprite) {}
+	LcSprite() : pos(LcDefaults::ZeroVec3), size(LcDefaults::ZeroSize), rotZ(0.0f), visible(true) {}
 	//
 	~LcSprite() {}
-	//
-	LcSpriteData sprite;
 
 
-public:// ISprite interface implementation
+public: // ISprite interface implementation
 	//
 	virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
 
 
-public:// IVisual interface implementation
+public: // IVisual interface implementation
 	//
-	virtual void Update(float deltaSeconds);
+	virtual void Update(float deltaSeconds, const LcAppContext& context);
 	//
-	virtual void AddComponent(TVComponentPtr comp) override;
+	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
 	//
-	virtual void SetSize(LcSizef inSize) override { sprite.size = inSize; }
+	virtual void SetSize(LcSizef inSize) override { size = inSize; }
 	//
-	virtual LcSizef GetSize() const override { return sprite.size; }
+	virtual LcSizef GetSize() const override { return size; }
 	//
-	virtual void SetPos(LcVector3 inPos) override { sprite.pos = inPos; }
+	virtual void SetPos(LcVector3 inPos) override { pos = inPos; }
 	//
-	virtual void AddPos(LcVector3 inPos) override { sprite.pos = sprite.pos + inPos; }
+	virtual void AddPos(LcVector3 inPos) override { pos = pos + inPos; }
 	//
-	virtual LcVector3 GetPos() const override { return sprite.pos; }
+	virtual LcVector3 GetPos() const override { return pos; }
 	//
-	virtual void SetRotZ(float inRotZ) override { sprite.rotZ = inRotZ; }
+	virtual void SetRotZ(float inRotZ) override { rotZ = inRotZ; }
 	//
-	virtual void AddRotZ(float inRotZ) override { sprite.rotZ += inRotZ; }
+	virtual void AddRotZ(float inRotZ) override { rotZ += inRotZ; }
 	//
-	virtual float GetRotZ() const override { return sprite.rotZ; }
+	virtual float GetRotZ() const override { return rotZ; }
 	//
-	virtual void SetVisible(bool inVisible) override { sprite.visible = inVisible; }
+	virtual void SetVisible(bool inVisible) override { visible = inVisible; }
 	//
-	virtual bool IsVisible() const override { return sprite.visible; }
+	virtual bool IsVisible() const override { return visible; }
 	//
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y) {}
+	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) override {}
 	//
-	virtual void OnMouseMove(LcVector3 pos) override {}
+	virtual void OnMouseMove(LcVector3 pos, const LcAppContext& context) override {}
 	//
-	virtual void OnMouseEnter() override {}
+	virtual void OnMouseEnter(const LcAppContext& context) override {}
 	//
-	virtual void OnMouseLeave() override {}
+	virtual void OnMouseLeave(const LcAppContext& context) override {}
 
 
 protected:
 	TVFeaturesList features;
+	// [0,0] - leftBottom, x - right, y - up
+	LcVector3 pos;
+	// sprite size in pixels
+	LcSizef size;
+	// sprite rotation in degrees
+	float rotZ;
+	//
+	bool visible;
 
 };

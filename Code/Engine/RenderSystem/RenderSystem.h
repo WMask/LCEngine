@@ -31,19 +31,19 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(class IWorld& world, void* windowHandle, LcWinMode mode, bool vSync) = 0;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, const LcAppContext& context) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
 	/**
 	* Subscribe to world scale delegate */
-	virtual void Subscribe(class IWorld* world) = 0;
+	virtual void Subscribe(const LcAppContext& context) = 0;
 	/**
 	* Update world */
-	virtual void Update(float deltaSeconds, class IWorld& world) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Render world */
-	virtual void Render(class IWorld& world) = 0;
+	virtual void Render(const LcAppContext& context) = 0;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;
@@ -52,7 +52,7 @@ public:
 	virtual void RequestResize(int width, int height) = 0;
 	/**
 	* Resize render system */
-	virtual void Resize(int width, int height, class IWorld& world) = 0;
+	virtual void Resize(int width, int height, const LcAppContext& context) = 0;
 	/**
 	* Set window mode */
 	virtual void SetMode(LcWinMode mode) = 0;
@@ -65,9 +65,6 @@ public:
 
 };
 
-
-/** Widget render mode */
-enum EWRMode { Textures, Text };
 
 /**
 * Render system interface */
@@ -83,17 +80,19 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void LoadShaders(const char* folderPath) override;
 	//
-	virtual void Create(class IWorld& world, void* windowHandle, LcWinMode mode, bool vSync) override;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override {}
 	//
-	virtual void Update(float deltaSeconds, class IWorld& world) override;
+	virtual void Subscribe(const LcAppContext& context) {}
 	//
-	virtual void Render(class IWorld& world) override;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
+	virtual void Render(const LcAppContext& context) override;
 	//
 	virtual void RequestResize(int width, int height) override {}
 	//
-	virtual void Resize(int width, int height, class IWorld& world) override {}
+	virtual void Resize(int width, int height, const LcAppContext& context) override {}
 	//
 	virtual void SetMode(LcWinMode mode) override {}
 
@@ -101,16 +100,10 @@ public:// IRenderSystem interface implementation
 protected:
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;
 	/**
 	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget) = 0;
-	/**
-	* Pre render widgets */
-	virtual void PreRenderWidgets(EWRMode mode) = 0;
-	/**
-	* Post render widgets */
-	virtual void PostRenderWidgets(EWRMode mode) = 0;
+	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
 
 
 protected:
@@ -132,16 +125,13 @@ class IVisual2DRender
 public:
 	/**
 	* Setup render state */
-	virtual void Setup(const IVisual* visual) = 0;
-	/**
-	* Add font */
-	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) = 0;
+	virtual void Setup(const IVisual* visual, const LcAppContext& context) = 0;
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const class ISprite* sprite) = 0;
+	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;
 	/**
 	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget) = 0;
+	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
 	/**
 	* Checks support for the feature */
 	virtual bool Supports(const TVFeaturesList& features) const = 0;

@@ -24,28 +24,35 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto world = app->GetWorld();
 
-            if (auto sprite = world->AddSprite2D(500, 400, 200, 200))
+            auto& spriteHelper = world->GetSpriteHelper();
+            if (world->AddSprite(500, 400, LcLayers::Z2, 200, 200))
             {
-                sprite->AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
+                spriteHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            if (auto label = world->AddWidget(500, 350, 200, 100))
+            if (world->AddSprite(500, 340, LcLayers::Z1, 180, 60))
             {
-                label->AddTextComponent(L"Label Text", LcDefaults::White4, L"Calibri", 30);
+                spriteHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
             }
 
-            if (auto widget = world->AddWidget(500, 400, 32, 32))
+            auto& widgetHelper = world->GetWidgetHelper();
+            if (world->AddWidget(500, 340, 200, 50))
+            {
+                widgetHelper.AddTextComponent(L"Label Text", LcDefaults::Black4, L"Calibri", 30);
+            }
+
+            if (world->AddWidget(500, 400, 32, 32))
             {
                 auto onCheck = [](bool checked) {
                     DebugMsg("Checkbox is %s\n", checked ? "checked" : "unchecked");
                 };
-                widget->AddCheckHandlerComponent(onCheck);
+                widgetHelper.AddCheckHandlerComponent(onCheck);
             }
 
-            if (auto button = world->AddWidget(500, 450, 124, 40))
+            if (world->AddWidget(500, 450, 124, 40))
             {
-                button->AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
-                button->AddTextComponent(L"SUBMIT");
+                widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
+                widgetHelper.AddTextComponent(L"SUBMIT");
             }
         };
 

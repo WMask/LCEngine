@@ -10,58 +10,43 @@
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "Application/ApplicationInterface.h"
-#include "World/WorldInterface.h"
+#include "World/World.h"
 #include "World/Sprites.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCException.h"
 
 
-class LcSpriteFactoryDX10 : public TWorldFactory<ISprite, LcSpriteData>
+class LcSpriteLifetimeStrategyDX10 : public LcLifetimeStrategy<ISprite>
 {
 public:
-	LcSpriteFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender), tiledRender(nullptr)
-	{
-		TVFeaturesList features = { EVCType::Tiled, EVCType::Texture };
-		auto& renders = render.GetVisual2DRenderList();
-		for (auto& render : renders)
-		{
-			if (render->Supports(features))
-			{
-				tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(render.get());
-				break;
-			}
-		}
-	}
+	LcSpriteLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<ISprite> Build(const LcSpriteData& data) override
-	{
-		auto newSprite = std::make_shared<LcSpriteDX10>(data, render);
-		newSprite->tiledRender = tiledRender;
-		return newSprite;
-	}
+	virtual ~LcSpriteLifetimeStrategyDX10() {}
 	//
-	LcRenderSystemDX10& render;
+	virtual std::shared_ptr<ISprite> Create() override { return std::make_shared<LcSpriteDX10>(); }
 	//
-	LcTiledVisual2DRenderDX10* tiledRender;
+	virtual void Destroy(ISprite& item) override {}
 };
 
-class LcWidgetFactoryDX10 : public TWorldFactory<IWidget, LcWidgetData>
+class LcWidgetLifetimeStrategyDX10 : public LcLifetimeStrategy<IWidget>
 {
 public:
-	LcWidgetFactoryDX10(LcRenderSystemDX10& inRender) : render(inRender) {}
+	LcWidgetLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<IWidget> Build(const LcWidgetData& data) override
-	{
-		return std::make_shared<LcWidgetDX10>(data, render);
-	}
+	virtual ~LcWidgetLifetimeStrategyDX10() {}
 	//
-	LcRenderSystemDX10& render;
+	virtual std::shared_ptr<IWidget> Create() override { return std::make_shared<LcWidgetDX10>(); }
+	//
+	virtual void Destroy(IWidget& item) override {}
 };
+
 
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: widgetRender(nullptr)
+	, tiledRender(nullptr)
 	, renderSystemSize(0, 0)
 	, worldScale(1.0f, 1.0f, 1.0f)
 	, worldScaleFonts(false)
@@ -74,7 +59,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode winMode, bool inVSync)
+void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVSync, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -103,7 +88,7 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
 		D3D10_DRIVER_TYPE_HARDWARE, NULL, D3D10_CREATE_DEVICE_BGRA_SUPPORT,
-		D3D10_FEATURE_LEVEL_10_0, D3D10_1_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), d3dDevice.GetAddressOf())))
+		D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), d3dDevice.GetAddressOf())))
 	{
 		throw std::exception("LcRenderSystemDX10::Create(): Cannot create D3D device");
 	}
@@ -122,7 +107,34 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	}
 
 	backBuffer.Reset();
-	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
+
+	// setup depth buffer
+	D3D10_TEXTURE2D_DESC descDepth{};
+	descDepth.Width = width;
+	descDepth.Height = height;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.Usage = D3D10_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+
+	if (FAILED(d3dDevice->CreateTexture2D(&descDepth, NULL, depthStencil.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create depth buffer");
+	}
+
+	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV{};
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+
+	if (FAILED(d3dDevice->CreateDepthStencilView(depthStencil.Get(), &descDSV, depthStencilView.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10::Create(): Cannot create depth stencil view");
+	}
+
+	// set render targets
+	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 
 	// set the viewport
 	D3D10_VIEWPORT viewPort;
@@ -262,58 +274,40 @@ void LcRenderSystemDX10::Create(IWorld& world, void* windowHandle, LcWinMode win
 	d3dDevice->RSSetState(rasterizerState.Get());
 
 	// add sprite renders
-	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(*this));
-	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(*this));
-	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(*this));
-	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(*this));
-	visual2DRenders.back()->Setup(nullptr);
+	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(context));
+	textureRender = static_cast<ISpriteRender*>(visual2DRenders.back().get());
+	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(context));
+	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(context));
+	tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(visual2DRenders.back().get());
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(context));
+	visual2DRenders.back()->Setup(nullptr, context);
 
 	// add widget render
-	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(*this, hWnd));
+	float dpi = (float)GetDpiForWindow(hWnd);
+	visual2DRenders.push_back(std::make_shared<LcWidgetRenderDX10>(dpi));
 	widgetRender = (LcWidgetRenderDX10*)visual2DRenders.back().get();
-	widgetRender->Setup(nullptr);
+	widgetRender->Init(context);
 
 	// init managers
 	texLoader.reset(new LcTextureLoaderDX10());
 
-	// add sprite factory
-	world.GetCamera().Set(cameraPos, cameraTarget);
-	world.SetSpriteFactory(std::make_shared<LcSpriteFactoryDX10>(*this));
-	world.SetWidgetFactory(std::make_shared<LcWidgetFactoryDX10>(*this));
+	// setup world
+	context.world.GetCamera().Set(cameraPos, cameraTarget);
+	worldScaleFonts = context.world.GetWorldScale().scaleFonts;
 
-	worldScaleFonts = world.GetWorldScale().scaleFonts;
+	// add factories
+	LcWorld& worldRef = static_cast<LcWorld&>(context.world);
+	worldRef.SetSpriteLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategyDX10>());
+	worldRef.SetWidgetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategyDX10>());
 
 	// init render system
-	LcRenderSystemBase::Create(world, this, winMode, inVSync);
+	LcRenderSystemBase::Create(this, winMode, inVSync, context);
 
 	LcMakeWindowAssociation(hWnd);
 
 	renderSystemSize = LcSize(width, height);
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
-}
-#include "Core/LCUtils.h"
-void LcRenderSystemDX10::Subscribe(IWorld* world)
-{
-	if (world)
-	{
-		world->GetWorldScale().scaleUpdatedHandler.AddListener([this, world](LcVector2 newScale)
-		{
-			LC_TRY
-
-			DebugMsg("Fonts scaled: %.3f, %.3f\n", newScale.x, newScale.y);
-
-			worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
-
-			if (world->GetWorldScale().scaleFonts)
-			{
-				auto& widgets = world->GetWidgets();
-				for (auto widget : widgets) widget->RecreateFont();
-			}
-
-			LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
-		});
-	}
 }
 
 void LcRenderSystemDX10::Shutdown()
@@ -324,6 +318,8 @@ void LcRenderSystemDX10::Shutdown()
 	visual2DRenders.clear();
 	widgetRender = nullptr;
 
+	depthStencilView.Reset();
+	depthStencil.Reset();
 	rasterizerState.Reset();
 	blendState.Reset();
 	frameAnimBuffer.Reset();
@@ -337,9 +333,28 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
-void LcRenderSystemDX10::Update(float deltaSeconds, IWorld& world)
+void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 {
-	LcRenderSystemBase::Update(deltaSeconds, world);
+	auto contextPtr = &context;
+	context.world.GetWorldScale().scaleUpdatedHandler.AddListener([this, contextPtr](LcVector2 newScale)
+	{
+		LC_TRY
+
+		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
+
+		if (contextPtr->world.GetWorldScale().scaleFonts)
+		{
+			auto& widgets = contextPtr->world.GetWidgets();
+			for (auto widget : widgets) widget->RecreateFont(*contextPtr);
+		}
+
+		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+	});
+}
+
+void LcRenderSystemDX10::Update(float deltaSeconds, const LcAppContext& context)
+{
+	LcRenderSystemBase::Update(deltaSeconds, context);
 }
 
 void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
@@ -348,7 +363,7 @@ void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVe
 	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
-void LcRenderSystemDX10::Render(IWorld& world)
+void LcRenderSystemDX10::Render(const LcAppContext& context)
 {
 	LC_TRY
 
@@ -359,8 +374,9 @@ void LcRenderSystemDX10::Render(IWorld& world)
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
+	d3dDevice->ClearDepthStencilView(depthStencilView.Get(), D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, 1.0f, 0);
 
-	LcRenderSystemBase::Render(world);
+	LcRenderSystemBase::Render(context);
 
 	swapChain->Present(vSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD, 0);
 
@@ -382,7 +398,7 @@ void LcRenderSystemDX10::RequestResize(int width, int height)
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RequestResize()") }
 }
 
-void LcRenderSystemDX10::Resize(int width, int height, IWorld& world)
+void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -429,14 +445,14 @@ void LcRenderSystemDX10::Resize(int width, int height, IWorld& world)
 		d3dDevice->RSSetViewports(1, &viewPort);
 
 		// recreate widget render
-		widgetRender->Setup(nullptr);
+		widgetRender->Init(context);
 
 		// update world settings
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-		world.GetWorldScale().UpdateWorldScale(newViewportSize);
-		world.GetCamera().Set(cameraPos, cameraTarget);
+		context.world.GetWorldScale().UpdateWorldScale(newViewportSize);
+		context.world.GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
 		// update projection matrix
@@ -454,7 +470,7 @@ void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 	if (swapChain) swapChain->SetFullscreenState((winMode == LcWinMode::Fullscreen), nullptr);
 }
 
-void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
+void LcRenderSystemDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -468,10 +484,10 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 			{
 				prevSetupRequested = false;
 				prevSpriteFeatures = sprite->GetFeaturesList();
-				render->Setup(sprite);
+				render->Setup(sprite, context);
 			}
 
-			render->RenderSprite(sprite);
+			render->RenderSprite(sprite, context);
 			break;
 		}
 	}
@@ -479,49 +495,25 @@ void LcRenderSystemDX10::RenderSprite(const ISprite* sprite)
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderSprite()") }
 }
 
-void LcRenderSystemDX10::RenderWidget(const IWidget* widget)
+void LcRenderSystemDX10::RenderWidget(const IWidget* widget, const LcAppContext& context)
 {
 	LC_TRY
 
-	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid sprite");
+	if (!widget) throw std::exception("LcRenderSystemDX10::RenderWidget(): Invalid widget");
 
 	if (widgetRender)
 	{
-		widgetRender->RenderWidget(widget);
+		if (prevSpriteFeatures != widgetRender->GetFeaturesList() || prevSetupRequested)
+		{
+			prevSetupRequested = false;
+			prevSpriteFeatures = widgetRender->GetFeaturesList();
+			widgetRender->Setup(widget, context);
+		}
+
+		widgetRender->RenderWidget(widget, context);
 	}
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::RenderWidget()") }
-}
-
-void LcRenderSystemDX10::PreRenderWidgets(EWRMode mode)
-{
-	LC_TRY
-
-	if (widgetRender)
-	{
-		widgetRender->SetRenderMode(mode);
-
-		switch (mode)
-		{
-		case Textures:
-			if (auto textureRender = widgetRender->GetTextureRender())
-			{
-				textureRender->Setup(nullptr);
-				ForceRenderSetup();
-			}
-			break;
-		case Text:
-			widgetRender->BeginRender();
-			break;
-		}
-	}
-
-	LC_CATCH{ LC_THROW("LcRenderSystemDX10::PreRenderWidgets()") }
-}
-
-void LcRenderSystemDX10::PostRenderWidgets(EWRMode mode)
-{
-	if (widgetRender) widgetRender->EndRender();
 }
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const

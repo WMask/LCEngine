@@ -15,10 +15,6 @@
 class ISpriteRender : public IVisual2DRender
 {
 public:
-	virtual void RenderWidget(const class IWidget* widget) override {}
+	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) override {}
 
-
-protected:
-	virtual const struct ITextFont* AddFont(const std::wstring& fontName, unsigned short fontSize,
-		LcFontWeight fontWeight) override { return nullptr; }
 };

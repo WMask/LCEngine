@@ -30,53 +30,55 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             world->GetWorldScale().scaleList.insert({ {1280, 720}, {1.0f, 1.0f} });
 
             // sprites
-            if (auto sprite1 = world->AddSprite2D(200, 200, 300, 300))
+            auto& spriteHelper = world->GetSpriteHelper();
+            if (world->AddSprite2D(200, 200, 300, 300))
             {
-                sprite1->AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
             }
 
-            if (auto sprite2 = world->AddSprite2D(550, 200, 300, 300))
+            if (world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
             {
-                sprite2->AddTextureComponent("../../Assets/tree.png");
-                sprite2->AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+                spriteHelper.AddTextureComponent("../../Assets/tree.png");
+                spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
-            if (auto sprite3 = world->AddSprite2D(460, 315, 100, 100))
+            if (world->AddSprite2D(460, 315, 100, 100))
             {
-                sprite3->AddTextureComponent("../../Assets/anim.png");
-                sprite3->AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddTextureComponent("../../Assets/anim.png");
+                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
 
             // window resize controls
-            if (auto label = world->AddWidget(182, 550, 100, 32))
+            auto& widgetHelper = world->GetWidgetHelper();
+            if (world->AddWidget(182, 550, 94, 32))
             {
-                label->AddTextComponent(L"Fullscreen", LcDefaults::White4, L"Calibri", 18);
+                widgetHelper.AddTextComponent(L"Fullscreen", LcDefaults::White4, L"Calibri", 18);
             }
 
-            if (auto widget = world->AddWidget(242, 552, 32, 32))
+            if (world->AddWidget(242, 552, 32, 32))
             {
                 auto onToggleMode = [app](bool fullscreen) {
                     app->SetWindowMode(fullscreen ? LcWinMode::Fullscreen : LcWinMode::Windowed);
                 };
-                widget->AddCheckHandlerComponent(onToggleMode);
+                widgetHelper.AddCheckHandlerComponent(onToggleMode);
             }
 
-            if (auto button1 = world->AddWidget(200, 500, 124, 40))
+            if (world->AddWidget(200, 500, 124, 40))
             {
-                button1->AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
-                button1->AddTextComponent(L"1920x1080");
+                widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
+                widgetHelper.AddTextComponent(L"1920x1080");
             }
 
-            if (auto button2 = world->AddWidget(200, 450, 124, 40))
+            if (world->AddWidget(200, 450, 124, 40))
             {
-                button2->AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
-                button2->AddTextComponent(L"1600x900");
+                widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
+                widgetHelper.AddTextComponent(L"1600x900");
             }
 
-            if (auto button3 = world->AddWidget(200, 400, 124, 40))
+            if (world->AddWidget(200, 400, 124, 40))
             {
-                button3->AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
-                button3->AddTextComponent(L"1280x720");
+                widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
+                widgetHelper.AddTextComponent(L"1280x720");
             }
         };
 

@@ -18,7 +18,7 @@ class LcColoredSpriteRenderDX10 : public ISpriteRender
 public:
 	/**
 	* Constructor */
-	LcColoredSpriteRenderDX10(IRenderDeviceDX10& renderDevice);
+	LcColoredSpriteRenderDX10(const LcAppContext& context);
 	/**
 	* Destructor */
 	~LcColoredSpriteRenderDX10();
@@ -26,15 +26,14 @@ public:
 
 public:// IVisual2DRender interface implementation
 	//
-	virtual void Setup(const IVisual* visual) override;
+	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderSprite(const ISprite* sprite) override;
+	virtual void RenderSprite(const ISprite* sprite, const LcAppContext& context) override;
 	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 
 
 protected:
-	IRenderDeviceDX10& renderDevice;
 	//
 	ID3D10Buffer* vertexBuffer;
 	//
