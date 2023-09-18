@@ -13,7 +13,7 @@
 class LcXAudio2Sound : public ISound
 {
 public:
-	LcXAudio2Sound() : voice(nullptr)
+	LcXAudio2Sound() : voice(nullptr), buffer{}
 	{
 	}
 	//
@@ -29,12 +29,18 @@ public:
 	//
 	void Load(const char* filePath)
 	{
-		buffer.Load(filePath);
+		data.Load(filePath);
+
+		buffer.AudioBytes = data.getDataSize();
+		buffer.pAudioData = data.getAudioData();
+		buffer.Flags = XAUDIO2_END_OF_STREAM;
 	}
 	//
 	IXAudio2SourceVoice* voice;
 	//
-	LcRiffFile buffer;
+	XAUDIO2_BUFFER buffer;
+	//
+	LcRiffFile data;
 
 
 public: // ISound interface implementation
@@ -45,6 +51,14 @@ public: // ISound interface implementation
 	{
 		if (voice)
 		{
+			voice->Stop(0);
+			voice->FlushSourceBuffers();
+
+			if (FAILED(voice->SubmitSourceBuffer(&buffer)))
+			{
+				throw std::exception("LcXAudio2Sound::Play(): Cannot set buffer");
+			}
+
 			voice->Start(0);
 		}
 	}
@@ -142,19 +156,9 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 
 	newSound->Load(filePath);
 
-	if (FAILED(xAudio2->CreateSourceVoice(&newSound->voice, newSound->buffer.getFormat())))
+	if (FAILED(xAudio2->CreateSourceVoice(&newSound->voice, newSound->data.getFormat())))
 	{
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create voice");
-	}
-
-	XAUDIO2_BUFFER buffer{};
-	buffer.AudioBytes = newSound->buffer.getDataSize();
-	buffer.pAudioData = newSound->buffer.getAudioData();
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-
-	if (FAILED(newSound->voice->SubmitSourceBuffer(&buffer)))
-	{
-		throw std::exception("LcXAudio2System::AddSound(): Cannot set buffer");
 	}
 
 	LC_CATCH{ LC_THROW("LcXAudio2System::AddSound()") }
