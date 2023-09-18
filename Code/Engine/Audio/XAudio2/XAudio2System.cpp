@@ -27,7 +27,14 @@ public:
 		}
 	}
 	//
+	void Load(const char* filePath)
+	{
+		buffer.Load(filePath);
+	}
+	//
 	IXAudio2SourceVoice* voice;
+	//
+	LcRiffFile buffer;
 
 
 public: // ISound interface implementation
@@ -72,7 +79,10 @@ LcXAudio2System::LcXAudio2System() : masteringVoice(nullptr)
 {
 	sounds.SetLifetimeStrategy(std::make_shared<LcSoundLifetimeStrategy>());
 
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
+	{
+		throw std::exception("LcXAudio2System(): Cannot initialize");
+	}
 }
 
 LcXAudio2System::~LcXAudio2System()
@@ -84,7 +94,7 @@ LcXAudio2System::~LcXAudio2System()
 
 void LcXAudio2System::Init()
 {
-	if (FAILED(XAudio2Create(&xAudio2, XAUDIO2_DEBUG_ENGINE, XAUDIO2_DEFAULT_PROCESSOR)))
+	if (FAILED(XAudio2Create(xAudio2.GetAddressOf(), 0, XAUDIO2_DEFAULT_PROCESSOR)))
 	{
 		throw std::exception("LcXAudio2System::Init(): Cannot create XAudio2");
 	}
@@ -124,22 +134,22 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 		throw std::exception("LcXAudio2System::AddSound(): Invalid audio system");
 	}
 
-	LcRiffFile riffFile(filePath);
-
 	newSound = sounds.AddT<LcXAudio2Sound>();
 	if (!newSound)
 	{
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create sound");
 	}
 
-	if (FAILED(xAudio2->CreateSourceVoice(&newSound->voice, riffFile.getFormat())))
+	newSound->Load(filePath);
+
+	if (FAILED(xAudio2->CreateSourceVoice(&newSound->voice, newSound->buffer.getFormat())))
 	{
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create voice");
 	}
 
 	XAUDIO2_BUFFER buffer{};
-	buffer.AudioBytes = riffFile.getDataSize();
-	buffer.pAudioData = riffFile.getAudioData();
+	buffer.AudioBytes = newSound->buffer.getDataSize();
+	buffer.pAudioData = newSound->buffer.getAudioData();
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 
 	if (FAILED(newSound->voice->SubmitSourceBuffer(&buffer)))

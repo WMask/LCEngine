@@ -20,9 +20,11 @@
 class AUDIO_API LcRiffFile
 {
 public:
-	LcRiffFile(const char* filePath);
+	LcRiffFile() : fmt{} {}
 	//
-	~LcRiffFile();
+	~LcRiffFile() {}
+	//
+	void Load(const char* filePath);
 	//
 	const BYTE* getAudioData() const { return (audioData.size() == 0) ? nullptr : &audioData[0]; }
 	//

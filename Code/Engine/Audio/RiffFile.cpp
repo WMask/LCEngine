@@ -14,8 +14,6 @@
 #define fourccDATA 'atad'
 #define fourccFMT  ' tmf'
 #define fourccWAVE 'EVAW'
-#define fourccXWMA 'AMWX'
-#define fourccDPDS 'sdpd'
 
 
 bool FindChunk(const LcBytes& fileData, DWORD chunkName, DWORD& chunkOffset, DWORD& chunkDataSize)
@@ -40,7 +38,7 @@ bool FindChunk(const LcBytes& fileData, DWORD chunkName, DWORD& chunkOffset, DWO
     return false;
 }
 
-LcRiffFile::LcRiffFile(const char* filePath)
+void LcRiffFile::Load(const char* filePath)
 {
     LC_TRY
 
@@ -83,8 +81,4 @@ LcRiffFile::LcRiffFile(const char* filePath)
     memcpy(&audioData[0], &fileData[chunkOffset + sizeof(DWORD) * 2], chunkDataSize);
 
     LC_CATCH{ LC_THROW_EX("LcRiffFile(): '", filePath, "'") }
-}
-
-LcRiffFile::~LcRiffFile()
-{
 }
