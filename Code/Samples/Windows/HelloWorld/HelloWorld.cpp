@@ -8,7 +8,7 @@
 #include "HelloWorld.h"
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
-#include "World/Spriteinterface.h"
+#include "World/SpriteInterface.h"
 #include "World/WorldInterface.h"
 #include "Core/LCUtils.h"
 
