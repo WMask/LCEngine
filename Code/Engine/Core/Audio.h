@@ -26,7 +26,7 @@ public:
 	virtual void Update(float deltaSeconds) = 0;
 	/**
 	* Play sound from start */
-	virtual void Play(bool looped) = 0;
+	virtual void Play(bool looped = false) = 0;
 	/**
 	* Stop playing */
 	virtual void Stop() = 0;
@@ -74,7 +74,7 @@ public:
 	virtual void Update(float deltaSeconds) = 0;
 	/**
 	* Add sound */
-	virtual ISound* AddSound(const std::string& filePath) = 0;
+	virtual ISound* AddSound(const char* filePath) = 0;
 	/**
 	* Remove sound */
 	virtual void RemoveSound(ISound* sound) = 0;

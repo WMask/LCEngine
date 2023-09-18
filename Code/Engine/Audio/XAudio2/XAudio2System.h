@@ -19,10 +19,11 @@ using namespace Microsoft::WRL;
 
 
 class LcXAudio2Sound;
+using LcXAudio2SystemBase = LcAudioSystemBase<LcXAudio2Sound>;
 
 /**
 * XAudio2 audio system */
-class XAUDIO2_API LcXAudio2System : public LcAudioSystemBase<LcXAudio2Sound>
+class XAUDIO2_API LcXAudio2System : public LcXAudio2SystemBase
 {
 public:
 	LcXAudio2System();
@@ -38,9 +39,7 @@ public:// IAudioSystem interface implementation
 	//
 	virtual void Update(float deltaSeconds) override;
 	//
-	virtual ISound* AddSound(const std::string& filePath) override;
-	//
-	virtual void RemoveSound(ISound* sound) override;
+	virtual ISound* AddSound(const char* filePath) override;
 
 
 protected:
