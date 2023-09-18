@@ -14,12 +14,12 @@
 
 /**
 * Script system */
-class CORE_API IScriptSystem
+class IScriptSystem
 {
 public:
 	/**
-	* Destructor */
-	virtual ~IScriptSystem();
+	* Virtual destructor */
+	virtual ~IScriptSystem() {}
 	/**
 	* Runs script */
 	virtual void RunScript(const std::string& script) = 0;
@@ -34,12 +34,12 @@ typedef std::shared_ptr<IScriptSystem> TScriptSystemPtr;
 
 /**
 * Script module */
-class CORE_API IScriptModule
+class IScriptModule
 {
 public:
 	/**
-	* Destructor */
-	virtual ~IScriptModule();
+	* Virtual destructor */
+	virtual ~IScriptModule() {}
 	/**
 	* Adds script module */
 	virtual void AddTo(IScriptSystem& system) = 0;
