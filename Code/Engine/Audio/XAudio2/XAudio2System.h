@@ -23,7 +23,7 @@ using LcXAudio2SystemBase = LcAudioSystemBase<LcXAudio2Sound>;
 
 /**
 * XAudio2 audio system */
-class XAUDIO2_API LcXAudio2System : public LcXAudio2SystemBase
+class LcXAudio2System : public LcXAudio2SystemBase
 {
 public:
 	LcXAudio2System();
@@ -33,11 +33,11 @@ public:
 
 public:// IAudioSystem interface implementation
 	//
-	virtual void Init() override;
+	virtual void Init(const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override;
 	//
-	virtual void Update(float deltaSeconds) override;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual ISound* AddSound(const char* filePath) override;
 

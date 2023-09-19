@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Core/LCCreator.h"
+#include "Core/LCTypes.h"
 
 #include <string>
 #include <memory>
@@ -23,7 +24,7 @@ public:
 	virtual ~ISound() {}
 	/**
 	* Update sound */
-	virtual void Update(float deltaSeconds) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Play sound from start */
 	virtual void Play(bool looped = false) = 0;
@@ -65,13 +66,13 @@ public:
 	virtual ~IAudioSystem() {}
 	/**
 	* Initialize system */
-	virtual void Init() = 0;
+	virtual void Init(const LcAppContext& context) = 0;
 	/**
 	* Shutdown system */
 	virtual void Shutdown() = 0;
 	/**
 	* Update system */
-	virtual void Update(float deltaSeconds) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Add sound */
 	virtual ISound* AddSound(const char* filePath) = 0;
@@ -102,9 +103,9 @@ public:// IAudioSystem interface implementation
 		sounds.GetList().clear();
 	}
 	//
-	virtual void Update(float deltaSeconds) override
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override
 	{
-		for (auto& sound : sounds.GetList()) sound->Update(deltaSeconds);
+		for (auto& sound : sounds.GetList()) sound->Update(deltaSeconds, context);
 	}
 	//
 	virtual void RemoveSound(ISound* sound) override

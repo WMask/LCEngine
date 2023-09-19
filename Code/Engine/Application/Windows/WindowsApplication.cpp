@@ -154,7 +154,7 @@ void LcWindowsApplication::Run()
 
     if (audioSystem)
     {
-        audioSystem->Init();
+        audioSystem->Init(context);
     }
 
     // call app init handler
@@ -212,6 +212,11 @@ void LcWindowsApplication::OnUpdate()
         {
             renderSystem->Update(deltaFloat, context);
             renderSystem->Render(context);
+        }
+
+        if (audioSystem)
+        {
+            audioSystem->Update(deltaFloat, context);
         }
 
         if (guiManager)

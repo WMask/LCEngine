@@ -6,75 +6,10 @@
 
 #include "pch.h"
 #include "Audio/XAudio2/XAudio2System.h"
+#include "Audio/XAudio2/XAudio2Sound.h"
 #include "Audio/RiffFile.h"
 #include "Core/LCException.h"
 
-
-class LcXAudio2Sound : public ISound
-{
-public:
-	LcXAudio2Sound() : voice(nullptr), buffer{}
-	{
-	}
-	//
-	virtual ~LcXAudio2Sound() override
-	{
-		if (voice)
-		{
-			voice->Stop(0);
-			voice->DestroyVoice();
-			voice = nullptr;
-		}
-	}
-	//
-	void Load(const char* filePath)
-	{
-		data.Load(filePath);
-
-		buffer.AudioBytes = data.getDataSize();
-		buffer.pAudioData = data.getAudioData();
-		buffer.Flags = XAUDIO2_END_OF_STREAM;
-	}
-	//
-	IXAudio2SourceVoice* voice;
-	//
-	XAUDIO2_BUFFER buffer;
-	//
-	LcRiffFile data;
-
-
-public: // ISound interface implementation
-	//
-	virtual void Update(float deltaSeconds) override {}
-	//
-	virtual void Play(bool looped) override
-	{
-		if (voice)
-		{
-			voice->Stop(0);
-			voice->FlushSourceBuffers();
-
-			if (FAILED(voice->SubmitSourceBuffer(&buffer)))
-			{
-				throw std::exception("LcXAudio2Sound::Play(): Cannot set buffer");
-			}
-
-			voice->Start(0);
-		}
-	}
-	//
-	virtual void Stop() override {}
-	//
-	virtual void Pause() override {}
-	//
-	virtual void Resume() override {}
-	//
-	virtual bool IsPlaying() override { return false; }
-	//
-	virtual bool IsPaused() override { return false; }
-	//
-	virtual bool IsStreamed() override { return false; }
-};
 
 class LcSoundLifetimeStrategy : public LcLifetimeStrategy<ISound>
 {
@@ -106,7 +41,7 @@ LcXAudio2System::~LcXAudio2System()
 	CoUninitialize();
 }
 
-void LcXAudio2System::Init()
+void LcXAudio2System::Init(const LcAppContext& context)
 {
 	if (FAILED(XAudio2Create(xAudio2.GetAddressOf(), 0, XAUDIO2_DEFAULT_PROCESSOR)))
 	{
@@ -132,9 +67,9 @@ void LcXAudio2System::Shutdown()
 	xAudio2.Reset();
 }
 
-void LcXAudio2System::Update(float deltaSeconds)
+void LcXAudio2System::Update(float deltaSeconds, const LcAppContext& context)
 {
-	LcXAudio2SystemBase::Update(deltaSeconds);
+	LcXAudio2SystemBase::Update(deltaSeconds, context);
 }
 
 ISound* LcXAudio2System::AddSound(const char* filePath)
@@ -154,12 +89,7 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create sound");
 	}
 
-	newSound->Load(filePath);
-
-	if (FAILED(xAudio2->CreateSourceVoice(&newSound->voice, newSound->data.getFormat())))
-	{
-		throw std::exception("LcXAudio2System::AddSound(): Cannot create voice");
-	}
+	newSound->Load(filePath, xAudio2.Get());
 
 	LC_CATCH{ LC_THROW("LcXAudio2System::AddSound()") }
 

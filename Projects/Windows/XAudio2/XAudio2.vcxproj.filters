@@ -33,6 +33,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2System.h">
       <Filter>Header Files\XAudio2</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2Sound.h">
+      <Filter>Header Files\XAudio2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2System.cpp">
+      <Filter>Source Files\XAudio2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2Sound.cpp">
       <Filter>Source Files\XAudio2</Filter>
     </ClCompile>
   </ItemGroup>
