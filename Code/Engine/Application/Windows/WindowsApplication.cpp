@@ -10,7 +10,9 @@
 #include "RenderSystem/WidgetRender.h"
 #include "World/WorldInterface.h"
 #include "Core/LCException.h"
+#include "Core/ScriptSystem.h"
 #include "Core/Physics.h"
+#include "Core/Audio.h"
 #include "GUI/GuiManager.h"
 
 #define WS_LC_WINDOW_MENU   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
@@ -97,6 +99,7 @@ void LcWindowsApplication::Run()
     // set context
     context.render = renderSystem.get();
     context.scripts = scriptSystem.get();
+    context.audio = audioSystem.get();
     context.physics = physWorld.get();
 
     // get window size
@@ -147,6 +150,11 @@ void LcWindowsApplication::Run()
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
         renderSystem->Create(hWnd, winMode, vSync, context);
+    }
+
+    if (audioSystem)
+    {
+        audioSystem->Init();
     }
 
     // call app init handler

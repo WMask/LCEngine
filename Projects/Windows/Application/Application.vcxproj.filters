@@ -44,9 +44,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\Application\Application.cpp">
-      <Filter>Source Files\Application</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Application\AppConfig.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>

@@ -121,5 +121,7 @@ struct LcAppContext
 	//
 	class IScriptSystem* scripts;
 	//
+	class IAudioSystem* audio;
+	//
 	class IPhysicsWorld* physics;
 };

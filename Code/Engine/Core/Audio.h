@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Core/LCTypesEx.h"
+#include "Core/LCCreator.h"
 
 #include <string>
 #include <memory>
@@ -119,5 +119,3 @@ protected:
 	LcCreator<ISound, T> sounds;
 
 };
-
-typedef std::shared_ptr<IAudioSystem> TAudioSystemPtr;
