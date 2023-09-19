@@ -27,3 +27,12 @@ CORE_API void DebugMsgW(const wchar_t* fmt, ...);
 /**
 * Show message dialog and wait */
 CORE_API void ShowMessageModal(const char* message, const char* title);
+
+
+/**
+* To lower case */
+CORE_API std::string ToLower(const char* str);
+
+/**
+* To upper case */
+CORE_API std::string ToUpper(const char* str);
