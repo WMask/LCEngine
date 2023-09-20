@@ -8,6 +8,7 @@
 #include "Audio/XAudio2/XAudio2Sound.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
+#include "Audio/libvorbis/include/vorbis/vorbisfile.h"
 
 
 LcXAudio2Sound::LcXAudio2Sound()

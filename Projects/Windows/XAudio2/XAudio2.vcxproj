@@ -71,9 +71,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Audio\libvorbis\include;..\..\..\Code\Engine\Audio\libogg\include;$(IncludePath)</IncludePath>
     <TargetName>Lc$(ProjectName)</TargetName>
-    <LibraryPath>$(SolutionDir)x64\Debug\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Audio\libvorbis\bin;..\..\..\Code\Engine\Audio\libogg\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,7 +122,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;Audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;Audio.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
