@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)x64\Debug\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Audio\libogg\include;..\..\..\Code\Engine\Audio\libvorbis\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Audio\libogg\bin;..\..\..\Code\Engine\Audio\libvorbis\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,11 +145,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\Audio\Module.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Audio\OggFile.h" />
     <ClInclude Include="..\..\..\Code\Engine\Audio\RiffFile.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\Audio\OggFile.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Audio\RiffFile.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">

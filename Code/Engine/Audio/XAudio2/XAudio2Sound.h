@@ -9,6 +9,7 @@
 #include "Module.h"
 #include "Core/Audio.h"
 #include "Audio/RiffFile.h"
+#include "Audio/OggFile.h"
 
 #include <wrl.h>
 #include <xaudio2.h>
@@ -56,7 +57,9 @@ protected:
 	//
 	XAUDIO2_BUFFER xBuffers[2];
 	//
-	LcRiffFile dataBuffers[2];
+	LcRiffFile riffBuffers[2];
+	//
+	LcOggFile oggBuffers[2];
 	//
 	int currentBuffer;
 	//

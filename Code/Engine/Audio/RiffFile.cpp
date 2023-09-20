@@ -1,5 +1,5 @@
 /**
-* XAudio2System.cpp
+* RiffFile.cpp
 * 18.09.2023
 * (c) Denis Romakhov
 */

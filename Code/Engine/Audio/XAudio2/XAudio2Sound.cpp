@@ -15,7 +15,8 @@ LcXAudio2Sound::LcXAudio2Sound()
 	: voice(nullptr)
 	, streamed(false)
 	, currentBuffer(0)
-	, dataBuffers{}
+	, riffBuffers{}
+	, oggBuffers{}
 	, xBuffers{}
 {
 }
@@ -35,18 +36,35 @@ void LcXAudio2Sound::Load(const char* filePath, IXAudio2* audio)
 	auto path = ToLower(filePath);
 	streamed = (path.find("ogg") != std::string::npos);
 
-	auto& dataBuffer = dataBuffers[currentBuffer];
 	auto& xBuffer = xBuffers[currentBuffer];
 
-	dataBuffer.Load(filePath);
-
-	xBuffer.AudioBytes = dataBuffer.getDataSize();
-	xBuffer.pAudioData = dataBuffer.getAudioData();
-	xBuffer.Flags = streamed ? 0 : XAUDIO2_END_OF_STREAM;
-
-	if (FAILED(audio->CreateSourceVoice(&voice, dataBuffer.getFormat())))
+	if (streamed)
 	{
-		throw std::exception("LcXAudio2Sound::Load(): Cannot create voice");
+		auto& oggBuffer = oggBuffers[currentBuffer];
+		oggBuffer.Load(filePath);
+
+		xBuffer.AudioBytes = oggBuffer.getDataSize();
+		xBuffer.pAudioData = oggBuffer.getAudioData();
+		xBuffer.Flags = XAUDIO2_END_OF_STREAM;
+
+		if (FAILED(audio->CreateSourceVoice(&voice, oggBuffer.getFormat())))
+		{
+			throw std::exception("LcXAudio2Sound::Load(): Cannot create voice");
+		}
+	}
+	else
+	{
+		auto& riffBuffer = riffBuffers[currentBuffer];
+		riffBuffer.Load(filePath);
+
+		xBuffer.AudioBytes = riffBuffer.getDataSize();
+		xBuffer.pAudioData = riffBuffer.getAudioData();
+		xBuffer.Flags = XAUDIO2_END_OF_STREAM;
+
+		if (FAILED(audio->CreateSourceVoice(&voice, riffBuffer.getFormat())))
+		{
+			throw std::exception("LcXAudio2Sound::Load(): Cannot create voice");
+		}
 	}
 }
 
@@ -60,6 +78,16 @@ void LcXAudio2Sound::Play(bool looped)
 
 	if (streamed)
 	{
+		voice->Stop(0);
+		voice->FlushSourceBuffers();
+
+		auto& xBuffer = xBuffers[currentBuffer];
+		if (FAILED(voice->SubmitSourceBuffer(&xBuffer)))
+		{
+			throw std::exception("LcXAudio2Sound::Play(): Cannot set buffer");
+		}
+
+		voice->Start(0);
 	}
 	else
 	{
