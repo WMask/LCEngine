@@ -26,8 +26,8 @@ public:
 	* Update sound */
 	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
-	* Play sound from start */
-	virtual void Play(bool looped = false) = 0;
+	* Play sound */
+	virtual void Play() = 0;
 	/**
 	* Stop playing */
 	virtual void Stop() = 0;
@@ -35,17 +35,14 @@ public:
 	* Pause playing */
 	virtual void Pause() = 0;
 	/**
-	* Resume playing */
-	virtual void Resume() = 0;
-	/**
 	* Get sound playing state */
-	virtual bool IsPlaying() = 0;
+	virtual bool IsPlaying() const = 0;
 	/**
 	* Get sound paused state */
-	virtual bool IsPaused() = 0;
+	virtual bool IsPaused() const = 0;
 	/**
 	* Get sound streamed state. Wav - not streamed, Ogg - streamed. */
-	virtual bool IsStreamed() = 0;
+	virtual bool IsStreamed() const = 0;
 
 };
 

@@ -36,33 +36,40 @@ public: // ISound interface implementation
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
-	virtual void Play(bool looped) override;
+	virtual void Play() override;
 	//
 	virtual void Stop() override;
 	//
 	virtual void Pause() override;
 	//
-	virtual void Resume() override;
+	virtual bool IsPlaying() const override { return playing; }
 	//
-	virtual bool IsPlaying() override;
+	virtual bool IsPaused() const override { return paused; }
 	//
-	virtual bool IsPaused() override;
+	virtual bool IsStreamed() const override { return streamed; }
+
+
+protected:
 	//
-	virtual bool IsStreamed() override { return streamed; }
+	void InitStreamedBuffers();
 
 
 protected:
 	//
 	IXAudio2SourceVoice* voice;
 	//
-	XAUDIO2_BUFFER xBuffers[2];
+	XAUDIO2_BUFFER xBuffer;
 	//
-	LcRiffFile riffBuffers[2];
+	LcRiffFile riffBuffer;
 	//
-	LcOggFile oggBuffers[2];
+	LcOggFile oggBuffer;
 	//
 	int currentBuffer;
 	//
 	bool streamed;
+	//
+	bool playing;
+	//
+	bool paused;
 
 };

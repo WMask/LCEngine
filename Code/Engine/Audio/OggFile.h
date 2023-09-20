@@ -9,7 +9,6 @@
 #include "Module.h"
 #include "Core/LcTypes.h"
 
-#include <string>
 #include <mmreg.h>
 
 #pragma warning(disable : 4251)
@@ -20,22 +19,48 @@
 class AUDIO_API LcOggFile
 {
 public:
-	LcOggFile() : fmt{} {}
+	struct LcOggFileReader
+	{
+		char* curPtr;
+		char* dataPtr;
+		size_t dataSize;
+	};
+
+
+public:
+	LcOggFile();
 	//
-	~LcOggFile() {}
+	~LcOggFile();
 	//
 	void Load(const char* filePath);
 	//
-	const BYTE* getAudioData() const { return (audioData.size() == 0) ? nullptr : &audioData[0]; }
+	bool RequestNextBuffer();
+	// reset reader to file start position
+	void Stop();
 	//
-	DWORD getDataSize() const { return (DWORD)audioData.size(); }
+	const BYTE* getAudioData() const { return (buffers[curBufId].size() == 0) ? nullptr : &buffers[curBufId][0]; }
+	//
+	DWORD getDataSize() const { return (DWORD)buffers[curBufId].size(); }
 	//
 	const WAVEFORMATEX* getFormat() const { return (WAVEFORMATEX*)&fmt; }
+	//
+	bool IsEOF() const { return streamEOF; }
 
 
 protected:
+	//
+	std::shared_ptr<struct OggVorbis_File> file;
+	//
+	LcOggFileReader reader;
+	//
 	WAVEFORMATEXTENSIBLE fmt;
 	//
-	LcBytes audioData;
+	LcBytes buffers[2];
+	//
+	LcBytes compressedData;
+	//
+	int curBufId;
+	//
+	bool streamEOF;
 
 };
