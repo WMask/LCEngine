@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Application">
-      <UniqueIdentifier>{caf519e4-f8d1-49db-803a-01eb9994adb3}</UniqueIdentifier>
+    <Filter Include="Header Files\Audio">
+      <UniqueIdentifier>{c48a2c5a-7343-4c61-8a99-ee0e2d1ee1fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Application">
-      <UniqueIdentifier>{11fcc6a4-e1f1-4112-9934-ec474d1bf8c1}</UniqueIdentifier>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{70cca8b6-f387-4f0a-8646-eed734a7df98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,14 +27,14 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\Module.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\Module.h">
+      <Filter>Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\ApplicationInterface.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\RiffFile.h">
+      <Filter>Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\AppConfig.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\OggFile.h">
+      <Filter>Header Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -44,8 +44,11 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\Application\AppConfig.cpp">
-      <Filter>Source Files\Application</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\Audio\RiffFile.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Audio\OggFile.cpp">
+      <Filter>Source Files\Audio</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

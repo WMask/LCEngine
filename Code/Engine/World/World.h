@@ -7,6 +7,7 @@
 #pragma once
 
 #include "WorldInterface.h"
+#include "Core/LCCreator.h"
 #include "Camera.h"
 
 #pragma warning(disable : 4251)

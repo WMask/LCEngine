@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Application">
-      <UniqueIdentifier>{caf519e4-f8d1-49db-803a-01eb9994adb3}</UniqueIdentifier>
+    <Filter Include="Header Files\XAudio2">
+      <UniqueIdentifier>{7997cc8e-6b1d-4583-8a14-7d2711024432}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Application">
-      <UniqueIdentifier>{11fcc6a4-e1f1-4112-9934-ec474d1bf8c1}</UniqueIdentifier>
+    <Filter Include="Source Files\XAudio2">
+      <UniqueIdentifier>{26155944-6f9f-48a6-ad3e-5d4b01e082c1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,14 +27,14 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\Module.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\XAudio2\Module.h">
+      <Filter>Header Files\XAudio2</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\ApplicationInterface.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2System.h">
+      <Filter>Header Files\XAudio2</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\Application\AppConfig.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2Sound.h">
+      <Filter>Header Files\XAudio2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -44,8 +44,11 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\Application\AppConfig.cpp">
-      <Filter>Source Files\Application</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2System.cpp">
+      <Filter>Source Files\XAudio2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Audio\XAudio2\XAudio2Sound.cpp">
+      <Filter>Source Files\XAudio2</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

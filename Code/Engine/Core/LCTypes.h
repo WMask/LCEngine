@@ -111,7 +111,8 @@ public:
 /** Application context */
 struct LcAppContext
 {
-	LcAppContext(class IWorld& inWorld) : world(inWorld), render(nullptr), scripts(nullptr), physics(nullptr) {}
+	LcAppContext(class IWorld& inWorld) :
+		world(inWorld), render(nullptr), audio(nullptr), scripts(nullptr), physics(nullptr) {}
 	//
 	class IWorld* GetWorldPtr() const { return &world; }
 	//
@@ -120,6 +121,8 @@ struct LcAppContext
 	class IRenderSystem* render;
 	//
 	class IScriptSystem* scripts;
+	//
+	class IAudioSystem* audio;
 	//
 	class IPhysicsWorld* physics;
 };

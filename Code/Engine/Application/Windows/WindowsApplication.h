@@ -12,6 +12,8 @@
 #include "Application/ApplicationInterface.h"
 #include "Core/LCTypesEx.h"
 
+#pragma warning(disable : 4275)
+
 
 /**
 * Win32 Application class */
@@ -37,9 +39,11 @@ public: // IApplication interface implementation
 	//
 	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept { scriptSystem = scripts; }
 	//
-	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
+	virtual void SetAudioSystem(TAudioSystemPtr audio) noexcept { audioSystem = audio; }
 	//
 	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept { physWorld = inPhysWorld; }
+	//
+	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
 	//
 	virtual void SetWindowSize(int width, int height) override;
 	//
@@ -71,13 +75,17 @@ public: // IApplication interface implementation
 	//
 	virtual TWorldPtr GetWorldPtr() noexcept override { return world; }
 	//
-	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept override { return physWorld.get(); }
-	//
-	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept override { return physWorld; }
-	//
 	virtual class IScriptSystem* GetScriptSystem() noexcept override { return scriptSystem.get(); }
 	//
 	virtual TScriptSystemPtr GetScriptSystemPtr() noexcept override { return scriptSystem; }
+	//
+	virtual class IAudioSystem* GetAudioSystem() noexcept override { return audioSystem.get(); }
+	//
+	virtual TAudioSystemPtr GetAudioSystemPtr() noexcept override { return audioSystem; }
+	//
+	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept override { return physWorld.get(); }
+	//
+	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept override { return physWorld; }
 
 
 protected:
@@ -115,9 +123,11 @@ protected:
 	//
 	TScriptSystemPtr scriptSystem;
 	//
-	TGuiManagerPtr guiManager;
+	TAudioSystemPtr audioSystem;
 	//
 	TPhysicsWorldPtr physWorld;
+	//
+	TGuiManagerPtr guiManager;
 	//
 	LcAppContext context;
 

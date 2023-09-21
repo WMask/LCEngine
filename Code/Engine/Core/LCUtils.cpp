@@ -8,6 +8,10 @@
 #include "LCUtils.h"
 #include "LCException.h"
 
+#include <algorithm>
+#include <string>
+#include <cctype>
+
 
 std::string ReadTextFile(const char* filePath)
 {
@@ -49,6 +53,28 @@ LcBytes ReadBinaryFile(const char* filePath)
 	LC_CATCH{ LC_THROW_EX("ReadBinaryFile('", filePath, "')"); }
 
 	return result;
+}
+
+std::string ToLower(const char* str)
+{
+	std::string src(str);
+	std::string dst;
+	dst.resize(src.size());
+
+	std::transform(src.begin(), src.end(), dst.begin(), ::tolower);
+
+	return dst;
+}
+
+std::string ToUpper(const char* str)
+{
+	std::string src(str);
+	std::string dst;
+	dst.resize(src.size());
+
+	std::transform(src.begin(), src.end(), dst.begin(), ::toupper);
+
+	return dst;
 }
 
 #ifdef _WINDOWS

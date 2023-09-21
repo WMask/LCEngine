@@ -8,6 +8,7 @@
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
+#include "Core/LCCreator.h"
 
 #include <memory>
 #include <deque>

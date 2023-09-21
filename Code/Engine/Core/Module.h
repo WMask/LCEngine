@@ -16,5 +16,7 @@
 #endif
 
 
-/** Physics world */
+typedef std::shared_ptr<class IScriptSystem> TScriptSystemPtr;
+typedef std::shared_ptr<class IAudioSystem> TAudioSystemPtr;
 typedef std::shared_ptr<class IPhysicsWorld> TPhysicsWorldPtr;
+

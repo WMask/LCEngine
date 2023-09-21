@@ -9,6 +9,8 @@
 #include "Module.h"
 #include "Core/ScriptSystem.h"
 
+#pragma warning(disable : 4275)
+
 
 /**
 * Lua script system */
