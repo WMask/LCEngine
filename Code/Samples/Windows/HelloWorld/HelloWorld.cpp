@@ -29,14 +29,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        KEYS keys;
-        auto onUpdateHandler = [&keys](float deltaSeconds, IApplication* app)
+        auto onUpdateHandler = [](float deltaSeconds, IApplication* app)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
             auto sprite = app->GetWorld()->GetSprites()[0];
 
             // move sprite
+            auto& keys = app->GetInputSystem()->GetState();
             if (keys[VK_LEFT]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
             if (keys[VK_RIGHT]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
 
@@ -44,10 +44,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (keys[VK_DOWN]) sprite->AddRotZ(2 * deltaSeconds);
         };
 
-        auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
-
             if (key == 'Q') app->RequestQuit();
         };
 
@@ -55,7 +53,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         app->SetRenderSystem(GetRenderSystem());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
-        app->SetKeyboardHandler(onKeyboardHandler);
+        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
         app->SetWindowSize(1024, 768);
         app->Init(hInstance);
         app->Run();

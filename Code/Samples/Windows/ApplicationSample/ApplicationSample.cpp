@@ -82,8 +82,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        KEYS keys;
-        auto onUpdateHandler = [&keys](float deltaSeconds, IApplication* app)
+        auto onUpdateHandler = [](float deltaSeconds, IApplication* app)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
@@ -93,10 +92,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             sprite->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
         };
 
-        auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
-
             if (key == 'Q') app->RequestQuit();
         };
 
@@ -110,7 +107,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         app->SetGuiManager(GetGuiManager());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
-        app->SetKeyboardHandler(onKeyboardHandler);
+        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
         app->SetWindowSize(winWidth, winHeight);
         app->Init(hInstance);
         app->Run();

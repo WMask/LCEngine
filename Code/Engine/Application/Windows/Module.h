@@ -22,3 +22,7 @@ typedef std::unique_ptr<class IApplication> TAppPtr;
 /**
 * Windows application */
 WINDOWSAPPLICATION_API TAppPtr GetApp();
+
+/**
+* Windows input system */
+WINDOWSAPPLICATION_API TInputSystemPtr GetWindowsInputSystem();

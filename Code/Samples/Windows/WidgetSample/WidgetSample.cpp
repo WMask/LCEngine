@@ -56,7 +56,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        auto onKeyboardHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
             if (key == 'Q' && keyEvent == LcKeyState::Down) app->RequestQuit();
         };
@@ -65,7 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         app->SetRenderSystem(GetRenderSystem());
         app->SetGuiManager(GetGuiManager());
         app->SetInitHandler(onInitHandler);
-        app->SetKeyboardHandler(onKeyboardHandler);
+        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
         app->SetWindowSize(1024, 768);
         app->Init(hInstance);
         app->Run();

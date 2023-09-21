@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\Core\Audio.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Core\InputSystem.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCCreator.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCDelegate.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCException.h" />

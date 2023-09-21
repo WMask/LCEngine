@@ -112,7 +112,9 @@ public:
 struct LcAppContext
 {
 	LcAppContext(class IWorld& inWorld) :
-		world(inWorld), render(nullptr), audio(nullptr), scripts(nullptr), physics(nullptr) {}
+		world(inWorld), render(nullptr), audio(nullptr),
+		scripts(nullptr), input(nullptr), gui(nullptr),
+		physics(nullptr), windowHandle(nullptr) {}
 	//
 	class IWorld* GetWorldPtr() const { return &world; }
 	//
@@ -124,5 +126,11 @@ struct LcAppContext
 	//
 	class IAudioSystem* audio;
 	//
+	class IInputSystem* input;
+	//
+	class IGuiManager* gui;
+	//
 	class IPhysicsWorld* physics;
+	//
+	void* windowHandle;
 };

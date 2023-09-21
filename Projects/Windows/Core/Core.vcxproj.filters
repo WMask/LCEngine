@@ -57,6 +57,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCCreator.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Core\InputSystem.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

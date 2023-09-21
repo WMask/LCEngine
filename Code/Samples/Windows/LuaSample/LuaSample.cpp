@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        auto onKeyboardHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
             if (auto lua = app->GetScriptSystem())
             {
@@ -48,7 +48,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
         auto app = GetApp();
         app->SetInitHandler(onInitHandler);
-        app->SetKeyboardHandler(onKeyboardHandler);
+        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
         app->SetScriptSystem(GetScriptSystem());
         app->SetWindowSize(800, 600);
         app->Init(hInstance);
