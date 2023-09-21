@@ -34,6 +34,8 @@ public:
 
 public: // ISound interface implementation
 	//
+	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) override { streamedEndHandler = handler; }
+	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual void Play() override;
@@ -56,6 +58,8 @@ protected:
 
 protected:
 	//
+	LcPlaybackEndHandler streamedEndHandler;
+	//
 	IXAudio2SourceVoice* voice;
 	//
 	XAUDIO2_BUFFER xBuffer;
@@ -63,8 +67,6 @@ protected:
 	LcRiffFile riffBuffer;
 	//
 	LcOggFile oggBuffer;
-	//
-	int currentBuffer;
 	//
 	bool streamed;
 	//

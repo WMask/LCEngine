@@ -72,9 +72,8 @@ long LcTellOgg(void* fh)
 
 static ov_callbacks callbacks{ LcReadOgg, LcSeekOgg, LcCloseOgg, LcTellOgg };
 
-bool FillBuffer(LcBytes& buffer, OggVorbis_File& vf)
+bool FillBuffer(LcBytes& buffer, OggVorbis_File& vf, bool& eof)
 {
-    bool eof = false;
     int curSection = 0, fullSize = 0;
     char tmpBuf[LC_OGG_CHUNK_SIZE];
 
@@ -154,7 +153,7 @@ void LcOggFile::Load(const char* filePath)
     fmt.Format.nBlockAlign = 2 * fmt.Format.nChannels;
     fmt.Format.wFormatTag = 1;
 
-    FillBuffer(buffers[0], *newFile);
+    FillBuffer(buffers[0], *newFile, streamEOF);
 
     file = newFile;
 
@@ -168,32 +167,28 @@ bool LcOggFile::RequestNextBuffer()
     curBufId = (curBufId == 0) ? 1 : 0;
     LcBytes* curBuf = &buffers[curBufId];
 
-    if (!FillBuffer(*curBuf, *file))
-    {
-        streamEOF = true;
-    }
-
-    return !streamEOF;
+    return FillBuffer(*curBuf, *file, streamEOF);
 }
 
 void LcOggFile::Stop()
 {
-    if (!compressedData.empty())
-    {
-        reader.curPtr = (char*)&compressedData[0];
-    }
-
     if (file)
     {
+        if (!compressedData.empty())
+        {
+            reader.curPtr = (char*)&compressedData[0];
+        }
+
         ov_clear(file.get());
         file.reset(new OggVorbis_File());
         if (ov_open_callbacks((void*)&reader, file.get(), NULL, -1, callbacks) < 0)
         {
-            throw std::exception("LcOggFile(): Cannot read ogg data");
+            throw std::exception("LcOggFile::Stop(): Cannot read ogg data");
         }
 
+        streamEOF = false;
         curBufId = 0;
         buffers[1].clear();
-        FillBuffer(buffers[0], *file);
+        FillBuffer(buffers[0], *file, streamEOF);
     }
 }

@@ -9,7 +9,6 @@
 #include "Module.h"
 #include "Core/LcTypes.h"
 
-#include <string>
 #include <mmreg.h>
 
 #pragma warning(disable : 4251)

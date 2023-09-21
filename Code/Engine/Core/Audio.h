@@ -9,10 +9,14 @@
 #include "Core/LCCreator.h"
 #include "Core/LCTypes.h"
 
+#include <functional>
 #include <string>
 #include <memory>
 #include <deque>
 
+
+/** Playback end handler */
+typedef std::function<void(class ISound&)> LcPlaybackEndHandler;
 
 /**
 * Playable sound interface */
@@ -22,6 +26,9 @@ public:
 	/**
 	* Virtual destructor */
 	virtual ~ISound() {}
+	/**
+	* Set streamed sound end hanfler */
+	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) = 0;
 	/**
 	* Update sound */
 	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;

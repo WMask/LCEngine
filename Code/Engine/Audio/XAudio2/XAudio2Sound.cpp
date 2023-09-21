@@ -8,15 +8,16 @@
 #include "Audio/XAudio2/XAudio2Sound.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
+
 #include "Audio/libvorbis/include/vorbis/vorbisfile.h"
 
 
 LcXAudio2Sound::LcXAudio2Sound()
-	: voice(nullptr)
+	: streamedEndHandler{}
+	, voice(nullptr)
 	, streamed(false)
 	, playing(false)
 	, paused(false)
-	, currentBuffer(0)
 	, xBuffer{}
 {
 }
@@ -34,11 +35,12 @@ LcXAudio2Sound::~LcXAudio2Sound()
 void LcXAudio2Sound::Load(const char* filePath, IXAudio2* audio)
 {
 	auto path = ToLower(filePath);
-	streamed = (path.find("ogg") != std::string::npos);
+	streamed = (path.find(".ogg") == path.length() - 4);
 
 	if (streamed)
 	{
 		oggBuffer.Load(filePath);
+
 		if (FAILED(audio->CreateSourceVoice(&voice, oggBuffer.getFormat())))
 		{
 			throw std::exception("LcXAudio2Sound::Load(): Cannot create voice");
@@ -84,36 +86,46 @@ void LcXAudio2Sound::Update(float deltaSeconds, const LcAppContext& context)
 {
 	if (!voice) return;
 
-	XAUDIO2_VOICE_STATE state{};
-	voice->GetState(&state);
-
-	if (streamed && playing)
+	if (playing)
 	{
-		if (state.BuffersQueued < 2)
-		{
-			if (oggBuffer.RequestNextBuffer())
-			{
-				xBuffer.AudioBytes = oggBuffer.getDataSize();
-				xBuffer.pAudioData = oggBuffer.getAudioData();
-				xBuffer.Flags = oggBuffer.IsEOF() ? XAUDIO2_END_OF_STREAM : 0;
-
-				if (FAILED(voice->SubmitSourceBuffer(&xBuffer)))
-				{
-					throw std::exception("LcXAudio2Sound::Update(): Cannot set buffer");
-				}
-			}
-		}
-	}
-
-	if (state.BuffersQueued == 0)
-	{
-		playing = false;
-		paused = false;
+		XAUDIO2_VOICE_STATE state{};
+		voice->GetState(&state);
 
 		if (streamed)
 		{
-			oggBuffer.Stop();
-			InitStreamedBuffers();
+			if (state.BuffersQueued < 2)
+			{
+				// need at least 2 buffers
+				if (oggBuffer.RequestNextBuffer())
+				{
+					xBuffer.AudioBytes = oggBuffer.getDataSize();
+					xBuffer.pAudioData = oggBuffer.getAudioData();
+					xBuffer.Flags = oggBuffer.IsEOF() ? XAUDIO2_END_OF_STREAM : 0;
+
+					if (FAILED(voice->SubmitSourceBuffer(&xBuffer)))
+					{
+						throw std::exception("LcXAudio2Sound::Update(): Cannot set buffer");
+					}
+				}
+			}
+		}
+
+		if (state.BuffersQueued == 0 && oggBuffer.IsEOF())
+		{
+			voice->Stop(0);
+			voice->FlushSourceBuffers();
+
+			playing = false;
+			paused = false;
+
+			if (streamed)
+			{
+				// reset to start
+				oggBuffer.Stop();
+				InitStreamedBuffers();
+
+				if (streamedEndHandler) streamedEndHandler(*this);
+			}
 		}
 	}
 }
@@ -156,6 +168,7 @@ void LcXAudio2Sound::Stop()
 
 	if (streamed)
 	{
+		// reset to start
 		oggBuffer.Stop();
 		InitStreamedBuffers();
 	}
