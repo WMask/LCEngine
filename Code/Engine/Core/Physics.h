@@ -47,7 +47,7 @@ public:
 	* Get user data */
 	virtual void* GetUserData() const = 0;
 	/**
-	* Get user class */
+	* Get user object */
 	template<class T> T* GetUserObject() const { return static_cast<T*>(GetUserData()); }
 	/**
 	* Check area below the body. Depth - bottom offset in pixels */
