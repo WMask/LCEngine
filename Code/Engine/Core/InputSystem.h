@@ -12,6 +12,47 @@
 #include <functional>
 
 
+#define LC_JOYSTICK_MAX_COUNT 4
+
+enum LcInputDeviceType {
+	Keyboard,
+	Joystick1,
+	Joystick2,
+	Joystick3,
+	Joystick4
+};
+
+
+/**
+* Input device interface */
+class IInputDevice
+{
+public:
+	/**
+	* Virtual destructor */
+	virtual ~IInputDevice() {}
+	/**
+	* Set as active */
+	virtual void Activate() = 0;
+	/**
+	* Set as inactive */
+	virtual void Deactivate() = 0;
+	/**
+	* Get active state */
+	virtual bool IsActive() const = 0;
+	/**
+	* Get joystick name */
+	virtual std::string GetName() const = 0;
+	/**
+	* Get joystick type */
+	virtual LcInputDeviceType GetType() const = 0;
+
+};
+
+
+/** Input devices list */
+typedef std::deque<std::shared_ptr<IInputDevice>> TInputDevicesList;
+
 /** Keyboard events handler */
 typedef std::function<void(int, LcKeyState, class IApplication*)> LcKeysHandler;
 
@@ -67,10 +108,51 @@ public:
 	* Get mouse button handler */
 	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept = 0;
 	/**
+	* Get input devices list */
+	virtual const TInputDevicesList& GetInputDevicesList() const = 0;
+	/**
+	* Get input devices list */
+	virtual TInputDevicesList& GetInputDevicesList() = 0;
+	/**
+	* Get active input device */
+	virtual const IInputDevice* GetActiveInputDevice() const = 0;
+	/**
+	* Get active input device */
+	virtual IInputDevice* GetActiveInputDevice() = 0;
+	/**
 	* Get input state */
 	virtual const KEYS& GetState() const = 0;
 	/**
 	* Get input state */
 	virtual KEYS& GetState() = 0;
+
+};
+
+
+/**
+* Default keyboard */
+class LcKeyboard : public IInputDevice
+{
+public:
+	LcKeyboard() : active(true) {}
+
+
+public:
+	//
+	virtual ~LcKeyboard() {}
+	//
+	virtual void Activate() override { active = true; }
+	//
+	virtual void Deactivate() override { active = false; }
+	//
+	virtual bool IsActive() const override { return active; }
+	//
+	virtual std::string GetName() const override { return "Keyboard"; }
+	//
+	virtual LcInputDeviceType GetType() const override { return LcInputDeviceType::Keyboard; }
+
+
+protected:
+	bool active;
 
 };

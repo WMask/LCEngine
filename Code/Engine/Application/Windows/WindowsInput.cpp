@@ -9,8 +9,6 @@
 
 #include <dinputd.h>
 
-#define LC_JOYSTICK_MAX_COUNT 4
-
 
 struct DI_ENUM_CONTEXT
 {
@@ -81,6 +79,12 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
 
 void LcDirectInputSystem::EnumerateDevices()
 {
+}
+
+LcWindowsInputSystem::LcWindowsInputSystem() : activeDevice(nullptr)
+{
+    devices.push_back(std::make_shared<LcKeyboard>());
+    activeDevice = devices[0].get();
 }
 
 TInputSystemPtr GetWindowsInputSystem()

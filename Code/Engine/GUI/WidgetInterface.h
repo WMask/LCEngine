@@ -71,7 +71,7 @@ public: // IVisual interface implementation
 public:
     /**
     * Keyboard key event */
-    virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) = 0;
+    virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) = 0;
     /**
     * Recreate font after World scale change */
     virtual void RecreateFont(const LcAppContext& context) = 0;

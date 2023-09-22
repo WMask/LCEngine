@@ -23,7 +23,7 @@ class LcWindowsInputSystem : public IInputSystem
 {
 public:
 	//
-	LcWindowsInputSystem() {}
+	LcWindowsInputSystem();
 
 
 public: // IInputSystem interface implementation
@@ -52,6 +52,14 @@ public: // IInputSystem interface implementation
 	//
 	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept override { return mouseButtonHandler; }
 	//
+	virtual const TInputDevicesList& GetInputDevicesList() const override { return devices; }
+	//
+	virtual TInputDevicesList& GetInputDevicesList() override { return devices; }
+	//
+	virtual const IInputDevice* GetActiveInputDevice() const override { return activeDevice; }
+	//
+	virtual IInputDevice* GetActiveInputDevice() override { return activeDevice; }
+	//
 	virtual const KEYS& GetState() const override { return keys; }
 	//
 	virtual KEYS& GetState() override { return keys; }
@@ -68,6 +76,10 @@ protected:
 	LcMouseMoveHandler mouseMoveHandler;
 	//
 	LcMouseButtonHandler mouseButtonHandler;
+	//
+	IInputDevice* activeDevice;
+	//
+	TInputDevicesList devices;
 
 };
 
