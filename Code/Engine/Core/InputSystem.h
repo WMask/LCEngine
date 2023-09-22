@@ -84,6 +84,9 @@ public:
 	* Update input system */
 	virtual void Update(float deltaSeconds, struct LcAppContext& context) = 0;
 	/**
+	* Set active device */
+	virtual void SetActiveDevice(const IInputDevice* device) = 0;
+	/**
 	* Set keyboard handler */
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept = 0;
 	/**

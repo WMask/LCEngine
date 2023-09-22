@@ -36,6 +36,8 @@ public: // IInputSystem interface implementation
 	//
 	virtual void Update(float deltaSeconds, struct LcAppContext& context) override {}
 	//
+	virtual void SetActiveDevice(const IInputDevice* device) override;
+	//
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept override { keysHandler = handler; }
 	//
 	virtual void SetAxisHandler(LcAxisHandler handler) noexcept override { axisHandler = handler; }

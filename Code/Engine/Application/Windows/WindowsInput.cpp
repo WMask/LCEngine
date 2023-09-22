@@ -87,6 +87,21 @@ LcWindowsInputSystem::LcWindowsInputSystem() : activeDevice(nullptr)
     activeDevice = devices[0].get();
 }
 
+void LcWindowsInputSystem::SetActiveDevice(const IInputDevice* activeDevice)
+{
+    for (auto& device : devices)
+    {
+        if (device.get() == activeDevice)
+        {
+            device->Activate();
+        }
+        else
+        {
+            device->Deactivate();
+        }
+    }
+}
+
 TInputSystemPtr GetWindowsInputSystem()
 {
     return std::make_unique<LcWindowsInputSystem>();
