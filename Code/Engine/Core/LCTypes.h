@@ -46,7 +46,7 @@ enum class LcRenderSystemType
 enum class LcWinMode : int { Windowed, Fullscreen };
 
 
-#define LC_KEYS_COUNT 220
+#define LC_KEYS_COUNT 150
 
 /** Keys struct */
 struct CORE_API KEYS
