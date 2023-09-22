@@ -37,6 +37,9 @@ public:
 	* Initialize input system */
 	virtual void Init(struct LcAppContext& context) = 0;
 	/**
+	* Shutdown input system */
+	virtual void Shutdown() = 0;
+	/**
 	* Update input system */
 	virtual void Update(float deltaSeconds, struct LcAppContext& context) = 0;
 	/**

@@ -53,6 +53,18 @@ LcWindowsApplication::~LcWindowsApplication()
 {
     if (world) world.reset();
 
+    if (inputSystem)
+    {
+        inputSystem->Shutdown();
+        inputSystem.reset();
+    }
+
+    if (audioSystem)
+    {
+        audioSystem->Shutdown();
+        audioSystem.reset();
+    }
+
     if (guiManager)
     {
         guiManager->Shutdown();

@@ -26,3 +26,7 @@ WINDOWSAPPLICATION_API TAppPtr GetApp();
 /**
 * Windows input system */
 WINDOWSAPPLICATION_API TInputSystemPtr GetWindowsInputSystem();
+
+/**
+* Windows DirectInput system */
+WINDOWSAPPLICATION_API TInputSystemPtr GetDirectInputSystem();

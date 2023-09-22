@@ -7,8 +7,88 @@
 #include "pch.h"
 #include "Application/Windows/WindowsInput.h"
 
+#include <dinputd.h>
+
+#define LC_JOYSTICK_MAX_COUNT 4
+
+
+struct DI_ENUM_CONTEXT
+{
+    DIJOYCONFIG* preferredJoyCfg;
+    bool preferredJoyCfgValid;
+};
+
+LcDirectInputSystem::LcDirectInputSystem()
+{
+    if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
+    {
+        throw std::exception("LcDirectInputSystem(): Cannot initialize");
+    }
+}
+
+LcDirectInputSystem::~LcDirectInputSystem()
+{
+    Shutdown();
+
+    CoUninitialize();
+}
+
+void LcDirectInputSystem::Init(struct LcAppContext& context)
+{
+    if (FAILED(DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)directInput.GetAddressOf(), nullptr)))
+    {
+        throw std::exception("LcDirectInputSystem::Init(): Cannot create DirectInput");
+    }
+
+    ComPtr<IDirectInputJoyConfig8> joyConfig;
+    if (FAILED(directInput->QueryInterface(IID_IDirectInputJoyConfig8, (void**)&joyConfig)))
+    {
+        throw std::exception("LcDirectInputSystem::Init(): Cannot get config");
+    }
+
+    DIJOYCONFIG preferredJoyCfg{};
+    preferredJoyCfg.dwSize = sizeof(preferredJoyCfg);
+
+    DI_ENUM_CONTEXT enumContext{};
+    enumContext.preferredJoyCfg = &preferredJoyCfg;
+
+    int joyId = 0;
+    while (!enumContext.preferredJoyCfgValid && joyId < LC_JOYSTICK_MAX_COUNT)
+    {
+        if (SUCCEEDED(joyConfig->GetConfig(joyId, &preferredJoyCfg, DIJC_GUIDINSTANCE)))
+        {
+            enumContext.preferredJoyCfgValid = true;
+        }
+
+        joyId++;
+    }
+
+    if (enumContext.preferredJoyCfgValid)
+    {
+        EnumerateDevices();
+    }
+}
+
+void LcDirectInputSystem::Shutdown()
+{
+    directInput.Reset();
+}
+
+void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& context)
+{
+
+}
+
+void LcDirectInputSystem::EnumerateDevices()
+{
+}
 
 TInputSystemPtr GetWindowsInputSystem()
 {
-    return std::make_unique<LcInputSystemWindows>();
+    return std::make_unique<LcWindowsInputSystem>();
+}
+
+TInputSystemPtr GetDirectInputSystem()
+{
+    return std::make_unique<LcDirectInputSystem>();
 }

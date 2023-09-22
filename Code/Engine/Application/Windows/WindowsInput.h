@@ -9,21 +9,30 @@
 #include "Module.h"
 #include "Core/InputSystem.h"
 
+#define DIRECTINPUT_VERSION 0x0800
+
+#include <dinput.h>
+#include <wrl.h>
+
+using namespace Microsoft::WRL;
+
 
 /**
 * Win32 Input system */
-class LcInputSystemWindows : public IInputSystem
+class LcWindowsInputSystem : public IInputSystem
 {
 public:
 	//
-	LcInputSystemWindows() {}
+	LcWindowsInputSystem() {}
 
 
 public: // IInputSystem interface implementation
 	//
-	virtual ~LcInputSystemWindows() override {}
+	virtual ~LcWindowsInputSystem() override {}
 	//
 	virtual void Init(struct LcAppContext& context) override {}
+	//
+	virtual void Shutdown() override {}
 	//
 	virtual void Update(float deltaSeconds, struct LcAppContext& context) override {}
 	//
@@ -59,5 +68,37 @@ protected:
 	LcMouseMoveHandler mouseMoveHandler;
 	//
 	LcMouseButtonHandler mouseButtonHandler;
+
+};
+
+
+/**
+* DirectInput system */
+class LcDirectInputSystem : public LcWindowsInputSystem
+{
+public:
+	//
+	LcDirectInputSystem();
+
+
+public: // LcWindowsInputSystem override
+	//
+	virtual ~LcDirectInputSystem() override;
+	//
+	virtual void Init(struct LcAppContext& context) override;
+	//
+	virtual void Shutdown() override;
+	//
+	virtual void Update(float deltaSeconds, struct LcAppContext& context) override;
+
+
+protected:
+	//
+	void EnumerateDevices();
+
+
+protected:
+	//
+	ComPtr<IDirectInput8> directInput;
 
 };
