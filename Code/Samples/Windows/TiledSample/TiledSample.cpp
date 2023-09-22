@@ -57,13 +57,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             physWorld->Update(deltaSeconds);
 
             auto body = physWorld->GetDynamicBodies()[0];
-            auto vel = body->GetVelocity();
-
             if (auto hero = body->GetUserObject<ISprite>())
             {
                 hero->SetPos(To3(body->GetPos()));
             }
 
+            auto vel = body->GetVelocity();
             auto& keys = app->GetInputSystem()->GetState();
             if (keys[VK_LEFT]) body->SetVelocity(LcVector2(-1.2f, vel.y));
             if (keys[VK_RIGHT]) body->SetVelocity(LcVector2(1.2f, vel.y));
