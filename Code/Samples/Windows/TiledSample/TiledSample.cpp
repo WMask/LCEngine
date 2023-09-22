@@ -63,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
 
             auto vel = body->GetVelocity();
-            auto& keys = app->GetInputSystem()->GetState();
+            auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
             if (keys[VK_LEFT]) body->SetVelocity(LcVector2(-1.2f, vel.y));
             if (keys[VK_RIGHT]) body->SetVelocity(LcVector2(1.2f, vel.y));
         };
