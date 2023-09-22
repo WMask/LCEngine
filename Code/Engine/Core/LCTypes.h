@@ -29,8 +29,8 @@ enum class LcMouseBtn
 /** Key state */
 enum class LcKeyState
 {
-	Down,
-	Up
+	Up,
+	Down
 };
 
 /** Render system type */
@@ -46,16 +46,20 @@ enum class LcRenderSystemType
 enum class LcWinMode : int { Windowed, Fullscreen };
 
 
+#define LC_KEYS_COUNT 220
+
 /** Keys struct */
 struct CORE_API KEYS
 {
 	KEYS();
 	//
+	unsigned char* Get() { return keys; }
+	//
+	const unsigned char* Get() const { return keys; }
+	//
 	unsigned char& operator[](int index);
 	//
-	const static int numKeys = 128;
-	//
-	unsigned char keys[numKeys];
+	unsigned char keys[LC_KEYS_COUNT];
 };
 
 /** Any value container */
@@ -111,7 +115,7 @@ public:
 /** Application context */
 struct LcAppContext
 {
-	LcAppContext(class IWorld& inWorld) :
+	LcAppContext(class IWorld& inWorld) : app(nullptr),
 		world(inWorld), render(nullptr), audio(nullptr),
 		scripts(nullptr), input(nullptr), gui(nullptr),
 		physics(nullptr), windowHandle(nullptr) {}
@@ -119,6 +123,8 @@ struct LcAppContext
 	class IWorld* GetWorldPtr() const { return &world; }
 	//
 	class IWorld& world;
+	//
+	class IApplication* app;
 	//
 	class IRenderSystem* render;
 	//

@@ -61,15 +61,9 @@ public: // IInputSystem interface implementation
 	virtual const IInputDevice* GetActiveInputDevice() const override { return activeDevice; }
 	//
 	virtual IInputDevice* GetActiveInputDevice() override { return activeDevice; }
-	//
-	virtual const KEYS& GetState() const override { return keys; }
-	//
-	virtual KEYS& GetState() override { return keys; }
 
 
 protected:
-	//
-	KEYS keys;
 	//
 	LcKeysHandler keysHandler;
 	//
@@ -108,11 +102,48 @@ public: // LcWindowsInputSystem override
 
 protected:
 	//
-	void EnumerateDevices();
+	ComPtr<IDirectInput8> directInput;
+
+};
+
+
+typedef ComPtr<IDirectInputDevice8> TDevicePtr;
+
+/**
+* DirectInput joystick */
+class LcDirectInputJoystick : public LcKeyboard
+{
+public:
+	LcDirectInputJoystick(const std::wstring& inName, int inDeviceId);
+	//
+	void SetButtonsState(const BYTE* inKeys);
+	//
+	void GetButtonsState(BYTE* inKeys) const;
+	//
+	void SetArrowsState(UINT inArrows) { arrows = inArrows; }
+	//
+	void GetArrowsState(UINT& inArrows) const { inArrows = arrows; }
+	//
+	TDevicePtr& GetDevice() { return device; }
+
+
+public:
+	//
+	virtual ~LcDirectInputJoystick() {}
+	//
+	virtual void Activate() override;
+	//
+	virtual void Deactivate() override;
+	//
+	virtual LcInputDeviceType GetType() const override;
 
 
 protected:
 	//
-	ComPtr<IDirectInput8> directInput;
+	TDevicePtr device;
+	//
+	UINT arrows;
+	//
+	int deviceId;
 
 };

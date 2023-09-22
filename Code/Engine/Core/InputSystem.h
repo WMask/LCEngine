@@ -13,13 +13,35 @@
 
 
 #define LC_JOYSTICK_MAX_COUNT 4
+#define LC_JOYSTICK_KEYS_OFFSET 200
+#define LC_JOYSTICK_KEYS_COUNT (LC_KEYS_COUNT - LC_JOYSTICK_KEYS_OFFSET)
 
-enum LcInputDeviceType {
+/** Input device type */
+enum class LcInputDeviceType : int {
 	Keyboard,
 	Joystick1,
 	Joystick2,
 	Joystick3,
 	Joystick4
+};
+
+/** Joystick keys */
+enum class LcJKeys : int {
+	X		= LC_JOYSTICK_KEYS_OFFSET + 0,
+	A		= LC_JOYSTICK_KEYS_OFFSET + 1,
+	B		= LC_JOYSTICK_KEYS_OFFSET + 2,
+	Y		= LC_JOYSTICK_KEYS_OFFSET + 3,
+	L1		= LC_JOYSTICK_KEYS_OFFSET + 4,
+	R1		= LC_JOYSTICK_KEYS_OFFSET + 5,
+	L2		= LC_JOYSTICK_KEYS_OFFSET + 6,
+	R2		= LC_JOYSTICK_KEYS_OFFSET + 7,
+	Back	= LC_JOYSTICK_KEYS_OFFSET + 8,
+	Menu	= LC_JOYSTICK_KEYS_OFFSET + 9,
+	Start	= LC_JOYSTICK_KEYS_OFFSET + 9,
+	Up		= LC_JOYSTICK_KEYS_OFFSET + 10, StartArrows = Up,
+	Right	= LC_JOYSTICK_KEYS_OFFSET + 11,
+	Down	= LC_JOYSTICK_KEYS_OFFSET + 12,
+	Left	= LC_JOYSTICK_KEYS_OFFSET + 13, EndArrows = Left
 };
 
 
@@ -42,7 +64,13 @@ public:
 	virtual bool IsActive() const = 0;
 	/**
 	* Get joystick name */
-	virtual std::string GetName() const = 0;
+	virtual std::wstring GetName() const = 0;
+	/**
+	* Get input state */
+	virtual const KEYS& GetState() const = 0;
+	/**
+	* Get input state */
+	virtual KEYS& GetState() = 0;
 	/**
 	* Get joystick type */
 	virtual LcInputDeviceType GetType() const = 0;
@@ -122,12 +150,6 @@ public:
 	/**
 	* Get active input device */
 	virtual IInputDevice* GetActiveInputDevice() = 0;
-	/**
-	* Get input state */
-	virtual const KEYS& GetState() const = 0;
-	/**
-	* Get input state */
-	virtual KEYS& GetState() = 0;
 
 };
 
@@ -137,7 +159,7 @@ public:
 class LcKeyboard : public IInputDevice
 {
 public:
-	LcKeyboard() : active(true) {}
+	LcKeyboard() : name(L"Keyboard"), active(true) {}
 
 
 public:
@@ -150,12 +172,20 @@ public:
 	//
 	virtual bool IsActive() const override { return active; }
 	//
-	virtual std::string GetName() const override { return "Keyboard"; }
+	virtual std::wstring GetName() const override { return name; }
+	//
+	virtual const KEYS& GetState() const override { return keys; }
+	//
+	virtual KEYS& GetState() override { return keys; }
 	//
 	virtual LcInputDeviceType GetType() const override { return LcInputDeviceType::Keyboard; }
 
 
 protected:
+	KEYS keys;
+	//
+	std::wstring name;
+	//
 	bool active;
 
 };

@@ -110,6 +110,15 @@ void LcWindowsApplication::Run()
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
     if (!world) throw std::exception("LcWindowsApplication::Run(): Invalid world");
 
+    // set context
+    context.app = this;
+    context.render = renderSystem.get();
+    context.scripts = scriptSystem.get();
+    context.audio = audioSystem.get();
+    context.input = inputSystem.get();
+    context.gui = guiManager.get();
+    context.physics = physWorld.get();
+
     // get window size
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
     BOOL windowedStyle = (windowSize.y < screenHeight) ? TRUE : FALSE;
@@ -144,13 +153,6 @@ void LcWindowsApplication::Run()
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    // set context
-    context.render = renderSystem.get();
-    context.scripts = scriptSystem.get();
-    context.audio = audioSystem.get();
-    context.input = inputSystem.get();
-    context.gui = guiManager.get();
-    context.physics = physWorld.get();
     context.windowHandle = hWnd;
 
     inputSystem->Init(context);
@@ -334,7 +336,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         if (isKeyboardActive)
         {
-            if (inputSystem) inputSystem->GetState()[(int)wParam] = true;
+            if (activeDevice) activeDevice->GetState()[(int)wParam] = true;
             if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Down, &handles->app);
             if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Down, handles->appContext);
         }
@@ -342,7 +344,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYUP:
         if (isKeyboardActive)
         {
-            if (inputSystem) inputSystem->GetState()[(int)wParam] = false;
+            if (activeDevice) activeDevice->GetState()[(int)wParam] = false;
             if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Up, &handles->app);
             if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Up, handles->appContext);
         }

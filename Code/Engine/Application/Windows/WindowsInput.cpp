@@ -6,15 +6,21 @@
 
 #include "pch.h"
 #include "Application/Windows/WindowsInput.h"
+#include "Core/LCException.h"
+#include "Core/LCUtils.h"
 
 #include <dinputd.h>
 
 
-struct DI_ENUM_CONTEXT
-{
-    DIJOYCONFIG* preferredJoyCfg;
-    bool preferredJoyCfgValid;
-};
+const static int UpDirValue = 0;
+const static int UpRightDirValue = 4500;
+const static int RightDirValue = 9000;
+const static int RightDownDirValue = 13500;
+const static int DownDirValue = 18000;
+const static int DownLeftDirValue = 22500;
+const static int LeftDirValue = 27000;
+const static int LeftUpDirValue = 31500;
+
 
 LcDirectInputSystem::LcDirectInputSystem()
 {
@@ -44,42 +50,187 @@ void LcDirectInputSystem::Init(struct LcAppContext& context)
         throw std::exception("LcDirectInputSystem::Init(): Cannot get config");
     }
 
-    DIJOYCONFIG preferredJoyCfg{};
-    preferredJoyCfg.dwSize = sizeof(preferredJoyCfg);
+    struct DI_ENUM_CONTEXT
+    {
+        LPDIRECTINPUT8 directInput;
+        TInputDevicesList* devices;
+        HWND windowHandle;
+        int id;
+    };
 
     DI_ENUM_CONTEXT enumContext{};
-    enumContext.preferredJoyCfg = &preferredJoyCfg;
+    enumContext.directInput = directInput.Get();
+    enumContext.devices = &devices;
+    enumContext.windowHandle = (HWND)context.windowHandle;
+    enumContext.id = 0;
 
-    int joyId = 0;
-    while (!enumContext.preferredJoyCfgValid && joyId < LC_JOYSTICK_MAX_COUNT)
+    auto onNextDevice = [](LPCDIDEVICEINSTANCEW deviceInstance, LPVOID contextPtr) -> BOOL
     {
-        if (SUCCEEDED(joyConfig->GetConfig(joyId, &preferredJoyCfg, DIJC_GUIDINSTANCE)))
+        DI_ENUM_CONTEXT* context = reinterpret_cast<DI_ENUM_CONTEXT*>(contextPtr);
+        auto newJoystick = std::make_shared<LcDirectInputJoystick>((WCHAR*)deviceInstance->tszInstanceName, context->id);
+        newJoystick->Deactivate();
+
+        auto& device = newJoystick->GetDevice();
+        if (FAILED(context->directInput->CreateDevice(deviceInstance->guidInstance, device.GetAddressOf(), nullptr)))
         {
-            enumContext.preferredJoyCfgValid = true;
+            return DIENUM_CONTINUE;
         }
 
-        joyId++;
-    }
+        if (FAILED(device.Get()->SetDataFormat(&c_dfDIJoystick2)))
+        {
+            return DIENUM_CONTINUE;
+        }
 
-    if (enumContext.preferredJoyCfgValid)
+        if (FAILED(device.Get()->SetCooperativeLevel(context->windowHandle, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND)))
+        {
+            return DIENUM_CONTINUE;
+        }
+
+        context->devices->push_back(newJoystick);
+        context->id++;
+
+        return DIENUM_CONTINUE;
+    };
+
+    if (FAILED(directInput->EnumDevices(DI8DEVCLASS_GAMECTRL, onNextDevice, &enumContext, DIEDFL_ATTACHEDONLY)))
     {
-        EnumerateDevices();
+        throw std::exception("LcDirectInputSystem::Init(): Cannot enumerate devices");
     }
 }
 
 void LcDirectInputSystem::Shutdown()
 {
+    activeDevice = nullptr;
+    devices.clear();
     directInput.Reset();
 }
 
 void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& context)
 {
+    if (!keysHandler) return;
 
+    LC_TRY
+
+    for (auto& device : devices)
+    {
+        if (device->GetType() != LcInputDeviceType::Keyboard)
+        {
+            auto joystick = static_cast<LcDirectInputJoystick*>(device.get());
+            if (!joystick->IsActive()) continue;
+
+            auto device = joystick->GetDevice();
+            if (FAILED(device->Poll()))
+            {
+                device->Acquire();
+                continue;
+            }
+
+            DIJOYSTATE2 newState{};
+            if (FAILED(device->GetDeviceState(sizeof(DIJOYSTATE2), &newState)))
+            {
+                continue;
+            }
+
+            KEYS prevState, curState;
+            joystick->GetButtonsState(prevState.Get());
+
+            UINT prevArrows = -1, curArrows = newState.rgdwPOV[0];
+            joystick->GetArrowsState(prevArrows);
+
+            // check buttons changes
+            const int keysWithoutArrows = (int)LcJKeys::StartArrows - LC_JOYSTICK_KEYS_OFFSET;
+            for (int key = 0; key < keysWithoutArrows; key++)
+            {
+                BYTE prev = prevState[LC_JOYSTICK_KEYS_OFFSET + key];
+                BYTE cur = (newState.rgbButtons[key] == 0) ? 0 : 1;
+                if (cur != prev)
+                {
+                    auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
+                    keysHandler(LC_JOYSTICK_KEYS_OFFSET + key, action, context.app);
+                }
+
+                curState[LC_JOYSTICK_KEYS_OFFSET + key] = cur;
+            }
+
+            // check arrows changes
+            if (prevArrows != curArrows)
+            {
+                switch (curArrows)
+                {
+                    case LeftDirValue: curState[(int)LcJKeys::Left] = 1; break;
+                    case RightDirValue: curState[(int)LcJKeys::Right] = 1; break;
+                    case UpDirValue: curState[(int)LcJKeys::Up] = 1; break;
+                    case DownDirValue: curState[(int)LcJKeys::Down] = 1; break;
+                    case LeftUpDirValue: curState[(int)LcJKeys::Left] = curState[(int)LcJKeys::Up] = 1; break;
+                    case UpRightDirValue: curState[(int)LcJKeys::Right] = curState[(int)LcJKeys::Up] = 1; break;
+                    case DownLeftDirValue: curState[(int)LcJKeys::Left] = curState[(int)LcJKeys::Down] = 1; break;
+                    case RightDownDirValue: curState[(int)LcJKeys::Right] = curState[(int)LcJKeys::Down] = 1; break;
+                }
+
+                for (int i = (int)LcJKeys::StartArrows; i <= (int)LcJKeys::EndArrows; i++)
+                {
+                    BYTE prev = prevState[i];
+                    BYTE cur = curState[i];
+                    if (cur != prev)
+                    {
+                        auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
+                        keysHandler(i, action, context.app);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = (int)LcJKeys::StartArrows; i <= (int)LcJKeys::EndArrows; i++)
+                {
+                    curState[i] = prevState[i];
+                }
+            }
+
+            joystick->SetButtonsState(curState.Get());
+            joystick->SetArrowsState(curArrows);
+        }
+    }
+
+    LC_CATCH{ LC_THROW("LcDirectInputSystem::Update()") }
 }
 
-void LcDirectInputSystem::EnumerateDevices()
+
+LcDirectInputJoystick::LcDirectInputJoystick(const std::wstring& inName, int inDeviceId)
 {
+    name = inName;
+    deviceId = inDeviceId;
+    arrows = -1;
 }
+
+void LcDirectInputJoystick::SetButtonsState(const BYTE* inKeys)
+{
+    memcpy(keys.Get(), inKeys, sizeof(keys));
+}
+
+void LcDirectInputJoystick::GetButtonsState(BYTE* inKeys) const
+{
+    memcpy(inKeys, keys.Get(), sizeof(keys));
+}
+
+void LcDirectInputJoystick::Activate()
+{
+    LcKeyboard::Activate();
+
+    if (device) device->Acquire();
+}
+
+void LcDirectInputJoystick::Deactivate()
+{
+    LcKeyboard::Deactivate();
+
+    if (device) device->Unacquire();
+}
+
+LcInputDeviceType LcDirectInputJoystick::GetType() const
+{
+    return static_cast<LcInputDeviceType>((int)LcInputDeviceType::Joystick1 + deviceId);
+}
+
 
 LcWindowsInputSystem::LcWindowsInputSystem() : activeDevice(nullptr)
 {
@@ -87,13 +238,14 @@ LcWindowsInputSystem::LcWindowsInputSystem() : activeDevice(nullptr)
     activeDevice = devices[0].get();
 }
 
-void LcWindowsInputSystem::SetActiveDevice(const IInputDevice* activeDevice)
+void LcWindowsInputSystem::SetActiveDevice(const IInputDevice* inActiveDevice)
 {
     for (auto& device : devices)
     {
-        if (device.get() == activeDevice)
+        if (device.get() == inActiveDevice)
         {
-            device->Activate();
+            activeDevice = device.get();
+            activeDevice->Activate();
         }
         else
         {
