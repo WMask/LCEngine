@@ -94,7 +94,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            if (key == 'Q') app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
         };
 
         auto cfg = LoadConfig("../../Assets/config.txt");
