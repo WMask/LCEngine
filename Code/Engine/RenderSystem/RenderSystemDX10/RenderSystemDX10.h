@@ -15,6 +15,7 @@ using namespace Microsoft::WRL;
 #include "Module.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/ConstantBuffersDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
 #include "GUI/Widgets.h"
@@ -122,15 +123,15 @@ public:// IDX10RenderDevice interface implementation
 	//
 	virtual IDXGISwapChain* GetD3D10SwapChain() const override { return swapChain.Get(); }
 	//
-	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer.Get(); }
+	virtual ID3D10Buffer* GetTransformBuffer() const override { return constBuffers.transMatrixBuffer.Get(); }
 	//
-	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer.Get(); }
+	virtual ID3D10Buffer* GetColorsBuffer() const override { return constBuffers.colorsBuffer.Get(); }
 	//
-	virtual ID3D10Buffer* GetCustomUvBuffer() const override { return customUvBuffer.Get(); }
+	virtual ID3D10Buffer* GetCustomUvBuffer() const override { return constBuffers.customUvBuffer.Get(); }
 	//
-	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
+	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return constBuffers.frameAnimBuffer.Get(); }
 	//
-	virtual ID3D10Buffer* GetSettingsBuffer() const override { return settingsBuffer.Get(); }
+	virtual ID3D10Buffer* GetSettingsBuffer() const override { return constBuffers.settingsBuffer.Get(); }
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
@@ -146,20 +147,6 @@ protected:
 	//
 	ComPtr<ID3D10RenderTargetView> renderTargetView;
 	//
-	ComPtr<ID3D10Buffer> projMatrixBuffer;
-	//
-	ComPtr<ID3D10Buffer> transMatrixBuffer;
-	//
-	ComPtr<ID3D10Buffer> viewMatrixBuffer;
-	//
-	ComPtr<ID3D10Buffer> colorsBuffer;
-	//
-	ComPtr<ID3D10Buffer> customUvBuffer;
-	//
-	ComPtr<ID3D10Buffer> frameAnimBuffer;
-	//
-	ComPtr<ID3D10Buffer> settingsBuffer;
-	//
 	ComPtr<ID3D10BlendState> blendState;
 	//
 	ComPtr<ID3D10RasterizerState> rasterizerState;
@@ -171,6 +158,8 @@ protected:
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
 	TVisual2DRenderList visual2DRenders;
+	//
+	LcConstantBuffersDX10 constBuffers;
 	//
 	LcWidgetRenderDX10* widgetRender;
 	//

@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedVisual2DRenderDX10.h" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedVisual2DRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TiledVisual2DRenderDX10.cpp" />
