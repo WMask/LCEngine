@@ -173,6 +173,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Code\Shaders\HLSL\AnimatedSprite2d.shader" />
+    <None Include="..\..\..\Code\Shaders\HLSL\ColoredSprite2d.shader" />
+    <None Include="..\..\..\Code\Shaders\HLSL\TexturedSprite2d.shader" />
+    <None Include="..\..\..\Code\Shaders\HLSL\TiledSprite2d.shader" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

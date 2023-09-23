@@ -49,6 +49,9 @@ public:
 	* Return frame animation buffer */
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
 	/**
+	* Return shaders settings buffer */
+	virtual ID3D10Buffer* GetSettingsBuffer() const = 0;
+	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
@@ -127,6 +130,8 @@ public:// IDX10RenderDevice interface implementation
 	//
 	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
 	//
+	virtual ID3D10Buffer* GetSettingsBuffer() const override { return settingsBuffer.Get(); }
+	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
 	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
@@ -152,6 +157,8 @@ protected:
 	ComPtr<ID3D10Buffer> customUvBuffer;
 	//
 	ComPtr<ID3D10Buffer> frameAnimBuffer;
+	//
+	ComPtr<ID3D10Buffer> settingsBuffer;
 	//
 	ComPtr<ID3D10BlendState> blendState;
 	//

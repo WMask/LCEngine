@@ -172,6 +172,12 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	};
 	VS_FRAME_ANIM2D_BUFFER anim2dData;
 
+	struct VS_SETTINGS_BUFFER
+	{
+		LcVector4 worldTint;
+	};
+	VS_SETTINGS_BUFFER settingsData;
+
 	D3D10_BUFFER_DESC cbDesc{};
 	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
 	cbDesc.Usage = D3D10_USAGE_DEFAULT;
@@ -229,6 +235,14 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
 	}
 
+	cbDesc.ByteWidth = sizeof(VS_SETTINGS_BUFFER);
+	subResData.pSysMem = &settingsData;
+	settingsData.worldTint = LcVector4(1.0, 1.0, 1.0, 1.0);
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, settingsBuffer.GetAddressOf())))
+	{
+		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
+	}
+
 	// set buffers
 	d3dDevice->VSSetConstantBuffers(0, 1, projMatrixBuffer.GetAddressOf());
 	d3dDevice->VSSetConstantBuffers(1, 1, viewMatrixBuffer.GetAddressOf());
@@ -236,6 +250,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	d3dDevice->VSSetConstantBuffers(3, 1, colorsBuffer.GetAddressOf());
 	d3dDevice->VSSetConstantBuffers(4, 1, customUvBuffer.GetAddressOf());
 	d3dDevice->VSSetConstantBuffers(5, 1, frameAnimBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(6, 1, settingsBuffer.GetAddressOf());
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -322,6 +337,7 @@ void LcRenderSystemDX10::Shutdown()
 	depthStencil.Reset();
 	rasterizerState.Reset();
 	blendState.Reset();
+	settingsBuffer.Reset();
 	frameAnimBuffer.Reset();
 	customUvBuffer.Reset();
 	colorsBuffer.Reset();
@@ -336,7 +352,8 @@ void LcRenderSystemDX10::Shutdown()
 void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 {
 	auto contextPtr = &context;
-	context.world.GetWorldScale().scaleUpdatedHandler.AddListener([this, contextPtr](LcVector2 newScale)
+
+	context.world.GetWorldScale().onScaleChanged.AddListener([this, contextPtr](LcVector2 newScale)
 	{
 		LC_TRY
 
@@ -349,6 +366,15 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 		}
 
 		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+	});
+
+	context.world.onTintChanged.AddListener([this](LcColor3 globalTint)
+	{
+		if (settingsBuffer)
+		{
+			LcVector4 settings = To4(globalTint);
+			d3dDevice->UpdateSubresource(settingsBuffer.Get(), 0, NULL, &settings, 0, 0);
+		}
 	});
 }
 

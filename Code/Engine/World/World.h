@@ -63,6 +63,10 @@ public: // IWorld interface implementation
 	//
 	virtual LcWorldScale& GetWorldScale() override { return worldScale; }
 	//
+	virtual void SetGlobalTint(LcColor3 tint) override;
+	//
+	virtual LcColor3 GetGlobalTint() const override { return globalTint; }
+	//
 	virtual IVisual* GetLastAddedVisual() const override { return lastVisual; }
 	//
 	virtual const class LcSpriteHelper& GetSpriteHelper() const override { return *spriteHelper.get(); }
@@ -84,6 +88,8 @@ protected:
 	LcWorldScale worldScale;
 	//
 	LcCamera camera;
+	//
+	LcColor3 globalTint;
 	//
 	IVisual* lastVisual;
 

@@ -41,6 +41,7 @@ LcWorld::LcWorld(const LcAppContext& inContext)
 	: context(inContext)
 	, spriteHelper(std::make_unique<LcSpriteHelper>(inContext))
 	, widgetHelper(std::make_unique<LcWidgetHelper>(inContext))
+	, globalTint(LcDefaults::White3)
 	, lastVisual(nullptr)
 {
 	sprites.SetLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategy>());
@@ -110,6 +111,18 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	widgets.Remove(widget);
 }
 
+void LcWorld::SetGlobalTint(LcColor3 tint)
+{
+	if (globalTint != tint)
+	{
+		globalTint = tint;
+
+		auto& listeners = onTintChanged.GetListeners();
+		for (auto& listener : listeners) listener(globalTint);
+	}
+}
+
+
 LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scale(1.0f, 1.0f), scaleFonts(true)
 {
 }
@@ -127,7 +140,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 
 			if (prevScale != scale)
 			{
-				auto& listeners = scaleUpdatedHandler.GetListeners();
+				auto& listeners = onScaleChanged.GetListeners();
 				for (auto& listener : listeners) listener(scale);
 			}
 
@@ -144,7 +157,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 
 			if (prevScale != scale)
 			{
-				auto& listeners = scaleUpdatedHandler.GetListeners();
+				auto& listeners = onScaleChanged.GetListeners();
 				for (auto& listener : listeners) listener(scale);
 			}
 
@@ -159,7 +172,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 
 		if (prevScale != scale)
 		{
-			auto& listeners = scaleUpdatedHandler.GetListeners();
+			auto& listeners = onScaleChanged.GetListeners();
 			for (auto& listener : listeners) listener(scale);
 		}
 	}

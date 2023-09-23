@@ -24,10 +24,16 @@ cbuffer VS_UV_BUFFER : register(b4)
 	float4 vUV[4];
 };
 
+cbuffer VS_SETTINGS_BUFFER : register(b6)
+{
+    float4 vGlobalTint;
+};
+
 struct VOut
 {
 	float4 vPosition : SV_POSITION;
-	float4 vColor : COLOR;
+    float4 vColor : COLOR0;
+    float4 vTint : COLOR1;
 	float2 vCoord : TEXCOORD;
 };
 
@@ -37,7 +43,8 @@ VOut VShader(float4 vPosition : POSITION, uint iIndex : INDEX)
 	float4x4 mWVP = mul(mTrans, mul(mView, mProj));
 
 	output.vPosition = mul(vPosition, mWVP);
-	output.vColor = vColors[iIndex];
+    output.vColor = vColors[iIndex];
+    output.vTint = vGlobalTint;
 	output.vCoord = vUV[iIndex];
 
 	return output;
@@ -52,7 +59,7 @@ SamplerState linearSampler
     AddressV = Wrap;
 };
 
-float4 PShader(float4 vPosition : SV_POSITION, float4 vColor : COLOR, float2 vCoord : TEXCOORD) : SV_TARGET
+float4 PShader(float4 vPosition : SV_POSITION, float4 vColor : COLOR0, float4 vTint : COLOR1, float2 vCoord : TEXCOORD) : SV_TARGET
 {
-	return tex2D.Sample(linearSampler, vCoord) * vColor;
+    return tex2D.Sample(linearSampler, vCoord) * vColor * vTint;
 }
