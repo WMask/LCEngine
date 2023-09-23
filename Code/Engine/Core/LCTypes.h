@@ -106,6 +106,8 @@ public:
 	//
 	virtual void Remove(T* item) = 0;
 	//
+	virtual void RemoveAll() = 0;
+	//
 	virtual const TItemsList& GetList() const = 0;
 	//
 	virtual TItemsList& GetList() = 0;

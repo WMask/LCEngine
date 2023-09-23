@@ -33,6 +33,12 @@ public:
 	/**
 	* Removes tile's vertex buffer */
 	void RemoveTiles(const IVisual* visual);
+	/**
+	* Removes all tiles */
+	void RemoveTiles() { vertexBuffers.clear(); }
+	/**
+	* Get tiles count */
+	inline int GetNumTiles() const { return (int)vertexBuffers.size(); }
 
 
 public:// IVisual2DRender interface implementation

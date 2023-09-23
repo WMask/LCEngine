@@ -84,6 +84,9 @@ public:
 	* Remove sound */
 	virtual void RemoveSound(ISound* sound) = 0;
 	/**
+	* Remove all sounds */
+	virtual void RemoveAllSounds() = 0;
+	/**
 	* Get sounds list */
 	virtual const TSoundsList& GetSounds() const = 0;
 

@@ -56,13 +56,22 @@ public:
 	//
     ~LcBox2DBody() {}
     //
-    void Init(b2World* inWorld, b2Body* inBody, LcSizef inSize)
+    void Init(b2World* inWorld, b2Body* inBody, b2Fixture* inFixture, LcSizef inSize)
     {
         world = inWorld;
         body = inBody;
+        fixture = inFixture;
         size.x = inSize.x / BOX2D_SCALE;
         size.y = inSize.y / BOX2D_SCALE;
     }
+    //
+    b2World* world;
+    //
+    b2Fixture* fixture;
+    //
+    b2Body* body;
+    //
+    LcSizef size;
 
 
 public:// IPhysicsBody interface implementation
@@ -96,15 +105,6 @@ public:// IPhysicsBody interface implementation
 
         return !handler.found;
     }
-
-
-protected:
-    b2World* world;
-    //
-    b2Body* body;
-    //
-    LcSizef size;
-
 };
 
 class LcBodyLifetimeStrategy : public LcLifetimeStrategy<IPhysicsBody>
@@ -116,7 +116,12 @@ public:
     //
     virtual std::shared_ptr<IPhysicsBody> Create() override { return std::make_shared<LcBox2DBody>(); }
     //
-    virtual void Destroy(IPhysicsBody& item) override {}
+    virtual void Destroy(IPhysicsBody& item) override
+    {
+        LcBox2DBody& body = static_cast<LcBox2DBody&>(item);
+        body.body->DestroyFixture(body.fixture);
+        body.world->DestroyBody(body.body);
+    }
 };
 
 
@@ -177,12 +182,13 @@ IPhysicsBody* LcBox2DWorld::AddDynamicBox(LcVector2 pos, LcSizef size, float den
     fixtureDef.shape = &shape;
     fixtureDef.density = density;
     fixtureDef.friction = 0.3f;
-    body->CreateFixture(&fixtureDef);
+    b2Fixture* fixture = body->CreateFixture(&fixtureDef);
+    if (!fixture) throw std::exception("LcBox2DWorld::AddDynamicBox(): Cannot create fixture");
 
     auto newBody = dynamicBodies.AddT<LcBox2DBody>();
     if (!newBody) throw std::exception("LcBox2DWorld::AddDynamicBox(): Cannot create dynamic body");
 
-    newBody->Init(box2DWorld.get(), body, size);
+    newBody->Init(box2DWorld.get(), body, fixture, size);
 
     return newBody;
 }
@@ -205,13 +211,14 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
     fixtureDef.shape = &shape;
     fixtureDef.density = density;
     fixtureDef.friction = 0.3f;
-    body->CreateFixture(&fixtureDef);
+    b2Fixture* fixture = body->CreateFixture(&fixtureDef);
+    if (!fixture) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create fixture");
 
     LcSizef size(radius * 2.0f, radius * 2.0f);
     auto newBody = dynamicBodies.AddT<LcBox2DBody>();
     if (!newBody) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create dynamic body");
 
-    newBody->Init(box2DWorld.get(), body, size);
+    newBody->Init(box2DWorld.get(), body, fixture, size);
 
     return newBody;
 }

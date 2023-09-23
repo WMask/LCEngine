@@ -58,6 +58,8 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation = true) override;
 	//
+	virtual void RemoveAllBodies() { dynamicBodies.RemoveAll(); }
+	//
 	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies.GetList(); }
 	//
 	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies.GetList(); }

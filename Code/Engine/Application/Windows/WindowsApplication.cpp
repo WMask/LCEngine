@@ -218,6 +218,15 @@ void LcWindowsApplication::Run()
     LC_CATCH{ LC_THROW("LcWindowsApplication::Run()") }
 }
 
+void LcWindowsApplication::ClearWorld()
+{
+    world->GetSprites().clear();
+    world->GetWidgets().clear();
+    if (renderSystem) renderSystem->Clear();
+    if (audioSystem) audioSystem->RemoveAllSounds();
+    if (physWorld) physWorld->RemoveAllBodies();
+}
+
 void LcWindowsApplication::OnUpdate()
 {
     LC_TRY
@@ -263,6 +272,20 @@ void LcWindowsApplication::OnUpdate()
     }
 
     LC_CATCH{ LC_THROW("LcWindowsApplication::OnUpdate()") }
+}
+
+LcAppStats LcWindowsApplication::GetAppStats() const noexcept
+{
+    auto renderStats = renderSystem ? renderSystem->GetStats() : LcRSStats{};
+    return LcAppStats{
+        (int)world->GetSprites().size(),
+        (int)world->GetWidgets().size(),
+        renderStats.numTextures,
+        renderStats.numTilemaps,
+        renderStats.numFonts,
+        audioSystem ? (int)audioSystem->GetSounds().size() : 0,
+        physWorld ? (int)physWorld->GetDynamicBodies().size() : 0
+    };
 }
 
 void LcWindowsApplication::SetWindowSize(int width, int height)

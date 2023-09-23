@@ -83,6 +83,11 @@ public: // ICreator interface implementation
 		}
 	}
 	//
+	virtual void RemoveAll()
+	{
+		items.clear();
+	}
+	//
 	virtual const TCreatorItemsList& GetList() const override { return items; }
 	//
 	virtual TCreatorItemsList& GetList() override { return items; }

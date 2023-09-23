@@ -27,6 +27,19 @@ typedef std::function<void(class IApplication*)> LcInitHandler;
 typedef std::function<void(float, class IApplication*)> LcUpdateHandler;
 
 
+/** Application stats */
+struct LcAppStats
+{
+	int numSprites;
+	int numWidgets;
+	int numTextures;
+	int numTilemaps;
+	int numFonts;
+	int numSounds;
+	int numBodies;
+};
+
+
 /**
 * Application interface */
 class IApplication
@@ -90,6 +103,9 @@ public:
 	* Run application main loop */
 	virtual void Run() = 0;
 	/**
+	* Remove all sprites, widgets, textures etc. */
+	virtual void ClearWorld() = 0;
+	/**
 	* Request application quit */
 	virtual void RequestQuit() noexcept = 0;
 	/**
@@ -101,6 +117,9 @@ public:
 	/**
 	* Get vertical synchronization mode */
 	virtual bool GetVSync() const noexcept = 0;
+	/**
+	* Get application stats */
+	virtual LcAppStats GetAppStats() const noexcept = 0;
 	/**
 	* Get World pointer */
 	virtual class IWorld* GetWorld() noexcept = 0;

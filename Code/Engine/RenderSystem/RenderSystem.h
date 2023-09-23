@@ -18,6 +18,15 @@
 #pragma warning(disable : 4251)
 
 
+/** Render system stats */
+struct LcRSStats
+{
+	int numTextures;
+	int numTilemaps;
+	int numFonts;
+};
+
+
 /**
 * Render system interface */
 class RENDERSYSTEM_API IRenderSystem
@@ -45,6 +54,9 @@ public:
 	* Render world */
 	virtual void Render(const LcAppContext& context) = 0;
 	/**
+	* Remove all graphics objects: textures, fonts etc. */
+	virtual void Clear() = 0;
+	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;
 	/**
@@ -59,6 +71,9 @@ public:
 	/**
 	* Update camera */
 	virtual void UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget) = 0;
+	/**
+	* Return current stats */
+	virtual LcRSStats GetStats() const = 0;
 	/**
 	* Return render system type */
 	virtual LcRenderSystemType GetType() const = 0;

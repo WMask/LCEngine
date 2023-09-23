@@ -243,6 +243,13 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
+void LcRenderSystemDX10::Clear()
+{
+	texLoader->RemoveTextures();
+	if (tiledRender) tiledRender->RemoveTiles();
+	if (widgetRender) widgetRender->RemoveFonts();
+}
+
 void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 {
 	auto contextPtr = &context;
@@ -389,6 +396,15 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 {
 	if (swapChain) swapChain->SetFullscreenState((winMode == LcWinMode::Fullscreen), nullptr);
+}
+
+LcRSStats LcRenderSystemDX10::GetStats() const
+{
+	return LcRSStats{
+		texLoader->GetNumTextures(),
+		tiledRender ? tiledRender->GetNumTiles() : 0,
+		widgetRender ? widgetRender->GetNumFonts() : 0
+	};
 }
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)

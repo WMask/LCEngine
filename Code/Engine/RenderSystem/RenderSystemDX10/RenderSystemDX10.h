@@ -91,6 +91,8 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Shutdown() override;
 	//
+	virtual void Clear() override;
+	//
 	virtual void Subscribe(const LcAppContext& context);
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
@@ -106,6 +108,8 @@ public:// IRenderSystem interface implementation
 	virtual void SetMode(LcWinMode mode) override;
 	//
 	virtual bool CanRender() const override { return d3dDevice; }
+	//
+	virtual LcRSStats GetStats() const override;
 	//
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
 
