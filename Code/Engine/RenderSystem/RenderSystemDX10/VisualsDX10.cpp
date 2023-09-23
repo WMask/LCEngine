@@ -28,7 +28,7 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
 {
     LC_TRY
 
-        LcSprite::AddComponent(comp, context);
+    LcSprite::AddComponent(comp, context);
 
     auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
     auto texComp = GetTextureComponent();

@@ -63,11 +63,6 @@ public:
     LcWidgetCheckComponent* GetCheckHandlerComponent() const { return (LcWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
 
 
-public: // IVisual interface implementation
-    //
-    virtual void Update(float DeltaSeconds, const LcAppContext& context) override;
-
-
 public:
     /**
     * Keyboard key event */

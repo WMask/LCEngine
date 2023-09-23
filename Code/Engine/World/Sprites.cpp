@@ -101,6 +101,8 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcObjec
 
 void LcSpriteAnimationComponent::Update(float deltaSeconds, const LcAppContext& context)
 {
+	IVisualComponent::Update(deltaSeconds, context);
+
 	double curGameTime = (double)GetTickCount64();
 	double frameDelta = curGameTime - lastFrameSeconds;
 	float frameLength = 1.0f / framesPerSecond;
@@ -295,14 +297,6 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 	}
 
 	LC_CATCH { LC_THROW("LcTiledSpriteComponent::Init()") }
-}
-
-void LcSprite::Update(float deltaSeconds, const LcAppContext& context)
-{
-	if (auto anim = GetAnimationComponent())
-	{
-		anim->Update(deltaSeconds, context);
-	}
 }
 
 void LcSprite::AddComponent(TVComponentPtr comp, const LcAppContext& context)

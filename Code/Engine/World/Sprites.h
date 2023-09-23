@@ -207,8 +207,6 @@ public: // ISprite interface implementation
 
 public: // IVisual interface implementation
 	//
-	virtual void Update(float deltaSeconds, const LcAppContext& context);
-	//
 	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
 	//
 	virtual void SetSize(LcSizef inSize) override { size = inSize; }

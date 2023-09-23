@@ -209,10 +209,6 @@ const void* LcWidgetCheckboxComponent::GetData() const
     return unchecked;
 }
 
-void IWidget::Update(float DeltaSeconds, const LcAppContext& context)
-{
-}
-
 void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
