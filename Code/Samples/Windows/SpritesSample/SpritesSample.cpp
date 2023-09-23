@@ -47,39 +47,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        KEYS keys;
-        auto onUpdateHandler = [&keys](float deltaSeconds, IApplication* app)
+        auto onUpdateHandler = [](float deltaSeconds, IApplication* app)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
             auto sprite1 = app->GetWorld()->GetSprites()[0];
             auto sprite2 = app->GetWorld()->GetSprites()[1];
 
-            // move sprite
-            if (keys[VK_LEFT]) sprite1->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-            if (keys[VK_RIGHT]) sprite1->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
-
-            if (keys[VK_UP]) sprite1->AddRotZ(-2 * deltaSeconds);
-            if (keys[VK_DOWN]) sprite1->AddRotZ(2 * deltaSeconds);
-
             // change tint
             auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
             sprite2->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
+
+            // move sprite
+            auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
+            if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite1->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
+            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite1->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
+
+            if (keys[VK_UP] || keys[LcJKeys::Up]) sprite1->AddRotZ(-2 * deltaSeconds);
+            if (keys[VK_DOWN] || keys[LcJKeys::Down]) sprite1->AddRotZ(2 * deltaSeconds);
         };
 
-        auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
-
-            if (key == 'Q') app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
         };
 
         auto app = GetApp();
         app->SetRenderSystem(GetRenderSystem());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
-        app->SetKeyboardHandler(onKeyboardHandler);
+        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
         app->SetWindowSize(1024, 768);
         app->Init(hInstance);
         app->Run();

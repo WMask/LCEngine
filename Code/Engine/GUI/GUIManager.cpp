@@ -29,17 +29,17 @@ void LcGuiManager::Update(float deltaSeconds, const LcAppContext& context)
     LC_CATCH{ LC_THROW("LcGuiManager::Update()") }
 }
 
-void LcGuiManager::OnKeyboard(int btn, LcKeyState state, const LcAppContext& context)
+void LcGuiManager::OnKeys(int btn, LcKeyState state, const LcAppContext& context)
 {
     LC_TRY
 
     auto& widgetList = context.world.GetWidgets();
     for (auto& widget : widgetList)
     {
-        if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeyboard(btn, state, context);
+        if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeys(btn, state, context);
     }
 
-    LC_CATCH{ LC_THROW("LcGuiManager::OnKeyboard()") }
+    LC_CATCH{ LC_THROW("LcGuiManager::OnKeys()") }
 }
 
 void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)

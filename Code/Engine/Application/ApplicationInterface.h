@@ -6,15 +6,16 @@
 
 #pragma once
 
-#include <string>
-#include <memory>
-#include <functional>
-
 #include "Module.h"
 #include "GUI/Module.h"
 #include "World/Module.h"
 #include "RenderSystem/Module.h"
+#include "Core/InputSystem.h"
 #include "Core/LCTypes.h"
+
+#include <string>
+#include <memory>
+#include <functional>
 
 #pragma warning(disable : 4251)
 
@@ -24,15 +25,6 @@ typedef std::function<void(class IApplication*)> LcInitHandler;
 
 /** Update handler */
 typedef std::function<void(float, class IApplication*)> LcUpdateHandler;
-
-/** Keyboard events handler */
-typedef std::function<void(int, LcKeyState, class IApplication*)> LcKeyboardHandler;
-
-/** Mouse move handler */
-typedef std::function<void(float, float, class IApplication*)> LcMouseMoveHandler;
-
-/** Mouse button handler */
-typedef std::function<void(LcMouseBtn, LcKeyState, float, float, class IApplication*)> LcMouseButtonHandler;
 
 
 /**
@@ -71,6 +63,9 @@ public:
 	* Set audio system */
 	virtual void SetAudioSystem(TAudioSystemPtr audio) noexcept = 0;
 	/**
+	* Set input system */
+	virtual void SetInputSystem(TInputSystemPtr audio) noexcept = 0;
+	/**
 	* Set physics world */
 	virtual void SetPhysicsWorld(TPhysicsWorldPtr physWorld) noexcept = 0;
 	/**
@@ -91,15 +86,6 @@ public:
 	/**
 	* Set update handler */
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept = 0;
-	/**
-	* Set keyboard handler */
-	virtual void SetKeyboardHandler(LcKeyboardHandler handler) noexcept = 0;
-	/**
-	* Set mouse move handler */
-	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept = 0;
-	/**
-	* Set mouse button handler */
-	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept = 0;
 	/**
 	* Run application main loop */
 	virtual void Run() = 0;
@@ -133,6 +119,12 @@ public:
 	/**
 	* Get Audio system pointer */
 	virtual TAudioSystemPtr GetAudioSystemPtr() noexcept = 0;
+	/**
+	* Get Input system pointer */
+	virtual class IInputSystem* GetInputSystem() noexcept = 0;
+	/**
+	* Get Input system pointer */
+	virtual TInputSystemPtr GetInputSystemPtr() noexcept = 0;
 	/**
 	* Get Physics World pointer */
 	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept = 0;

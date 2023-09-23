@@ -149,7 +149,7 @@ public:
 
 public:// IWidget interface implementation
     //
-    virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) override {}
+    virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) override {}
     //
     virtual void RecreateFont(const LcAppContext& context) override {}
     //

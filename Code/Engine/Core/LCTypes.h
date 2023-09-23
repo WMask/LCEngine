@@ -26,11 +26,11 @@ enum class LcMouseBtn
 	Middle
 };
 
-/** Key state */
+/** Key state: Up, Down */
 enum class LcKeyState
 {
-	Down,
-	Up
+	Up,
+	Down
 };
 
 /** Render system type */
@@ -46,16 +46,20 @@ enum class LcRenderSystemType
 enum class LcWinMode : int { Windowed, Fullscreen };
 
 
+constexpr int LcKeysCount = 150;
+
 /** Keys struct */
 struct CORE_API KEYS
 {
 	KEYS();
 	//
+	unsigned char* Get() { return keys; }
+	//
+	const unsigned char* Get() const { return keys; }
+	//
 	unsigned char& operator[](int index);
 	//
-	const static int numKeys = 128;
-	//
-	unsigned char keys[numKeys];
+	unsigned char keys[LcKeysCount];
 };
 
 /** Any value container */
@@ -111,12 +115,16 @@ public:
 /** Application context */
 struct LcAppContext
 {
-	LcAppContext(class IWorld& inWorld) :
-		world(inWorld), render(nullptr), audio(nullptr), scripts(nullptr), physics(nullptr) {}
+	LcAppContext(class IWorld& inWorld) : app(nullptr),
+		world(inWorld), render(nullptr), audio(nullptr),
+		scripts(nullptr), input(nullptr), gui(nullptr),
+		physics(nullptr), windowHandle(nullptr) {}
 	//
 	class IWorld* GetWorldPtr() const { return &world; }
 	//
 	class IWorld& world;
+	//
+	class IApplication* app;
 	//
 	class IRenderSystem* render;
 	//
@@ -124,5 +132,11 @@ struct LcAppContext
 	//
 	class IAudioSystem* audio;
 	//
+	class IInputSystem* input;
+	//
+	class IGuiManager* gui;
+	//
 	class IPhysicsWorld* physics;
+	//
+	void* windowHandle;
 };

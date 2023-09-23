@@ -49,8 +49,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        KEYS keys;
-        auto onUpdateHandler = [&keys](float deltaSeconds, IApplication* app)
+        auto onUpdateHandler = [](float deltaSeconds, IApplication* app)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
@@ -58,28 +57,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             physWorld->Update(deltaSeconds);
 
             auto body = physWorld->GetDynamicBodies()[0];
-            auto vel = body->GetVelocity();
-
-            if (keys[VK_LEFT]) body->SetVelocity(LcVector2(-1.2f, vel.y));
-            if (keys[VK_RIGHT]) body->SetVelocity(LcVector2(1.2f, vel.y));
-
             if (auto hero = body->GetUserObject<ISprite>())
             {
                 hero->SetPos(To3(body->GetPos()));
             }
+
+            auto vel = body->GetVelocity();
+            auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
+            if (keys[VK_LEFT] || keys[LcJKeys::Left]) body->SetVelocity(LcVector2(-1.2f, vel.y));
+            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) body->SetVelocity(LcVector2(1.2f, vel.y));
         };
 
-        auto onKeyboardHandler = [&keys](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            keys[key] = (keyEvent == LcKeyState::Down) ? 1 : 0;
-
             auto physWorld = app->GetPhysicsWorld();
             auto body = physWorld->GetDynamicBodies()[0];
 
-            if (key == 'Q') app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
 
             bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
-            if (key == VK_UP && (keyEvent == LcKeyState::Down) && canJump)
+            if ((key == VK_UP || key == LcJKeys::A) && (keyEvent == LcKeyState::Down) && canJump)
             {
                 body->ApplyImpulse(LcVector2(0.0f, -4.0f));
             }
@@ -90,7 +87,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         app->SetPhysicsWorld(GetPhysicsWorld());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
-        app->SetKeyboardHandler(onKeyboardHandler);
+        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
         app->SetWindowSize(1024, 768);
         app->Init(hInstance);
         app->Run();

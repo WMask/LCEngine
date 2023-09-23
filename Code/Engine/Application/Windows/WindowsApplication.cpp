@@ -24,16 +24,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 struct LcWin32Handles
 {
-    LcKeyboardHandler keyboardHandler;
+    LcKeysHandler keysHandler;
     LcMouseMoveHandler mouseMoveHandler;
     LcMouseButtonHandler mouseButtonHandler;
-    LcAppContext* appContext;
-    IApplication* app;
-    IGuiManager* guiManager;
+    LcAppContext& appContext;
+    IApplication& app;
 };
 
 
-LcWindowsApplication::LcWindowsApplication() : world(::GetWorld(context)), context(*world.get())
+LcWindowsApplication::LcWindowsApplication()
+    : world(::GetWorld(context))
+    , context(*world.get())
+    , inputSystem(GetDefaultInputSystem())
 {
     hInstance = nullptr;
     hWnd = nullptr;
@@ -50,6 +52,18 @@ LcWindowsApplication::LcWindowsApplication() : world(::GetWorld(context)), conte
 LcWindowsApplication::~LcWindowsApplication()
 {
     if (world) world.reset();
+
+    if (inputSystem)
+    {
+        inputSystem->Shutdown();
+        inputSystem.reset();
+    }
+
+    if (audioSystem)
+    {
+        audioSystem->Shutdown();
+        audioSystem.reset();
+    }
 
     if (guiManager)
     {
@@ -97,9 +111,12 @@ void LcWindowsApplication::Run()
     if (!world) throw std::exception("LcWindowsApplication::Run(): Invalid world");
 
     // set context
+    context.app = this;
     context.render = renderSystem.get();
     context.scripts = scriptSystem.get();
     context.audio = audioSystem.get();
+    context.input = inputSystem.get();
+    context.gui = guiManager.get();
     context.physics = physWorld.get();
 
     // get window size
@@ -136,7 +153,17 @@ void LcWindowsApplication::Run()
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
 
-    LcWin32Handles handles{ keyboardHandler, mouseMoveHandler, mouseButtonHandler, &context, this, guiManager.get() };
+    context.windowHandle = hWnd;
+
+    inputSystem->Init(context);
+
+    // set handles
+    LcWin32Handles handles {
+        inputSystem->GetKeysHandler(),
+        inputSystem->GetMouseMoveHandler(),
+        inputSystem->GetMouseButtonHandler(),
+        context, *this
+    };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
     // set initial world size
@@ -208,6 +235,11 @@ void LcWindowsApplication::OnUpdate()
         double deltaSeconds = static_cast<double>(deltaTime.QuadPart) / 10000000.0;
         float deltaFloat = static_cast<float>(deltaSeconds);
 
+        if (inputSystem)
+        {
+            inputSystem->Update(deltaFloat, context);
+        }
+
         if (renderSystem && world)
         {
             renderSystem->Update(deltaFloat, context);
@@ -271,6 +303,13 @@ LcMouseBtn MapMouseKeys(WPARAM wParam)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     LcWin32Handles* handles = reinterpret_cast<LcWin32Handles*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    IGuiManager* guiManager = handles ? handles->appContext.gui : nullptr;
+    IInputSystem* inputSystem = handles ? handles->appContext.input : nullptr;
+    IInputDevice* activeDevice = inputSystem ? inputSystem->GetActiveInputDevice() : nullptr;
+
+    // for joysticks callbacks called in IInputSystem::Update
+    bool isKeyboardActive = activeDevice ? (activeDevice->GetType() == LcInputDeviceType::Keyboard) : false;
+
     int x = GET_X_LPARAM(lParam);
     int y = GET_Y_LPARAM(lParam);
 
@@ -287,36 +326,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MENUCHAR:
         return MNC_CLOSE << 16; // disable exit fullscreen mode sound
     case WM_SIZE:
-        if (handles && handles->appContext && handles->appContext->render)
+        if (handles && handles->appContext.render)
         {
             int width = LOWORD(lParam);
             int height = HIWORD(lParam);
-            handles->appContext->render->Resize(width, height, *handles->appContext);
+            handles->appContext.render->Resize(width, height, handles->appContext);
         }
         break;
     case WM_KEYDOWN:
-        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Down, handles->app);
-        if (handles && handles->guiManager && handles->appContext)
-            handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Down, *handles->appContext);
+        if (isKeyboardActive)
+        {
+            if (activeDevice) activeDevice->GetState()[(int)wParam] = true;
+            if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Down, &handles->app);
+            if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Down, handles->appContext);
+        }
         break;
     case WM_KEYUP:
-        if (handles && handles->keyboardHandler) handles->keyboardHandler((int)wParam, LcKeyState::Up, handles->app);
-        if (handles && handles->guiManager && handles->appContext)
-            handles->guiManager->OnKeyboard((int)wParam, LcKeyState::Up, *handles->appContext);
+        if (isKeyboardActive)
+        {
+            if (activeDevice) activeDevice->GetState()[(int)wParam] = false;
+            if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Up, &handles->app);
+            if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Up, handles->appContext);
+        }
         break;
     case WM_MOUSEMOVE:
-        if (handles && handles->guiManager && handles->appContext)
-            handles->guiManager->OnMouseMove(x, y, *handles->appContext);
+        if (guiManager) guiManager->OnMouseMove(x, y, handles->appContext);
         break;
     case WM_LBUTTONDOWN:
-        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->app);
-        if (handles && handles->guiManager && handles->appContext)
-            handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y, *handles->appContext);
+        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, &handles->app);
+        if (guiManager) guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y, handles->appContext);
         break;
     case WM_LBUTTONUP:
-        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, handles->app);
-        if (handles && handles->guiManager && handles->appContext)
-            handles->guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y, *handles->appContext);
+        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, &handles->app);
+        if (guiManager) guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y, handles->appContext);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

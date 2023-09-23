@@ -35,15 +35,17 @@ public: // IApplication interface implementation
 	//
 	virtual void Init(void* handle) noexcept override;
 	//
-	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept { renderSystem = render; }
+	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept override { renderSystem = render; }
 	//
-	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept { scriptSystem = scripts; }
+	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept override { scriptSystem = scripts; }
 	//
-	virtual void SetAudioSystem(TAudioSystemPtr audio) noexcept { audioSystem = audio; }
+	virtual void SetAudioSystem(TAudioSystemPtr audio) noexcept override { audioSystem = audio; }
 	//
-	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept { physWorld = inPhysWorld; }
+	virtual void SetInputSystem(TInputSystemPtr input) noexcept override { if (input) inputSystem = input; }
 	//
-	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept { guiManager = gui; }
+	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept override { physWorld = inPhysWorld; }
+	//
+	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept override { guiManager = gui; }
 	//
 	virtual void SetWindowSize(int width, int height) override;
 	//
@@ -51,15 +53,9 @@ public: // IApplication interface implementation
 	//
 	virtual void SetVSync(bool inVSync) noexcept override { vSync = inVSync; }
 	//
-	virtual void SetInitHandler(LcInitHandler handler) noexcept { initHandler = handler; }
+	virtual void SetInitHandler(LcInitHandler handler) noexcept override { initHandler = handler; }
 	//
-	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept { updateHandler = handler; }
-	//
-	virtual void SetKeyboardHandler(LcKeyboardHandler handler) noexcept { keyboardHandler = handler; }
-	//
-	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept { mouseMoveHandler = handler; }
-	//
-	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept { mouseButtonHandler = handler; }
+	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept override { updateHandler = handler; }
 	//
 	virtual void Run() override;
 	//
@@ -82,6 +78,10 @@ public: // IApplication interface implementation
 	virtual class IAudioSystem* GetAudioSystem() noexcept override { return audioSystem.get(); }
 	//
 	virtual TAudioSystemPtr GetAudioSystemPtr() noexcept override { return audioSystem; }
+	//
+	virtual class IInputSystem* GetInputSystem() noexcept override { return inputSystem.get(); }
+	//
+	virtual TInputSystemPtr GetInputSystemPtr() noexcept override { return inputSystem; }
 	//
 	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept override { return physWorld.get(); }
 	//
@@ -125,6 +125,8 @@ protected:
 	//
 	TAudioSystemPtr audioSystem;
 	//
+	TInputSystemPtr inputSystem;
+	//
 	TPhysicsWorldPtr physWorld;
 	//
 	TGuiManagerPtr guiManager;
@@ -136,11 +138,5 @@ protected:
 	LcInitHandler initHandler;
 	//
 	LcUpdateHandler updateHandler;
-	//
-	LcKeyboardHandler keyboardHandler;
-	//
-	LcMouseMoveHandler mouseMoveHandler;
-	//
-	LcMouseButtonHandler mouseButtonHandler;
 
 };

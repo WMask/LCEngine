@@ -28,7 +28,7 @@ public:
 	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) = 0;
+	virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) = 0;
 	/**
 	* Mouse button event */
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
@@ -55,7 +55,7 @@ public:
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	/**
 	* Keyboard key event */
-	virtual void OnKeyboard(int btn, LcKeyState state, const LcAppContext& context) override;
+	virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) override;
 	/**
 	* Mouse button event */
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) override;
