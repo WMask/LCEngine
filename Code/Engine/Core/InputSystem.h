@@ -50,6 +50,13 @@ namespace LcJKeys
 	constexpr int EndArrows = Left;
 }
 
+/** Joystick axis */
+namespace LcJAxis
+{
+	constexpr int LStick = 0;
+	constexpr int RStick = 1;
+}
+
 
 /**
 * Input device interface */

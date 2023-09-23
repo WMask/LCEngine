@@ -20,6 +20,7 @@ const static int DownDirValue = 18000;
 const static int DownLeftDirValue = 22500;
 const static int LeftDirValue = 27000;
 const static int LeftUpDirValue = 31500;
+const static int AxisValue = 32000;
 
 
 LcDirectInputSystem::LcDirectInputSystem()
@@ -54,6 +55,7 @@ void LcDirectInputSystem::Init(struct LcAppContext& context)
     {
         LPDIRECTINPUT8 directInput;
         TInputDevicesList* devices;
+        LcDirectInputJoystick* joystick;
         HWND windowHandle;
         int id;
     };
@@ -82,6 +84,31 @@ void LcDirectInputSystem::Init(struct LcAppContext& context)
         }
 
         if (FAILED(device.Get()->SetCooperativeLevel(context->windowHandle, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND)))
+        {
+            return DIENUM_CONTINUE;
+        }
+
+        auto onNextAxis = [](LPCDIDEVICEOBJECTINSTANCEW axisInstance, LPVOID contextPtr) -> BOOL
+        {
+            DI_ENUM_CONTEXT* context = reinterpret_cast<DI_ENUM_CONTEXT*>(contextPtr);
+            auto device = (context->joystick) ? context->joystick->GetDevice().Get() : nullptr;
+            if (device)
+            {
+                DIPROPRANGE diProps;
+                diProps.diph.dwSize = sizeof(DIPROPRANGE);
+                diProps.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+                diProps.diph.dwHow = DIPH_BYID;
+                diProps.diph.dwObj = axisInstance->dwType;
+                diProps.lMax = AxisValue;
+                diProps.lMin = -AxisValue;
+                device->SetProperty(DIPROP_RANGE, &diProps.diph);
+            }
+
+            return DIENUM_CONTINUE;
+        };
+
+        context->joystick = newJoystick.get();
+        if (FAILED(device.Get()->EnumObjects(onNextAxis, context, DIDFT_AXIS)))
         {
             return DIENUM_CONTINUE;
         }
@@ -189,11 +216,17 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
             // process axis
             if (axisHandler)
             {
-                float X = float(newState.lX - 32768) / 32768.0f;
-                float Y = float(newState.lY - 32768) / -32768.0f;
-                if (abs(X) < 0.04f) X = 0.0f;
-                if (abs(Y) < 0.04f) Y = 0.0f;
-                axisHandler(0, X, Y, context.app);
+                float X = static_cast<float>(newState.lX) / AxisValue;
+                float Y = static_cast<float>(newState.lY) / -AxisValue;
+                if (abs(X) < 0.05f) X = 0.0f;
+                if (abs(Y) < 0.05f) Y = 0.0f;
+                axisHandler(LcJAxis::LStick, X, Y, context.app);
+
+                X = static_cast<float>(newState.lZ) / AxisValue;
+                Y = static_cast<float>(newState.lRz) / -AxisValue;
+                if (abs(X) < 0.05f) X = 0.0f;
+                if (abs(Y) < 0.05f) Y = 0.0f;
+                axisHandler(LcJAxis::RStick, X, Y, context.app);
             }
 
             joystick->SetButtonsState(curState.Get());
