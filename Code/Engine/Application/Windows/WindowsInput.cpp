@@ -186,6 +186,16 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
                 }
             }
 
+            // process axis
+            if (axisHandler)
+            {
+                float X = float(newState.lX - 32768) / 32768.0f;
+                float Y = float(newState.lY - 32768) / -32768.0f;
+                if (abs(X) < 0.04f) X = 0.0f;
+                if (abs(Y) < 0.04f) Y = 0.0f;
+                axisHandler(0, X, Y, context.app);
+            }
+
             joystick->SetButtonsState(curState.Get());
             joystick->SetArrowsState(curArrows);
         }
