@@ -35,7 +35,7 @@ struct LcWin32Handles
 LcWindowsApplication::LcWindowsApplication()
     : world(::GetWorld(context))
     , context(*world.get())
-    , inputSystem(GetWindowsInputSystem())
+    , inputSystem(GetDefaultInputSystem())
 {
     hInstance = nullptr;
     hWnd = nullptr;

@@ -11,10 +11,13 @@
 
 #include <functional>
 
+#pragma warning(disable : 4275)
+#pragma warning(disable : 4251)
 
-#define LC_JOYSTICK_MAX_COUNT 4
-#define LC_JOYSTICK_KEYS_OFFSET 130
-#define LC_JOYSTICK_KEYS_COUNT (LC_KEYS_COUNT - LC_JOYSTICK_KEYS_OFFSET)
+
+constexpr int LcJoysticksMaxCount = 4;
+constexpr int LcJoystickKeysOffset = 130;
+constexpr int LcJoystickKeysCount = (LcKeysCount - LcJoystickKeysOffset);
 
 /** Input device type */
 enum class LcInputDeviceType : int {
@@ -26,23 +29,26 @@ enum class LcInputDeviceType : int {
 };
 
 /** Joystick keys */
-enum class LcJKeys : int {
-	X		= LC_JOYSTICK_KEYS_OFFSET + 0,
-	A		= LC_JOYSTICK_KEYS_OFFSET + 1,
-	B		= LC_JOYSTICK_KEYS_OFFSET + 2,
-	Y		= LC_JOYSTICK_KEYS_OFFSET + 3,
-	L1		= LC_JOYSTICK_KEYS_OFFSET + 4,
-	R1		= LC_JOYSTICK_KEYS_OFFSET + 5,
-	L2		= LC_JOYSTICK_KEYS_OFFSET + 6,
-	R2		= LC_JOYSTICK_KEYS_OFFSET + 7,
-	Back	= LC_JOYSTICK_KEYS_OFFSET + 8,
-	Menu	= LC_JOYSTICK_KEYS_OFFSET + 9,
-	Start	= LC_JOYSTICK_KEYS_OFFSET + 9,
-	Up		= LC_JOYSTICK_KEYS_OFFSET + 10, StartArrows = Up,
-	Right	= LC_JOYSTICK_KEYS_OFFSET + 11,
-	Down	= LC_JOYSTICK_KEYS_OFFSET + 12,
-	Left	= LC_JOYSTICK_KEYS_OFFSET + 13, EndArrows = Left
-};
+namespace LcJKeys
+{
+	constexpr int X		= LcJoystickKeysOffset + 0;
+	constexpr int A		= LcJoystickKeysOffset + 1;
+	constexpr int B		= LcJoystickKeysOffset + 2;
+	constexpr int Y		= LcJoystickKeysOffset + 3;
+	constexpr int L1	= LcJoystickKeysOffset + 4;
+	constexpr int R1	= LcJoystickKeysOffset + 5;
+	constexpr int L2	= LcJoystickKeysOffset + 6;
+	constexpr int R2	= LcJoystickKeysOffset + 7;
+	constexpr int Back	= LcJoystickKeysOffset + 8;
+	constexpr int Menu	= LcJoystickKeysOffset + 9;
+	constexpr int Start	= LcJoystickKeysOffset + 9;
+	constexpr int Up	= LcJoystickKeysOffset + 10;
+	constexpr int Right	= LcJoystickKeysOffset + 11;
+	constexpr int Down	= LcJoystickKeysOffset + 12;
+	constexpr int Left	= LcJoystickKeysOffset + 13;
+	constexpr int StartArrows = Up;
+	constexpr int EndArrows = Left;
+}
 
 
 /**
@@ -115,6 +121,9 @@ public:
 	* Set active device */
 	virtual void SetActiveDevice(const IInputDevice* device) = 0;
 	/**
+	* Set active device by name part. Like "MyGamepad" for "Wireless MyGamepad Controller" */
+	virtual void SetActiveDevice(const std::wstring& deviceNamePart) = 0;
+	/**
 	* Set keyboard handler */
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept = 0;
 	/**
@@ -155,16 +164,20 @@ public:
 
 
 /**
-* Default keyboard */
-class LcKeyboard : public IInputDevice
+* Default input device */
+class CORE_API LcDefaultInputDevice : public IInputDevice
 {
 public:
-	LcKeyboard() : name(L"Keyboard"), active(true) {}
+	static const std::wstring Name;
+
+
+public:
+	LcDefaultInputDevice() : name(Name), active(true) {}
 
 
 public:
 	//
-	virtual ~LcKeyboard() {}
+	virtual ~LcDefaultInputDevice() {}
 	//
 	virtual void Activate() override { active = true; }
 	//
@@ -189,3 +202,73 @@ protected:
 	bool active;
 
 };
+
+
+/**
+* Default Input system */
+class CORE_API LcDefaultInputSystem : public IInputSystem
+{
+public:
+	//
+	LcDefaultInputSystem();
+
+
+public: // IInputSystem interface implementation
+	//
+	virtual ~LcDefaultInputSystem() override {}
+	//
+	virtual void Init(struct LcAppContext& context) override {}
+	//
+	virtual void Shutdown() override {}
+	//
+	virtual void Update(float deltaSeconds, struct LcAppContext& context) override {}
+	//
+	virtual void SetActiveDevice(const std::wstring& deviceNamePart) override;
+	//
+	virtual void SetActiveDevice(const IInputDevice* device) override;
+	//
+	virtual void SetKeysHandler(LcKeysHandler handler) noexcept override { keysHandler = handler; }
+	//
+	virtual void SetAxisHandler(LcAxisHandler handler) noexcept override { axisHandler = handler; }
+	//
+	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept override { mouseMoveHandler = handler; }
+	//
+	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept override { mouseButtonHandler = handler; }
+	//
+	virtual LcKeysHandler& GetKeysHandler() noexcept override { return keysHandler; }
+	//
+	virtual LcAxisHandler& GetAxisHandler() noexcept override { return axisHandler; }
+	//
+	virtual LcMouseMoveHandler& GetMouseMoveHandler() noexcept override { return mouseMoveHandler; }
+	//
+	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept override { return mouseButtonHandler; }
+	//
+	virtual const TInputDevicesList& GetInputDevicesList() const override { return devices; }
+	//
+	virtual TInputDevicesList& GetInputDevicesList() override { return devices; }
+	//
+	virtual const IInputDevice* GetActiveInputDevice() const override { return activeDevice; }
+	//
+	virtual IInputDevice* GetActiveInputDevice() override { return activeDevice; }
+
+
+protected:
+	//
+	LcKeysHandler keysHandler;
+	//
+	LcAxisHandler axisHandler;
+	//
+	LcMouseMoveHandler mouseMoveHandler;
+	//
+	LcMouseButtonHandler mouseButtonHandler;
+	//
+	IInputDevice* activeDevice;
+	//
+	TInputDevicesList devices;
+
+};
+
+
+/**
+* Default input system */
+CORE_API TInputSystemPtr GetDefaultInputSystem();

@@ -61,16 +61,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // move sprite
             auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
-            if (keys[VK_LEFT]) sprite1->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-            if (keys[VK_RIGHT]) sprite1->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
+            if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite1->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
+            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite1->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
 
-            if (keys[VK_UP]) sprite1->AddRotZ(-2 * deltaSeconds);
-            if (keys[VK_DOWN]) sprite1->AddRotZ(2 * deltaSeconds);
+            if (keys[VK_UP] || keys[LcJKeys::Up]) sprite1->AddRotZ(-2 * deltaSeconds);
+            if (keys[VK_DOWN] || keys[LcJKeys::Down]) sprite1->AddRotZ(2 * deltaSeconds);
         };
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
         {
-            if (key == 'Q') app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
         };
 
         auto app = GetApp();

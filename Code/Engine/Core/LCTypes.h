@@ -26,7 +26,7 @@ enum class LcMouseBtn
 	Middle
 };
 
-/** Key state */
+/** Key state: Up, Down */
 enum class LcKeyState
 {
 	Up,
@@ -46,7 +46,7 @@ enum class LcRenderSystemType
 enum class LcWinMode : int { Windowed, Fullscreen };
 
 
-#define LC_KEYS_COUNT 150
+constexpr int LcKeysCount = 150;
 
 /** Keys struct */
 struct CORE_API KEYS
@@ -59,7 +59,7 @@ struct CORE_API KEYS
 	//
 	unsigned char& operator[](int index);
 	//
-	unsigned char keys[LC_KEYS_COUNT];
+	unsigned char keys[LcKeysCount];
 };
 
 /** Any value container */

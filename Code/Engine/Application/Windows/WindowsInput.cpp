@@ -138,18 +138,18 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
             joystick->GetArrowsState(prevArrows);
 
             // check buttons changes
-            const int keysWithoutArrows = (int)LcJKeys::StartArrows - LC_JOYSTICK_KEYS_OFFSET;
+            constexpr int keysWithoutArrows = LcJKeys::StartArrows - LcJoystickKeysOffset;
             for (int key = 0; key < keysWithoutArrows; key++)
             {
-                BYTE prev = prevState[LC_JOYSTICK_KEYS_OFFSET + key];
+                BYTE prev = prevState[LcJoystickKeysOffset + key];
                 BYTE cur = (newState.rgbButtons[key] == 0) ? 0 : 1;
                 if (cur != prev)
                 {
                     auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-                    keysHandler(LC_JOYSTICK_KEYS_OFFSET + key, action, context.app);
+                    keysHandler(LcJoystickKeysOffset + key, action, context.app);
                 }
 
-                curState[LC_JOYSTICK_KEYS_OFFSET + key] = cur;
+                curState[LcJoystickKeysOffset + key] = cur;
             }
 
             // check arrows changes
@@ -157,17 +157,17 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
             {
                 switch (curArrows)
                 {
-                    case LeftDirValue: curState[(int)LcJKeys::Left] = 1; break;
-                    case RightDirValue: curState[(int)LcJKeys::Right] = 1; break;
-                    case UpDirValue: curState[(int)LcJKeys::Up] = 1; break;
-                    case DownDirValue: curState[(int)LcJKeys::Down] = 1; break;
-                    case LeftUpDirValue: curState[(int)LcJKeys::Left] = curState[(int)LcJKeys::Up] = 1; break;
-                    case UpRightDirValue: curState[(int)LcJKeys::Right] = curState[(int)LcJKeys::Up] = 1; break;
-                    case DownLeftDirValue: curState[(int)LcJKeys::Left] = curState[(int)LcJKeys::Down] = 1; break;
-                    case RightDownDirValue: curState[(int)LcJKeys::Right] = curState[(int)LcJKeys::Down] = 1; break;
+                    case LeftDirValue: curState[LcJKeys::Left] = 1; break;
+                    case RightDirValue: curState[LcJKeys::Right] = 1; break;
+                    case UpDirValue: curState[LcJKeys::Up] = 1; break;
+                    case DownDirValue: curState[LcJKeys::Down] = 1; break;
+                    case LeftUpDirValue: curState[LcJKeys::Left] = curState[LcJKeys::Up] = 1; break;
+                    case UpRightDirValue: curState[LcJKeys::Right] = curState[LcJKeys::Up] = 1; break;
+                    case DownLeftDirValue: curState[LcJKeys::Left] = curState[LcJKeys::Down] = 1; break;
+                    case RightDownDirValue: curState[LcJKeys::Right] = curState[LcJKeys::Down] = 1; break;
                 }
 
-                for (int i = (int)LcJKeys::StartArrows; i <= (int)LcJKeys::EndArrows; i++)
+                for (int i = LcJKeys::StartArrows; i <= LcJKeys::EndArrows; i++)
                 {
                     BYTE prev = prevState[i];
                     BYTE cur = curState[i];
@@ -180,7 +180,7 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
             }
             else
             {
-                for (int i = (int)LcJKeys::StartArrows; i <= (int)LcJKeys::EndArrows; i++)
+                for (int i = LcJKeys::StartArrows; i <= LcJKeys::EndArrows; i++)
                 {
                     curState[i] = prevState[i];
                 }
@@ -214,14 +214,14 @@ void LcDirectInputJoystick::GetButtonsState(BYTE* inKeys) const
 
 void LcDirectInputJoystick::Activate()
 {
-    LcKeyboard::Activate();
+    LcDefaultInputDevice::Activate();
 
     if (device) device->Acquire();
 }
 
 void LcDirectInputJoystick::Deactivate()
 {
-    LcKeyboard::Deactivate();
+    LcDefaultInputDevice::Deactivate();
 
     if (device) device->Unacquire();
 }
@@ -231,35 +231,7 @@ LcInputDeviceType LcDirectInputJoystick::GetType() const
     return static_cast<LcInputDeviceType>((int)LcInputDeviceType::Joystick1 + deviceId);
 }
 
-
-LcWindowsInputSystem::LcWindowsInputSystem() : activeDevice(nullptr)
-{
-    devices.push_back(std::make_shared<LcKeyboard>());
-    activeDevice = devices[0].get();
-}
-
-void LcWindowsInputSystem::SetActiveDevice(const IInputDevice* inActiveDevice)
-{
-    for (auto& device : devices)
-    {
-        if (device.get() == inActiveDevice)
-        {
-            activeDevice = device.get();
-            activeDevice->Activate();
-        }
-        else
-        {
-            device->Deactivate();
-        }
-    }
-}
-
-TInputSystemPtr GetWindowsInputSystem()
-{
-    return std::make_unique<LcWindowsInputSystem>();
-}
-
-TInputSystemPtr GetDirectInputSystem()
+TInputSystemPtr GetInputSystem()
 {
     return std::make_unique<LcDirectInputSystem>();
 }

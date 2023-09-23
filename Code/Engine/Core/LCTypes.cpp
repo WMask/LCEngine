@@ -17,7 +17,7 @@ KEYS::KEYS()
 
 unsigned char& KEYS::operator[](int index)
 {
-	if (index < 0 || index >= LC_KEYS_COUNT) throw std::exception("KEYS::operator[]: Invalid index");
+	if (index < 0 || index >= LcKeysCount) throw std::exception("KEYS::operator[]: Invalid index");
 
 	return keys[index];
 }

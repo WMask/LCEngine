@@ -64,8 +64,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             auto vel = body->GetVelocity();
             auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
-            if (keys[VK_LEFT]) body->SetVelocity(LcVector2(-1.2f, vel.y));
-            if (keys[VK_RIGHT]) body->SetVelocity(LcVector2(1.2f, vel.y));
+            if (keys[VK_LEFT] || keys[LcJKeys::Left]) body->SetVelocity(LcVector2(-1.2f, vel.y));
+            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) body->SetVelocity(LcVector2(1.2f, vel.y));
         };
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
@@ -73,10 +73,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto physWorld = app->GetPhysicsWorld();
             auto body = physWorld->GetDynamicBodies()[0];
 
-            if (key == 'Q') app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
 
             bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
-            if (key == VK_UP && (keyEvent == LcKeyState::Down) && canJump)
+            if ((key == VK_UP || key == LcJKeys::A) && (keyEvent == LcKeyState::Down) && canJump)
             {
                 body->ApplyImpulse(LcVector2(0.0f, -4.0f));
             }
