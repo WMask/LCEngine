@@ -6,8 +6,9 @@ Welcome to the LCEngine source code!
 **Features:**
 - DirectX 10 render system
 - DirectWrite text rendering
-- DirectInput gamepads support
+- DirectInput joysticks support
 - XAudio2 sound system
+- Ogg / Vorbis audio streaming
 - Lua script system
 - Box2D physics
 - JSON file parsing
@@ -23,8 +24,10 @@ Prerequisites: **Visual Studio 2022**
 2. Put Lua 5.4.6 sources and libs to **Code/Engine/Lua/src**.
 3. Put Box2D source to **Code/Engine/Box2D/src**. Build it.
 4. Put nlohmann's Json sources to **Code/Engine/Json**.
-5. Open **Projects/Windows/LCEngine.sln**. Build all projects multiple times to create all libs.
-6. Select HelloWorld project as startup. Start.
+5. Put libogg library to **Code/Engine/Audio/libogg**. Build it.
+6. Put libvorbis library to **Code/Engine/Audio/libvorbis**. Build it.
+7. Open **Projects/Windows/LCEngine.sln**. Build all projects multiple times to create all libs.
+8. Select HelloWorld project as startup. Start.
 
 **Hello World**
 ---------------
