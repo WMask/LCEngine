@@ -9,7 +9,7 @@
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
+#include "World/SpriteInterface.h"
 #include "Core/LCUtils.h"
 
 

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "GUI/Widgets.h"
+#include "GUI/WidgetInterface.h"
 #include "RenderSystem.h"
 
 

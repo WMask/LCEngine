@@ -15,9 +15,10 @@ using namespace Microsoft::WRL;
 #include "Module.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/ConstantBuffersDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
-#include "GUI/Widgets.h"
+#include "GUI/WidgetInterface.h"
 
 #pragma warning(disable : 4251)
 #pragma warning(disable : 5046)
@@ -37,20 +38,11 @@ public:
 	* Return D3D10 swap chain */
 	virtual IDXGISwapChain* GetD3D10SwapChain() const = 0;
 	/**
-	* Return matrix buffer */
-	virtual ID3D10Buffer* GetTransformBuffer() const = 0;
-	/**
-	* Return colors buffer */
-	virtual ID3D10Buffer* GetColorsBuffer() const = 0;
-	/**
-	* Return custom UV buffer */
-	virtual ID3D10Buffer* GetCustomUvBuffer() const = 0;
-	/**
-	* Return frame animation buffer */
-	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
-	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
+	/**
+	* Return constant buffers */
+	virtual const LcConstantBuffersDX10& GetBuffers() const = 0;
 	/**
 	* Force sprite render setup. Updates shaders and buffers */
 	virtual void ForceRenderSetup() = 0;
@@ -83,9 +75,11 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(void* windowHandle, LcWinMode mode, bool inVSync, const LcAppContext& context) override;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool inVSync, bool inAllowFullscreen, const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override;
+	//
+	virtual void Clear() override;
 	//
 	virtual void Subscribe(const LcAppContext& context);
 	//
@@ -103,6 +97,8 @@ public:// IRenderSystem interface implementation
 	//
 	virtual bool CanRender() const override { return d3dDevice; }
 	//
+	virtual LcRSStats GetStats() const override;
+	//
 	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
 
 
@@ -119,15 +115,9 @@ public:// IDX10RenderDevice interface implementation
 	//
 	virtual IDXGISwapChain* GetD3D10SwapChain() const override { return swapChain.Get(); }
 	//
-	virtual ID3D10Buffer* GetTransformBuffer() const override { return transMatrixBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetColorsBuffer() const override { return colorsBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetCustomUvBuffer() const override { return customUvBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return frameAnimBuffer.Get(); }
-	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
+	//
+	virtual const LcConstantBuffersDX10& GetBuffers() const override { return constBuffers; }
 	//
 	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
 	//
@@ -141,18 +131,6 @@ protected:
 	//
 	ComPtr<ID3D10RenderTargetView> renderTargetView;
 	//
-	ComPtr<ID3D10Buffer> projMatrixBuffer;
-	//
-	ComPtr<ID3D10Buffer> transMatrixBuffer;
-	//
-	ComPtr<ID3D10Buffer> viewMatrixBuffer;
-	//
-	ComPtr<ID3D10Buffer> colorsBuffer;
-	//
-	ComPtr<ID3D10Buffer> customUvBuffer;
-	//
-	ComPtr<ID3D10Buffer> frameAnimBuffer;
-	//
 	ComPtr<ID3D10BlendState> blendState;
 	//
 	ComPtr<ID3D10RasterizerState> rasterizerState;
@@ -164,6 +142,8 @@ protected:
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
 	TVisual2DRenderList visual2DRenders;
+	//
+	LcConstantBuffersDX10 constBuffers;
 	//
 	LcWidgetRenderDX10* widgetRender;
 	//

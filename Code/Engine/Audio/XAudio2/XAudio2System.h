@@ -40,6 +40,8 @@ public:// IAudioSystem interface implementation
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual ISound* AddSound(const char* filePath) override;
+	//
+	virtual void RemoveAllSounds() { sounds.RemoveAll(); }
 
 
 protected:

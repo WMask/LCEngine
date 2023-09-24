@@ -27,6 +27,19 @@ typedef std::function<void(class IApplication*)> LcInitHandler;
 typedef std::function<void(float, class IApplication*)> LcUpdateHandler;
 
 
+/** Application stats */
+struct LcAppStats
+{
+	int numSprites;
+	int numWidgets;
+	int numTextures;
+	int numTilemaps;
+	int numFonts;
+	int numSounds;
+	int numBodies;
+};
+
+
 /**
 * Application interface */
 class IApplication
@@ -81,6 +94,16 @@ public:
 	* Set vertical synchronization mode */
 	virtual void SetVSync(bool inVSync) noexcept = 0;
 	/**
+	* Set fullscreen mode type.
+	* If true: actually changes monitor resolution. If VSync true: FPS - equal to monitor highest refresh rate.
+	* If false: fake windowed fullscreen mode. If VSync true: FPS - default OS refresh rate. */
+	virtual void SetAllowFullscreen(bool inAllowFullscreen) noexcept = 0;
+	/**
+	* @brief Set No Delay mode.
+	* If true: high FPS and update rate.
+	* If true and VSync false: processor core utilization 100%, highest FPS and update rate.  */
+	virtual void SetNoDelay(bool inNoDelay) noexcept = 0;
+	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept = 0;
 	/**
@@ -89,6 +112,9 @@ public:
 	/**
 	* Run application main loop */
 	virtual void Run() = 0;
+	/**
+	* Remove all sprites, widgets, textures etc. */
+	virtual void ClearWorld() = 0;
 	/**
 	* Request application quit */
 	virtual void RequestQuit() noexcept = 0;
@@ -101,6 +127,9 @@ public:
 	/**
 	* Get vertical synchronization mode */
 	virtual bool GetVSync() const noexcept = 0;
+	/**
+	* Get application stats */
+	virtual LcAppStats GetAppStats() const noexcept = 0;
 	/**
 	* Get World pointer */
 	virtual class IWorld* GetWorld() noexcept = 0;

@@ -11,9 +11,7 @@
 #include <algorithm>
 
 #ifdef _WINDOWS
-# include <windows.h>
 # include <directxmath.h>
-# include <dcommon.h>
 #endif
 
 
@@ -28,8 +26,6 @@ typedef DirectX::XMFLOAT3	LcColor3;
 typedef DirectX::XMFLOAT4	LcColor4;
 typedef DirectX::XMFLOAT4	LcVector4;
 typedef DirectX::XMMATRIX	LcMatrix4;
-typedef RECT				LcRect;
-typedef D2D_RECT_F			LcRectf;
 
 namespace LcDefaults
 {
@@ -38,6 +34,9 @@ namespace LcDefaults
 }
 
 #endif
+
+struct LcRect { int left; int top; int right; int bottom; };
+struct LcRectf { float left; float top; float right; float bottom; };
 
 inline LcVector2 operator+(const LcVector2& a, const LcVector2& b) { return LcVector2{ a.x + b.x, a.y + b.y }; }
 inline LcVector3 operator+(const LcVector3& a, const LcVector3& b) { return LcVector3{ a.x + b.x, a.y + b.y, a.z + b.z }; }

@@ -53,11 +53,17 @@ public: // IApplication interface implementation
 	//
 	virtual void SetVSync(bool inVSync) noexcept override { vSync = inVSync; }
 	//
+	virtual void SetAllowFullscreen(bool inAllowFullscreen) noexcept override { allowFullscreen = inAllowFullscreen; }
+	//
+	virtual void SetNoDelay(bool inNoDelay) noexcept override { noDelay = inNoDelay; }
+	//
 	virtual void SetInitHandler(LcInitHandler handler) noexcept override { initHandler = handler; }
 	//
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept override { updateHandler = handler; }
 	//
 	virtual void Run() override;
+	//
+	virtual void ClearWorld() override;
 	//
 	virtual void RequestQuit() noexcept override { quit = true; }
 	//
@@ -66,6 +72,8 @@ public: // IApplication interface implementation
 	virtual int GetWindowHeight() const override { return windowSize.y; }
 	//
 	virtual bool GetVSync() const noexcept override { return vSync; }
+	//
+	virtual LcAppStats GetAppStats() const noexcept;
 	//
 	virtual class IWorld* GetWorld() noexcept override { return world.get(); }
 	//
@@ -104,6 +112,10 @@ protected:
 	bool quit;
 	//
 	bool vSync;
+	//
+	bool allowFullscreen;
+	//
+	bool noDelay;
 	//
 	LcSize windowSize;
 	//

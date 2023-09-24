@@ -14,8 +14,8 @@
 #include <map>
 
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
-#include "GUI/Widgets.h"
+#include "World/SpriteInterface.h"
+#include "GUI/WidgetInterface.h"
 #include "Core/LCTypesEx.h"
 
 using Microsoft::WRL::ComPtr;
@@ -43,6 +43,10 @@ public:
 	bool LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize);
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
 	void ClearCache(IWorld* world);
+	//
+	void RemoveTextures() { texturesCache.clear(); }
+	//
+	inline int GetNumTextures() const { return (int)texturesCache.size(); }
 
 
 protected:

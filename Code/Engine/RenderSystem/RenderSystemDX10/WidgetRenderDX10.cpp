@@ -47,7 +47,7 @@ public:
     {
         LC_TRY
 
-            if (!dwriteFactory) throw std::exception("LcTextFont(): Invalid DWrite factory");
+        if (!dwriteFactory) throw std::exception("LcTextFont(): Invalid DWrite factory");
 
         data.fontName = fontName;
         data.fontSize = fontSize;
@@ -63,13 +63,33 @@ public:
             throw std::exception("LcTextFont(): Cannot create font");
         }
 
-        data.font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-        data.font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-
         LC_CATCH{ LC_THROW("LcTextFontDX10()") }
     }
     //
     virtual ~LcTextFontDX10() override {}
+    //
+    virtual void SetAlignment(LcTextAlignment align) override
+    {
+        switch (align)
+        {
+        case LcTextAlignment::Left:
+            data.font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+            data.font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+            break;
+        case LcTextAlignment::Center:
+            data.font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+            data.font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+            break;
+        case LcTextAlignment::Justified:
+            data.font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED);
+            data.font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+            break;
+        case LcTextAlignment::Right:
+            data.font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+            data.font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
+            break;
+        }
+    }
     //
     virtual IDWriteTextFormat* GetFont() const override { return data.font.Get(); }
     //
@@ -178,23 +198,28 @@ void LcWidgetRenderDX10::RenderWidget(const IWidget* widget, const LcAppContext&
     textureRender->RenderWidget(widget, context);
 }
 
-void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, const ITextFont* font,
-    ID2D1RenderTarget* target, const LcAppContext& context)
+void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
+    const ITextFont* font, ID2D1RenderTarget* target, const LcAppContext& context)
 {
     LC_TRY
 
+    auto fontDX10 = (ITextFontDX10*)font;
+    auto fontPtr = fontDX10 ? fontDX10->GetFont() : nullptr;
+
     if (!target) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid renderer");
-    if (!font) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
+    if (!fontPtr) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
 
     D2D1_RECT_F frect{ rect.left, rect.top, rect.right, rect.bottom };
     D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
-    auto fontDX10 = (ITextFontDX10*)font;
+
+    fontDX10->SetAlignment(align);
 
     ComPtr<ID2D1SolidColorBrush> brush;
     target->CreateSolidColorBrush(fcolor, brush.GetAddressOf());
 
     target->BeginDraw();
-    target->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10->GetFont(), frect, brush.Get());
+    target->Clear(D2D1_COLOR_F{1.0f, 1.0f, 1.0f, 0.0f});
+    target->DrawTextW(text.c_str(), (UINT32)text.length(), fontPtr, frect, brush.Get());
     target->EndDraw();
 
     LC_CATCH{ LC_THROW("LcWidgetRenderDX10::RenderText()") }

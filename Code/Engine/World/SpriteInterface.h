@@ -12,11 +12,59 @@
 #include <functional>
 
 
-struct LcSpriteTintComponent;
-struct LcSpriteColorsComponent;
-struct LcSpriteCustomUVComponent;
-struct LcSpriteAnimationComponent;
-struct LcTiledSpriteComponent;
+/** Sprite tint component */
+class ISpriteTintComponent : public IVisualComponent
+{
+public:
+	//
+	virtual void SetColor(LcColor4 inTint) = 0;
+	// return sprite color data LcColor4[4]
+	virtual const void* GetData() const = 0;
+};
+
+
+/** Sprite colors component */
+class ISpriteColorsComponent : public IVisualComponent
+{
+public:
+	// return sprite color data LcColor4[4]
+	virtual const void* GetData() const = 0;
+};
+
+
+/** Sprite custom UV component */
+class ISpriteCustomUVComponent : public IVisualComponent
+{
+public:
+	// return sprite UV data LcVector4[4]
+	virtual const void* GetData() const = 0;
+};
+
+
+/** Sprite animation component */
+class ISpriteAnimationComponent : public IVisualComponent
+{
+public:
+	// x - frame width, y - frame height, z - offsetX, w - offsetY
+	virtual LcVector4 GetAnimData() const = 0;
+};
+
+
+struct LC_TILES_DATA
+{
+	LcVector3 pos[4];	// position
+	LcVector2 uv[4];	// uv coordinates
+};
+
+/** Sprite tiled component */
+class ITiledSpriteComponent : public IVisualComponent
+{
+public:
+	//
+	virtual LcVector2 GetTilesScale() const = 0;
+	// tiles vertex data
+	virtual const std::vector<LC_TILES_DATA>& GetTilesData() const = 0;
+};
 
 
 /**
@@ -28,17 +76,17 @@ public:
 
 
 public:
-	LcSpriteTintComponent* GetTintComponent() const { return (LcSpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
+	ISpriteTintComponent* GetTintComponent() const { return (ISpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
 	//
-	LcSpriteColorsComponent* GetColorsComponent() const { return (LcSpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	ISpriteColorsComponent* GetColorsComponent() const { return (ISpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	//
+	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
+	//
+	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
+	//
+	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
 	//
 	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
-	//
-	LcSpriteCustomUVComponent* GetCustomUVComponent() const { return (LcSpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
-	//
-	LcSpriteAnimationComponent* GetAnimationComponent() const { return (LcSpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
-	//
-	LcTiledSpriteComponent* GetTiledComponent() const { return (LcTiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
 
 };
 

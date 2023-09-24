@@ -50,13 +50,15 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual void Clear() override;
 	//
-	virtual void Update(float deltaSeconds) override;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) override;
 	//
 	virtual IPhysicsBody* AddDynamic(LcVector2 pos, float radius, float density, bool fixedRotation = true) override;
 	//
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation = true) override;
+	//
+	virtual void RemoveAllBodies() { dynamicBodies.RemoveAll(); }
 	//
 	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies.GetList(); }
 	//

@@ -9,6 +9,7 @@
 #include <set>
 #include <deque>
 #include <memory>
+#include <functional>
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
@@ -50,6 +51,9 @@ public:
 /** Font weight */
 enum class LcFontWeight { Light, Normal, Bold };
 
+/** Text alignment */
+enum class LcTextAlignment { Left, Center, Right, Justified };
+
 
 /**
 * Visual interface */
@@ -71,6 +75,9 @@ public:
 	/**
 	* Add component */
 	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) = 0;
+	/**
+	* Remove component */
+	virtual void RemoveComponent(class IVisualComponent* comp, const LcAppContext& context) = 0;
 	/**
 	* Get component */
 	virtual TVComponentPtr GetComponent(EVCType type) const = 0;
@@ -126,15 +133,18 @@ public:
 /** Visual feature list */
 typedef std::set<EVCType> TVFeaturesList;
 
+/** Visual feature list */
+typedef std::function<void(class IVisualComponent&, const LcAppContext&)> TLifespanHandler;
+
 
 /**
 * Visual component interface */
-class IVisualComponent
+class WORLD_API IVisualComponent
 {
 public:
 	/**
 	* Constructor */
-	IVisualComponent() : owner(nullptr) {}
+	IVisualComponent() : owner(nullptr), lifespan(-1.0f) {}
 	/**
 	* Virtual destructor */
 	virtual ~IVisualComponent() {}
@@ -146,21 +156,31 @@ public:
 	virtual void Destroy(const LcAppContext& context) {}
 	/**
 	* Update component */
-	virtual void Update(float deltaSeconds, const LcAppContext& context) {}
+	virtual void Update(float deltaSeconds, const LcAppContext& context);
 	/**
-	* Get type */
-	virtual EVCType GetType() const = 0;
+	* Set lifespan */
+	virtual void SetLifespan(float seconds, TLifespanHandler onRemoved);
+	/**
+	* Set lifespan */
+	virtual void SetLifespan(float seconds);
 	/**
 	* Set owner */
 	virtual void SetOwner(IVisual* inOwner) { owner = inOwner; }
 	/**
 	* Get owner */
 	inline IVisual* GetOwner() const { return owner; }
+	/**
+	* Get type */
+	virtual EVCType GetType() const = 0;
 
 
 protected:
-	class IVisual* owner;
 	friend class IVisual;
+	class IVisual* owner;
+	//
+	TLifespanHandler lifespanHandler;
+	//
+	float lifespan;
 
 };
 
@@ -175,7 +195,11 @@ public:// IVisual interface implementation
 	//
 	virtual void Destroy(const LcAppContext& context) override;
 	//
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
 	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
+	//
+	virtual void RemoveComponent(class IVisualComponent* comp, const LcAppContext& context) override;
 	//
 	virtual TVComponentPtr GetComponent(EVCType type) const override;
 	//
@@ -190,12 +214,9 @@ protected:
 
 /**
 * Visual texture component */
-struct LcVisualTextureComponent : public IVisualComponent
+class LcVisualTextureComponent : public IVisualComponent
 {
-	std::string texture;	// texture file path
-	LcBytes data;			// texture data
-	LcVector2 texSize;		// texture size in pixels
-	//
+public:
 	LcVisualTextureComponent() : texSize(LcDefaults::ZeroVec2) {}
 	//
 	LcVisualTextureComponent(const LcVisualTextureComponent& texture) :
@@ -208,7 +229,21 @@ struct LcVisualTextureComponent : public IVisualComponent
 	LcVisualTextureComponent(const LcBytes& inData) : data(inData), texSize(LcDefaults::ZeroVec2)
 	{
 	}
-	// IVisualComponent interface implementation
+	//
+	inline void SetTextureSize(LcVector2 newSize) { texSize = newSize; }
+	//
+	inline LcVector2 GetTextureSize() const { return texSize; }
+	//
+	inline std::string GetTexturePath() const { return texture; }
+
+
+public:// IVisualComponent interface implementation
+	//
 	virtual EVCType GetType() const override { return EVCType::Texture; }
 
+
+protected:
+	std::string texture;	// texture file path
+	LcBytes data;			// texture data
+	LcVector2 texSize;		// texture size in pixels
 };

@@ -74,6 +74,10 @@
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x64\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -141,11 +145,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Core.lib;World.lib;RenderSystem.lib;GUI.lib;d3d10_1.lib;d2d1.lib;dwrite.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedVisual2DRenderDX10.h" />
@@ -159,6 +165,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\AnimatedSpriteRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ColoredSpriteRenderDX10.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\RenderSystemDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TexturedVisual2DRenderDX10.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\TiledVisual2DRenderDX10.cpp" />
@@ -172,6 +179,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Code\Shaders\HLSL\AnimatedSprite2d.shader" />
+    <None Include="..\..\..\Code\Shaders\HLSL\ColoredSprite2d.shader" />
+    <None Include="..\..\..\Code\Shaders\HLSL\TexturedSprite2d.shader" />
+    <None Include="..\..\..\Code\Shaders\HLSL\TiledSprite2d.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

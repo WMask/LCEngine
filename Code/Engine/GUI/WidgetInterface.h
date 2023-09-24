@@ -13,13 +13,6 @@
 #include <string>
 
 
-struct LcWidgetTextComponent;
-struct LcWidgetButtonComponent;
-struct LcWidgetCheckboxComponent;
-struct LcWidgetClickComponent;
-struct LcWidgetCheckComponent;
-
-
 /** Button state */
 enum class EBtnState : int
 {
@@ -45,27 +38,92 @@ typedef std::function<void(bool)> LcCheckHandler;
 
 
 /**
+* Widget text component */
+class IWidgetTextComponent : public IVisualComponent
+{
+public:
+    //
+    virtual void SetText(const std::wstring& text) = 0;
+    //
+    virtual const std::wstring& GetText() const = 0;
+    //
+    virtual const std::wstring& GetFontName() const = 0;
+    //
+    virtual unsigned short GetFontSize() const = 0;
+    //
+    virtual LcFontWeight GetFontWeight() const = 0;
+    //
+    virtual LcTextAlignment GetTextAlignment() const = 0;
+    //
+    virtual LcColor4 GetTextColor() const = 0;
+};
+
+
+/**
+* Widget button component */
+class IWidgetButtonComponent : public IVisualComponent
+{
+public:
+    //
+    virtual void SetState(EBtnState state) = 0;
+    //
+    virtual EBtnState GetState() const = 0;
+    // returns vertex data LcVector4[4]
+    virtual const void* GetData() const = 0;
+};
+
+
+/**
+* Widget checkbox component */
+class IWidgetCheckboxComponent : public IVisualComponent
+{
+public:
+    //
+    virtual void SetState(ECheckboxState state) = 0;
+    //
+    virtual bool IsChecked() const = 0;
+    // returns vertex data LcVector4[4]
+    virtual const void* GetData() const = 0;
+};
+
+
+/**
+* Widget click component */
+class IWidgetClickComponent : public IVisualComponent
+{
+public:
+    //
+    virtual LcClickHandler& GetHandler() = 0;
+};
+
+
+/**
+* Widget check component */
+class IWidgetCheckComponent : public IVisualComponent
+{
+public:
+    //
+    virtual LcCheckHandler& GetHandler() = 0;
+};
+
+
+/**
 * Widget interface */
 class GUI_API IWidget : public IVisualBase
 {
 public:
     //
-    LcWidgetTextComponent* GetTextComponent() const { return (LcWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
+    IWidgetTextComponent* GetTextComponent() const { return (IWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
+    //
+    IWidgetButtonComponent* GetButtonComponent() const { return (IWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
+    //
+    IWidgetCheckboxComponent* GetCheckboxComponent() const { return (IWidgetCheckboxComponent*)GetComponent(EVCType::Checkbox).get(); }
+    //
+    IWidgetClickComponent* GetClickHandlerComponent() const { return (IWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
+    //
+    IWidgetCheckComponent* GetCheckHandlerComponent() const { return (IWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
     //
     LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
-    //
-    LcWidgetButtonComponent* GetButtonComponent() const { return (LcWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
-    //
-    LcWidgetCheckboxComponent* GetCheckboxComponent() const { return (LcWidgetCheckboxComponent*)GetComponent(EVCType::Checkbox).get(); }
-    //
-    LcWidgetClickComponent* GetClickHandlerComponent() const { return (LcWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
-    //
-    LcWidgetCheckComponent* GetCheckHandlerComponent() const { return (LcWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
-
-
-public: // IVisual interface implementation
-    //
-    virtual void Update(float DeltaSeconds, const LcAppContext& context) override;
 
 
 public:
@@ -115,7 +173,12 @@ public:
     * Add text component to the last added widget */
     void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
         const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22,
-        LcFontWeight inFontWeight = LcFontWeight::Normal) const;
+        LcFontWeight inFontWeight = LcFontWeight::Normal, LcTextAlignment inTextAlign = LcTextAlignment::Center) const;
+    /**
+    * Add text component to the last added widget */
+    void AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
+        LcTextAlignment inTextAlign = LcTextAlignment::Center, const std::wstring& inFontName = L"Calibri",
+        unsigned short inFontSize = 22, LcFontWeight inFontWeight = LcFontWeight::Normal) const;
     /**
     * Add button component to the last added widget */
     void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const;

@@ -75,7 +75,7 @@ public:
 	virtual void Clear() = 0;
 	/**
 	* Update world */
-	virtual void Update(float deltaSeconds) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Add static box */
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) = 0;
@@ -85,6 +85,9 @@ public:
 	/**
 	* Add dynamic box body */
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density = 1.0f, bool fixedRotation = true) = 0;
+	/**
+	* Remove all dynamic bodies */
+	virtual void RemoveAllBodies() = 0;
 	/**
 	* Get dynamic body list */
 	virtual const TBodiesList& GetDynamicBodies() const = 0;

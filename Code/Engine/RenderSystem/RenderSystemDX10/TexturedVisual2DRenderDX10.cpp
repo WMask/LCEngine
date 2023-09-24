@@ -113,9 +113,9 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcA
 {
 	auto render = static_cast<LcRenderSystemDX10*>(context.render);
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
-	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
-	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
-	auto uvsBuffer = render ? render->GetCustomUvBuffer() : nullptr;
+	auto transBuffer = render ? render->GetBuffers().transMatrixBuffer.Get() : nullptr;
+	auto colorsBuffer = render ? render->GetBuffers().colorsBuffer.Get() : nullptr;
+	auto uvsBuffer = render ? render->GetBuffers().customUvBuffer.Get() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !sprite)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
@@ -165,9 +165,9 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcA
 {
 	auto render = static_cast<LcRenderSystemDX10*>(context.render);
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
-	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
-	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
-	auto uvsBuffer = render ? render->GetCustomUvBuffer() : nullptr;
+	auto transBuffer = render ? render->GetBuffers().transMatrixBuffer.Get() : nullptr;
+	auto colorsBuffer = render ? render->GetBuffers().colorsBuffer.Get() : nullptr;
+	auto uvsBuffer = render ? render->GetBuffers().customUvBuffer.Get() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !widget)
 		throw std::exception("LcTexturedVisual2DRenderDX10::RenderWidget(): Invalid render params");
 

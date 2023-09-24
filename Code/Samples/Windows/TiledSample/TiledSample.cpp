@@ -54,8 +54,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
             auto physWorld = app->GetPhysicsWorld();
-            physWorld->Update(deltaSeconds);
-
             auto body = physWorld->GetDynamicBodies()[0];
             if (auto hero = body->GetUserObject<ISprite>())
             {

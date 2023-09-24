@@ -8,7 +8,7 @@
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
-#include "World/Sprites.h"
+#include "World/SpriteInterface.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
@@ -28,7 +28,7 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
 {
     LC_TRY
 
-        LcSprite::AddComponent(comp, context);
+    LcSprite::AddComponent(comp, context);
 
     auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
     auto texComp = GetTextureComponent();
@@ -36,14 +36,34 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     {
         LcSize texSize;
         bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
-            texComp->texture.c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+            texComp->GetTexturePath().c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
         if (loaded)
-            texComp->texSize = ToF(texSize);
+            texComp->SetTextureSize(ToF(texSize));
         else
             throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
     }
 
     LC_CATCH{ LC_THROW("LcSpriteDX10::AddComponent()") }
+}
+
+void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
+{
+    IVisualBase::Update(deltaSeconds, context);
+
+    auto textComp = GetTextComponent();
+    if (textComp && textComp->GetText() != prevRenderedText)
+    {
+        auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
+        auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
+        if (widgetRender && font)
+        {
+            auto size = GetSize() * context.world.GetWorldScale().scale;
+            LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
+            widgetRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
+                textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
+            prevRenderedText = textComp->GetText();
+        }
+    }
 }
 
 void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context)
@@ -59,10 +79,10 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     if (auto texComp = GetTextureComponent())
     {
         LcSize texSize;
-        bool loaded = textureLoader->LoadTexture(texComp->texture.c_str(),
+        bool loaded = textureLoader->LoadTexture(texComp->GetTexturePath().c_str(),
             renderDX10->GetD3D10Device(), &spriteTexture, &spriteTextureSV, &texSize);
         if (loaded)
-            texComp->texSize = ToF(texSize);
+            texComp->SetTextureSize(ToF(texSize));
         else
             throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
     }
@@ -70,14 +90,13 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     auto textComp = GetTextComponent();
     if (textComp)
     {
-        auto d3dDevice = renderDX10 ? renderDX10->GetD3D10Device() : nullptr;
         auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
-        if (!d3dDevice || !widgetRender) throw std::exception("LcWidgetDX10::AddComponent(): Invalid render system");
+        if (!widgetRender) throw std::exception("LcWidgetDX10::AddComponent(): Invalid widget render");
 
-        font = widgetRender->AddFont(textComp->fontName, GetFontSize(*textComp, context), textComp->fontWeight);
+        font = widgetRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
         if (!font) throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
 
-        RedrawText(d3dDevice, widgetRender, context);
+        RedrawText(widgetRender, context);
     }
 
     LC_CATCH{ LC_THROW("LcWidgetDX10::AddComponent()") }
@@ -89,18 +108,17 @@ void LcWidgetDX10::RecreateFont(const LcAppContext& context)
     if (auto textComp = GetTextComponent())
     {
         auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-        auto d3dDevice = renderDX10 ? renderDX10->GetD3D10Device() : nullptr;
         auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
-        if (!d3dDevice || !widgetRender) throw std::exception("LcWidgetDX10::RecreateFont(): Invalid render system");
+        if (!widgetRender) throw std::exception("LcWidgetDX10::RecreateFont(): Invalid widget render");
 
-        font = widgetRender->AddFont(textComp->fontName, GetFontSize(*textComp, context), textComp->fontWeight);
+        font = widgetRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
         if (!font) throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
 
-        RedrawText(d3dDevice, widgetRender, context);
+        RedrawText(widgetRender, context);
     }
 }
 
-void LcWidgetDX10::RedrawText(ID3D10Device1* d3dDevice, LcWidgetRenderDX10* widgetRender, const LcAppContext& context)
+void LcWidgetDX10::RedrawText(LcWidgetRenderDX10* widgetRender, const LcAppContext& context)
 {
     if (auto textComp = GetTextComponent())
     {
@@ -112,12 +130,14 @@ void LcWidgetDX10::RedrawText(ID3D10Device1* d3dDevice, LcWidgetRenderDX10* widg
 
         auto size = GetSize() * context.world.GetWorldScale().scale;
         LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-        widgetRender->RenderText(textComp->text, rect, textComp->textColor, font, textRenderTarget.Get(), context);
+        widgetRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
+            textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
+        prevRenderedText = textComp->GetText();
     }
 }
 
-float LcWidgetDX10::GetFontSize(const LcWidgetTextComponent& textComp, const LcAppContext& context) const
+float LcWidgetDX10::GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const
 {
     float scale = context.world.GetWorldScale().scaleFonts ? context.world.GetWorldScale().scale.y : 1.0f;
-    return static_cast<float>(textComp.fontSize) * scale;
+    return static_cast<float>(textComp.GetFontSize()) * scale;
 }

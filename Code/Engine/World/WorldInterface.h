@@ -53,7 +53,7 @@ struct WORLD_API LcWorldScale
 	//
 	void UpdateWorldScale(LcSize newScreenSize);
 	//
-	LcDelegate<void(LcVector2)> scaleUpdatedHandler;
+	LcDelegate<void(LcVector2)> onScaleChanged;
 	//
 	struct ScalePair
 	{
@@ -77,6 +77,9 @@ public:
 	typedef std::deque<std::shared_ptr<class ISprite>> TSpriteList;
 	//
 	typedef std::deque<std::shared_ptr<class IWidget>> TWidgetList;
+	/**
+	* Subscribe to get changes of sprites global tint. */
+	LcDelegate<void(LcColor3)> onTintChanged;
 
 
 public:
@@ -119,6 +122,12 @@ public:
 	/**
 	* Get world scale */
 	virtual LcWorldScale& GetWorldScale() = 0;
+	/**
+	* Set global sprites and widgets tint color */
+	virtual void SetGlobalTint(LcColor3 tint) = 0;
+	/**
+	* Get global sprites and widgets tint color */
+	virtual LcColor3 GetGlobalTint() const = 0;
 	/**
 	* Get last added visual */
 	virtual class IVisual* GetLastAddedVisual() const = 0;

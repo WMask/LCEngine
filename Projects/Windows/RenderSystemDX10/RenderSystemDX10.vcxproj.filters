@@ -19,6 +19,9 @@
     <Filter Include="Source Files\RenderSystemDX10">
       <UniqueIdentifier>{e7f67248-aa14-4025-b013-ee5e7376942e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{4fc2c15d-bb23-4fa1-9980-5af826686dca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -54,6 +57,9 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\VisualsDX10.h">
       <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.h">
+      <Filter>Header Files\RenderSystemDX10</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -86,5 +92,22 @@
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\VisualsDX10.cpp">
       <Filter>Source Files\RenderSystemDX10</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.cpp">
+      <Filter>Source Files\RenderSystemDX10</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Code\Shaders\HLSL\AnimatedSprite2d.shader">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Code\Shaders\HLSL\ColoredSprite2d.shader">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Code\Shaders\HLSL\TexturedSprite2d.shader">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Code\Shaders\HLSL\TiledSprite2d.shader">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

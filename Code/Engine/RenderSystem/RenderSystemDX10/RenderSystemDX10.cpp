@@ -12,8 +12,8 @@
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "Application/ApplicationInterface.h"
+#include "World/SpriteInterface.h"
 #include "World/World.h"
-#include "World/Sprites.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCException.h"
@@ -47,6 +47,7 @@ public:
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: widgetRender(nullptr)
 	, tiledRender(nullptr)
+	, textureRender(nullptr)
 	, renderSystemSize(0, 0)
 	, worldScale(1.0f, 1.0f, 1.0f)
 	, worldScaleFonts(false)
@@ -59,7 +60,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVSync, const LcAppContext& context)
+void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVSync, bool inAllowFullscreen, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -84,6 +85,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
 	swapChainDesc.SwapEffect = inVSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD;
+	swapChainDesc.Flags = inAllowFullscreen ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -147,95 +149,10 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 
 	d3dDevice->RSSetViewports(1, &viewPort);
 
-	// define constant buffers
-	struct VS_MATRIX_BUFFER
-	{
-		LcMatrix4 mat;
-	};
-	VS_MATRIX_BUFFER matData;
-
-	struct VS_COLORS_BUFFER
-	{
-		LcColor4 colors[4];
-	};
-	VS_COLORS_BUFFER colorsData;
-
-	struct VS_CUSTOM_UV_BUFFER
-	{
-		LcVector4 uv[4];
-	};
-	VS_CUSTOM_UV_BUFFER uvData;
-
-	struct VS_FRAME_ANIM2D_BUFFER
-	{
-		LcVector4 animData;
-	};
-	VS_FRAME_ANIM2D_BUFFER anim2dData;
-
-	D3D10_BUFFER_DESC cbDesc{};
-	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
-	cbDesc.Usage = D3D10_USAGE_DEFAULT;
-	cbDesc.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
-
-	D3D10_SUBRESOURCE_DATA subResData{};
-	subResData.pSysMem = &matData;
-
-	// create constant buffers
-	matData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, projMatrixBuffer.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
-	}
-
-	matData.mat = IdentityMatrix();
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, transMatrixBuffer.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
-	}
-
+	// init constant buffers
 	cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 	cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
-	matData.mat = LookAtMatrix(cameraPos, cameraTarget);
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, viewMatrixBuffer.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
-	}
-
-	subResData.pSysMem = &colorsData;
-	colorsData.colors[0] = LcDefaults::White4;
-	colorsData.colors[1] = LcDefaults::White4;
-	colorsData.colors[2] = LcDefaults::White4;
-	colorsData.colors[3] = LcDefaults::White4;
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, colorsBuffer.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
-	}
-
-	subResData.pSysMem = &uvData;
-	uvData.uv[1] = To4(LcVector2(1.0, 0.0));
-	uvData.uv[2] = To4(LcVector2(1.0, 1.0));
-	uvData.uv[0] = To4(LcVector2(0.0, 0.0));
-	uvData.uv[3] = To4(LcVector2(0.0, 1.0));
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, customUvBuffer.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
-	}
-
-	cbDesc.ByteWidth = sizeof(VS_FRAME_ANIM2D_BUFFER);
-	subResData.pSysMem = &anim2dData;
-	anim2dData.animData = LcVector4(1.0, 1.0, 0.0, 0.0);
-	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, frameAnimBuffer.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10(): Cannot create constant buffer");
-	}
-
-	// set buffers
-	d3dDevice->VSSetConstantBuffers(0, 1, projMatrixBuffer.GetAddressOf());
-	d3dDevice->VSSetConstantBuffers(1, 1, viewMatrixBuffer.GetAddressOf());
-	d3dDevice->VSSetConstantBuffers(2, 1, transMatrixBuffer.GetAddressOf());
-	d3dDevice->VSSetConstantBuffers(3, 1, colorsBuffer.GetAddressOf());
-	d3dDevice->VSSetConstantBuffers(4, 1, customUvBuffer.GetAddressOf());
-	d3dDevice->VSSetConstantBuffers(5, 1, frameAnimBuffer.GetAddressOf());
+	constBuffers.Init(d3dDevice.Get(), cameraPos, cameraTarget, width, height);
 
 	// create blend state
 	D3D10_BLEND_DESC blendStateDesc;
@@ -301,7 +218,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	worldRef.SetWidgetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategyDX10>());
 
 	// init render system
-	LcRenderSystemBase::Create(this, winMode, inVSync, context);
+	LcRenderSystemBase::Create(this, winMode, inVSync, inAllowFullscreen, context);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -318,25 +235,28 @@ void LcRenderSystemDX10::Shutdown()
 	visual2DRenders.clear();
 	widgetRender = nullptr;
 
+	constBuffers.Destroy();
 	depthStencilView.Reset();
 	depthStencil.Reset();
 	rasterizerState.Reset();
 	blendState.Reset();
-	frameAnimBuffer.Reset();
-	customUvBuffer.Reset();
-	colorsBuffer.Reset();
-	transMatrixBuffer.Reset();
-	projMatrixBuffer.Reset();
-	viewMatrixBuffer.Reset();
 	renderTargetView.Reset();
 	swapChain.Reset();
 	d3dDevice.Reset();
 }
 
+void LcRenderSystemDX10::Clear()
+{
+	texLoader->RemoveTextures();
+	if (tiledRender) tiledRender->RemoveTiles();
+	if (widgetRender) widgetRender->RemoveFonts();
+}
+
 void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 {
 	auto contextPtr = &context;
-	context.world.GetWorldScale().scaleUpdatedHandler.AddListener([this, contextPtr](LcVector2 newScale)
+
+	context.world.GetWorldScale().onScaleChanged.AddListener([this, contextPtr](LcVector2 newScale)
 	{
 		LC_TRY
 
@@ -350,6 +270,16 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 
 		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
 	});
+
+	context.world.onTintChanged.AddListener([this](LcColor3 globalTint)
+	{
+		if (constBuffers.settingsBuffer)
+		{
+			VS_SETTINGS_BUFFER settings;
+			settings.worldTint = To4(globalTint);
+			d3dDevice->UpdateSubresource(constBuffers.settingsBuffer.Get(), 0, NULL, &settings, 0, 0);
+		}
+	});
 }
 
 void LcRenderSystemDX10::Update(float deltaSeconds, const LcAppContext& context)
@@ -360,7 +290,7 @@ void LcRenderSystemDX10::Update(float deltaSeconds, const LcAppContext& context)
 void LcRenderSystemDX10::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
 {
 	auto viewMatrix = LookAtMatrix(newPos, newTarget);
-	d3dDevice->UpdateSubresource(viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
+	d3dDevice->UpdateSubresource(constBuffers.viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
 }
 
 void LcRenderSystemDX10::Render(const LcAppContext& context)
@@ -413,7 +343,8 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		widgetRender->Shutdown();
 
 		// resize swap chain
-		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0)))
+		UINT flags = allowFullscreen ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0u;
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, flags)))
 		{
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}
@@ -457,7 +388,7 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 
 		// update projection matrix
 		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
-		d3dDevice->UpdateSubresource(projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
+		d3dDevice->UpdateSubresource(constBuffers.projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
 		renderSystemSize = newViewportSize;
 	}
@@ -468,6 +399,15 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 void LcRenderSystemDX10::SetMode(LcWinMode winMode)
 {
 	if (swapChain) swapChain->SetFullscreenState((winMode == LcWinMode::Fullscreen), nullptr);
+}
+
+LcRSStats LcRenderSystemDX10::GetStats() const
+{
+	return LcRSStats{
+		texLoader->GetNumTextures(),
+		tiledRender ? tiledRender->GetNumTiles() : 0,
+		widgetRender ? widgetRender->GetNumFonts() : 0
+	};
 }
 
 void LcRenderSystemDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
