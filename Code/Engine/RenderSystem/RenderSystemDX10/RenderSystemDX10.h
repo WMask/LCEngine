@@ -38,23 +38,11 @@ public:
 	* Return D3D10 swap chain */
 	virtual IDXGISwapChain* GetD3D10SwapChain() const = 0;
 	/**
-	* Return matrix buffer */
-	virtual ID3D10Buffer* GetTransformBuffer() const = 0;
-	/**
-	* Return colors buffer */
-	virtual ID3D10Buffer* GetColorsBuffer() const = 0;
-	/**
-	* Return custom UV buffer */
-	virtual ID3D10Buffer* GetCustomUvBuffer() const = 0;
-	/**
-	* Return frame animation buffer */
-	virtual ID3D10Buffer* GetFrameAnimBuffer() const = 0;
-	/**
-	* Return shaders settings buffer */
-	virtual ID3D10Buffer* GetSettingsBuffer() const = 0;
-	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
+	/**
+	* Return constant buffers */
+	virtual const LcConstantBuffersDX10& GetBuffers() const = 0;
 	/**
 	* Force sprite render setup. Updates shaders and buffers */
 	virtual void ForceRenderSetup() = 0;
@@ -127,17 +115,9 @@ public:// IDX10RenderDevice interface implementation
 	//
 	virtual IDXGISwapChain* GetD3D10SwapChain() const override { return swapChain.Get(); }
 	//
-	virtual ID3D10Buffer* GetTransformBuffer() const override { return constBuffers.transMatrixBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetColorsBuffer() const override { return constBuffers.colorsBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetCustomUvBuffer() const override { return constBuffers.customUvBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetFrameAnimBuffer() const override { return constBuffers.frameAnimBuffer.Get(); }
-	//
-	virtual ID3D10Buffer* GetSettingsBuffer() const override { return constBuffers.settingsBuffer.Get(); }
-	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
+	//
+	virtual const LcConstantBuffersDX10& GetBuffers() const override { return constBuffers; }
 	//
 	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
 	//

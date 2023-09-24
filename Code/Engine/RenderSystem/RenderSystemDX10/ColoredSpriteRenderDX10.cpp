@@ -111,8 +111,8 @@ void LcColoredSpriteRenderDX10::RenderSprite(const ISprite* sprite, const LcAppC
 {
 	auto render = static_cast<LcRenderSystemDX10*>(context.render);
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
-	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
-	auto colorsBuffer = render ? render->GetColorsBuffer() : nullptr;
+	auto transBuffer = render ? render->GetBuffers().transMatrixBuffer.Get() : nullptr;
+	auto colorsBuffer = render ? render->GetBuffers().colorsBuffer.Get() : nullptr;
 	if (!d3dDevice || !transBuffer || !colorsBuffer || !sprite)
 		throw std::exception("LcColoredSpriteRenderDX10::RenderSprite(): Invalid render params");
 

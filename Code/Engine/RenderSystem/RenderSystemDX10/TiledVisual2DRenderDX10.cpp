@@ -148,7 +148,7 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppC
 {
 	auto render = static_cast<LcRenderSystemDX10*>(context.render);
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
-	auto transBuffer = render ? render->GetTransformBuffer() : nullptr;
+	auto transBuffer = render ? render->GetBuffers().transMatrixBuffer.Get() : nullptr;
 	if (!d3dDevice || !transBuffer || !sprite)
 		throw std::exception("LcTiledVisual2DRenderDX10::RenderSprite(): Invalid render params");
 
