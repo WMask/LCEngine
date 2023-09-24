@@ -56,17 +56,21 @@ public:
 	//
 	ComPtr<ID2D1RenderTarget> textRenderTarget;
 	//
+	std::wstring prevRenderedText;
+	//
 	const ITextFont* font;
 
 
 public: // IVisualBase interface implementation
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
 	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
 	//
 	virtual void RecreateFont(const LcAppContext& context) override;
 
 
 protected:
-	void RedrawText(struct ID3D10Device1* d3dDevice, class LcWidgetRenderDX10* widgetRender, const LcAppContext& context);
+	void RedrawText(class LcWidgetRenderDX10* widgetRender, const LcAppContext& context);
 	//
 	float GetFontSize(const LcWidgetTextComponent& textComp, const LcAppContext& context) const;
 

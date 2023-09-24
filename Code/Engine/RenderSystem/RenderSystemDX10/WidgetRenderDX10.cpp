@@ -194,6 +194,7 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcCo
     target->CreateSolidColorBrush(fcolor, brush.GetAddressOf());
 
     target->BeginDraw();
+    target->Clear(D2D1_COLOR_F{1.0f, 1.0f, 1.0f, 0.0f});
     target->DrawTextW(text.c_str(), (UINT32)text.length(), fontDX10->GetFont(), frect, brush.Get());
     target->EndDraw();
 
