@@ -10,8 +10,8 @@
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"
-#include "GUI/WidgetInterface.h"
 #include "World/Sprites.h"
+#include "GUI/Widgets.h"
 #include "Core/LCUtils.h"
 
 
@@ -50,6 +50,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // window resize controls
             auto& widgetHelper = world->GetWidgetHelper();
+            if (world->AddWidget(45, 16, 80, 32))
+            {
+                widgetHelper.AddAlignedTextComponent(L"FPS: 0", LcDefaults::White4, LcTextAlignment::Left, L"Calibri", 18);
+            }
+
             if (world->AddWidget(182, 550, 94, 32))
             {
                 widgetHelper.AddTextComponent(L"Fullscreen", LcDefaults::White4, L"Calibri", 18);
@@ -86,6 +91,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
+            if (auto widget = app->GetWorld()->GetWidgets()[0])
+            {
+                widget->GetTextComponent()->text = L"FPS: " + ToStringW(int(1.0f / deltaSeconds));
+            }
+
             auto sprite = app->GetWorld()->GetSprites()[0];
             auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
@@ -97,9 +107,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
         };
 
-        auto cfg = LoadConfig("../../Assets/config.txt");
-        int winWidth = cfg["appWinWidth"].iValue;
-        int winHeight = cfg["appWinHeight"].iValue;
+        LCAppConfig cfg;
+        LoadConfig(cfg, "../../Assets/config.txt");
 
         auto app = GetApp();
         app->SetVSync(true);
@@ -108,7 +117,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
         app->GetInputSystem()->SetKeysHandler(onKeysHandler);
-        app->SetWindowSize(winWidth, winHeight);
+        app->SetWindowSize(cfg.WinWidth, cfg.WinHeight);
         app->Init(hInstance);
         app->Run();
     }

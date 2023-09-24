@@ -75,7 +75,7 @@ public:
 	virtual void Clear() = 0;
 	/**
 	* Update world */
-	virtual void Update(float deltaSeconds) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Add static box */
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) = 0;

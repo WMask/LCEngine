@@ -40,7 +40,7 @@ public:
 	virtual void LoadShaders(const char* folderPath) = 0;
 	/**
 	* Create render system */
-	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, const LcAppContext& context) = 0;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, bool allowFullscreen, const LcAppContext& context) = 0;
 	/**
 	* Shutdown render system */
 	virtual void Shutdown() = 0;
@@ -88,14 +88,14 @@ class RENDERSYSTEM_API LcRenderSystemBase : public IRenderSystem
 public:
 	typedef std::map<std::string, std::string> SHADERS_MAP;
 	//
-	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3), vSync(false) {}
+	LcRenderSystemBase() : cameraPos(LcDefaults::ZeroVec3), cameraTarget(LcDefaults::ZeroVec3), vSync(true), allowFullscreen(false) {}
 
 
 public:// IRenderSystem interface implementation
 	//
 	virtual void LoadShaders(const char* folderPath) override;
 	//
-	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, const LcAppContext& context) override;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool vSync, bool allowFullscreen, const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override {}
 	//
@@ -127,6 +127,8 @@ protected:
 	LcVector3 cameraPos;
 	//
 	LcVector3 cameraTarget;
+	// allow true fullscreen mode
+	bool allowFullscreen;
 	//
 	bool vSync;
 

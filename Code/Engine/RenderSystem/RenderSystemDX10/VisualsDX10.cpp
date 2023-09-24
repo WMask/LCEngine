@@ -59,7 +59,7 @@ void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
         {
             auto size = GetSize() * context.world.GetWorldScale().scale;
             LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-            widgetRender->RenderText(textComp->text, rect, textComp->textColor, font, textRenderTarget.Get(), context);
+            widgetRender->RenderText(textComp->text, rect, textComp->textColor, textComp->textAlign, font, textRenderTarget.Get(), context);
             prevRenderedText = textComp->text;
         }
     }
@@ -129,7 +129,7 @@ void LcWidgetDX10::RedrawText(LcWidgetRenderDX10* widgetRender, const LcAppConte
 
         auto size = GetSize() * context.world.GetWorldScale().scale;
         LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-        widgetRender->RenderText(textComp->text, rect, textComp->textColor, font, textRenderTarget.Get(), context);
+        widgetRender->RenderText(textComp->text, rect, textComp->textColor, textComp->textAlign, font, textRenderTarget.Get(), context);
         prevRenderedText = textComp->text;
     }
 }

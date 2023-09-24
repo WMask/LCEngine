@@ -47,6 +47,7 @@ public:
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: widgetRender(nullptr)
 	, tiledRender(nullptr)
+	, textureRender(nullptr)
 	, renderSystemSize(0, 0)
 	, worldScale(1.0f, 1.0f, 1.0f)
 	, worldScaleFonts(false)
@@ -59,7 +60,7 @@ LcRenderSystemDX10::~LcRenderSystemDX10()
 	Shutdown();
 }
 
-void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVSync, const LcAppContext& context)
+void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVSync, bool inAllowFullscreen, const LcAppContext& context)
 {
 	LC_TRY
 
@@ -84,6 +85,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = (winMode == LcWinMode::Windowed) ? TRUE : FALSE;
 	swapChainDesc.SwapEffect = inVSync ? DXGI_SWAP_EFFECT_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD;
+	swapChainDesc.Flags = inAllowFullscreen ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
 
 	// create the D3D device
 	if (FAILED(D3D10CreateDeviceAndSwapChain1(NULL,
@@ -216,7 +218,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	worldRef.SetWidgetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategyDX10>());
 
 	// init render system
-	LcRenderSystemBase::Create(this, winMode, inVSync, context);
+	LcRenderSystemBase::Create(this, winMode, inVSync, inAllowFullscreen, context);
 
 	LcMakeWindowAssociation(hWnd);
 
@@ -341,7 +343,8 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		widgetRender->Shutdown();
 
 		// resize swap chain
-		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0)))
+		UINT flags = allowFullscreen ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0u;
+		if (FAILED(swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, flags)))
 		{
 			throw std::exception("LcRenderSystemDX10::Resize(): Cannot resize swap chain");
 		}

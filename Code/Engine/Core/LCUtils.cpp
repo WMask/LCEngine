@@ -9,6 +9,7 @@
 #include "LCException.h"
 
 #include <algorithm>
+#include <sstream>
 #include <string>
 #include <cctype>
 
@@ -55,6 +56,21 @@ LcBytes ReadBinaryFile(const char* filePath)
 	return result;
 }
 
+void WriteTextFile(const char* filePath, const std::string& text)
+{
+	using namespace std::filesystem;
+
+	LC_TRY
+
+	path path;
+	path.assign(filePath);
+	std::ofstream stream(path, std::ios::out);
+
+	stream.write(text.c_str(), text.length());
+
+	LC_CATCH{ LC_THROW_EX("WriteTextFile('", filePath, "')"); }
+}
+
 std::string ToLower(const char* str)
 {
 	std::string src(str);
@@ -75,6 +91,34 @@ std::string ToUpper(const char* str)
 	std::transform(src.begin(), src.end(), dst.begin(), ::toupper);
 
 	return dst;
+}
+
+std::string ToString(int value)
+{
+	std::stringstream ss;
+	ss << value;
+	return ss.str();
+}
+
+std::string ToString(float value)
+{
+	std::stringstream ss;
+	ss << value;
+	return ss.str();
+}
+
+std::wstring ToStringW(int value)
+{
+	std::wstringstream ss;
+	ss << value;
+	return ss.str();
+}
+
+std::wstring ToStringW(float value)
+{
+	std::wstringstream ss;
+	ss << value;
+	return ss.str();
 }
 
 #ifdef _WINDOWS

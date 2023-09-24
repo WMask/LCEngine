@@ -1,3 +1,8 @@
 [Application]
-appWinWidth  1280
-appWinHeight 720
+WinWidth            1280
+WinHeight           720
+
+[Render]
+bVSync              true
+bAllowFullscreen    false
+bNoDelay            false

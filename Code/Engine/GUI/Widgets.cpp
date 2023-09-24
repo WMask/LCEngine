@@ -12,11 +12,20 @@
 
 
 void LcWidgetHelper::AddTextComponent(const std::wstring& inText, LcColor4 inTextColor, const std::wstring& inFontName,
+    unsigned short inFontSize, LcFontWeight inFontWeight, LcTextAlignment inTextAlign) const
+{
+    if (auto visual = context.world.GetLastAddedVisual())
+    {
+        visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inTextColor, inTextAlign, inFontName, inFontSize, inFontWeight), context);
+    }
+}
+
+void LcWidgetHelper::AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor, LcTextAlignment inTextAlign, const std::wstring& inFontName,
     unsigned short inFontSize, LcFontWeight inFontWeight) const
 {
     if (auto visual = context.world.GetLastAddedVisual())
     {
-        visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inFontName, inFontSize, inTextColor, inFontWeight), context);
+        visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inTextColor, inTextAlign, inFontName, inFontSize, inFontWeight), context);
     }
 }
 

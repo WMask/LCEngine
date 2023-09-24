@@ -75,7 +75,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual ~LcRenderSystemDX10() override;
 	//
-	virtual void Create(void* windowHandle, LcWinMode mode, bool inVSync, const LcAppContext& context) override;
+	virtual void Create(void* windowHandle, LcWinMode mode, bool inVSync, bool inAllowFullscreen, const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override;
 	//

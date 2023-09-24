@@ -50,7 +50,7 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual void Clear() override;
 	//
-	virtual void Update(float deltaSeconds) override;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual void AddStaticBox(LcVector2 pos, LcSizef size) override;
 	//

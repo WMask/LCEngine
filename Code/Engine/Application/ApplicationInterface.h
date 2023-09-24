@@ -94,6 +94,16 @@ public:
 	* Set vertical synchronization mode */
 	virtual void SetVSync(bool inVSync) noexcept = 0;
 	/**
+	* Set fullscreen mode type.
+	* If true: actually changes monitor resolution. If VSync true: FPS - equal to monitor highest refresh rate.
+	* If false: fake windowed fullscreen mode. If VSync true: FPS - default OS refresh rate. */
+	virtual void SetAllowFullscreen(bool inAllowFullscreen) noexcept = 0;
+	/**
+	* @brief Set No Delay mode.
+	* If true: high FPS and update rate.
+	* If true and VSync false: processor core utilization 100%, highest FPS and update rate.  */
+	virtual void SetNoDelay(bool inNoDelay) noexcept = 0;
+	/**
 	* Set init handler */
 	virtual void SetInitHandler(LcInitHandler handler) noexcept = 0;
 	/**

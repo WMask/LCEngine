@@ -145,7 +145,7 @@ void LcBox2DWorld::Clear()
     box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
 }
 
-void LcBox2DWorld::Update(float deltaSeconds)
+void LcBox2DWorld::Update(float deltaSeconds, const LcAppContext& context)
 {
 	if (box2DWorld) box2DWorld->Step(deltaSeconds, config.velocityIterations, config.positionIterations);
 }

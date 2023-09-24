@@ -15,6 +15,8 @@
 #include "Core/Audio.h"
 #include "GUI/GuiManager.h"
 
+#include <timeapi.h>
+
 #define WS_LC_WINDOW_MENU   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
 #define WS_LC_WINDOW         WS_POPUPWINDOW
 
@@ -45,6 +47,8 @@ LcWindowsApplication::LcWindowsApplication()
     winMode = LcWinMode::Windowed;
     quit = false;
     vSync = true;
+    allowFullscreen = false;
+    noDelay = false;
     prevTime.QuadPart = 0;
     frequency.QuadPart = 0;
 }
@@ -176,7 +180,7 @@ void LcWindowsApplication::Run()
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
-        renderSystem->Create(hWnd, winMode, vSync, context);
+        renderSystem->Create(hWnd, winMode, vSync, allowFullscreen, context);
     }
 
     if (audioSystem)
@@ -209,13 +213,25 @@ void LcWindowsApplication::Run()
         }
         else
         {
+            if (!noDelay)
+            {
+                timeBeginPeriod(1);
+                Sleep(1);
+                timeEndPeriod(1);
+            }
+
+            // update and render
             OnUpdate();
         }
 	}
 
+    // set NULL to skip crash in WndProc
     SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
 
-    LC_CATCH{ LC_THROW("LcWindowsApplication::Run()") }
+    LC_CATCH {
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
+        LC_THROW("LcWindowsApplication::Run()")
+    }
 }
 
 void LcWindowsApplication::ClearWorld()
@@ -249,20 +265,29 @@ void LcWindowsApplication::OnUpdate()
             inputSystem->Update(deltaFloat, context);
         }
 
+        if (guiManager)
+        {
+            // update widgets
+            guiManager->Update(deltaFloat, context);
+        }
+
         if (renderSystem && world)
         {
+            // update sprites
             renderSystem->Update(deltaFloat, context);
+
+            // render sprites and widgets
             renderSystem->Render(context);
+        }
+
+        if (physWorld)
+        {
+            physWorld->Update(deltaFloat, context);
         }
 
         if (audioSystem)
         {
             audioSystem->Update(deltaFloat, context);
-        }
-
-        if (guiManager)
-        {
-            guiManager->Update(deltaFloat, context);
         }
 
         if (updateHandler)

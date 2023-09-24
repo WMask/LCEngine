@@ -65,12 +65,18 @@ struct CORE_API KEYS
 /** Any value container */
 struct LcAny
 {
-	LcAny() : fValue(0.0f), iValue(0), bValue(false) {}
+	enum class LcAnyType { None, StringAny, FloatAny, IntAny, BoolAny };
+	LcAny() : type(LcAnyType::None), fValue(0.0f), iValue(0), bValue(false) {}
+	LcAny(const std::string& value) : type(LcAnyType::StringAny), sValue(value), fValue(0.0f), iValue(0), bValue(false) {}
+	LcAny(float value) : type(LcAnyType::FloatAny), fValue(value), iValue(0), bValue(false) {}
+	LcAny(int value) : type(LcAnyType::IntAny), fValue(0.0f), iValue(value), bValue(false) {}
+	LcAny(bool value) : type(LcAnyType::BoolAny), fValue(0.0f), iValue(value), bValue(value) {}
 	//
 	std::string	sValue;
 	float		fValue;
 	bool		bValue;
 	int			iValue;
+	LcAnyType   type;
 };
 
 CORE_API float LcClamp(float value, float minValue, float maxValue);

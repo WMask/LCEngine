@@ -24,6 +24,8 @@ using Microsoft::WRL::ComPtr;
 struct ITextFontDX10 : public ITextFont
 {
 public:
+	virtual void SetAlignment(LcTextAlignment align) = 0;
+	//
 	virtual IDWriteTextFormat* GetFont() const = 0;
 };
 
@@ -43,8 +45,8 @@ public:
 	//
 	void RemoveFonts() { fonts.clear(); }
 	//
-	void RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, const ITextFont* font,
-		ID2D1RenderTarget* target, const LcAppContext& context);
+	void RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
+		const ITextFont* font, ID2D1RenderTarget* target, const LcAppContext& context);
 	//
 	void CreateTextureAndRenderTarget(class LcWidgetDX10& widget, LcVector2 scale, const LcAppContext& context);
 	//

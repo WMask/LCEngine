@@ -110,7 +110,12 @@ public:
     * Add text component to the last added widget */
     void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
         const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22,
-        LcFontWeight inFontWeight = LcFontWeight::Normal) const;
+        LcFontWeight inFontWeight = LcFontWeight::Normal, LcTextAlignment inTextAlign = LcTextAlignment::Center) const;
+    /**
+    * Add text component to the last added widget */
+    void AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
+        LcTextAlignment inTextAlign = LcTextAlignment::Center, const std::wstring& inFontName = L"Calibri",
+        unsigned short inFontSize = 22, LcFontWeight inFontWeight = LcFontWeight::Normal) const;
     /**
     * Add button component to the last added widget */
     void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const;

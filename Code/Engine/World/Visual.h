@@ -51,6 +51,9 @@ public:
 /** Font weight */
 enum class LcFontWeight { Light, Normal, Bold };
 
+/** Text alignment */
+enum class LcTextAlignment { Left, Center, Right, Justified };
+
 
 /**
 * Visual interface */

@@ -38,6 +38,8 @@ bool LcFindDisplayMode(int width, int height, DXGI_MODE_DESC* outMode)
 {
     if (!outMode) return false;
 
+    outMode->RefreshRate.Numerator = 1;
+    outMode->RefreshRate.Denominator = 1;
     outMode->Format = DXGI_FORMAT_UNKNOWN;
 
     auto adapters = LcEnumerateAdapters();
@@ -61,8 +63,12 @@ bool LcFindDisplayMode(int width, int height, DXGI_MODE_DESC* outMode)
                     mode.RefreshRate.Numerator >= 60 &&
                     mode.Format == DXGI_FORMAT_R8G8B8A8_UNORM)
                 {
-                    *outMode = mode;
-                    if (mode.RefreshRate.Denominator == 1) return true;
+                    float prevRate = (float)outMode->RefreshRate.Numerator / (float)outMode->RefreshRate.Denominator;
+                    float curRate = (float)mode.RefreshRate.Numerator / (float)mode.RefreshRate.Denominator;
+                    if (curRate > prevRate)
+                    {
+                        *outMode = mode;
+                    }
                 }
             }
         }

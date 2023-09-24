@@ -20,16 +20,18 @@ struct LcWidgetTextComponent : public IVisualComponent
     std::wstring fontName;
     unsigned short fontSize;
     LcFontWeight fontWeight;
+    LcTextAlignment textAlign;
     LcColor4 textColor;
     //
-    LcWidgetTextComponent() : fontSize(0), fontWeight(LcFontWeight::Normal), textColor(LcDefaults::White4) {}
+    LcWidgetTextComponent() : fontSize(0), fontWeight(LcFontWeight::Normal), textAlign(LcTextAlignment::Center), textColor(LcDefaults::White4) {}
     //
-    LcWidgetTextComponent(const LcWidgetTextComponent& texture) :
-        text(texture.text), fontName(texture.fontName), fontSize(texture.fontSize), fontWeight(texture.fontWeight), textColor(texture.textColor) {}
+    LcWidgetTextComponent(const LcWidgetTextComponent& textComp) :
+        text(textComp.text), textColor(textComp.textColor), textAlign(textComp.textAlign),
+        fontName(textComp.fontName), fontSize(textComp.fontSize), fontWeight(textComp.fontWeight) {}
     //
-    LcWidgetTextComponent(const std::wstring& inText, const std::wstring& inFontName, unsigned short inFontSize,
-        LcColor4 inTextColor, LcFontWeight inFontWeight = LcFontWeight::Normal) :
-        text(inText), fontName(inFontName), fontSize(inFontSize), fontWeight(inFontWeight), textColor(inTextColor)
+    LcWidgetTextComponent(const std::wstring& inText, LcColor4 inTextColor, LcTextAlignment inTextAlign,
+        const std::wstring& inFontName, unsigned short inFontSize, LcFontWeight inFontWeight = LcFontWeight::Normal) :
+        text(inText), textColor(inTextColor), textAlign(inTextAlign), fontName(inFontName), fontSize(inFontSize), fontWeight(inFontWeight)
     {
     }
     // IVisualComponent interface implementation

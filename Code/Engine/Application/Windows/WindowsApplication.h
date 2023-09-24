@@ -53,6 +53,10 @@ public: // IApplication interface implementation
 	//
 	virtual void SetVSync(bool inVSync) noexcept override { vSync = inVSync; }
 	//
+	virtual void SetAllowFullscreen(bool inAllowFullscreen) noexcept override { allowFullscreen = inAllowFullscreen; }
+	//
+	virtual void SetNoDelay(bool inNoDelay) noexcept override { noDelay = inNoDelay; }
+	//
 	virtual void SetInitHandler(LcInitHandler handler) noexcept override { initHandler = handler; }
 	//
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept override { updateHandler = handler; }
@@ -108,6 +112,10 @@ protected:
 	bool quit;
 	//
 	bool vSync;
+	//
+	bool allowFullscreen;
+	//
+	bool noDelay;
 	//
 	LcSize windowSize;
 	//
