@@ -74,6 +74,10 @@
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x64\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -141,6 +145,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Core.lib;World.lib;RenderSystem.lib;GUI.lib;d3d10_1.lib;d2d1.lib;dwrite.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

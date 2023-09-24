@@ -75,6 +75,11 @@
     <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Box2D\src\build\bin\Debug;$(LibraryPath)</LibraryPath>
     <TargetName>Lc$(ProjectName)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>Lc$(ProjectName)</TargetName>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Box2D\src\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x64\Debug\;..\..\..\Code\Engine\Box2D\src\build\bin\Release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -145,6 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Core.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
