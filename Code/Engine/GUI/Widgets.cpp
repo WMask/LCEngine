@@ -112,7 +112,7 @@ void LcWidgetButtonComponent::Init(const LcAppContext& context)
     if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
     {
         LcSizef size = owner->GetSize();
-        LcSizef texSize = texComp->texSize;
+        LcSizef texSize = texComp->GetTextureSize();
         LcVector2 idlePos{ idle[0].x, idle[0].y };
         LcVector2 overPos{ over[0].x, over[0].y };
         LcVector2 pressedPos{ pressed[0].x, pressed[0].y };
@@ -177,7 +177,7 @@ void LcWidgetCheckboxComponent::Init(const LcAppContext& context)
     if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
     {
         LcSizef size = owner->GetSize();
-        LcSizef texSize = texComp->texSize;
+        LcSizef texSize = texComp->GetTextureSize();
         LcVector2 uncheckedPos{ unchecked[0].x, unchecked[0].y };
         LcVector2 uncheckedHPos{ uncheckedH[0].x, uncheckedH[0].y };
         LcVector2 checkedPos{ checked[0].x, checked[0].y };
@@ -224,19 +224,19 @@ void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, con
     {
         if (state == LcKeyState::Down)
         {
-            button->state = EBtnState::Pressed;
+            button->SetState(EBtnState::Pressed);
         }
         else
         {
-            if (button->state == EBtnState::Pressed)
+            if (button->GetState() == EBtnState::Pressed)
             {
                 if (auto clickComp = GetClickHandlerComponent())
                 {
-                    if (clickComp->handler) clickComp->handler();
+                    if (auto& handler = clickComp->GetHandler()) handler();
                 }
             }
 
-            button->state = IsHovered() ? EBtnState::Over : EBtnState::Idle;
+            button->SetState(IsHovered() ? EBtnState::Over : EBtnState::Idle);
         }
     }
 
@@ -244,11 +244,11 @@ void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, con
     {
         if (state == LcKeyState::Down)
         {
-            checkbox->state = checkbox->IsChecked() ? ECheckboxState::UncheckedHovered : ECheckboxState::CheckedHovered;
+            checkbox->SetState(checkbox->IsChecked() ? ECheckboxState::UncheckedHovered : ECheckboxState::CheckedHovered);
 
             if (auto checkComp = GetCheckHandlerComponent())
             {
-                if (checkComp->handler) checkComp->handler(checkbox->IsChecked());
+                if (auto handler = checkComp->GetHandler()) handler(checkbox->IsChecked());
             }
         }
     }
@@ -258,12 +258,12 @@ void LcWidget::OnMouseEnter(const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
     {
-        button->state = EBtnState::Over;
+        button->SetState(EBtnState::Over);
     }
 
     if (auto checkbox = GetCheckboxComponent())
     {
-        checkbox->state = checkbox->IsChecked() ? ECheckboxState::CheckedHovered : ECheckboxState::UncheckedHovered;
+        checkbox->SetState(checkbox->IsChecked() ? ECheckboxState::CheckedHovered : ECheckboxState::UncheckedHovered);
     }
 }
 
@@ -271,11 +271,11 @@ void LcWidget::OnMouseLeave(const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
     {
-        button->state = EBtnState::Idle;
+        button->SetState(EBtnState::Idle);
     }
 
     if (auto checkbox = GetCheckboxComponent())
     {
-        checkbox->state = checkbox->IsChecked() ? ECheckboxState::Checked : ECheckboxState::Unchecked;
+        checkbox->SetState(checkbox->IsChecked() ? ECheckboxState::Checked : ECheckboxState::Unchecked);
     }
 }

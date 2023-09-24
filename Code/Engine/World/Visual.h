@@ -214,12 +214,9 @@ protected:
 
 /**
 * Visual texture component */
-struct LcVisualTextureComponent : public IVisualComponent
+class LcVisualTextureComponent : public IVisualComponent
 {
-	std::string texture;	// texture file path
-	LcBytes data;			// texture data
-	LcVector2 texSize;		// texture size in pixels
-	//
+public:
 	LcVisualTextureComponent() : texSize(LcDefaults::ZeroVec2) {}
 	//
 	LcVisualTextureComponent(const LcVisualTextureComponent& texture) :
@@ -232,7 +229,21 @@ struct LcVisualTextureComponent : public IVisualComponent
 	LcVisualTextureComponent(const LcBytes& inData) : data(inData), texSize(LcDefaults::ZeroVec2)
 	{
 	}
-	// IVisualComponent interface implementation
+	//
+	inline void SetTextureSize(LcVector2 newSize) { texSize = newSize; }
+	//
+	inline LcVector2 GetTextureSize() const { return texSize; }
+	//
+	inline std::string GetTexturePath() const { return texture; }
+
+
+public:// IVisualComponent interface implementation
+	//
 	virtual EVCType GetType() const override { return EVCType::Texture; }
 
+
+protected:
+	std::string texture;	// texture file path
+	LcBytes data;			// texture data
+	LcVector2 texSize;		// texture size in pixels
 };

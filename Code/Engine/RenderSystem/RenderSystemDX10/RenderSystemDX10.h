@@ -18,7 +18,7 @@ using namespace Microsoft::WRL;
 #include "RenderSystem/RenderSystemDX10/ConstantBuffersDX10.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/SpriteRender.h"
-#include "GUI/Widgets.h"
+#include "GUI/WidgetInterface.h"
 
 #pragma warning(disable : 4251)
 #pragma warning(disable : 5046)

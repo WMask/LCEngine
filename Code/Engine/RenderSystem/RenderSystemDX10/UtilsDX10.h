@@ -14,8 +14,8 @@
 #include <map>
 
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
-#include "GUI/Widgets.h"
+#include "World/SpriteInterface.h"
+#include "GUI/WidgetInterface.h"
 #include "Core/LCTypesEx.h"
 
 using Microsoft::WRL::ComPtr;

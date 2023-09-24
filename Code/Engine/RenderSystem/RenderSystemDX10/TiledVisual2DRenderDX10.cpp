@@ -77,12 +77,12 @@ void LcTiledVisual2DRenderDX10::RemoveTiles(const IVisual* visual)
 	vertexBuffers.erase(visual);
 }
 
-std::vector<DX10TILEDSPRITEDATA> generateTiles(const LcTiledSpriteComponent& tiledComp)
+std::vector<DX10TILEDSPRITEDATA> GenerateTiles(const LcTiledSpriteComponent& tiledComp)
 {
 	std::vector<DX10TILEDSPRITEDATA> tiles;
-	tiles.reserve(tiledComp.tiles.size() * 6);
+	tiles.reserve(tiledComp.GetTilesData().size() * 6);
 
-	for (const auto& tile : tiledComp.tiles)
+	for (const auto& tile : tiledComp.GetTilesData())
 	{
 		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[0], tile.uv[0] });
 		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[1], tile.uv[1] });
@@ -108,7 +108,7 @@ void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual, const LcAppContext&
 	if (vbIt == vertexBuffers.end())
 	{
 		// create vertex buffer
-		auto tilesData = generateTiles(*tiledComp);
+		auto tilesData = GenerateTiles(*tiledComp);
 		auto& vertexBuffer = vertexBuffers[visual];
 		vertexBuffer.vertexCount = (int)tilesData.size();
 
@@ -167,7 +167,7 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppC
 	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
-	if (auto tiledComp = sprite->GetTiledComponent()) spriteSize = tiledComp->scale * To2(worldScale);
+	if (auto tiledComp = sprite->GetTiledComponent()) spriteSize = tiledComp->GetTilesScale() * To2(worldScale);
 
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, 0.0f, false);
 	d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);

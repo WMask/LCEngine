@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "World/Sprites.h"
+#include "World/SpriteInterface.h"
 #include "RenderSystem.h"
 
 

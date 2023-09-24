@@ -12,17 +12,9 @@
 #include <string>
 
 
-/**
-* Widget text component */
-struct LcWidgetTextComponent : public IVisualComponent
+class LcWidgetTextComponent : public IWidgetTextComponent
 {
-    std::wstring text;
-    std::wstring fontName;
-    unsigned short fontSize;
-    LcFontWeight fontWeight;
-    LcTextAlignment textAlign;
-    LcColor4 textColor;
-    //
+public:
     LcWidgetTextComponent() : fontSize(0), fontWeight(LcFontWeight::Normal), textAlign(LcTextAlignment::Center), textColor(LcDefaults::White4) {}
     //
     LcWidgetTextComponent(const LcWidgetTextComponent& textComp) :
@@ -34,99 +26,163 @@ struct LcWidgetTextComponent : public IVisualComponent
         text(inText), textColor(inTextColor), textAlign(inTextAlign), fontName(inFontName), fontSize(inFontSize), fontWeight(inFontWeight)
     {
     }
-    // IVisualComponent interface implementation
+
+
+public: // IWidgetTextComponent interface implementation
+    //
+    virtual void SetText(const std::wstring& inText) override { text = inText; }
+    //
+    virtual const std::wstring& GetText() const override { return text; }
+    //
+    virtual const std::wstring& GetFontName() const override { return fontName; }
+    //
+    virtual unsigned short GetFontSize() const override { return fontSize; }
+    //
+    virtual LcFontWeight GetFontWeight() const override { return fontWeight; }
+    //
+    virtual LcTextAlignment GetTextAlignment() const override { return textAlign; }
+    //
+    virtual LcColor4 GetTextColor() const override { return textColor; }
+
+
+public: // IVisualComponent interface implementation
+    //
     virtual EVCType GetType() const override { return EVCType::Text; }
 
+
+protected:
+    std::wstring text;
+    std::wstring fontName;
+    unsigned short fontSize;
+    LcFontWeight fontWeight;
+    LcTextAlignment textAlign;
+    LcColor4 textColor;
 };
 
 
-/**
-* Widget button component */
-struct GUI_API LcWidgetButtonComponent : public IVisualComponent
+class GUI_API LcWidgetButtonComponent : public IWidgetButtonComponent
 {
-    EBtnState state;
-    LcVector4 idle[4];      // custom UVs for Idle state
-    LcVector4 over[4];      // custom UVs for Mouse Over state
-    LcVector4 pressed[4];   // custom UVs for Pressed state
+public:
     //
     LcWidgetButtonComponent() : state(EBtnState::Idle) {}
     //
     LcWidgetButtonComponent(const LcWidgetButtonComponent& button);
     //
     LcWidgetButtonComponent(LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos);
+
+
+public: // IWidgetButtonComponent interface implementation
     //
-   const void* GetData() const;
+    virtual void SetState(EBtnState inState) override { state = inState; }
+    //
+    virtual EBtnState GetState() const override { return state; }
+    //
+    virtual const void* GetData() const override;
 
 
-public:// IVisualComponent interface implementation
+public: // IVisualComponent interface implementation
     //
     virtual void Init(const LcAppContext& context) override;
     //
     virtual EVCType GetType() const override { return EVCType::Button; }
 
+
+protected:
+    EBtnState state;
+    LcVector4 idle[4];      // custom UVs for Idle state
+    LcVector4 over[4];      // custom UVs for Mouse Over state
+    LcVector4 pressed[4];   // custom UVs for Pressed state
+
 };
 
 
-/**
-* Widget checkbox component */
-struct GUI_API LcWidgetCheckboxComponent : public IVisualComponent
+class GUI_API LcWidgetCheckboxComponent : public IWidgetCheckboxComponent
 {
-    ECheckboxState state;
-    LcVector4 unchecked[4];     // custom UVs for Unchecked state
-    LcVector4 uncheckedH[4];    // custom UVs for UncheckedHovered state
-    LcVector4 checked[4];       // custom UVs for Checked state
-    LcVector4 checkedH[4];      // custom UVs for CheckedHovered state
+public:
     //
     LcWidgetCheckboxComponent() : state(ECheckboxState::Unchecked) {}
     //
     LcWidgetCheckboxComponent(const LcWidgetCheckboxComponent& checkbox);
     //
     LcWidgetCheckboxComponent(LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos, LcVector2 checkedPos, LcVector2 checkedHoveredPos);
-    //
-    inline bool IsChecked() const { return state == ECheckboxState::Checked || state == ECheckboxState::CheckedHovered; }
-    //
-    const void* GetData() const;
 
 
-public:// IVisualComponent interface implementation
+public: // IWidgetCheckboxComponent interface implementation
+    //
+    virtual void SetState(ECheckboxState inState) override { state = inState; }
+    //
+    virtual bool IsChecked() const override { return state == ECheckboxState::Checked || state == ECheckboxState::CheckedHovered; }
+    //
+    virtual const void* GetData() const override;
+
+
+public: // IVisualComponent interface implementation
     //
     virtual void Init(const LcAppContext& context) override;
     //
     virtual EVCType GetType() const override { return EVCType::Checkbox; }
 
+
+protected:
+    ECheckboxState state;
+    LcVector4 unchecked[4];     // custom UVs for Unchecked state
+    LcVector4 uncheckedH[4];    // custom UVs for UncheckedHovered state
+    LcVector4 checked[4];       // custom UVs for Checked state
+    LcVector4 checkedH[4];      // custom UVs for CheckedHovered state
+
 };
 
 
-/**
-* Widget click component */
-struct LcWidgetClickComponent : public IVisualComponent
+class LcWidgetClickComponent : public IWidgetClickComponent
 {
-    LcClickHandler handler;
+public:
     //
     LcWidgetClickComponent() {}
     //
     LcWidgetClickComponent(const LcWidgetClickComponent& widget) : handler(widget.handler) {}
     //
     LcWidgetClickComponent(LcClickHandler inHandler) : handler(inHandler) {}
-    // IVisualComponent interface implementation
+
+
+public: // IWidgetClickComponent interface implementation
+    //
+    virtual LcClickHandler& GetHandler() override { return handler; }
+
+
+public: // IVisualComponent interface implementation
+    //
     virtual EVCType GetType() const override { return EVCType::ClickHandler; }
+
+
+protected:
+    LcClickHandler handler;
 
 };
 
 
-/**
-* Widget check component */
-struct LcWidgetCheckComponent : public IVisualComponent
+class LcWidgetCheckComponent : public IWidgetCheckComponent
 {
-    LcCheckHandler handler;
+public:
     //
     LcWidgetCheckComponent() {}
     //
     LcWidgetCheckComponent(const LcWidgetCheckComponent& widget) : handler(widget.handler) {}
     //
     LcWidgetCheckComponent(LcCheckHandler inHandler) : handler(inHandler) {}
-    // IVisualComponent interface implementation
+
+
+public: // IWidgetCheckComponent interface implementation
+    //
+    virtual LcCheckHandler& GetHandler() override { return handler; }
+
+
+public: // IVisualComponent interface implementation
+    //
     virtual EVCType GetType() const override { return EVCType::CheckHandler; }
+
+
+protected:
+    LcCheckHandler handler;
 
 };
 

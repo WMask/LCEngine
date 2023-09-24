@@ -10,8 +10,8 @@
 #include "Application/Windows/Module.h"
 #include "RenderSystem/RenderSystemDX10/Module.h"
 #include "World/WorldInterface.h"
-#include "World/Sprites.h"
-#include "GUI/Widgets.h"
+#include "World/SpriteInterface.h"
+#include "GUI/WidgetInterface.h"
 #include "Core/LCUtils.h"
 
 
@@ -93,7 +93,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto widget = app->GetWorld()->GetWidgets()[0])
             {
-                widget->GetTextComponent()->text = L"FPS: " + ToStringW(int(1.0f / deltaSeconds));
+                widget->GetTextComponent()->SetText(L"FPS: " + ToStringW(int(1.0f / deltaSeconds)));
             }
 
             auto sprite = app->GetWorld()->GetSprites()[0];

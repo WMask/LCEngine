@@ -7,7 +7,7 @@
 #include "pch.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
-#include "World/Sprites.h"
+#include "World/SpriteInterface.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
@@ -247,7 +247,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
         {
             if (auto texComp = sprite->GetTextureComponent())
             {
-                aliveTexList.insert(texComp->texture);
+                aliveTexList.insert(texComp->GetTexturePath());
             }
         }
 

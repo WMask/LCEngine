@@ -120,11 +120,11 @@ LcVector4 LcSpriteAnimationComponent::GetAnimData() const
 	{
 		if (auto texComp = sprite->GetTextureComponent())
 		{
-			auto framesPerRow = unsigned short(texComp->texSize.x / frameSize.x);
+			auto framesPerRow = unsigned short(texComp->GetTextureSize().x / frameSize.x);
 			auto column = curFrame % framesPerRow;
 			auto row = curFrame / framesPerRow;
-			float frameWidth = frameSize.x / texComp->texSize.x;
-			float frameHeight = frameSize.y / texComp->texSize.y;
+			float frameWidth = frameSize.x / texComp->GetTextureSize().x;
+			float frameHeight = frameSize.y / texComp->GetTextureSize().y;
 
 			return LcVector4(
 				frameWidth,

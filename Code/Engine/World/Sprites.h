@@ -11,31 +11,9 @@
 #include "World/WorldInterface.h"
 
 
-/** Spride data */
-struct LcSpriteData
+class LcSpriteTintComponent : public ISpriteTintComponent
 {
-	LcVector3 pos;	// [0,0] - leftBottom, x - right, y - up
-	LcSizef size;	// sprite size in pixels
-	float rotZ;
-	bool visible;
-	//
-	LcSpriteData() : pos(LcDefaults::ZeroVec3), size(LcDefaults::ZeroSize), rotZ(0.0f), visible(true) {}
-	//
-	LcSpriteData(LcVector3 inPos, LcSizef inSize, float inRotZ = 0.0f, bool inVisible = true)
-		: pos(inPos), size(inSize), rotZ(inRotZ), visible(inVisible)
-	{
-	}
-};
-
-
-/**
-* Sprite tint component */
-struct LcSpriteTintComponent : public IVisualComponent
-{
-	LcColor4 tint;
-	//
-	LcColor4 data[4];
-	//
+public:
 	LcSpriteTintComponent(const LcSpriteTintComponent& colors) : tint(colors.tint)
 	{
 		SetColor(tint);
@@ -50,25 +28,29 @@ struct LcSpriteTintComponent : public IVisualComponent
 	{
 		SetColor(tint);
 	}
+
+
+public: // ISpriteTintComponent interface implementation
 	//
-	void SetColor(LcColor4 inTint) { data[0] = data[1] = data[2] = data[3] = inTint; }
+	virtual void SetColor(LcColor4 inTint) override { data[0] = data[1] = data[2] = data[3] = inTint; }
 	//
-	const void* GetData() const { return data; }
-	// IVisualComponent interface implementation
+	virtual const void* GetData() const override { return data; }
+
+
+public: // IVisualComponent interface implementation
+	//
 	virtual EVCType GetType() const override { return EVCType::Tint; }
 
+
+protected:
+	LcColor4 tint;
+	LcColor4 data[4];
 };
 
 
-/**
-* Sprite colors component */
-struct LcSpriteColorsComponent : public IVisualComponent
+class LcSpriteColorsComponent : public ISpriteColorsComponent
 {
-	LcColor4 leftTop;
-	LcColor4 rightTop;
-	LcColor4 rightBottom;
-	LcColor4 leftBottom;
-	//
+public:
 	LcSpriteColorsComponent() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
 	//
 	LcSpriteColorsComponent(const LcSpriteColorsComponent& colors) :
@@ -85,22 +67,29 @@ struct LcSpriteColorsComponent : public IVisualComponent
 		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
 	{
 	}
-	const void* GetData() const { return &leftTop; }
-	// IVisualComponent interface implementation
+
+
+public: // ISpriteColorsComponent interface implementation
+	//
+	virtual const void* GetData() const override { return &leftTop; }
+
+
+public: // IVisualComponent interface implementation
+	//
 	virtual EVCType GetType() const override { return EVCType::VertexColor; }
 
+
+protected:
+	LcColor4 leftTop;
+	LcColor4 rightTop;
+	LcColor4 rightBottom;
+	LcColor4 leftBottom;
 };
 
 
-/**
-* Sprite custom UV component */
-struct LcSpriteCustomUVComponent : public IVisualComponent
+class LcSpriteCustomUVComponent : public ISpriteCustomUVComponent
 {
-	LcVector4 leftTop;
-	LcVector4 rightTop;
-	LcVector4 rightBottom;
-	LcVector4 leftBottom;
-	//
+public:
 	LcSpriteCustomUVComponent() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
 	//
 	LcSpriteCustomUVComponent(const LcSpriteCustomUVComponent& colors) :
@@ -112,23 +101,29 @@ struct LcSpriteCustomUVComponent : public IVisualComponent
 		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
 	{
 	}
-	const void* GetData() const { return &leftTop; }
-	// IVisualComponent interface implementation
+
+
+public: // ISpriteCustomUVComponent interface implementation
+	//
+	virtual const void* GetData() const override { return &leftTop; }
+
+
+public: // IVisualComponent interface implementation
+	//
 	virtual EVCType GetType() const override { return EVCType::CustomUV; }
 
+
+protected:
+	LcVector4 leftTop;
+	LcVector4 rightTop;
+	LcVector4 rightBottom;
+	LcVector4 leftBottom;
 };
 
 
-/**
-* Sprite texture component */
-struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
+class WORLD_API LcSpriteAnimationComponent : public ISpriteAnimationComponent
 {
-	LcVector2 frameSize;		// sprite frame offset in pixels
-	unsigned short numFrames;	// frames count
-	unsigned short curFrame;	// current frame index
-	float framesPerSecond;		// frames per second
-	double lastFrameSeconds;	// last game time
-	//
+public:
 	LcSpriteAnimationComponent() :
 		frameSize(LcDefaults::ZeroVec2), numFrames(0), curFrame(0), framesPerSecond(0.0f), lastFrameSeconds(0.0f) {}
 	//
@@ -140,8 +135,11 @@ struct WORLD_API LcSpriteAnimationComponent : public IVisualComponent
 		frameSize(inFrameSize), numFrames(inNumFrames), curFrame(0), framesPerSecond(inFramesPerSecond), lastFrameSeconds(0.0f)
 	{
 	}
+
+
+public:
 	// x - frame width, y - frame height, z - offsetX, w - offsetY
-	LcVector4 GetAnimData() const;
+	virtual LcVector4 GetAnimData() const override;
 
 
 public: // IVisualComponent interface implementation
@@ -150,24 +148,19 @@ public: // IVisualComponent interface implementation
 	//
 	virtual EVCType GetType() const override { return EVCType::FrameAnimation; }
 
+
+protected:
+	LcVector2 frameSize;		// sprite frame offset in pixels
+	unsigned short numFrames;	// frames count
+	unsigned short curFrame;	// current frame index
+	float framesPerSecond;		// frames per second
+	double lastFrameSeconds;	// last game time
 };
 
 
-struct LC_TILES_DATA
+class WORLD_API LcTiledSpriteComponent : public ITiledSpriteComponent
 {
-	LcVector3 pos[4];	// position
-	LcVector2 uv[4];	// uv coordinates
-};
-
-/**
-* Tiled sprite component */
-struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
-{
-	std::vector<LC_TILES_DATA> tiles;
-	std::string tiledJsonPath;
-	LcObjectHandler objectHandler;
-	LcLayersList layerNames;
-	LcVector2 scale;
+public:
 	//
 	LcTiledSpriteComponent() : scale(LcDefaults::OneVec2) {}
 	//
@@ -181,12 +174,26 @@ struct WORLD_API LcTiledSpriteComponent : public IVisualComponent
 		objectHandler(inObjectHandler), scale(LcDefaults::OneVec2) {}
 
 
-public:// IVisualComponent interface implementation
+public: // ITiledSpriteComponent interface implementation
+	//
+	virtual LcVector2 GetTilesScale() const override { return scale; }
+	//
+	virtual const std::vector<LC_TILES_DATA>& GetTilesData() const override { return tiles; }
+
+
+public: // IVisualComponent interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override;
 	//
 	virtual EVCType GetType() const override { return EVCType::Tiled; }
 
+
+protected:
+	std::vector<LC_TILES_DATA> tiles;
+	std::string tiledJsonPath;
+	LcObjectHandler objectHandler;
+	LcLayersList layerNames;
+	LcVector2 scale;
 };
 
 
