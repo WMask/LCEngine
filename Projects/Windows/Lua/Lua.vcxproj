@@ -73,10 +73,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x64\Debug;..\..\..\Code\Engine\Lua\src;$(LibraryPath)</LibraryPath>
+    <TargetName>Lc$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x64\Debug;..\..\..\Code\Engine\Lua\src;$(LibraryPath)</LibraryPath>
+    <TargetName>Lc$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
