@@ -24,10 +24,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         auto onInitHandler = [](IApplication* app)
         {
             auto world = app->GetWorld();
-            world->GetWorldScale().scaleList.clear();
-            world->GetWorldScale().scaleList.insert({ {1920, 1080}, {1.4f, 1.4f} });
-            world->GetWorldScale().scaleList.insert({ {1600, 900}, {1.2f, 1.2f} });
-            world->GetWorldScale().scaleList.insert({ {1280, 720}, {1.0f, 1.0f} });
+            world->GetWorldScale().GetScaleList().clear();
+            world->GetWorldScale().GetScaleList().insert({ {1920, 1080}, {1.4f, 1.4f} });
+            world->GetWorldScale().GetScaleList().insert({ {1600, 900}, {1.2f, 1.2f} });
+            world->GetWorldScale().GetScaleList().insert({ {1280, 720}, {1.0f, 1.0f} });
 
             // sprites
             auto& spriteHelper = world->GetSpriteHelper();

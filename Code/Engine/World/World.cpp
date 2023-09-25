@@ -137,13 +137,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		if (entry.resolution == newScreenSize)
 		{
 			scale = entry.scale;
-
-			if (prevScale != scale)
-			{
-				auto& listeners = onScaleChanged.GetListeners();
-				for (auto& listener : listeners) listener(scale);
-			}
-
+			if (prevScale != scale) Broadcast();
 			return;
 		}
 	}
@@ -154,13 +148,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		if (entry.resolution.y >= newScreenSize.y)
 		{
 			scale = entry.scale;
-
-			if (prevScale != scale)
-			{
-				auto& listeners = onScaleChanged.GetListeners();
-				for (auto& listener : listeners) listener(scale);
-			}
-
+			if (prevScale != scale) Broadcast();
 			return;
 		}
 	}
@@ -169,13 +157,14 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 	{
 		// accept any
 		scale = scaleList.begin()->scale;
-
-		if (prevScale != scale)
-		{
-			auto& listeners = onScaleChanged.GetListeners();
-			for (auto& listener : listeners) listener(scale);
-		}
+		if (prevScale != scale) Broadcast();
 	}
+}
+
+void LcWorldScale::Broadcast()
+{
+	auto& listeners = onScaleChanged.GetListeners();
+	for (auto& listener : listeners) listener(scale);
 }
 
 TWorldPtr GetWorld(LcAppContext& context)

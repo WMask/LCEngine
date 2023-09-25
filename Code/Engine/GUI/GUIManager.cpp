@@ -47,7 +47,7 @@ void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y,
     LC_TRY
 
     auto& widgetList = context.world.GetWidgets();
-    auto scale2 = context.world.GetWorldScale().scale;
+    auto scale2 = context.world.GetWorldScale().GetScale();
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
     for (auto& widget : widgetList)
@@ -74,7 +74,7 @@ void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
     LC_TRY
 
     auto& widgetList = context.world.GetWidgets();
-    auto scale2 = context.world.GetWorldScale().scale;
+    auto scale2 = context.world.GetWorldScale().GetScale();
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
     for (auto& widget : widgetList)

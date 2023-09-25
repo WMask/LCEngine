@@ -43,16 +43,9 @@ typedef LcRange<float, LcMinLayer, LcMaxLayer> LcLayersRange;
 * Game world scaling parameters for different resolutions.
 * For resolutions not added to scaleList scale selected by resolution.y >= newScreenSize.y
 */
-struct WORLD_API LcWorldScale
+class WORLD_API LcWorldScale
 {
-	LcWorldScale();
-	//
-	LcWorldScale(const LcWorldScale& scale) = default;
-	//
-	LcWorldScale& operator=(const LcWorldScale& scale) = default;
-	//
-	void UpdateWorldScale(LcSize newScreenSize);
-	//
+public:
 	LcDelegate<void(LcVector2)> onScaleChanged;
 	//
 	struct ScalePair
@@ -61,6 +54,31 @@ struct WORLD_API LcWorldScale
 		LcVector2 scale;
 		inline bool operator<(const ScalePair& s) const { return resolution.y < s.resolution.y; }
 	};
+
+
+public:
+	LcWorldScale();
+	//
+	LcWorldScale(const LcWorldScale& scale) = default;
+	//
+	LcWorldScale& operator=(const LcWorldScale& scale) = default;
+	//
+	void UpdateWorldScale(LcSize newScreenSize);
+	//
+	inline bool GetScaleFonts() const { return scaleFonts; }
+	//
+	inline const std::set<ScalePair>& GetScaleList() const { return scaleList; }
+	//
+	inline std::set<ScalePair>& GetScaleList() { return scaleList; }
+	//
+	inline LcVector2 GetScale() const { return scale; }
+
+
+protected:
+	void Broadcast();
+
+
+protected:
 	std::set<ScalePair> scaleList;
 	//
 	LcVector2 scale;

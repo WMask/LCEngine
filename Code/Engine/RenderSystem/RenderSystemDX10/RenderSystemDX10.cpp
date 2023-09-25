@@ -210,7 +210,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 
 	// setup world
 	context.world.GetCamera().Set(cameraPos, cameraTarget);
-	worldScaleFonts = context.world.GetWorldScale().scaleFonts;
+	worldScaleFonts = context.world.GetWorldScale().GetScaleFonts();
 
 	// add factories
 	LcWorld& worldRef = static_cast<LcWorld&>(context.world);
@@ -262,7 +262,7 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 
 		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
 
-		if (contextPtr->world.GetWorldScale().scaleFonts)
+		if (contextPtr->world.GetWorldScale().GetScaleFonts())
 		{
 			auto& widgets = contextPtr->world.GetWidgets();
 			for (auto widget : widgets) widget->RecreateFont(*contextPtr);

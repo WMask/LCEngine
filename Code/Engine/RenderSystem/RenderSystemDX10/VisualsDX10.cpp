@@ -57,7 +57,7 @@ void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
         auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
         if (widgetRender && font)
         {
-            auto size = GetSize() * context.world.GetWorldScale().scale;
+            auto size = GetSize() * context.world.GetWorldScale().GetScale();
             LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
             widgetRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
                 textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
@@ -126,9 +126,9 @@ void LcWidgetDX10::RedrawText(LcWidgetRenderDX10* widgetRender, const LcAppConte
         textTextureSV.Reset();
         textTexture.Reset();
 
-        widgetRender->CreateTextureAndRenderTarget(*this, context.world.GetWorldScale().scale, context);
+        widgetRender->CreateTextureAndRenderTarget(*this, context.world.GetWorldScale().GetScale(), context);
 
-        auto size = GetSize() * context.world.GetWorldScale().scale;
+        auto size = GetSize() * context.world.GetWorldScale().GetScale();
         LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
         widgetRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
             textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
@@ -138,6 +138,6 @@ void LcWidgetDX10::RedrawText(LcWidgetRenderDX10* widgetRender, const LcAppConte
 
 float LcWidgetDX10::GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const
 {
-    float scale = context.world.GetWorldScale().scaleFonts ? context.world.GetWorldScale().scale.y : 1.0f;
+    float scale = context.world.GetWorldScale().GetScaleFonts() ? context.world.GetWorldScale().GetScale().y : 1.0f;
     return static_cast<float>(textComp.GetFontSize()) * scale;
 }
