@@ -68,6 +68,28 @@ public:
 
 
 /**
+* @brief Sprite basic particles component.
+* Particles spawned in random places of sprite area and move around start position.
+*/
+class IBasicParticlesComponent : public IVisualComponent
+{
+public:
+	//
+	virtual unsigned short GetNumParticles() const = 0;
+	//
+	virtual unsigned short GetNumFrames() const = 0;
+	// size of each particle frame on texture in pixels
+	virtual LcSizef GetFrameSize() const = 0;
+	// lifetime in seconds
+	virtual float GetParticleLifetime() const = 0;
+	// speed multiplier
+	virtual float GetParticleSpeed() const = 0;
+	// distance around start position
+	virtual float GetParticleMovementRadius() const = 0;
+};
+
+
+/**
 * Sprite interface */
 class ISprite : public IVisualBase
 {
@@ -85,6 +107,8 @@ public:
 	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
 	//
 	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
+	//
+	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
 	//
 	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
 
@@ -153,10 +177,14 @@ public:
 	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const;
 	/**
 	* Add frame animation component to the last added sprite */
-	void AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const;
+	void AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const;
 	/**
 	* Add tiled component to the last added sprite */
 	void AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}) const;
+	/**
+	* Add basic particles component to the last added sprite */
+	void AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
+		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) const;
 	/**
 	* Add tiled component to the last added sprite */
 	void AddTiledComponent(const std::string& tiledJsonPath,

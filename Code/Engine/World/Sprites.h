@@ -131,7 +131,7 @@ public:
 		frameSize(anim.frameSize), numFrames(anim.numFrames), curFrame(anim.curFrame),
 		framesPerSecond(anim.framesPerSecond), lastFrameSeconds(anim.lastFrameSeconds) {}
 	//
-	LcSpriteAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) :
+	LcSpriteAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) :
 		frameSize(inFrameSize), numFrames(inNumFrames), curFrame(0), framesPerSecond(inFramesPerSecond), lastFrameSeconds(0.0f)
 	{
 	}
@@ -150,7 +150,7 @@ public: // IVisualComponent interface implementation
 
 
 protected:
-	LcVector2 frameSize;		// sprite frame offset in pixels
+	LcSizef frameSize;			// sprite frame offset in pixels
 	unsigned short numFrames;	// frames count
 	unsigned short curFrame;	// current frame index
 	float framesPerSecond;		// frames per second
@@ -194,6 +194,50 @@ protected:
 	LcObjectHandler objectHandler;
 	LcLayersList layerNames;
 	LcVector2 scale;
+};
+
+
+class LcBasicParticlesComponent : public IBasicParticlesComponent
+{
+public:
+	//
+	LcBasicParticlesComponent() = default;
+	//
+	LcBasicParticlesComponent(const LcBasicParticlesComponent& sprite) = default;
+	//
+	LcBasicParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
+		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) :
+		numParticles(inNumParticles), numFrames(inNumFrames), frameSize(inFrameSize),
+		particleLifetime(inParticleLifetime), particleSpeed(inParticleSpeed), particleMovementRadius(inParticleMovementRadius) {}
+
+
+public: // IBasicParticlesComponent interface implementation
+	//
+	virtual unsigned short GetNumParticles() const override { return numParticles; }
+	//
+	virtual unsigned short GetNumFrames() const override { return numFrames; }
+	//
+	virtual LcSizef GetFrameSize() const override { return frameSize; }
+	//
+	virtual float GetParticleLifetime() const override { return particleLifetime; }
+	//
+	virtual float GetParticleSpeed() const override { return particleSpeed; }
+	//
+	virtual float GetParticleMovementRadius() const override { return particleMovementRadius; }
+
+
+public: // IVisualComponent interface implementation
+	//
+	virtual EVCType GetType() const override { return EVCType::Particles; }
+
+
+protected:
+	unsigned short numParticles;
+	unsigned short numFrames;
+	float particleLifetime;
+	float particleSpeed;
+	float particleMovementRadius;
+	LcSizef frameSize;
 };
 
 

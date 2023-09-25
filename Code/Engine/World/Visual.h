@@ -36,7 +36,9 @@ enum class EVCType : int
 	Button,
 	Checkbox,
 	ClickHandler,
-	CheckHandler
+	CheckHandler,
+	// Particles
+	Particles
 };
 
 /** Text font */

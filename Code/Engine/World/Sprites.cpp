@@ -75,7 +75,7 @@ void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRight
 	}
 }
 
-void LcSpriteHelper::AddAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const
+void LcSpriteHelper::AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const
 {
 	if (auto visual = context.world.GetLastAddedVisual())
 	{
@@ -96,6 +96,16 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcObjec
 	if (auto visual = context.world.GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), context);
+	}
+}
+
+void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
+	float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) const
+{
+	if (auto visual = context.world.GetLastAddedVisual())
+	{
+		visual->AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inNumFrames,
+			inFrameSize, inParticleLifetime, inParticleSpeed, inParticleMovementRadius), context);
 	}
 }
 
