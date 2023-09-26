@@ -1,8 +1,7 @@
-[Application]
-WinWidth            1280
-WinHeight           720
-
-[Render]
-bVSync              true
-bAllowFullscreen    false
-bNoDelay            false
+{
+    "WinHeight": 600,
+    "WinWidth": 800,
+    "bAllowFullscreen": false,
+    "bNoDelay": false,
+    "bVSync": true
+}
