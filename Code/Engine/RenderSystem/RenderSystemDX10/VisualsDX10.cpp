@@ -36,7 +36,7 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     {
         LcSize texSize;
         bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
-            texComp->GetTexturePath().c_str(), renderDX10->GetD3D10Device(), texture.GetAddressOf(), shaderView.GetAddressOf(), &texSize);
+            texComp->GetTexturePath().c_str(), renderDX10->GetD3D10Device(), &texture, &textureSV, &texSize);
         if (loaded)
             texComp->SetTextureSize(ToF(texSize));
         else

@@ -24,11 +24,11 @@ using Microsoft::WRL::ComPtr;
 class LcSpriteDX10 : public LcSprite
 {
 public:
-	LcSpriteDX10() {}
+	LcSpriteDX10() : texture(nullptr), textureSV(nullptr) {}
 	//
-	ComPtr<ID3D10Texture2D> texture;
+	ID3D10Texture2D* texture;
 	//
-	ComPtr<ID3D10ShaderResourceView1> shaderView;
+	ID3D10ShaderResourceView1* textureSV;
 
 
 public:// IVisualBase interface implementation

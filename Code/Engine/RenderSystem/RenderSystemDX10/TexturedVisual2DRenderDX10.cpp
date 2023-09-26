@@ -146,7 +146,7 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcA
 	if (sprite->HasComponent(EVCType::Texture))
 	{
 		const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
-		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
+		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
 	}
 
 	// update transform
@@ -215,7 +215,7 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcA
 		static LcVector4 defaultUVs[] = { To4(LcVector2(0.0, 0.0)), To4(LcVector2(1.0, 0.0)), To4(LcVector2(1.0, 1.0)), To4(LcVector2(0.0, 1.0)) };
 		d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
 
-		// move to the front of sprite
+		// move in front of the sprite
 		trans.r[2].m128_f32[3] = widget->GetPos().z + 0.01f;
 		d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 

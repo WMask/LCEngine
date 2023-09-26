@@ -159,7 +159,7 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppC
 	if (sprite->HasComponent(EVCType::Texture))
 	{
 		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
-		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
+		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
 	}
 
 	// update transform
