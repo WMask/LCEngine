@@ -1,6 +1,6 @@
 {
-    "WinHeight": 600,
-    "WinWidth": 800,
+    "WinHeight": 720,
+    "WinWidth": 1280,
     "bAllowFullscreen": false,
     "bNoDelay": false,
     "bVSync": true
