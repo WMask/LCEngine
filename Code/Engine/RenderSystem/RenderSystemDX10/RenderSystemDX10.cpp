@@ -209,11 +209,11 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	texLoader.reset(new LcTextureLoaderDX10());
 
 	// setup world
-	context.world.GetCamera().Set(cameraPos, cameraTarget);
-	worldScaleFonts = context.world.GetWorldScale().GetScaleFonts();
+	context.world->GetCamera().Set(cameraPos, cameraTarget);
+	worldScaleFonts = context.world->GetWorldScale().GetScaleFonts();
 
 	// add factories
-	LcWorld& worldRef = static_cast<LcWorld&>(context.world);
+	LcWorld& worldRef = static_cast<LcWorld&>(*context.world);
 	worldRef.SetSpriteLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategyDX10>());
 	worldRef.SetWidgetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategyDX10>());
 
@@ -256,22 +256,22 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 {
 	auto contextPtr = &context;
 
-	context.world.GetWorldScale().onScaleChanged.AddListener([this, contextPtr](LcVector2 newScale)
+	context.world->GetWorldScale().onScaleChanged.AddListener([this, contextPtr](LcVector2 newScale)
 	{
 		LC_TRY
 
 		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
 
-		if (contextPtr->world.GetWorldScale().GetScaleFonts())
+		if (contextPtr->world->GetWorldScale().GetScaleFonts())
 		{
-			auto& widgets = contextPtr->world.GetWidgets();
+			auto& widgets = contextPtr->world->GetWidgets();
 			for (auto widget : widgets) widget->RecreateFont(*contextPtr);
 		}
 
 		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
 	});
 
-	context.world.onTintChanged.AddListener([this](LcColor3 globalTint)
+	context.world->onTintChanged.AddListener([this](LcColor3 globalTint)
 	{
 		if (constBuffers.settingsBuffer)
 		{
@@ -382,8 +382,8 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-		context.world.GetWorldScale().UpdateWorldScale(newViewportSize);
-		context.world.GetCamera().Set(cameraPos, cameraTarget);
+		context.world->GetWorldScale().UpdateWorldScale(newViewportSize);
+		context.world->GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
 		// update projection matrix

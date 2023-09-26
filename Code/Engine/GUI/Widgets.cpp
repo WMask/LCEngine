@@ -14,7 +14,7 @@
 void LcWidgetHelper::AddTextComponent(const std::wstring& inText, LcColor4 inTextColor, const std::wstring& inFontName,
     unsigned short inFontSize, LcFontWeight inFontWeight, LcTextAlignment inTextAlign) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inTextColor, inTextAlign, inFontName, inFontSize, inFontWeight), context);
     }
@@ -23,7 +23,7 @@ void LcWidgetHelper::AddTextComponent(const std::wstring& inText, LcColor4 inTex
 void LcWidgetHelper::AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor, LcTextAlignment inTextAlign, const std::wstring& inFontName,
     unsigned short inFontSize, LcFontWeight inFontWeight) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inTextColor, inTextAlign, inFontName, inFontSize, inFontWeight), context);
     }
@@ -31,7 +31,7 @@ void LcWidgetHelper::AddAlignedTextComponent(const std::wstring& inText, LcColor
 
 void LcWidgetHelper::AddTextureComponent(const std::string& texture) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
     }
@@ -39,7 +39,7 @@ void LcWidgetHelper::AddTextureComponent(const std::string& texture) const
 
 void LcWidgetHelper::AddTextureComponent(const LcBytes& inData) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
     }
@@ -47,7 +47,7 @@ void LcWidgetHelper::AddTextureComponent(const LcBytes& inData) const
 
 void LcWidgetHelper::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
         visual->AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos), context);
@@ -57,7 +57,7 @@ void LcWidgetHelper::AddButtonComponent(const std::string& texture, LcVector2 id
 void LcWidgetHelper::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
     LcVector2 checkedPos, LcVector2 checkedHoveredPos) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
         visual->AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos), context);
@@ -66,7 +66,7 @@ void LcWidgetHelper::AddCheckboxComponent(const std::string& texture, LcVector2 
 
 void LcWidgetHelper::AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcWidgetClickComponent>(handler), context);
 
@@ -77,7 +77,7 @@ void LcWidgetHelper::AddClickHandlerComponent(LcClickHandler handler, bool addDe
 
 void LcWidgetHelper::AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin) const
 {
-    if (auto visual = context.world.GetLastAddedVisual())
+    if (auto visual = context.world->GetLastAddedVisual())
     {
         visual->AddComponent(std::make_shared<LcWidgetCheckComponent>(handler), context);
 

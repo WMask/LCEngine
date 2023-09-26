@@ -123,16 +123,14 @@ public:
 /** Application context */
 struct LcAppContext
 {
-	LcAppContext(class IWorld& inWorld) : app(nullptr),
-		world(inWorld), render(nullptr), audio(nullptr),
-		scripts(nullptr), input(nullptr), gui(nullptr),
-		physics(nullptr), windowHandle(nullptr) {}
-	//
-	class IWorld* GetWorldPtr() const { return &world; }
-	//
-	class IWorld& world;
+	LcAppContext() : app(nullptr), world(nullptr),
+		render(nullptr), audio(nullptr), scripts(nullptr),
+		input(nullptr), gui(nullptr), physics(nullptr),
+		windowHandle(nullptr) {}
 	//
 	class IApplication* app;
+	//
+	class IWorld* world;
 	//
 	class IRenderSystem* render;
 	//

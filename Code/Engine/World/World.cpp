@@ -80,7 +80,7 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 	sprites.Remove(sprite);
 }
 
-IWidget* LcWorld::AddWidget(float x, float y, float z, float width, float height, bool visible)
+IWidget* LcWorld::AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible)
 {
 	auto newWidget = widgets.Add();
 	if (newWidget)

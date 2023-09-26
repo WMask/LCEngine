@@ -47,7 +47,7 @@ public: // IWorld interface implementation
 	//
 	virtual TSpriteList& GetSprites() override { return sprites.GetList(); }
 	//
-	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool visible = true) override;
+	virtual IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible = true) override;
 	//
 	virtual IWidget* AddWidget(float x, float y, float width, float height, bool visible = true) override;
 	//

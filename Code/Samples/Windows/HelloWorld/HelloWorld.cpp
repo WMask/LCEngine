@@ -19,24 +19,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        auto onInitHandler = [](IApplication* app)
+        auto onInitHandler = [](const LcAppContext& context)
         {
-            auto& spriteHelper = app->GetWorld()->GetSpriteHelper();
+            auto& spriteHelper = context.world->GetSpriteHelper();
 
-            if (app->GetWorld()->AddSprite2D(250, 400, 200, 200))
+            if (context.world->AddSprite2D(250, 400, 200, 200))
             {
                 spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
             }
         };
 
-        auto onUpdateHandler = [](float deltaSeconds, IApplication* app)
+        auto onUpdateHandler = [](float deltaSeconds, const LcAppContext& context)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
-            auto sprite = app->GetWorld()->GetSprites()[0];
+            auto sprite = context.world->GetSprites()[0];
 
             // move sprite
-            auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
+            auto& keys = context.input->GetActiveInputDevice()->GetState();
             if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
             if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
 
@@ -44,9 +44,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (keys[VK_DOWN] || keys[LcJKeys::Down]) sprite->AddRotZ(2 * deltaSeconds);
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
         };
 
         auto app = GetApp();

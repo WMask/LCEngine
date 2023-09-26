@@ -30,11 +30,11 @@ public: // LcWindowsInputSystem override
 	//
 	virtual ~LcDirectInputSystem() override;
 	//
-	virtual void Init(struct LcAppContext& context) override;
+	virtual void Init(const struct LcAppContext& context) override;
 	//
 	virtual void Shutdown() override;
 	//
-	virtual void Update(float deltaSeconds, struct LcAppContext& context) override;
+	virtual void Update(float deltaSeconds, const struct LcAppContext& context) override;
 
 
 protected:

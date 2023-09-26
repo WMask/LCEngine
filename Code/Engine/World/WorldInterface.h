@@ -17,26 +17,26 @@
 #pragma warning(disable : 4251)
 
 
-/** 2D object layers. Z0 - front, Z9 - back. */
-namespace LcLayers
-{
-	static const float Z0 =  0.0f;
-	static const float Z1 = -0.1f;
-	static const float Z2 = -0.2f;
-	static const float Z3 = -0.3f;
-	static const float Z4 = -0.4f;
-	static const float Z5 = -0.5f;
-	static const float Z6 = -0.6f;
-	static const float Z7 = -0.7f;
-	static const float Z8 = -0.8f;
-	static const float Z9 = -0.9f;
-};
-
-static const float LcMinLayer = LcLayers::Z9;
-static const float LcMaxLayer = LcLayers::Z0;
+constexpr float LcMinLayer = -0.9f;
+constexpr float LcMaxLayer =  0.0f;
 
 /** Ranged float (-0.9f, 0.0f) */
 typedef LcRange<float, LcMinLayer, LcMaxLayer> LcLayersRange;
+
+/** 2D object layers. Z0 - front, Z9 - back. */
+namespace LcLayers
+{
+	static const LcLayersRange Z0 = LcLayersRange( 0.0f);
+	static const LcLayersRange Z1 = LcLayersRange(-0.1f);
+	static const LcLayersRange Z2 = LcLayersRange(-0.2f);
+	static const LcLayersRange Z3 = LcLayersRange(-0.3f);
+	static const LcLayersRange Z4 = LcLayersRange(-0.4f);
+	static const LcLayersRange Z5 = LcLayersRange(-0.5f);
+	static const LcLayersRange Z6 = LcLayersRange(-0.6f);
+	static const LcLayersRange Z7 = LcLayersRange(-0.7f);
+	static const LcLayersRange Z8 = LcLayersRange(-0.8f);
+	static const LcLayersRange Z9 = LcLayersRange(-0.9f);
+};
 
 
 /**
@@ -114,7 +114,7 @@ public:
 	virtual TSpriteList& GetSprites() = 0;
 	/**
 	* Add widget */
-	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) = 0;
+	virtual IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool inVisible = true) = 0;
 	/**
 	* Add widget */
 	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;

@@ -163,7 +163,7 @@ void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppC
 	}
 
 	// update transform
-	LcVector2 worldScale2D(context.world.GetWorldScale().GetScale());
+	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
 	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;

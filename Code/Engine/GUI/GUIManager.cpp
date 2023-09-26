@@ -17,7 +17,7 @@ void LcGuiManager::Update(float deltaSeconds, const LcAppContext& context)
 {
     LC_TRY
 
-    auto& widgetList = context.world.GetWidgets();
+    auto& widgetList = context.world->GetWidgets();
     if (!widgetList.empty())
     {
         for (auto& widget : widgetList)
@@ -33,7 +33,7 @@ void LcGuiManager::OnKeys(int btn, LcKeyState state, const LcAppContext& context
 {
     LC_TRY
 
-    auto& widgetList = context.world.GetWidgets();
+    auto& widgetList = context.world->GetWidgets();
     for (auto& widget : widgetList)
     {
         if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeys(btn, state, context);
@@ -46,8 +46,8 @@ void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y,
 {
     LC_TRY
 
-    auto& widgetList = context.world.GetWidgets();
-    auto scale2 = context.world.GetWorldScale().GetScale();
+    auto& widgetList = context.world->GetWidgets();
+    auto scale2 = context.world->GetWorldScale().GetScale();
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
     for (auto& widget : widgetList)
@@ -73,8 +73,8 @@ void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
 {
     LC_TRY
 
-    auto& widgetList = context.world.GetWidgets();
-    auto scale2 = context.world.GetWorldScale().GetScale();
+    auto& widgetList = context.world->GetWidgets();
+    auto scale2 = context.world->GetWorldScale().GetScale();
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
     for (auto& widget : widgetList)

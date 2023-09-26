@@ -20,28 +20,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        auto onInitHandler = [](IApplication* app)
+        auto onInitHandler = [](const LcAppContext& context)
         {
-            auto world = app->GetWorld();
-
-            auto& spriteHelper = world->GetSpriteHelper();
-            if (world->AddSprite(500, 400, LcLayers::Z2, 200, 200))
+            auto& spriteHelper = context.world->GetSpriteHelper();
+            if (context.world->AddSprite(500, 400, LcLayers::Z2, 200, 200))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
             }
 
-            if (world->AddSprite(500, 340, LcLayers::Z1, 180, 60))
+            if (context.world->AddSprite(500, 340, LcLayers::Z1, 180, 60))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
             }
 
-            auto& widgetHelper = world->GetWidgetHelper();
-            if (world->AddWidget(500, 340, 200, 50))
+            auto& widgetHelper = context.world->GetWidgetHelper();
+            if (context.world->AddWidget(500, 340, 200, 50))
             {
                 widgetHelper.AddTextComponent(L"Label Text", LcDefaults::Black4, L"Calibri", 30);
             }
 
-            if (world->AddWidget(500, 400, 32, 32))
+            if (context.world->AddWidget(500, 400, 32, 32))
             {
                 auto onCheck = [](bool checked) {
                     DebugMsg("Checkbox is %s\n", checked ? "checked" : "unchecked");
@@ -49,16 +47,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 widgetHelper.AddCheckHandlerComponent(onCheck);
             }
 
-            if (world->AddWidget(500, 450, 124, 40))
+            if (context.world->AddWidget(500, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
                 widgetHelper.AddTextComponent(L"SUBMIT");
             }
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-            if (key == 'Q' && keyEvent == LcKeyState::Down) app->RequestQuit();
+            if (key == 'Q' && keyEvent == LcKeyState::Down) context.app->RequestQuit();
         };
 
         auto app = GetApp();

@@ -21,7 +21,7 @@ using json = nlohmann::json;
 
 void LcSpriteHelper::AddTintComponent(LcColor4 tint) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcSpriteTintComponent>(tint), context);
 	}
@@ -29,7 +29,7 @@ void LcSpriteHelper::AddTintComponent(LcColor4 tint) const
 
 void LcSpriteHelper::AddTintComponent(LcColor3 tint) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcSpriteTintComponent>(tint), context);
 	}
@@ -37,7 +37,7 @@ void LcSpriteHelper::AddTintComponent(LcColor3 tint) const
 
 void LcSpriteHelper::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 	}
@@ -45,7 +45,7 @@ void LcSpriteHelper::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop,
 
 void LcSpriteHelper::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 	}
@@ -53,7 +53,7 @@ void LcSpriteHelper::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop,
 
 void LcSpriteHelper::AddTextureComponent(const std::string& inTexture) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture), context);
 	}
@@ -61,7 +61,7 @@ void LcSpriteHelper::AddTextureComponent(const std::string& inTexture) const
 
 void LcSpriteHelper::AddTextureComponent(const LcBytes& inData) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
 	}
@@ -69,7 +69,7 @@ void LcSpriteHelper::AddTextureComponent(const LcBytes& inData) const
 
 void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 	}
@@ -77,7 +77,7 @@ void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRight
 
 void LcSpriteHelper::AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond), context);
 	}
@@ -85,7 +85,7 @@ void LcSpriteHelper::AddAnimationComponent(LcSizef inFrameSize, unsigned short i
 
 void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames), context);
 	}
@@ -93,7 +93,7 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const L
 
 void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), context);
 	}
@@ -102,7 +102,7 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcObjec
 void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
 	float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) const
 {
-	if (auto visual = context.world.GetLastAddedVisual())
+	if (auto visual = context.world->GetLastAddedVisual())
 	{
 		visual->AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inNumFrames,
 			inFrameSize, inParticleLifetime, inParticleSpeed, inParticleMovementRadius), context);

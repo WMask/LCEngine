@@ -51,7 +51,7 @@ void LcRenderSystemBase::Update(float deltaSeconds, const LcAppContext& context)
     // widgets updated in LcGuiManager
 
     // update sprites
-    const auto& sprites = context.world.GetSprites();
+    const auto& sprites = context.world->GetSprites();
 
     for (const auto& sprite : sprites)
     {
@@ -59,8 +59,8 @@ void LcRenderSystemBase::Update(float deltaSeconds, const LcAppContext& context)
     }
 
     // update camera
-    auto newPos = context.world.GetCamera().GetPosition();
-    auto newTarget = context.world.GetCamera().GetTarget();
+    auto newPos = context.world->GetCamera().GetPosition();
+    auto newTarget = context.world->GetCamera().GetTarget();
     if (newPos != cameraPos || newTarget != cameraTarget)
     {
         UpdateCamera(deltaSeconds, newPos, newTarget);
@@ -76,8 +76,8 @@ void LcRenderSystemBase::Render(const LcAppContext& context)
 {
     LC_TRY
 
-    const auto& sprites = context.world.GetSprites();
-    const auto& widgets = context.world.GetWidgets();
+    const auto& sprites = context.world->GetSprites();
+    const auto& widgets = context.world->GetWidgets();
 
     for (const auto& widget : widgets)
     {

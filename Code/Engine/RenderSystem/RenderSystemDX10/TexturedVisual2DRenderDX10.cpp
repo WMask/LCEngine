@@ -150,7 +150,7 @@ void LcTexturedVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcA
 	}
 
 	// update transform
-	LcVector2 worldScale2D(context.world.GetWorldScale().GetScale());
+	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
 	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
@@ -197,7 +197,7 @@ void LcTexturedVisual2DRenderDX10::RenderWidget(const IWidget* widget, const LcA
 	}
 
 	// update transform
-	LcVector2 worldScale2D(context.world.GetWorldScale().GetScale());
+	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
 	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 widgetPos = widget->GetPos() * worldScale;
 	LcVector2 widgetSize = widget->GetSize() * worldScale2D;
