@@ -116,9 +116,7 @@ void LcWorld::SetGlobalTint(LcColor3 tint)
 	if (globalTint != tint)
 	{
 		globalTint = tint;
-
-		auto& listeners = onTintChanged.GetListeners();
-		for (auto& listener : listeners) listener(globalTint);
+		onTintChanged.Broadcast(tint);
 	}
 }
 
@@ -137,7 +135,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		if (entry.resolution == newScreenSize)
 		{
 			scale = entry.scale;
-			if (prevScale != scale) Broadcast();
+			if (prevScale != scale) onScaleChanged.Broadcast(scale);
 			return;
 		}
 	}
@@ -148,7 +146,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		if (entry.resolution.y >= newScreenSize.y)
 		{
 			scale = entry.scale;
-			if (prevScale != scale) Broadcast();
+			if (prevScale != scale) onScaleChanged.Broadcast(scale);
 			return;
 		}
 	}
@@ -157,14 +155,8 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 	{
 		// accept any
 		scale = scaleList.begin()->scale;
-		if (prevScale != scale) Broadcast();
+		if (prevScale != scale) onScaleChanged.Broadcast(scale);
 	}
-}
-
-void LcWorldScale::Broadcast()
-{
-	auto& listeners = onScaleChanged.GetListeners();
-	for (auto& listener : listeners) listener(scale);
 }
 
 TWorldPtr GetWorld(LcAppContext& context)

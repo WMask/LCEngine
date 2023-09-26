@@ -46,7 +46,7 @@ typedef LcRange<float, LcMinLayer, LcMaxLayer> LcLayersRange;
 class WORLD_API LcWorldScale
 {
 public:
-	LcDelegate<void(LcVector2)> onScaleChanged;
+	LcDelegate<LcVector2> onScaleChanged;
 	//
 	struct ScalePair
 	{
@@ -75,10 +75,6 @@ public:
 
 
 protected:
-	void Broadcast();
-
-
-protected:
 	std::set<ScalePair> scaleList;
 	//
 	LcVector2 scale;
@@ -97,7 +93,7 @@ public:
 	typedef std::deque<std::shared_ptr<class IWidget>> TWidgetList;
 	/**
 	* Subscribe to get changes of sprites global tint. */
-	LcDelegate<void(LcColor3)> onTintChanged;
+	LcDelegate<LcColor3> onTintChanged;
 
 
 public:

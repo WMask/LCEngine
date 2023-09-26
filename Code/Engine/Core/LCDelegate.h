@@ -15,10 +15,10 @@
 /**
 * Multicast delegate class
 */
-template<typename D>
+template<typename ...A>
 class LcDelegate
 {
-	typedef std::function<D> DType;
+	typedef std::function<void(A...)> DType;
 
 public:
 	LcDelegate() = default;
@@ -31,7 +31,13 @@ public:
 	//
 	void RemoveListener(const DType& listener) { listeners.erase(listener); }
 	//
-	const std::deque<DType>& GetListeners() const { return listeners; }
+	void Broadcast(A... a)
+	{
+		for (DType& listener : listeners)
+		{
+			listener(a...);
+		}
+	}
 
 
 protected:
