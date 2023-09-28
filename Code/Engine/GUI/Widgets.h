@@ -193,7 +193,9 @@ class GUI_API LcWidget : public IWidget
 {
 public:
     LcWidget()
-        : pos(LcDefaults::ZeroVec3)
+        : parent(nullptr)
+        , features{ EVCType::Texture }
+        , pos(LcDefaults::ZeroVec3)
         , size(LcDefaults::ZeroSize)
         , visible(true)
         , disabled(false)
@@ -206,6 +208,16 @@ public:
 
 
 public:// IWidget interface implementation
+    //
+    virtual void AddChild(IWidget* child) override;
+    //
+    virtual void RemoveChild(IWidget* child) override;
+    //
+    virtual IWidget* GetParent() const override { return parent; }
+    //
+    virtual const TChildsList& GetChilds() const override { return childs; }
+    //
+    virtual TChildsList& GetChilds() override { return childs; }
     //
     virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) override {}
     //
@@ -226,11 +238,15 @@ public:// IWidget interface implementation
 
 public:// IVisual interface implementation
     //
+    virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
+    //
     virtual void SetSize(LcSizef inSize) override { size = inSize; }
     //
     virtual LcSizef GetSize() const override { return size; }
     //
     virtual void SetPos(LcVector3 inPos) override { pos = inPos; }
+    //
+    virtual void SetPos(LcVector2 inPos) override { pos = LcVector3(inPos.x, inPos.y, pos.z); }
     //
     virtual void AddPos(LcVector3 inPos) override { pos = pos + inPos; }
     //
@@ -256,6 +272,12 @@ public:// IVisual interface implementation
 
 
 protected:
+    //
+    IWidget* parent;
+    //
+    TChildsList childs;
+    //
+    TVFeaturesList features;
     // [0,0] - leftTop, x - right, y - down
     LcVector3 pos;
     // widget size in pixels

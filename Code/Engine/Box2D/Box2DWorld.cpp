@@ -49,6 +49,7 @@ struct LcBodyQueryHandler : public b2QueryCallback
     bool checkStaticOnly = false;
 };
 
+
 class LcBox2DBody : public IPhysicsBody
 {
 public:
@@ -65,6 +66,8 @@ public:
         size.y = inSize.y / BOX2D_SCALE;
     }
     //
+    static int GetStaticId() { return LcCreatables::PhysicsBody; }
+    //
     b2World* world;
     //
     b2Fixture* fixture;
@@ -74,7 +77,7 @@ public:
     LcSizef size;
 
 
-public:// IPhysicsBody interface implementation
+public: // IPhysicsBody interface implementation
 	//
 	virtual void ApplyForce(LcVector2 force) override { body->ApplyForceToCenter(FromLC(force, false), true); }
     //
@@ -107,7 +110,7 @@ public:// IPhysicsBody interface implementation
     }
 };
 
-class LcBodyLifetimeStrategy : public LcLifetimeStrategy<IPhysicsBody>
+class LcBodyLifetimeStrategy : public LcLifetimeStrategy<IPhysicsBody, IPhysicsWorld::TBodiesList>
 {
 public:
     LcBodyLifetimeStrategy() {}
@@ -116,7 +119,7 @@ public:
     //
     virtual std::shared_ptr<IPhysicsBody> Create() override { return std::make_shared<LcBox2DBody>(); }
     //
-    virtual void Destroy(IPhysicsBody& item) override
+    virtual void Destroy(IPhysicsBody& item, IPhysicsWorld::TBodiesList& items) override
     {
         LcBox2DBody& body = static_cast<LcBox2DBody&>(item);
         body.body->DestroyFixture(body.fixture);
@@ -141,7 +144,7 @@ LcBox2DWorld::~LcBox2DWorld()
 
 void LcBox2DWorld::Clear()
 {
-    dynamicBodies.GetList().clear();
+    dynamicBodies.Clear();
     box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
 }
 
@@ -185,7 +188,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamicBox(LcVector2 pos, LcSizef size, float den
     b2Fixture* fixture = body->CreateFixture(&fixtureDef);
     if (!fixture) throw std::exception("LcBox2DWorld::AddDynamicBox(): Cannot create fixture");
 
-    auto newBody = dynamicBodies.AddT<LcBox2DBody>();
+    auto newBody = dynamicBodies.Add<LcBox2DBody>();
     if (!newBody) throw std::exception("LcBox2DWorld::AddDynamicBox(): Cannot create dynamic body");
 
     newBody->Init(box2DWorld.get(), body, fixture, size);
@@ -215,7 +218,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
     if (!fixture) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create fixture");
 
     LcSizef size(radius * 2.0f, radius * 2.0f);
-    auto newBody = dynamicBodies.AddT<LcBox2DBody>();
+    auto newBody = dynamicBodies.Add<LcBox2DBody>();
     if (!newBody) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create dynamic body");
 
     newBody->Init(box2DWorld.get(), body, fixture, size);

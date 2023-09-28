@@ -26,15 +26,24 @@ cbuffer VS_UV_BUFFER : register(b4)
 
 cbuffer VS_SETTINGS_BUFFER : register(b6)
 {
-    float4 vGlobalTint;
+	float4 vGlobalTint;
+};
+
+cbuffer VS_FLAGS_BUFFER : register(b7)
+{
+	int bHasAnimation;
+	int bHasColor;
+	int bHasCustomUV;
+	int bHasTexture;
 };
 
 struct VOut
 {
 	float4 vPosition : SV_POSITION;
-    float4 vColor : COLOR0;
-    float4 vTint : COLOR1;
+	float4 vColor : COLOR0;
+	float4 vTint : COLOR1;
 	float2 vCoord : TEXCOORD;
+	int bHasTexture : FLAG;
 };
 
 VOut VShader(float4 vPosition : POSITION, uint iIndex : INDEX)
@@ -43,9 +52,10 @@ VOut VShader(float4 vPosition : POSITION, uint iIndex : INDEX)
 	float4x4 mWVP = mul(mTrans, mul(mView, mProj));
 
 	output.vPosition = mul(vPosition, mWVP);
-    output.vColor = vColors[iIndex];
-    output.vTint = vGlobalTint;
+	output.vColor = vColors[iIndex];
+	output.vTint = vGlobalTint;
 	output.vCoord = vUV[iIndex];
+	output.bHasTexture = bHasTexture;
 
 	return output;
 }
@@ -54,12 +64,24 @@ Texture2D tex2D;
 
 SamplerState linearSampler
 {
-    Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
 
-float4 PShader(float4 vPosition : SV_POSITION, float4 vColor : COLOR0, float4 vTint : COLOR1, float2 vCoord : TEXCOORD) : SV_TARGET
+float4 PShader(float4 vPosition : SV_POSITION,
+	float4 vColor : COLOR0, float4 vTint : COLOR1,
+	float2 vCoord : TEXCOORD, int bHasTexture : FLAG) : SV_TARGET
 {
-    return tex2D.Sample(linearSampler, vCoord) * vColor * vTint;
+	float4 texColor = tex2D.Sample(linearSampler, vCoord);
+
+	if (bHasTexture)
+	{
+		if (vColor.a == 0.0f)
+			return texColor * vTint;
+		else
+			return texColor * vColor * vTint;
+	}
+
+	return vColor * vTint;
 }

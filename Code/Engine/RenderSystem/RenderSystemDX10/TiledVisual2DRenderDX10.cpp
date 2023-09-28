@@ -144,26 +144,29 @@ void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual, const LcAppContext&
 	render->ForceRenderSetup();
 }
 
-void LcTiledVisual2DRenderDX10::RenderSprite(const ISprite* sprite, const LcAppContext& context)
+void LcTiledVisual2DRenderDX10::Render(const IVisual* visual, const LcAppContext& context)
 {
 	auto render = static_cast<LcRenderSystemDX10*>(context.render);
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	auto transBuffer = render ? render->GetBuffers().transMatrixBuffer.Get() : nullptr;
+	auto sprite = (visual->GetTypeId() == LcCreatables::Sprite) ? static_cast<const ISprite*>(visual) : nullptr;
 	if (!d3dDevice || !transBuffer || !sprite)
-		throw std::exception("LcTiledVisual2DRenderDX10::RenderSprite(): Invalid render params");
+	{
+		throw std::exception("LcTiledVisual2DRenderDX10::Render(): Invalid render params");
+	}
 
 	auto vbIt = vertexBuffers.find(sprite);
-	if (vbIt == vertexBuffers.end()) throw std::exception("LcTiledVisual2DRenderDX10::RenderSprite(): No vertex buffer found");
+	if (vbIt == vertexBuffers.end()) throw std::exception("LcTiledVisual2DRenderDX10::Render(): No vertex buffer found");
 
 	// update components
 	if (sprite->HasComponent(EVCType::Texture))
 	{
 		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
-		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)spriteDX10->shaderView.GetAddressOf());
+		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
 	}
 
 	// update transform
-	LcVector2 worldScale2D(context.world.GetWorldScale().scale);
+	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
 	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;

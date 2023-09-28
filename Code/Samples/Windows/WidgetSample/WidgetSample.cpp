@@ -20,45 +20,64 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        auto onInitHandler = [](IApplication* app)
+        auto onInitHandler = [](const LcAppContext& context)
         {
-            auto world = app->GetWorld();
+            auto& widgetHelper = context.world->GetWidgetHelper();
 
-            auto& spriteHelper = world->GetSpriteHelper();
-            if (world->AddSprite(500, 400, LcLayers::Z2, 200, 200))
+            IWidget* parent = nullptr;
+            if (parent = context.world->AddWidget(500, 400, LcLayers::Z2, 200, 200))
             {
-                spriteHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
+                widgetHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
+                parent->SetTag(1);
             }
 
-            if (world->AddSprite(500, 340, LcLayers::Z1, 180, 60))
+            if (auto child = context.world->AddWidget(500, 340, LcLayers::Z1, 180, 60))
             {
-                spriteHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
+                widgetHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
+                parent->AddChild(child);
             }
 
-            auto& widgetHelper = world->GetWidgetHelper();
-            if (world->AddWidget(500, 340, 200, 50))
+            if (auto child = context.world->AddWidget(500, 340, 200, 50))
             {
                 widgetHelper.AddTextComponent(L"Label Text", LcDefaults::Black4, L"Calibri", 30);
+                parent->AddChild(child);
             }
 
-            if (world->AddWidget(500, 400, 32, 32))
+            if (auto child = context.world->AddWidget(500, 400, 32, 32))
             {
                 auto onCheck = [](bool checked) {
                     DebugMsg("Checkbox is %s\n", checked ? "checked" : "unchecked");
                 };
                 widgetHelper.AddCheckHandlerComponent(onCheck);
+                parent->AddChild(child);
             }
 
-            if (world->AddWidget(500, 450, 124, 40))
+            if (auto child = context.world->AddWidget(500, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
-                widgetHelper.AddTextComponent(L"SUBMIT");
+                widgetHelper.AddTextComponent(L"SUBMIT", LcDefaults::Black4, L"Calibri", 22, LcFontWeight::Bold);
+                parent->AddChild(child);
+                child->SetTag(2);
             }
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-            if (key == 'Q' && keyEvent == LcKeyState::Down) app->RequestQuit();
+            auto parent = context.world->GetObjectByTag<IWidget>(1);
+            auto child = context.world->GetObjectByTag<IWidget>(2);
+
+            if (key == 'Q' && keyEvent == LcKeyState::Down) context.app->RequestQuit();
+            if (key == 'T' && keyEvent == LcKeyState::Down)
+            {
+                parent->SetVisible(!parent->IsVisible());
+            }
+            if (key == 'C' && keyEvent == LcKeyState::Down)
+            {
+                if (child->GetParent())
+                    parent->RemoveChild(child);
+                else
+                    parent->AddChild(child);
+            }
         };
 
         auto app = GetApp();

@@ -75,25 +75,9 @@ public: // IApplication interface implementation
 	//
 	virtual LcAppStats GetAppStats() const noexcept;
 	//
-	virtual class IWorld* GetWorld() noexcept override { return world.get(); }
-	//
-	virtual TWorldPtr GetWorldPtr() noexcept override { return world; }
-	//
-	virtual class IScriptSystem* GetScriptSystem() noexcept override { return scriptSystem.get(); }
-	//
-	virtual TScriptSystemPtr GetScriptSystemPtr() noexcept override { return scriptSystem; }
-	//
-	virtual class IAudioSystem* GetAudioSystem() noexcept override { return audioSystem.get(); }
-	//
-	virtual TAudioSystemPtr GetAudioSystemPtr() noexcept override { return audioSystem; }
-	//
 	virtual class IInputSystem* GetInputSystem() noexcept override { return inputSystem.get(); }
 	//
 	virtual TInputSystemPtr GetInputSystemPtr() noexcept override { return inputSystem; }
-	//
-	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept override { return physWorld.get(); }
-	//
-	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept override { return physWorld; }
 
 
 protected:

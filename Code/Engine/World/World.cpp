@@ -12,28 +12,37 @@
 #include "GUI/Widgets.h"
 
 
-class LcSpriteLifetimeStrategy : public LcLifetimeStrategy<ISprite>
+class LcVisualLifetimeStrategy : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
 {
 public:
-	LcSpriteLifetimeStrategy() {}
+	LcVisualLifetimeStrategy() {}
 	//
-	virtual ~LcSpriteLifetimeStrategy() {}
+	virtual ~LcVisualLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<ISprite> Create() override { return std::make_shared<LcSprite>(); }
+	virtual std::shared_ptr<IVisual> Create() override
+	{
+		switch (curTypeId)
+		{
+		case LcCreatables::Sprite: return std::make_shared<LcSprite>();
+		case LcCreatables::Widget: return std::make_shared<LcWidget>();
+		}
+		return std::shared_ptr<IVisual>();
+	}
 	//
-	virtual void Destroy(ISprite& item) override {}
-};
+	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override
+	{
+		auto inWidget = static_cast<IWidget*>(&item);
 
-class LcWidgetLifetimeStrategy : public LcLifetimeStrategy<IWidget>
-{
-public:
-	LcWidgetLifetimeStrategy() {}
-	//
-	virtual ~LcWidgetLifetimeStrategy() {}
-	//
-	virtual std::shared_ptr<IWidget> Create() override { return std::make_shared<LcWidget>(); }
-	//
-	virtual void Destroy(IWidget& item) override {}
+		for (auto& visual : items)
+		{
+			if (visual.get() != inWidget &&
+				visual->GetTypeId() == LcCreatables::Widget)
+			{
+				auto curWidget = static_cast<IWidget*>(visual.get());
+				curWidget->RemoveChild(inWidget);
+			}
+		}
+	}
 };
 
 
@@ -44,13 +53,12 @@ LcWorld::LcWorld(const LcAppContext& inContext)
 	, globalTint(LcDefaults::White3)
 	, lastVisual(nullptr)
 {
-	sprites.SetLifetimeStrategy(std::make_shared<LcSpriteLifetimeStrategy>());
-	widgets.SetLifetimeStrategy(std::make_shared<LcWidgetLifetimeStrategy>());
+	items.SetLifetimeStrategy(std::make_shared<LcVisualLifetimeStrategy>());
 }
 
 ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ, bool visible)
 {
-	auto newSprite = sprites.Add();
+	auto newSprite = items.Add<LcSprite>();
 	if (newSprite)
 	{
 		newSprite->SetPos(LcVector3(x, y, z));
@@ -68,7 +76,7 @@ ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, floa
 	return newSprite;
 }
 
-ISprite* LcWorld::AddSprite2D(float x, float y, float width, float height, float inRotZ, bool inVisible)
+ISprite* LcWorld::AddSprite(float x, float y, float width, float height, float inRotZ, bool inVisible)
 {
 	return AddSprite(x, y, LcLayers::Z0, width, height, inRotZ, inVisible);
 }
@@ -77,12 +85,12 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 {
 	if (lastVisual == sprite) lastVisual = nullptr;
 
-	sprites.Remove(sprite);
+	items.Remove(sprite);
 }
 
-IWidget* LcWorld::AddWidget(float x, float y, float z, float width, float height, bool visible)
+IWidget* LcWorld::AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible)
 {
-	auto newWidget = widgets.Add();
+	auto newWidget = items.Add<LcWidget>();
 	if (newWidget)
 	{
 		newWidget->SetPos(LcVector3(x, y, z));
@@ -108,7 +116,15 @@ void LcWorld::RemoveWidget(IWidget* widget)
 {
 	if (lastVisual == widget) lastVisual = nullptr;
 
-	widgets.Remove(widget);
+	items.Remove(widget);
+}
+
+IVisual* LcWorld::GetVisualByTag(VisualTag tag) const
+{
+	auto it = std::find_if(items.GetItems().begin(), items.GetItems().end(), [tag](const std::shared_ptr<IVisual>& visual) {
+		return visual->GetTag() == tag;
+	});
+	return (it != items.GetItems().end()) ? it->get() : nullptr;
 }
 
 void LcWorld::SetGlobalTint(LcColor3 tint)
@@ -116,14 +132,12 @@ void LcWorld::SetGlobalTint(LcColor3 tint)
 	if (globalTint != tint)
 	{
 		globalTint = tint;
-
-		auto& listeners = onTintChanged.GetListeners();
-		for (auto& listener : listeners) listener(globalTint);
+		onTintChanged.Broadcast(tint);
 	}
 }
 
 
-LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scale(1.0f, 1.0f), scaleFonts(true)
+LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scale(LcDefaults::OneVec2), scaleFonts(true)
 {
 }
 
@@ -137,13 +151,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		if (entry.resolution == newScreenSize)
 		{
 			scale = entry.scale;
-
-			if (prevScale != scale)
-			{
-				auto& listeners = onScaleChanged.GetListeners();
-				for (auto& listener : listeners) listener(scale);
-			}
-
+			if (prevScale != scale) onScaleChanged.Broadcast(scale);
 			return;
 		}
 	}
@@ -154,13 +162,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 		if (entry.resolution.y >= newScreenSize.y)
 		{
 			scale = entry.scale;
-
-			if (prevScale != scale)
-			{
-				auto& listeners = onScaleChanged.GetListeners();
-				for (auto& listener : listeners) listener(scale);
-			}
-
+			if (prevScale != scale) onScaleChanged.Broadcast(scale);
 			return;
 		}
 	}
@@ -169,12 +171,7 @@ void LcWorldScale::UpdateWorldScale(LcSize newScreenSize)
 	{
 		// accept any
 		scale = scaleList.begin()->scale;
-
-		if (prevScale != scale)
-		{
-			auto& listeners = onScaleChanged.GetListeners();
-			for (auto& listener : listeners) listener(scale);
-		}
+		if (prevScale != scale) onScaleChanged.Broadcast(scale);
 	}
 }
 

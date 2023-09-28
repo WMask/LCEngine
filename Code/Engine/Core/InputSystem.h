@@ -95,16 +95,16 @@ public:
 typedef std::deque<std::shared_ptr<IInputDevice>> TInputDevicesList;
 
 /** Keyboard events handler */
-typedef std::function<void(int, LcKeyState, class IApplication*)> LcKeysHandler;
+typedef std::function<void(int, LcKeyState, const struct LcAppContext&)> LcKeysHandler;
 
 /** Gamepad axis events handler */
-typedef std::function<void(int, float, float, class IApplication*)> LcAxisHandler;
+typedef std::function<void(int, float, float, const struct LcAppContext&)> LcAxisHandler;
 
 /** Mouse button handler */
-typedef std::function<void(LcMouseBtn, LcKeyState, float, float, class IApplication*)> LcMouseButtonHandler;
+typedef std::function<void(LcMouseBtn, LcKeyState, float, float, const struct LcAppContext&)> LcMouseButtonHandler;
 
 /** Mouse move handler */
-typedef std::function<void(float, float, class IApplication*)> LcMouseMoveHandler;
+typedef std::function<void(float, float, const struct LcAppContext&)> LcMouseMoveHandler;
 
 
 /**
@@ -117,13 +117,13 @@ public:
 	virtual ~IInputSystem() {}
 	/**
 	* Initialize input system */
-	virtual void Init(struct LcAppContext& context) = 0;
+	virtual void Init(const struct LcAppContext& context) = 0;
 	/**
 	* Shutdown input system */
 	virtual void Shutdown() = 0;
 	/**
 	* Update input system */
-	virtual void Update(float deltaSeconds, struct LcAppContext& context) = 0;
+	virtual void Update(float deltaSeconds, const struct LcAppContext& context) = 0;
 	/**
 	* Set active device */
 	virtual void SetActiveDevice(const IInputDevice* device) = 0;
@@ -224,11 +224,11 @@ public: // IInputSystem interface implementation
 	//
 	virtual ~LcDefaultInputSystem() override {}
 	//
-	virtual void Init(struct LcAppContext& context) override {}
+	virtual void Init(const struct LcAppContext& inContext) override {}
 	//
 	virtual void Shutdown() override {}
 	//
-	virtual void Update(float deltaSeconds, struct LcAppContext& context) override {}
+	virtual void Update(float deltaSeconds, const struct LcAppContext& context) override {}
 	//
 	virtual void SetActiveDevice(const std::wstring& deviceNamePart) override;
 	//

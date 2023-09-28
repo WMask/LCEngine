@@ -1,11 +1,11 @@
 /**
-* WidgetRenderDX10.cpp
+* TextRenderDX10.cpp
 * 30.08.2023
 * (c) Denis Romakhov
 */
 
 #include "pch.h"
-#include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/TextRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "Core/LCException.h"
@@ -47,7 +47,7 @@ public:
     {
         LC_TRY
 
-        if (!dwriteFactory) throw std::exception("LcTextFont(): Invalid DWrite factory");
+        if (!dwriteFactory) throw std::exception("LcTextFontDX10(): Invalid DWrite factory");
 
         data.fontName = fontName;
         data.fontSize = fontSize;
@@ -60,7 +60,7 @@ public:
             DWRITE_FONT_STRETCH_NORMAL,
             fontSize, L"", data.font.GetAddressOf())))
         {
-            throw std::exception("LcTextFont(): Cannot create font");
+            throw std::exception("LcTextFontDX10(): Cannot create font");
         }
 
         LC_CATCH{ LC_THROW("LcTextFontDX10()") }
@@ -107,24 +107,24 @@ protected:
 };
 
 
-LcWidgetRenderDX10::~LcWidgetRenderDX10()
+LcTextRenderDX10::~LcTextRenderDX10()
 {
     Shutdown();
 }
 
-void LcWidgetRenderDX10::Shutdown()
+void LcTextRenderDX10::Shutdown()
 {
     dwriteFactory.Reset();
     d2dFactory.Reset();
 }
 
-const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight)
+const ITextFont* LcTextRenderDX10::AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight)
 {
     std::shared_ptr<LcTextFontDX10> newFont;
 
     LC_TRY
 
-    if (!dwriteFactory) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid DirectWrite factory");
+    if (!dwriteFactory) throw std::exception("LcTextRenderDX10::Setup(): Invalid DirectWrite factory");
 
     for (auto entry : fonts)
     {
@@ -135,12 +135,12 @@ const ITextFont* LcWidgetRenderDX10::AddFont(const std::wstring& fontName, float
     newFont = std::make_shared<LcTextFontDX10>(fontName, fontSize, fontWeight, dwriteFactory.Get());
     fonts[newFont->GetFontName()] = newFont;
 
-    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::AddFont()") }
+    LC_CATCH{ LC_THROW("LcTextRenderDX10::AddFont()") }
 
     return newFont.get();
 }
 
-bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
+bool LcTextRenderDX10::RemoveFont(const ITextFont* font)
 {
     if (auto fontPtr = (const LcTextFontDX10*)font)
     {
@@ -150,55 +150,37 @@ bool LcWidgetRenderDX10::RemoveFont(const ITextFont* font)
     return false;
 }
 
-void LcWidgetRenderDX10::Init(const LcAppContext& context)
+void LcTextRenderDX10::Init(const LcAppContext& context)
 {
     LC_TRY
 
     auto render = static_cast<LcRenderSystemDX10*>(context.render);
     auto swapChain = render ? render->GetD3D10SwapChain() : nullptr;
-    if (!swapChain) throw std::exception("LcWidgetRenderDX10::Init(): Invalid swap chain");
+    if (!swapChain) throw std::exception("LcTextRenderDX10::Init(): Invalid swap chain");
 
     if (d2dFactory) Shutdown();
 
     if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
     {
-        throw std::exception("LcWidgetRenderDX10::Init(): Cannot create Direct2D factory");
+        throw std::exception("LcTextRenderDX10::Init(): Cannot create Direct2D factory");
     }
 
     ComPtr<IDXGISurface1> backBuffer;
     if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
     {
-        throw std::exception("LcWidgetRenderDX10::Init(): Cannot get back buffer");
+        throw std::exception("LcTextRenderDX10::Init(): Cannot get back buffer");
     }
 
     if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(dwriteFactory.Get()),
         reinterpret_cast<IUnknown**>(dwriteFactory.GetAddressOf()))))
     {
-        throw std::exception("LcWidgetRenderDX10::Init(): Cannot create DirectWrite factory");
+        throw std::exception("LcTextRenderDX10::Init(): Cannot create DirectWrite factory");
     }
 
-    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::Init()") }
+    LC_CATCH{ LC_THROW("LcTextRenderDX10::Init()") }
 }
 
-void LcWidgetRenderDX10::Setup(const IVisual* visual, const LcAppContext& context)
-{
-    auto render = static_cast<LcRenderSystemDX10*>(context.render);
-    auto textureRender = render ? render->GetTextureRender() : nullptr;
-    if (!textureRender) throw std::exception("LcWidgetRenderDX10::Setup(): Invalid renderer");
-
-    textureRender->Setup(visual, context);
-}
-
-void LcWidgetRenderDX10::RenderWidget(const IWidget* widget, const LcAppContext& context)
-{
-    auto render = static_cast<LcRenderSystemDX10*>(context.render);
-    auto textureRender = render ? render->GetTextureRender() : nullptr;
-    if (!textureRender) throw std::exception("LcWidgetRenderDX10::RenderWidget(): Invalid renderer");
-
-    textureRender->RenderWidget(widget, context);
-}
-
-void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
+void LcTextRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
     const ITextFont* font, ID2D1RenderTarget* target, const LcAppContext& context)
 {
     LC_TRY
@@ -206,8 +188,8 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcCo
     auto fontDX10 = (ITextFontDX10*)font;
     auto fontPtr = fontDX10 ? fontDX10->GetFont() : nullptr;
 
-    if (!target) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid renderer");
-    if (!fontPtr) throw std::exception("LcWidgetRenderDX10::RenderText(): Invalid font");
+    if (!target) throw std::exception("LcTextRenderDX10::RenderText(): Invalid renderer");
+    if (!fontPtr) throw std::exception("LcTextRenderDX10::RenderText(): Invalid font");
 
     D2D1_RECT_F frect{ rect.left, rect.top, rect.right, rect.bottom };
     D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
@@ -222,14 +204,14 @@ void LcWidgetRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcCo
     target->DrawTextW(text.c_str(), (UINT32)text.length(), fontPtr, frect, brush.Get());
     target->EndDraw();
 
-    LC_CATCH{ LC_THROW("LcWidgetRenderDX10::RenderText()") }
+    LC_CATCH{ LC_THROW("LcTextRenderDX10::RenderText()") }
 }
 
-void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, LcVector2 scale, const LcAppContext& context)
+void LcTextRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, LcVector2 scale, const LcAppContext& context)
 {
     auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
     auto d3dDevice = renderDX10 ? renderDX10->GetD3D10Device() : nullptr;
-    if (!d3dDevice) throw std::exception("LcWidgetRenderDX10::CreateTextureAndRenderTarget(): Invalid render system");
+    if (!d3dDevice) throw std::exception("LcTextRenderDX10::CreateTextureAndRenderTarget(): Invalid render system");
 
     D3D10_TEXTURE2D_DESC texDesc{};
     texDesc.MipLevels = 1;
@@ -242,7 +224,7 @@ void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, LcVe
 
     if (FAILED(d3dDevice->CreateTexture2D(&texDesc, NULL, widget.textTexture.GetAddressOf())))
     {
-        throw std::exception("LcWidgetRenderDX10::CreateTextureAndRenderTarget(): Cannot create text texture");
+        throw std::exception("LcTextRenderDX10::CreateTextureAndRenderTarget(): Cannot create text texture");
     }
 
     D3D10_SHADER_RESOURCE_VIEW_DESC1 SRVDesc{};
@@ -252,13 +234,13 @@ void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, LcVe
 
     if (FAILED(d3dDevice->CreateShaderResourceView1(widget.textTexture.Get(), &SRVDesc, widget.textTextureSV.GetAddressOf())))
     {
-        throw std::exception("LcWidgetRenderDX10::CreateTextureAndRenderTarget(): Cannot create shader resource view");
+        throw std::exception("LcTextRenderDX10::CreateTextureAndRenderTarget(): Cannot create shader resource view");
     }
 
     ComPtr<IDXGISurface1> textSurface;
     if (FAILED(widget.textTexture->QueryInterface(textSurface.GetAddressOf())))
     {
-        throw std::exception("LcWidgetRenderDX10::CreateTextureAndRenderTarget(): Cannot create text surface");
+        throw std::exception("LcTextRenderDX10::CreateTextureAndRenderTarget(): Cannot create text surface");
     }
 
     D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
@@ -266,6 +248,6 @@ void LcWidgetRenderDX10::CreateTextureAndRenderTarget(LcWidgetDX10& widget, LcVe
 
     if (FAILED(d2dFactory->CreateDxgiSurfaceRenderTarget(textSurface.Get(), &props, widget.textRenderTarget.GetAddressOf())))
     {
-        throw std::exception("LcWidgetRenderDX10::CreateTextureAndRenderTarget(): Cannot create render target");
+        throw std::exception("LcTextRenderDX10::CreateTextureAndRenderTarget(): Cannot create render target");
     }
 }

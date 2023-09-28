@@ -85,7 +85,7 @@ public:
 	virtual void RemoveSound(ISound* sound) = 0;
 	/**
 	* Remove all sounds */
-	virtual void RemoveAllSounds() = 0;
+	virtual void RemoveSounds() = 0;
 	/**
 	* Get sounds list */
 	virtual const TSoundsList& GetSounds() const = 0;
@@ -107,23 +107,23 @@ public:// IAudioSystem interface implementation
 	//
 	virtual void Shutdown() override
 	{
-		sounds.GetList().clear();
+		sounds.Clear();
 	}
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override
 	{
-		for (auto& sound : sounds.GetList()) sound->Update(deltaSeconds, context);
+		for (auto& sound : sounds.GetItems()) sound->Update(deltaSeconds, context);
 	}
 	//
 	virtual void RemoveSound(ISound* sound) override
 	{
-		return sounds.Remove(sound);
+		sounds.Remove(sound);
 	}
 	//
-	virtual const TSoundsList& GetSounds() const override { return sounds.GetList(); }
+	virtual const TSoundsList& GetSounds() const override { return sounds.GetItems(); }
 
 
 protected:
-	LcCreator<ISound, T> sounds;
+	LcCreator<ISound> sounds;
 
 };

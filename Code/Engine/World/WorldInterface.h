@@ -17,34 +17,46 @@
 #pragma warning(disable : 4251)
 
 
-/** 2D object layers. Z0 - front, Z9 - back. */
-namespace LcLayers
-{
-	static const float Z0 =  0.0f;
-	static const float Z1 = -0.1f;
-	static const float Z2 = -0.2f;
-	static const float Z3 = -0.3f;
-	static const float Z4 = -0.4f;
-	static const float Z5 = -0.5f;
-	static const float Z6 = -0.6f;
-	static const float Z7 = -0.7f;
-	static const float Z8 = -0.8f;
-	static const float Z9 = -0.9f;
-};
-
-static const float LcMinLayer = LcLayers::Z9;
-static const float LcMaxLayer = LcLayers::Z0;
+constexpr float LcMinLayer = -0.9f;
+constexpr float LcMaxLayer =  0.0f;
 
 /** Ranged float (-0.9f, 0.0f) */
 typedef LcRange<float, LcMinLayer, LcMaxLayer> LcLayersRange;
+
+/** 2D object layers. Z0 - front, Z9 - back. */
+namespace LcLayers
+{
+	static const LcLayersRange Z0 = LcLayersRange( 0.0f);
+	static const LcLayersRange Z1 = LcLayersRange(-0.1f);
+	static const LcLayersRange Z2 = LcLayersRange(-0.2f);
+	static const LcLayersRange Z3 = LcLayersRange(-0.3f);
+	static const LcLayersRange Z4 = LcLayersRange(-0.4f);
+	static const LcLayersRange Z5 = LcLayersRange(-0.5f);
+	static const LcLayersRange Z6 = LcLayersRange(-0.6f);
+	static const LcLayersRange Z7 = LcLayersRange(-0.7f);
+	static const LcLayersRange Z8 = LcLayersRange(-0.8f);
+	static const LcLayersRange Z9 = LcLayersRange(-0.9f);
+};
 
 
 /**
 * Game world scaling parameters for different resolutions.
 * For resolutions not added to scaleList scale selected by resolution.y >= newScreenSize.y
 */
-struct WORLD_API LcWorldScale
+class WORLD_API LcWorldScale
 {
+public:
+	LcDelegate<LcVector2> onScaleChanged;
+	//
+	struct ScalePair
+	{
+		LcSize resolution;
+		LcVector2 scale;
+		inline bool operator<(const ScalePair& s) const { return resolution.y < s.resolution.y; }
+	};
+
+
+public:
 	LcWorldScale();
 	//
 	LcWorldScale(const LcWorldScale& scale) = default;
@@ -53,14 +65,16 @@ struct WORLD_API LcWorldScale
 	//
 	void UpdateWorldScale(LcSize newScreenSize);
 	//
-	LcDelegate<void(LcVector2)> onScaleChanged;
+	inline bool GetScaleFonts() const { return scaleFonts; }
 	//
-	struct ScalePair
-	{
-		LcSize resolution;
-		LcVector2 scale;
-		inline bool operator<(const ScalePair& s) const { return resolution.y < s.resolution.y; }
-	};
+	inline const std::set<ScalePair>& GetScaleList() const { return scaleList; }
+	//
+	inline std::set<ScalePair>& GetScaleList() { return scaleList; }
+	//
+	inline LcVector2 GetScale() const { return scale; }
+
+
+protected:
 	std::set<ScalePair> scaleList;
 	//
 	LcVector2 scale;
@@ -74,12 +88,10 @@ struct WORLD_API LcWorldScale
 class IWorld
 {
 public:
-	typedef std::deque<std::shared_ptr<class ISprite>> TSpriteList;
-	//
-	typedef std::deque<std::shared_ptr<class IWidget>> TWidgetList;
+	typedef std::multiset<std::shared_ptr<class IVisual>> TVisualSet;
 	/**
 	* Subscribe to get changes of sprites global tint. */
-	LcDelegate<void(LcColor3)> onTintChanged;
+	LcDelegate<LcColor3> onTintChanged;
 
 
 public:
@@ -88,28 +100,38 @@ public:
 	virtual ~IWorld() {}
 	/**
 	* Add sprite to layer z */
-	virtual ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual class ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Add sprite to layer 0 */
-	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual class ISprite* AddSprite(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Remove sprite */
-	virtual void RemoveSprite(ISprite* sprite) = 0;
-	/**
-	* Get sprites */
-	virtual TSpriteList& GetSprites() = 0;
+	virtual void RemoveSprite(class ISprite* sprite) = 0;
 	/**
 	* Add widget */
-	virtual IWidget* AddWidget(float x, float y, float z, float width, float height, bool inVisible = true) = 0;
+	virtual class IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool inVisible = true) = 0;
 	/**
 	* Add widget */
-	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;
+	virtual class IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;
 	/**
 	* Remove widget */
-	virtual void RemoveWidget(IWidget* widget) = 0;
+	virtual void RemoveWidget(class IWidget* widget) = 0;
 	/**
-	* Get widgets */
-	virtual TWidgetList& GetWidgets() = 0;
+	* Remove all sprites and widgets */
+	virtual void Clear() = 0;
+	/**
+	* Get visual by tag */
+	virtual class IVisual* GetVisualByTag(VisualTag tag) const = 0;
+	/**
+	* Get object by tag */
+	template<class T>
+	T* GetObjectByTag(VisualTag tag) const { return static_cast<T*>(GetVisualByTag(tag)); }
+	/**
+	* Get sprites and widgets */
+	virtual const TVisualSet& GetVisuals() const = 0;
+	/**
+	* Get sprites and widgets */
+	virtual TVisualSet& GetVisuals() = 0;
 	/**
 	* Get camera */
 	virtual const class LcCamera& GetCamera() const = 0;

@@ -11,7 +11,7 @@
 #include "Core/LCException.h"
 
 
-class LcSoundLifetimeStrategy : public LcLifetimeStrategy<ISound>
+class LcSoundLifetimeStrategy : public LcLifetimeStrategy<ISound, IAudioSystem::TSoundsList>
 {
 public:
 	LcSoundLifetimeStrategy() {}
@@ -20,7 +20,7 @@ public:
 	//
 	virtual std::shared_ptr<ISound> Create() override { return std::make_shared<LcXAudio2Sound>(); }
 	//
-	virtual void Destroy(ISound& item) override {}
+	virtual void Destroy(ISound& item, IAudioSystem::TSoundsList& items) override {}
 };
 
 
@@ -83,7 +83,7 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 		throw std::exception("LcXAudio2System::AddSound(): Invalid audio system");
 	}
 
-	newSound = sounds.AddT<LcXAudio2Sound>();
+	newSound = sounds.Add<LcXAudio2Sound>();
 	if (!newSound)
 	{
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create sound");

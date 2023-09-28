@@ -41,7 +41,7 @@ public:// IAudioSystem interface implementation
 	//
 	virtual ISound* AddSound(const char* filePath) override;
 	//
-	virtual void RemoveAllSounds() { sounds.RemoveAll(); }
+	virtual void RemoveSounds() override { sounds.Clear(); }
 
 
 protected:

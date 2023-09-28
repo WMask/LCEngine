@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/RenderSystem.h"
-#include "RenderSystem/WidgetRender.h"
 #include "World/WorldInterface.h"
 #include "Core/LCException.h"
 #include "Core/ScriptSystem.h"
@@ -34,10 +33,7 @@ struct LcWin32Handles
 };
 
 
-LcWindowsApplication::LcWindowsApplication()
-    : world(::GetWorld(context))
-    , context(*world.get())
-    , inputSystem(GetDefaultInputSystem())
+LcWindowsApplication::LcWindowsApplication() : world(::GetWorld(context)), inputSystem(GetDefaultInputSystem())
 {
     hInstance = nullptr;
     hWnd = nullptr;
@@ -116,6 +112,7 @@ void LcWindowsApplication::Run()
 
     // set context
     context.app = this;
+    context.world = world.get();
     context.render = renderSystem.get();
     context.scripts = scriptSystem.get();
     context.audio = audioSystem.get();
@@ -193,7 +190,7 @@ void LcWindowsApplication::Run()
     {
         LC_TRY
 
-        initHandler(this);
+        initHandler(context);
 
         LC_CATCH{ LC_THROW("LcWindowsApplication::Run(onInitHandler)") }
     }
@@ -236,11 +233,10 @@ void LcWindowsApplication::Run()
 
 void LcWindowsApplication::ClearWorld()
 {
-    world->GetSprites().clear();
-    world->GetWidgets().clear();
+    world->Clear();
     if (renderSystem) renderSystem->Clear();
-    if (audioSystem) audioSystem->RemoveAllSounds();
-    if (physWorld) physWorld->RemoveAllBodies();
+    if (audioSystem) audioSystem->RemoveSounds();
+    if (physWorld) physWorld->RemoveBodies();
 }
 
 void LcWindowsApplication::OnUpdate()
@@ -265,18 +261,9 @@ void LcWindowsApplication::OnUpdate()
             inputSystem->Update(deltaFloat, context);
         }
 
-        if (guiManager)
-        {
-            // update widgets
-            guiManager->Update(deltaFloat, context);
-        }
-
         if (renderSystem && world)
         {
-            // update sprites
             renderSystem->Update(deltaFloat, context);
-
-            // render sprites and widgets
             renderSystem->Render(context);
         }
 
@@ -292,7 +279,7 @@ void LcWindowsApplication::OnUpdate()
 
         if (updateHandler)
         {
-            updateHandler(deltaFloat, this);
+            updateHandler(deltaFloat, context);
         }
     }
 
@@ -302,9 +289,13 @@ void LcWindowsApplication::OnUpdate()
 LcAppStats LcWindowsApplication::GetAppStats() const noexcept
 {
     auto renderStats = renderSystem ? renderSystem->GetStats() : LcRSStats{};
+    int numSprites = (int)std::count_if(world->GetVisuals().begin(), world->GetVisuals().end(), [](const std::shared_ptr<IVisual>& visual) {
+        return visual->GetTypeId() == LcCreatables::Sprite;
+    });
+    int numWidgets = (int)world->GetVisuals().size() - numSprites;
     return LcAppStats{
-        (int)world->GetSprites().size(),
-        (int)world->GetWidgets().size(),
+        numSprites,
+        numWidgets,
         renderStats.numTextures,
         renderStats.numTilemaps,
         renderStats.numFonts,
@@ -385,7 +376,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (isKeyboardActive)
         {
             if (activeDevice) activeDevice->GetState()[(int)wParam] = true;
-            if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Down, &handles->app);
+            if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Down, handles->appContext);
             if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Down, handles->appContext);
         }
         break;
@@ -393,7 +384,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (isKeyboardActive)
         {
             if (activeDevice) activeDevice->GetState()[(int)wParam] = false;
-            if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Up, &handles->app);
+            if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Up, handles->appContext);
             if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Up, handles->appContext);
         }
         break;
@@ -401,11 +392,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (guiManager) guiManager->OnMouseMove(x, y, handles->appContext);
         break;
     case WM_LBUTTONDOWN:
-        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, &handles->app);
+        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->appContext);
         if (guiManager) guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y, handles->appContext);
         break;
     case WM_LBUTTONUP:
-        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, &handles->app);
+        if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, handles->appContext);
         if (guiManager) guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y, handles->appContext);
         break;
     default:

@@ -21,6 +21,14 @@ struct VS_SETTINGS_BUFFER
 	LcVector4 worldTint;
 };
 
+struct VS_FLAGS_BUFFER
+{
+	int bHasAnimation;
+	int bHasColor;
+	int bHasCustomUV;
+	int bHasTexture;
+};
+
 /**
 * Constant buffers */
 struct LcConstantBuffersDX10
@@ -48,5 +56,7 @@ public:
 	ComPtr<ID3D10Buffer> frameAnimBuffer;
 	//
 	ComPtr<ID3D10Buffer> settingsBuffer;
+	//
+	ComPtr<ID3D10Buffer> flagsBuffer;
 
 };

@@ -11,82 +11,6 @@
 #include "World/WorldInterface.h"
 
 
-class LcSpriteTintComponent : public ISpriteTintComponent
-{
-public:
-	LcSpriteTintComponent(const LcSpriteTintComponent& colors) : tint(colors.tint)
-	{
-		SetColor(tint);
-	}
-	//
-	LcSpriteTintComponent(LcColor4 inTint) : tint(inTint)
-	{
-		SetColor(tint);
-	}
-	//
-	LcSpriteTintComponent(LcColor3 inTint) : tint(inTint.x, inTint.y, inTint.z, 1.0f)
-	{
-		SetColor(tint);
-	}
-
-
-public: // ISpriteTintComponent interface implementation
-	//
-	virtual void SetColor(LcColor4 inTint) override { data[0] = data[1] = data[2] = data[3] = inTint; }
-	//
-	virtual const void* GetData() const override { return data; }
-
-
-public: // IVisualComponent interface implementation
-	//
-	virtual EVCType GetType() const override { return EVCType::Tint; }
-
-
-protected:
-	LcColor4 tint;
-	LcColor4 data[4];
-};
-
-
-class LcSpriteColorsComponent : public ISpriteColorsComponent
-{
-public:
-	LcSpriteColorsComponent() : leftTop{}, rightTop{}, rightBottom{}, leftBottom{} {}
-	//
-	LcSpriteColorsComponent(const LcSpriteColorsComponent& colors) :
-		leftTop{ colors.leftTop }, rightTop{ colors.rightTop }, rightBottom{ colors.rightBottom }, leftBottom{ colors.leftBottom }
-	{
-	}
-	//
-	LcSpriteColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) :
-		leftTop(inLeftTop), rightTop(inRightTop), rightBottom(inRightBottom), leftBottom(inLeftBottom)
-	{
-	}
-	//
-	LcSpriteColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) :
-		leftTop(To4(inLeftTop)), rightTop(To4(inRightTop)), rightBottom(To4(inRightBottom)), leftBottom(To4(inLeftBottom))
-	{
-	}
-
-
-public: // ISpriteColorsComponent interface implementation
-	//
-	virtual const void* GetData() const override { return &leftTop; }
-
-
-public: // IVisualComponent interface implementation
-	//
-	virtual EVCType GetType() const override { return EVCType::VertexColor; }
-
-
-protected:
-	LcColor4 leftTop;
-	LcColor4 rightTop;
-	LcColor4 rightBottom;
-	LcColor4 leftBottom;
-};
-
-
 class LcSpriteCustomUVComponent : public ISpriteCustomUVComponent
 {
 public:
@@ -131,7 +55,7 @@ public:
 		frameSize(anim.frameSize), numFrames(anim.numFrames), curFrame(anim.curFrame),
 		framesPerSecond(anim.framesPerSecond), lastFrameSeconds(anim.lastFrameSeconds) {}
 	//
-	LcSpriteAnimationComponent(LcVector2 inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) :
+	LcSpriteAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) :
 		frameSize(inFrameSize), numFrames(inNumFrames), curFrame(0), framesPerSecond(inFramesPerSecond), lastFrameSeconds(0.0f)
 	{
 	}
@@ -150,7 +74,7 @@ public: // IVisualComponent interface implementation
 
 
 protected:
-	LcVector2 frameSize;		// sprite frame offset in pixels
+	LcSizef frameSize;			// sprite frame offset in pixels
 	unsigned short numFrames;	// frames count
 	unsigned short curFrame;	// current frame index
 	float framesPerSecond;		// frames per second
@@ -169,7 +93,7 @@ public:
 	LcTiledSpriteComponent(const std::string& inTiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}) :
 		tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames), scale(LcDefaults::OneVec2) {}
 	//
-	LcTiledSpriteComponent(const std::string& inTiledJsonPath, LcObjectHandler inObjectHandler,
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, LcTiledObjectHandler inObjectHandler,
 		const LcLayersList& inLayerNames = LcLayersList{}) : tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames),
 		objectHandler(inObjectHandler), scale(LcDefaults::OneVec2) {}
 
@@ -191,9 +115,53 @@ public: // IVisualComponent interface implementation
 protected:
 	std::vector<LC_TILES_DATA> tiles;
 	std::string tiledJsonPath;
-	LcObjectHandler objectHandler;
+	LcTiledObjectHandler objectHandler;
 	LcLayersList layerNames;
 	LcVector2 scale;
+};
+
+
+class LcBasicParticlesComponent : public IBasicParticlesComponent
+{
+public:
+	//
+	LcBasicParticlesComponent() = default;
+	//
+	LcBasicParticlesComponent(const LcBasicParticlesComponent& sprite) = default;
+	//
+	LcBasicParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
+		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) :
+		numParticles(inNumParticles), numFrames(inNumFrames), frameSize(inFrameSize),
+		particleLifetime(inParticleLifetime), particleSpeed(inParticleSpeed), particleMovementRadius(inParticleMovementRadius) {}
+
+
+public: // IBasicParticlesComponent interface implementation
+	//
+	virtual unsigned short GetNumParticles() const override { return numParticles; }
+	//
+	virtual unsigned short GetNumFrames() const override { return numFrames; }
+	//
+	virtual LcSizef GetFrameSize() const override { return frameSize; }
+	//
+	virtual float GetParticleLifetime() const override { return particleLifetime; }
+	//
+	virtual float GetParticleSpeed() const override { return particleSpeed; }
+	//
+	virtual float GetParticleMovementRadius() const override { return particleMovementRadius; }
+
+
+public: // IVisualComponent interface implementation
+	//
+	virtual EVCType GetType() const override { return EVCType::Particles; }
+
+
+protected:
+	unsigned short numParticles;
+	unsigned short numFrames;
+	float particleLifetime;
+	float particleSpeed;
+	float particleMovementRadius;
+	LcSizef frameSize;
 };
 
 
@@ -221,6 +189,8 @@ public: // IVisual interface implementation
 	virtual LcSizef GetSize() const override { return size; }
 	//
 	virtual void SetPos(LcVector3 inPos) override { pos = inPos; }
+	//
+	virtual void SetPos(LcVector2 inPos) override { pos = LcVector3(inPos.x, inPos.y, pos.z); }
 	//
 	virtual void AddPos(LcVector3 inPos) override { pos = pos + inPos; }
 	//

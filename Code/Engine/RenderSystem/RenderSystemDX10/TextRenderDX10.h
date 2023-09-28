@@ -1,5 +1,5 @@
 /**
-* WidgetRenderDX10.h
+* TextRenderDX10.h
 * 30.08.2023
 * (c) Denis Romakhov
 */
@@ -14,8 +14,8 @@
 #include <string>
 #include <map>
 
-#include "RenderSystem/WidgetRender.h"
 #include "Core/LCTypesEx.h"
+#include "World/Visual.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -31,17 +31,21 @@ public:
 
 
 /**
-* Widget renderer */
-class LcWidgetRenderDX10 : public IWidgetRender
+* Text renderer */
+class LcTextRenderDX10
 {
 public:
-	LcWidgetRenderDX10(float inDpi) : dpi(inDpi), features{EVCType::Texture} {}
+	LcTextRenderDX10(float inDpi) : dpi(inDpi), features{EVCType::Texture} {}
 	//
-	~LcWidgetRenderDX10();
+	~LcTextRenderDX10();
 	//
 	void Init(const LcAppContext& context);
 	//
 	void Shutdown();
+	//
+	const ITextFont* AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight = LcFontWeight::Normal);
+	//
+	bool RemoveFont(const ITextFont* font);
 	//
 	void RemoveFonts() { fonts.clear(); }
 	//
@@ -51,22 +55,6 @@ public:
 	void CreateTextureAndRenderTarget(class LcWidgetDX10& widget, LcVector2 scale, const LcAppContext& context);
 	//
 	inline int GetNumFonts() const { return (int)fonts.size(); }
-	//
-	inline const TVFeaturesList& GetFeaturesList() const { return features; }
-
-
-public: // IWidgetRender interface implementation
-	//
-	virtual const ITextFont* AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight = LcFontWeight::Normal) override;
-	//
-	virtual bool RemoveFont(const ITextFont* font) override;
-
-
-public: // IVisual2DRender interface implementation
-	//
-	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
-	//
-	virtual void RenderWidget(const IWidget* widget, const LcAppContext& context) override;
 
 
 protected:

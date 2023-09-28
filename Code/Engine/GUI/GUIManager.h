@@ -12,6 +12,9 @@
 #include "Core/LCTypesEx.h"
 
 
+GUI_API bool HasInvisibleParent(class IWidget* widget);
+
+
 /**
 * GUI manager */
 class IGuiManager
@@ -23,9 +26,6 @@ public:
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() = 0;
-	/**
-	* Update GUI */
-	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Keyboard key event */
 	virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) = 0;
@@ -50,9 +50,6 @@ public:
 	/**
 	* Shutdown GUI manager */
 	virtual void Shutdown() override {}
-	/**
-	* Update GUI */
-	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	/**
 	* Keyboard key event */
 	virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) override;

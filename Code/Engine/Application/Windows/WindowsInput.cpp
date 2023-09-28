@@ -38,8 +38,10 @@ LcDirectInputSystem::~LcDirectInputSystem()
     CoUninitialize();
 }
 
-void LcDirectInputSystem::Init(struct LcAppContext& context)
+void LcDirectInputSystem::Init(const LcAppContext& context)
 {
+    LcDefaultInputSystem::Init(context);
+
     if (FAILED(DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)directInput.GetAddressOf(), nullptr)))
     {
         throw std::exception("LcDirectInputSystem::Init(): Cannot create DirectInput");
@@ -132,7 +134,7 @@ void LcDirectInputSystem::Shutdown()
     directInput.Reset();
 }
 
-void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& context)
+void LcDirectInputSystem::Update(float deltaSeconds, const struct LcAppContext& context)
 {
     if (!keysHandler) return;
 
@@ -173,7 +175,7 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
                 if (cur != prev)
                 {
                     auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-                    keysHandler(LcJoystickKeysOffset + key, action, context.app);
+                    keysHandler(LcJoystickKeysOffset + key, action, context);
                 }
 
                 curState[LcJoystickKeysOffset + key] = cur;
@@ -201,7 +203,7 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
                     if (cur != prev)
                     {
                         auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-                        keysHandler(i, action, context.app);
+                        keysHandler(i, action, context);
                     }
                 }
             }
@@ -220,13 +222,13 @@ void LcDirectInputSystem::Update(float deltaSeconds, struct LcAppContext& contex
                 float Y = static_cast<float>(newState.lY) / -AxisValue;
                 if (abs(X) < 0.05f) X = 0.0f;
                 if (abs(Y) < 0.05f) Y = 0.0f;
-                axisHandler(LcJAxis::LStick, X, Y, context.app);
+                axisHandler(LcJAxis::LStick, X, Y, context);
 
                 X = static_cast<float>(newState.lZ) / AxisValue;
                 Y = static_cast<float>(newState.lRz) / -AxisValue;
                 if (abs(X) < 0.05f) X = 0.0f;
                 if (abs(Y) < 0.05f) Y = 0.0f;
-                axisHandler(LcJAxis::RStick, X, Y, context.app);
+                axisHandler(LcJAxis::RStick, X, Y, context);
             }
 
             joystick->SetButtonsState(curState.Get());

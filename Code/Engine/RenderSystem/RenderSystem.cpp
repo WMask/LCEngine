@@ -6,12 +6,11 @@
 
 #include "pch.h"
 #include "RenderSystem/RenderSystem.h"
-#include "RenderSystem/WidgetRender.h"
-#include "GUI/GuiManager.h"
 #include "World/WorldInterface.h"
 #include "World/SpriteInterface.h"
-#include "World/Camera.h"
 #include "GUI/WidgetInterface.h"
+#include "GUI/GuiManager.h"
+#include "World/Camera.h"
 #include "Core/LCUtils.h"
 #include "Core/LCException.h"
 
@@ -48,19 +47,26 @@ void LcRenderSystemBase::Update(float deltaSeconds, const LcAppContext& context)
 {
     LC_TRY
 
-    // widgets updated in LcGuiManager
-
-    // update sprites
-    const auto& sprites = context.world.GetSprites();
-
-    for (const auto& sprite : sprites)
+    // update visuals
+    const auto& visuals = context.world->GetVisuals();
+    for (const auto& visual : visuals)
     {
-        if (sprite->IsVisible()) sprite->Update(deltaSeconds, context);
+        if (visual->GetTypeId() == LcCreatables::Widget)
+        {
+            auto widget = static_cast<IWidget*>(visual.get());
+            if (HasInvisibleParent(widget)) continue;
+
+            if (visual->IsVisible()) visual->Update(deltaSeconds, context);
+        }
+        else
+        {
+            if (visual->IsVisible()) visual->Update(deltaSeconds, context);
+        }
     }
 
     // update camera
-    auto newPos = context.world.GetCamera().GetPosition();
-    auto newTarget = context.world.GetCamera().GetTarget();
+    auto newPos = context.world->GetCamera().GetPosition();
+    auto newTarget = context.world->GetCamera().GetTarget();
     if (newPos != cameraPos || newTarget != cameraTarget)
     {
         UpdateCamera(deltaSeconds, newPos, newTarget);
@@ -76,17 +82,21 @@ void LcRenderSystemBase::Render(const LcAppContext& context)
 {
     LC_TRY
 
-    const auto& sprites = context.world.GetSprites();
-    const auto& widgets = context.world.GetWidgets();
+    const auto& visuals = context.world->GetVisuals();
 
-    for (const auto& widget : widgets)
+    for (const auto& visual : visuals)
     {
-        if (widget->IsVisible()) RenderWidget(widget.get(), context);
-    }
+        if (visual->GetTypeId() == LcCreatables::Widget)
+        {
+            auto widget = static_cast<IWidget*>(visual.get());
+            if (HasInvisibleParent(widget)) continue;
 
-    for (const auto& sprite : sprites)
-    {
-        if (sprite->IsVisible()) RenderSprite(sprite.get(), context);
+            if (visual->IsVisible()) Render(visual.get(), context);
+        }
+        else
+        {
+            if (visual->IsVisible()) Render(visual.get(), context);
+        }
     }
 
     LC_CATCH{ LC_THROW("LcRenderSystemBase::Render()") }

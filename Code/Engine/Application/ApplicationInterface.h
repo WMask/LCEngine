@@ -21,10 +21,10 @@
 
 
 /** Init handler */
-typedef std::function<void(class IApplication*)> LcInitHandler;
+typedef std::function<void(struct LcAppContext&)> LcInitHandler;
 
 /** Update handler */
-typedef std::function<void(float, class IApplication*)> LcUpdateHandler;
+typedef std::function<void(float, struct LcAppContext&)> LcUpdateHandler;
 
 
 /** Application stats */
@@ -131,34 +131,10 @@ public:
 	* Get application stats */
 	virtual LcAppStats GetAppStats() const noexcept = 0;
 	/**
-	* Get World pointer */
-	virtual class IWorld* GetWorld() noexcept = 0;
-	/**
-	* Get World pointer */
-	virtual TWorldPtr GetWorldPtr() noexcept = 0;
-	/**
-	* Get Script system pointer */
-	virtual class IScriptSystem* GetScriptSystem() noexcept = 0;
-	/**
-	* Get Script system pointer */
-	virtual TScriptSystemPtr GetScriptSystemPtr() noexcept = 0;
-	/**
-	* Get Audio system pointer */
-	virtual class IAudioSystem* GetAudioSystem() noexcept = 0;
-	/**
-	* Get Audio system pointer */
-	virtual TAudioSystemPtr GetAudioSystemPtr() noexcept = 0;
-	/**
 	* Get Input system pointer */
 	virtual class IInputSystem* GetInputSystem() noexcept = 0;
 	/**
 	* Get Input system pointer */
 	virtual TInputSystemPtr GetInputSystemPtr() noexcept = 0;
-	/**
-	* Get Physics World pointer */
-	virtual class IPhysicsWorld* GetPhysicsWorld() noexcept = 0;
-	/**
-	* Get Physics World pointer */
-	virtual TPhysicsWorldPtr GetPhysicsWorldPtr() noexcept = 0;
 
 };

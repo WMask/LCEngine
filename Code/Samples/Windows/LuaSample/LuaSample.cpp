@@ -18,18 +18,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        auto onInitHandler = [](IApplication* app)
+        auto onInitHandler = [](const LcAppContext& context)
         {
-            if (auto lua = app->GetScriptSystem())
+            if (auto lua = context.scripts)
             {
                 // Add requestQuit() function
-                GetApplicationLuaModule(*app).AddTo(*lua);
+                GetApplicationLuaModule(*context.app).AddTo(*lua);
             }
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-            if (auto lua = app->GetScriptSystem())
+            if (auto lua = context.scripts)
             {
                 if (key == 'Q' && (keyEvent == LcKeyState::Down))
                 {

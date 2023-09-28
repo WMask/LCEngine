@@ -12,7 +12,7 @@
 
 /**
 * Textured visual render */
-class LcTexturedVisual2DRenderDX10 : public ISpriteRender
+class LcTexturedVisual2DRenderDX10 : public IVisual2DRender
 {
 public:
 	/**
@@ -27,9 +27,7 @@ public:// IVisual2DRender interface implementation
 	//
 	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) override;
-	//
-	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) override;
+	virtual void Render(const IVisual* visual, const LcAppContext& context) override;
 	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 

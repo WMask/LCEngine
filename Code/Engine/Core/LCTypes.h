@@ -42,6 +42,9 @@ enum class LcRenderSystemType
 	DX10
 };
 
+/** Visual tag */
+typedef int VisualTag;
+
 /** Window mode */
 enum class LcWinMode : int { Windowed, Fullscreen };
 
@@ -62,6 +65,7 @@ struct CORE_API KEYS
 	unsigned char keys[LcKeysCount];
 };
 
+
 /** Any value container */
 struct LcAny
 {
@@ -78,6 +82,7 @@ struct LcAny
 	int			iValue;
 	LcAnyType   type;
 };
+
 
 CORE_API float LcClamp(float value, float minValue, float maxValue);
 CORE_API int LcClamp(int value, int minValue, int maxValue);
@@ -99,40 +104,18 @@ struct LcRange
 	T value;
 };
 
-/** Object creator interface */
-template<class T>
-class ICreator
-{
-public:
-	typedef std::deque<std::shared_ptr<T>> TItemsList;
-
-
-public:
-	virtual T* Add() = 0;
-	//
-	virtual void Remove(T* item) = 0;
-	//
-	virtual void RemoveAll() = 0;
-	//
-	virtual const TItemsList& GetList() const = 0;
-	//
-	virtual TItemsList& GetList() = 0;
-
-};
 
 /** Application context */
 struct LcAppContext
 {
-	LcAppContext(class IWorld& inWorld) : app(nullptr),
-		world(inWorld), render(nullptr), audio(nullptr),
-		scripts(nullptr), input(nullptr), gui(nullptr),
-		physics(nullptr), windowHandle(nullptr) {}
-	//
-	class IWorld* GetWorldPtr() const { return &world; }
-	//
-	class IWorld& world;
+	LcAppContext() : app(nullptr), world(nullptr),
+		render(nullptr), audio(nullptr), scripts(nullptr),
+		input(nullptr), gui(nullptr), physics(nullptr),
+		windowHandle(nullptr) {}
 	//
 	class IApplication* app;
+	//
+	class IWorld* world;
 	//
 	class IRenderSystem* render;
 	//

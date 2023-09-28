@@ -20,16 +20,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        auto onInitHandler = [](IApplication* app)
+        auto onInitHandler = [](const LcAppContext& context)
         {
-            auto physWorld = app->GetPhysicsWorld();
-            auto world = app->GetWorld();
+            auto physWorld = context.physics;
 
-            auto& spriteHelper = world->GetSpriteHelper();
-            if (world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
+            auto& spriteHelper = context.world->GetSpriteHelper();
+            if (context.world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
             {
                 auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
-                    const std::string& type, const LcObjectProps& props, LcVector2 pos, LcSizef size)
+                    const std::string& type, const LcTiledProps& props, LcVector2 pos, LcSizef size)
                 {
                     if (layer == LcTiles::Layers::Collision)
                     {
@@ -39,7 +38,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddTiledComponent("../../Assets/Map1.tmj", objectHandler);
             }
 
-            if (auto hero = world->AddSprite2D(100, 600, 64, 64))
+            if (auto hero = context.world->AddSprite(100, 600, 64, 64))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
                 spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
@@ -49,29 +48,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
-        auto onUpdateHandler = [](float deltaSeconds, IApplication* app)
+        auto onUpdateHandler = [](float deltaSeconds, const LcAppContext& context)
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
-            auto physWorld = app->GetPhysicsWorld();
-            auto body = physWorld->GetDynamicBodies()[0];
+            auto body = context.physics->GetDynamicBodies()[0];
             if (auto hero = body->GetUserObject<ISprite>())
             {
-                hero->SetPos(To3(body->GetPos()));
+                hero->SetPos(body->GetPos());
             }
 
             auto vel = body->GetVelocity();
-            auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
+            auto& keys = context.input->GetActiveInputDevice()->GetState();
             if (keys[VK_LEFT] || keys[LcJKeys::Left]) body->SetVelocity(LcVector2(-1.2f, vel.y));
             if (keys[VK_RIGHT] || keys[LcJKeys::Right]) body->SetVelocity(LcVector2(1.2f, vel.y));
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, IApplication* app)
+        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-            auto physWorld = app->GetPhysicsWorld();
-            auto body = physWorld->GetDynamicBodies()[0];
+            auto body = context.physics->GetDynamicBodies()[0];
 
-            if (key == 'Q' || key == LcJKeys::Menu) app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
 
             bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
             if ((key == VK_UP || key == LcJKeys::A) && (keyEvent == LcKeyState::Down) && canJump)

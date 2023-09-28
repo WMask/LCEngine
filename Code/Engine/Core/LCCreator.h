@@ -14,88 +14,90 @@
 
 
 /** Default lifetime strategy */
-template<class T>
+template<class T, class Container>
 class LcLifetimeStrategy
 {
 public:
-	LcLifetimeStrategy() {}
+	LcLifetimeStrategy() : curTypeId(-1) {}
 	//
 	virtual ~LcLifetimeStrategy() {}
 	//
 	virtual std::shared_ptr<T> Create() { return std::shared_ptr<T>(); }
 	//
-	virtual void Destroy(T& item) {}
+	virtual void Destroy(T& item, Container& items) {}
+	// need static int GetStaticId() from each type
+	int curTypeId;
 };
 
 
 /** Object creator */
-template<class I, class T, class S = LcLifetimeStrategy<I>>
-class LcCreator : public ICreator<I>
+template<
+	class I,
+	class Strategy = LcLifetimeStrategy<I, std::deque<std::shared_ptr<I>>>,
+	class Container = std::deque<std::shared_ptr<I>>>
+class LcCreator
 {
 public:
-	typedef std::shared_ptr<S> TStrategyType;
-	typedef std::deque<std::shared_ptr<I>> TCreatorItemsList;
+	typedef std::shared_ptr<Strategy> TStrategyPtr;
+	//
+	typedef std::shared_ptr<I> TItemPtr;
+	//
+	typedef Container TItemsList;
 
 
 public:
-	LcCreator() : lifetimeStrategy(std::make_shared<S>()) {}
+	LcCreator() {}
 	//
 	~LcCreator()
 	{
-		for (auto& item : items)
+		Clear();
+	}
+	//
+	void SetLifetimeStrategy(TStrategyPtr inStrategy)
+	{
+		if (inStrategy) strategy = inStrategy;
+	}
+	//
+	template<class T>
+	T* Add()
+	{
+		strategy->curTypeId = T::GetStaticId();
+		TItemPtr newItem = strategy->Create();
+		items.insert(items.end(), newItem);
+		return static_cast<T*>(newItem.get());
+	}
+	//
+	void Remove(I* item)
+	{
+		if (item)
 		{
-			lifetimeStrategy->Destroy(*item.get());
-		}
+			auto it = std::find_if(items.begin(), items.end(), [item](const std::shared_ptr<I>& curItem) {
+				return curItem.get() == item;
+			});
 
-		items.clear();
-	}
-	//
-	template<class C>
-	C* AddT()
-	{
-		items.push_back(lifetimeStrategy->Create());
-		return static_cast<C*>(items.back().get());
-	}
-	//
-	virtual void SetLifetimeStrategy(TStrategyType strategy)
-	{
-		if (strategy) lifetimeStrategy = strategy;
-	}
-
-
-public: // ICreator interface implementation
-	//
-	virtual I* Add() override
-	{
-		return AddT<I>();
-	}
-	//
-	virtual void Remove(I* inItem) override
-	{
-		if (inItem)
-		{
-			auto it = std::find_if(items.begin(), items.end(), [inItem](const std::shared_ptr<I>& item) {
-				return item.get() == inItem;
-				});
-
-			lifetimeStrategy->Destroy(*inItem);
+			strategy->Destroy(*item, items);
 			items.erase(it);
 		}
 	}
 	//
-	virtual void RemoveAll()
+	void Clear()
 	{
+		for (const TItemPtr& item : items)
+		{
+			strategy->Destroy(*item.get(), items);
+		}
+
 		items.clear();
 	}
 	//
-	virtual const TCreatorItemsList& GetList() const override { return items; }
+	const TItemsList& GetItems() const { return items; }
 	//
-	virtual TCreatorItemsList& GetList() override { return items; }
+	TItemsList& GetItems() { return items; }
 
 
 protected:
-	TCreatorItemsList items;
+	TItemsList items;
 	//
-	TStrategyType lifetimeStrategy;
+	TStrategyPtr strategy;
 
 };
