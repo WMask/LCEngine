@@ -193,13 +193,14 @@ class GUI_API LcWidget : public IWidget
 {
 public:
     LcWidget()
-        : pos(LcDefaults::ZeroVec3)
+        : parent(nullptr)
+        , features{ EVCType::Texture }
+        , pos(LcDefaults::ZeroVec3)
         , size(LcDefaults::ZeroSize)
         , visible(true)
         , disabled(false)
         , focused(false)
         , hovered(false)
-        , features{ EVCType::Texture }
     {
     }
     //
@@ -211,6 +212,10 @@ public:// IWidget interface implementation
     virtual void AddChild(IWidget* child) override;
     //
     virtual void RemoveChild(IWidget* child) override;
+    //
+    virtual void RemoveParent(IWidget* inParent) override { if (parent == inParent) parent = nullptr; }
+    //
+    virtual IWidget* GetParent() const override { return parent; }
     //
     virtual const TChildsList& GetChilds() const override { return childs; }
     //
@@ -269,6 +274,8 @@ public:// IVisual interface implementation
 
 
 protected:
+    //
+    IWidget* parent;
     //
     TChildsList childs;
     //

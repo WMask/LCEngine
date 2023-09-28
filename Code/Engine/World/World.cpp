@@ -35,8 +35,9 @@ public:
 		{
 			if (visual->GetTypeId() == LcCreatables::Widget)
 			{
-				auto widget = static_cast<IWidget*>(&item);
-				widget->RemoveChild(widget);
+				auto curWidget = static_cast<IWidget*>(visual.get());
+				auto inWidget = static_cast<IWidget*>(&item);
+				curWidget->RemoveChild(inWidget);
 			}
 		}
 	}

@@ -223,6 +223,9 @@ void LcWidget::AddChild(IWidget* child)
     if (!child) throw std::exception("LcWidget::AddChild(): Invalid child");
 
     childs.push_back(child);
+
+    auto widget = static_cast<LcWidget*>(child);
+    widget->parent = this;
 }
 
 void LcWidget::RemoveChild(IWidget* child)
@@ -230,7 +233,13 @@ void LcWidget::RemoveChild(IWidget* child)
     if (!child) throw std::exception("LcWidget::RemoveChild(): Invalid child");
 
     auto it = std::find(childs.begin(), childs.end(), child);
-    if (it != childs.end()) childs.erase(it);
+    if (it != childs.end())
+    {
+        auto widget = static_cast<LcWidget*>(*it);
+        widget->parent = nullptr;
+        childs.erase(it);
+
+    }
 }
 
 void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)

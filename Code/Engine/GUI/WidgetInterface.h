@@ -140,6 +140,12 @@ public:
     * Remove child widget */
     virtual void RemoveChild(IWidget* child) = 0;
     /**
+    * Remove parent widget */
+    virtual void RemoveParent(IWidget* parent) = 0;
+    /**
+    * Get parent widget */
+    virtual IWidget* GetParent() const = 0;
+    /**
     * Get child widgets */
     virtual const TChildsList& GetChilds() const = 0;
     /**
