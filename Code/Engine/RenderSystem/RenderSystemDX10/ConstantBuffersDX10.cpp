@@ -38,7 +38,8 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 	};
 	VS_FRAME_ANIM2D_BUFFER anim2dData;
 
-	VS_SETTINGS_BUFFER settingsData;
+	VS_SETTINGS_BUFFER settingsData{};
+	VS_FLAGS_BUFFER flagsData{};
 
 	D3D10_BUFFER_DESC cbDesc{};
 	cbDesc.ByteWidth = sizeof(VS_MATRIX_BUFFER);
@@ -103,6 +104,13 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 		throw std::exception("LcConstantBuffersDX10::Init(): Cannot create constant buffer");
 	}
 
+	cbDesc.ByteWidth = sizeof(VS_FLAGS_BUFFER);
+	subResData.pSysMem = &flagsData;
+	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, flagsBuffer.GetAddressOf())))
+	{
+		throw std::exception("LcConstantBuffersDX10::Init(): Cannot create constant buffer");
+	}
+
 	// set buffers
 	d3dDevice->VSSetConstantBuffers(0, 1, projMatrixBuffer.GetAddressOf());
 	d3dDevice->VSSetConstantBuffers(1, 1, viewMatrixBuffer.GetAddressOf());
@@ -111,12 +119,14 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 	d3dDevice->VSSetConstantBuffers(4, 1, customUvBuffer.GetAddressOf());
 	d3dDevice->VSSetConstantBuffers(5, 1, frameAnimBuffer.GetAddressOf());
 	d3dDevice->VSSetConstantBuffers(6, 1, settingsBuffer.GetAddressOf());
+	d3dDevice->VSSetConstantBuffers(7, 1, flagsBuffer.GetAddressOf());
 
 	LC_CATCH{ LC_THROW("LcConstantBuffersDX10::Init()") }
 }
 
 void LcConstantBuffersDX10::Destroy()
 {
+	flagsBuffer.Reset();
 	settingsBuffer.Reset();
 	frameAnimBuffer.Reset();
 	customUvBuffer.Reset();

@@ -187,13 +187,13 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	d3dDevice->RSSetState(rasterizerState.Get());
 
 	// add sprite renders
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(context));
 	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(context));
 	textureRender = static_cast<IVisual2DRender*>(visual2DRenders.back().get());
 	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(context));
 	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(context));
 	tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(visual2DRenders.back().get());
-	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(context));
-	visual2DRenders.back()->Setup(nullptr, context);
+	visual2DRenders.front()->Setup(nullptr, context);
 
 	// add widget render
 	float dpi = (float)GetDpiForWindow(hWnd);

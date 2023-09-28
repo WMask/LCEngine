@@ -116,13 +116,16 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 	auto transBuffer = render ? render->GetBuffers().transMatrixBuffer.Get() : nullptr;
 	auto colorsBuffer = render ? render->GetBuffers().colorsBuffer.Get() : nullptr;
 	auto uvsBuffer = render ? render->GetBuffers().customUvBuffer.Get() : nullptr;
-	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer)
+	auto flagsBuffer = render ? render->GetBuffers().flagsBuffer.Get() : nullptr;
+	if (!d3dDevice || !transBuffer || !colorsBuffer || !uvsBuffer || !flagsBuffer || !visual)
 	{
 		throw std::exception("LcTexturedVisual2DRenderDX10::Render(): Invalid render params");
 	}
 
 	if (auto sprite = (visual->GetTypeId() == LcCreatables::Sprite) ? static_cast<const ISprite*>(visual) : nullptr)
 	{
+		VS_FLAGS_BUFFER flags{};
+
 		// update components
 		auto colors = sprite->GetColorsComponent();
 		auto tint = sprite->GetTintComponent();
@@ -130,6 +133,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		{
 			auto colorsData = colors ? colors->GetData() : tint->GetData();
 			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colorsData, 0, 0);
+			flags.bHasColor = TRUE;
 		}
 		else
 		{
@@ -140,6 +144,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		if (auto customUV = sprite->GetCustomUVComponent())
 		{
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
+			flags.bHasCustomUV = TRUE;
 		}
 		else
 		{
@@ -151,7 +156,10 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		{
 			const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
 			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
+			flags.bHasTexture = TRUE;
 		}
+
+		d3dDevice->UpdateSubresource(flagsBuffer, 0, NULL, &flags, 0, 0);
 
 		// update transform
 		LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
@@ -167,6 +175,8 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 
 	if (auto widget = (visual->GetTypeId() == LcCreatables::Widget) ? static_cast<const IWidget*>(visual) : nullptr)
 	{
+		VS_FLAGS_BUFFER flags{};
+
 		// update components
 		auto colors = widget->GetColorsComponent();
 		auto tint = widget->GetTintComponent();
@@ -174,6 +184,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		{
 			auto colorsData = colors ? colors->GetData() : tint->GetData();
 			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colorsData, 0, 0);
+			flags.bHasColor = TRUE;
 		}
 		else
 		{
@@ -184,23 +195,28 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		if (auto customUV = widget->GetButtonComponent())
 		{
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
+			flags.bHasCustomUV = TRUE;
 		}
 		else
 		if (auto customUV = widget->GetCheckboxComponent())
 		{
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
+			flags.bHasCustomUV = TRUE;
 		}
 
 		auto widgetDX10 = static_cast<const LcWidgetDX10*>(widget);
 		if (widget->HasComponent(EVCType::Texture))
 		{
 			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&widgetDX10->spriteTextureSV);
+			flags.bHasTexture = TRUE;
 		}
 		else
 		{
 			ID3D10ShaderResourceView* nullSRV[1] = { nullptr };
 			d3dDevice->PSSetShaderResources(0, 1, nullSRV);
 		}
+
+		d3dDevice->UpdateSubresource(flagsBuffer, 0, NULL, &flags, 0, 0);
 
 		// update transform
 		LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
@@ -217,9 +233,13 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		{
 			// set text texture
 			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->textTextureSV.GetAddressOf());
+			flags.bHasTexture = TRUE;
 
 			static LcVector4 defaultUVs[] = { To4(LcVector2(0.0, 0.0)), To4(LcVector2(1.0, 0.0)), To4(LcVector2(1.0, 1.0)), To4(LcVector2(0.0, 1.0)) };
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
+			flags.bHasCustomUV = TRUE;
+
+			d3dDevice->UpdateSubresource(flagsBuffer, 0, NULL, &flags, 0, 0);
 
 			// move in front of the sprite
 			trans.r[2].m128_f32[3] = widget->GetPos().z + 0.01f;
