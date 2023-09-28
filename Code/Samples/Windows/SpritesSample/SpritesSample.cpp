@@ -23,14 +23,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto& spriteHelper = context.world->GetSpriteHelper();
 
-            if (context.world->AddSprite2D(200, 550, 250, 250))
+            if (auto sprite1 = context.world->AddSprite(200, 550, 250, 250))
             {
                 spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+                sprite1->SetTag(1);
             }
 
-            if (context.world->AddSprite2D(200, 200, 300, 300))
+            if (auto sprite2 = context.world->AddSprite(200, 200, 300, 300))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                sprite2->SetTag(2);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
@@ -39,7 +41,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
-            if (context.world->AddSprite2D(460, 315, 100, 100))
+            if (context.world->AddSprite(460, 315, 100, 100))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
                 spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
@@ -50,8 +52,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
-            auto sprite1 = context.world->GetSprites()[0];
-            auto sprite2 = context.world->GetSprites()[1];
+            auto sprite1 = context.world->GetObjectByTag<ISprite>(1);
+            auto sprite2 = context.world->GetObjectByTag<ISprite>(2);
 
             // change tint
             auto value = sin(double(GetTickCount64()) / 1000.0);

@@ -70,7 +70,7 @@ public: // IVisualBase interface implementation
 
 
 protected:
-	void RedrawText(class LcWidgetRenderDX10* widgetRender, const LcAppContext& context);
+	void RedrawText(class LcTextRenderDX10* textRender, const LcAppContext& context);
 	//
 	float GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const;
 

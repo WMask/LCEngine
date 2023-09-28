@@ -242,10 +242,10 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     if (world)
     {
         std::set<std::string> aliveTexList;
-        auto& allSprites = world->GetSprites();
-        for (auto sprite : allSprites)
+        auto& visuals = world->GetVisuals();
+        for (auto visual : visuals)
         {
-            if (auto texComp = sprite->GetTextureComponent())
+            if (auto texComp = static_cast<LcVisualTextureComponent*>(visual->GetComponent(EVCType::Texture).get()))
             {
                 aliveTexList.insert(texComp->GetTexturePath());
             }

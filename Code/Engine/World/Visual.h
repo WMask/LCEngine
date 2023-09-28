@@ -41,6 +41,14 @@ enum class EVCType : int
 	Particles
 };
 
+
+namespace LcCreatables
+{
+	constexpr int Sprite = 0;
+	constexpr int Widget = 1;
+}
+
+
 /** Text font */
 struct ITextFont
 {
@@ -55,6 +63,9 @@ enum class LcFontWeight { Light, Normal, Bold };
 
 /** Text alignment */
 enum class LcTextAlignment { Left, Center, Right, Justified };
+
+/** Visual feature list */
+typedef std::set<EVCType> TVFeaturesList;
 
 
 /**
@@ -84,6 +95,9 @@ public:
 	* Get component */
 	virtual TVComponentPtr GetComponent(EVCType type) const = 0;
 	/**
+	* Get features list */
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
+	/**
 	* Check for component type */
 	virtual bool HasComponent(EVCType type) const = 0;
 	/**
@@ -95,6 +109,9 @@ public:
 	/**
 	* Visual position in pixels */
 	virtual void SetPos(LcVector3 pos) = 0;
+	/**
+	* Visual position in pixels. Z not changed */
+	virtual void SetPos(LcVector2 pos) = 0;
 	/**
 	* Visual position in pixels */
 	virtual void AddPos(LcVector3 pos) = 0;
@@ -117,6 +134,15 @@ public:
 	* Visual state */
 	virtual bool IsVisible() const = 0;
 	/**
+	* Set visual tag */
+	virtual void SetTag(VisualTag tag) = 0;
+	/**
+	* Get visual tag */
+	virtual VisualTag GetTag() const = 0;
+	/**
+	* Get visual id (LcCreatables) */
+	virtual int GetTypeId() const = 0;
+	/**
 	* Mouse button event */
 	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
 	/**
@@ -130,10 +156,6 @@ public:
 	virtual void OnMouseLeave(const LcAppContext& context) = 0;
 
 };
-
-
-/** Visual feature list */
-typedef std::set<EVCType> TVFeaturesList;
 
 /** Visual feature list */
 typedef std::function<void(class IVisualComponent&, const LcAppContext&)> TLifespanHandler;
@@ -191,6 +213,10 @@ protected:
 * Visual base interface */
 class WORLD_API IVisualBase : public IVisual
 {
+public:
+	IVisualBase() : tag(-1) {}
+
+
 public:// IVisual interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override {}
@@ -206,10 +232,16 @@ public:// IVisual interface implementation
 	virtual TVComponentPtr GetComponent(EVCType type) const override;
 	//
 	virtual bool HasComponent(EVCType type) const override;
+	//
+	virtual void SetTag(VisualTag inTag) override { tag = inTag; }
+	//
+	virtual VisualTag GetTag() const override { return tag; }
 
 
 protected:
 	std::deque<TVComponentPtr> components;
+	//
+	VisualTag tag;
 
 };
 

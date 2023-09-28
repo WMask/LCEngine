@@ -266,6 +266,8 @@ public: // IVisual interface implementation
 	//
 	virtual void SetPos(LcVector3 inPos) override { pos = inPos; }
 	//
+	virtual void SetPos(LcVector2 inPos) override { pos = LcVector3(inPos.x, inPos.y, pos.z); }
+	//
 	virtual void AddPos(LcVector3 inPos) override { pos = pos + inPos; }
 	//
 	virtual LcVector3 GetPos() const override { return pos; }

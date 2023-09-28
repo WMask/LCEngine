@@ -34,6 +34,9 @@ struct LcBox2DConfig
 };
 
 
+namespace LcCreatables { constexpr int PhysicsBody = 0; }
+
+
 /**
 * Box2D game world */
 class BOX2D_API LcBox2DWorld : public IPhysicsWorld
@@ -58,17 +61,17 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation = true) override;
 	//
-	virtual void RemoveAllBodies() { dynamicBodies.RemoveAll(); }
+	virtual void RemoveBodies() override { dynamicBodies.Clear(); }
 	//
-	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies.GetList(); }
+	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies.GetItems(); }
 	//
-	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies.GetList(); }
+	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies.GetItems(); }
 
 
 protected:
 	std::unique_ptr<class b2World> box2DWorld;
 	//
-	LcCreator<IPhysicsBody, class LcBox2DBody> dynamicBodies;
+	LcCreator<IPhysicsBody> dynamicBodies;
 	//
 	LcBox2DConfig config;
 

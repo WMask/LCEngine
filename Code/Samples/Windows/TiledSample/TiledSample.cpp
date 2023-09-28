@@ -38,7 +38,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddTiledComponent("../../Assets/Map1.tmj", objectHandler);
             }
 
-            if (auto hero = context.world->AddSprite2D(100, 600, 64, 64))
+            if (auto hero = context.world->AddSprite(100, 600, 64, 64))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
                 spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
@@ -55,7 +55,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto body = context.physics->GetDynamicBodies()[0];
             if (auto hero = body->GetUserObject<ISprite>())
             {
-                hero->SetPos(To3(body->GetPos()));
+                hero->SetPos(body->GetPos());
             }
 
             auto vel = body->GetVelocity();

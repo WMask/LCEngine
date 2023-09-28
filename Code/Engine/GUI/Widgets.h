@@ -199,6 +199,7 @@ public:
         , disabled(false)
         , focused(false)
         , hovered(false)
+        , features{ EVCType::Texture }
     {
     }
     //
@@ -226,11 +227,15 @@ public:// IWidget interface implementation
 
 public:// IVisual interface implementation
     //
+    virtual const TVFeaturesList& GetFeaturesList() const override { return features; }
+    //
     virtual void SetSize(LcSizef inSize) override { size = inSize; }
     //
     virtual LcSizef GetSize() const override { return size; }
     //
     virtual void SetPos(LcVector3 inPos) override { pos = inPos; }
+    //
+    virtual void SetPos(LcVector2 inPos) override { pos = LcVector3(inPos.x, inPos.y, pos.z); }
     //
     virtual void AddPos(LcVector3 inPos) override { pos = pos + inPos; }
     //
@@ -256,6 +261,8 @@ public:// IVisual interface implementation
 
 
 protected:
+    //
+    TVFeaturesList features;
     // [0,0] - leftTop, x - right, y - down
     LcVector3 pos;
     // widget size in pixels

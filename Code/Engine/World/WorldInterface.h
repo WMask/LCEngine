@@ -88,9 +88,7 @@ protected:
 class IWorld
 {
 public:
-	typedef std::deque<std::shared_ptr<class ISprite>> TSpriteList;
-	//
-	typedef std::deque<std::shared_ptr<class IWidget>> TWidgetList;
+	typedef std::multiset<std::shared_ptr<class IVisual>> TVisualSet;
 	/**
 	* Subscribe to get changes of sprites global tint. */
 	LcDelegate<LcColor3> onTintChanged;
@@ -102,28 +100,38 @@ public:
 	virtual ~IWorld() {}
 	/**
 	* Add sprite to layer z */
-	virtual ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual class ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Add sprite to layer 0 */
-	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
+	virtual class ISprite* AddSprite(float x, float y, float width, float height, float inRotZ = 0.0f, bool inVisible = true) = 0;
 	/**
 	* Remove sprite */
-	virtual void RemoveSprite(ISprite* sprite) = 0;
-	/**
-	* Get sprites */
-	virtual TSpriteList& GetSprites() = 0;
+	virtual void RemoveSprite(class ISprite* sprite) = 0;
 	/**
 	* Add widget */
-	virtual IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool inVisible = true) = 0;
+	virtual class IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool inVisible = true) = 0;
 	/**
 	* Add widget */
-	virtual IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;
+	virtual class IWidget* AddWidget(float x, float y, float width, float height, bool inVisible = true) = 0;
 	/**
 	* Remove widget */
-	virtual void RemoveWidget(IWidget* widget) = 0;
+	virtual void RemoveWidget(class IWidget* widget) = 0;
 	/**
-	* Get widgets */
-	virtual TWidgetList& GetWidgets() = 0;
+	* Remove all sprites and widgets */
+	virtual void Clear() = 0;
+	/**
+	* Get visual by tag */
+	virtual class IVisual* GetVisualByTag(VisualTag tag) const = 0;
+	/**
+	* Get object by tag */
+	template<class T>
+	T* GetObjectByTag(VisualTag tag) const { return static_cast<T*>(GetVisualByTag(tag)); }
+	/**
+	* Get sprites and widgets */
+	virtual const TVisualSet& GetVisuals() const = 0;
+	/**
+	* Get sprites and widgets */
+	virtual TVisualSet& GetVisuals() = 0;
 	/**
 	* Get camera */
 	virtual const class LcCamera& GetCamera() const = 0;

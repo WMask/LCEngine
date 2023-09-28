@@ -13,30 +13,19 @@
 #include "Core/LCUtils.h"
 
 
-void LcGuiManager::Update(float deltaSeconds, const LcAppContext& context)
-{
-    LC_TRY
-
-    auto& widgetList = context.world->GetWidgets();
-    if (!widgetList.empty())
-    {
-        for (auto& widget : widgetList)
-        {
-            if (widget->IsVisible()) widget->Update(deltaSeconds, context);
-        }
-    }
-
-    LC_CATCH{ LC_THROW("LcGuiManager::Update()") }
-}
-
 void LcGuiManager::OnKeys(int btn, LcKeyState state, const LcAppContext& context)
 {
     LC_TRY
 
-    auto& widgetList = context.world->GetWidgets();
-    for (auto& widget : widgetList)
+    auto& visuals = context.world->GetVisuals();
+    for (auto& visual : visuals)
     {
-        if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeys(btn, state, context);
+        if (visual->GetTypeId() == LcCreatables::Widget)
+        {
+            auto widget = static_cast<IWidget*>(visual.get());
+
+            if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeys(btn, state, context);
+        }
     }
 
     LC_CATCH{ LC_THROW("LcGuiManager::OnKeys()") }
@@ -46,13 +35,19 @@ void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y,
 {
     LC_TRY
 
-    auto& widgetList = context.world->GetWidgets();
+    auto& visuals = context.world->GetVisuals();
     auto scale2 = context.world->GetWorldScale().GetScale();
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
-    for (auto& widget : widgetList)
+    for (auto& visual : visuals)
     {
-        if (!widget->IsVisible()) continue;
+        if ((visual->GetTypeId() != LcCreatables::Widget) ||
+            !visual->IsVisible())
+        {
+            continue;
+        }
+
+        auto widget = static_cast<IWidget*>(visual.get());
 
         LcVector2 point((float)x, (float)y);
         LcVector2 widgetPos = To2(widget->GetPos() * scale3);
@@ -73,13 +68,19 @@ void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
 {
     LC_TRY
 
-    auto& widgetList = context.world->GetWidgets();
+    auto& visuals = context.world->GetVisuals();
     auto scale2 = context.world->GetWorldScale().GetScale();
     auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
 
-    for (auto& widget : widgetList)
+    for (auto& visual : visuals)
     {
-        if (!widget->IsVisible()) continue;
+        if ((visual->GetTypeId() != LcCreatables::Widget) ||
+            !visual->IsVisible())
+        {
+            continue;
+        }
+
+        auto widget = static_cast<IWidget*>(visual.get());
 
         LcVector2 point((float)x, (float)y);
         LcVector2 widgetPos = To2(widget->GetPos() * scale3);

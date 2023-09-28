@@ -153,8 +153,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystem.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\Module.h" />
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\SpriteRender.h" />
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\WidgetRender.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "Application/Windows/WindowsApplication.h"
 #include "RenderSystem/RenderSystem.h"
-#include "RenderSystem/WidgetRender.h"
 #include "World/WorldInterface.h"
 #include "Core/LCException.h"
 #include "Core/ScriptSystem.h"
@@ -234,11 +233,10 @@ void LcWindowsApplication::Run()
 
 void LcWindowsApplication::ClearWorld()
 {
-    world->GetSprites().clear();
-    world->GetWidgets().clear();
+    world->Clear();
     if (renderSystem) renderSystem->Clear();
-    if (audioSystem) audioSystem->RemoveAllSounds();
-    if (physWorld) physWorld->RemoveAllBodies();
+    if (audioSystem) audioSystem->RemoveSounds();
+    if (physWorld) physWorld->RemoveBodies();
 }
 
 void LcWindowsApplication::OnUpdate()
@@ -263,18 +261,9 @@ void LcWindowsApplication::OnUpdate()
             inputSystem->Update(deltaFloat, context);
         }
 
-        if (guiManager)
-        {
-            // update widgets
-            guiManager->Update(deltaFloat, context);
-        }
-
         if (renderSystem && world)
         {
-            // update sprites
             renderSystem->Update(deltaFloat, context);
-
-            // render sprites and widgets
             renderSystem->Render(context);
         }
 
@@ -300,9 +289,13 @@ void LcWindowsApplication::OnUpdate()
 LcAppStats LcWindowsApplication::GetAppStats() const noexcept
 {
     auto renderStats = renderSystem ? renderSystem->GetStats() : LcRSStats{};
+    int numSprites = (int)std::count_if(world->GetVisuals().begin(), world->GetVisuals().end(), [](const std::shared_ptr<IVisual>& visual) {
+        return visual->GetTypeId() == LcCreatables::Sprite;
+    });
+    int numWidgets = (int)world->GetVisuals().size() - numSprites;
     return LcAppStats{
-        (int)world->GetSprites().size(),
-        (int)world->GetWidgets().size(),
+        numSprites,
+        numWidgets,
         renderStats.numTextures,
         renderStats.numTilemaps,
         renderStats.numFonts,

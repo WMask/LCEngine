@@ -23,9 +23,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto& spriteHelper = context.world->GetSpriteHelper();
 
-            if (context.world->AddSprite2D(250, 400, 200, 200))
+            if (auto sprite = context.world->AddSprite(250, 400, 200, 200))
             {
                 spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+                sprite->SetTag(1);
             }
         };
 
@@ -33,7 +34,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
-            auto sprite = context.world->GetSprites()[0];
+            auto sprite = context.world->GetObjectByTag<ISprite>(1);
 
             // move sprite
             auto& keys = context.input->GetActiveInputDevice()->GetState();

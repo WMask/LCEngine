@@ -31,9 +31,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // sprites
             auto& spriteHelper = context.world->GetSpriteHelper();
-            if (context.world->AddSprite2D(200, 200, 300, 300))
+            if (auto sprite = context.world->AddSprite(200, 200, 300, 300))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                sprite->SetTag(1);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
@@ -42,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
             }
 
-            if (context.world->AddSprite2D(460, 315, 100, 100))
+            if (context.world->AddSprite(460, 315, 100, 100))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
                 spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
@@ -50,9 +51,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // window resize controls
             auto& widgetHelper = context.world->GetWidgetHelper();
-            if (context.world->AddWidget(45, 16, 80, 32))
+            if (auto widget = context.world->AddWidget(45, 16, 80, 32))
             {
                 widgetHelper.AddAlignedTextComponent(L"FPS: 0", LcDefaults::White4, LcTextAlignment::Left, L"Calibri", 18);
+                widget->SetTag(2);
             }
 
             if (context.world->AddWidget(182, 550, 94, 32))
@@ -91,12 +93,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
 
-            if (auto widget = context.world->GetWidgets()[0])
+            if (auto widget = context.world->GetObjectByTag<IWidget>(2))
             {
                 widget->GetTextComponent()->SetText(L"FPS: " + ToStringW(int(1.0f / deltaSeconds)));
             }
 
-            auto sprite = context.world->GetSprites()[0];
+            auto sprite = context.world->GetObjectByTag<ISprite>(1);
             auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
             sprite->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));

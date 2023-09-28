@@ -8,6 +8,7 @@
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/TextRenderDX10.h"
 #include "World/SpriteInterface.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
@@ -54,12 +55,12 @@ void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
     if (textComp && textComp->GetText() != prevRenderedText)
     {
         auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-        auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
-        if (widgetRender && font)
+        auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
+        if (textRender && font)
         {
             auto size = GetSize() * context.world->GetWorldScale().GetScale();
             LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-            widgetRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
+            textRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
                 textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
             prevRenderedText = textComp->GetText();
         }
@@ -90,13 +91,13 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     auto textComp = GetTextComponent();
     if (textComp)
     {
-        auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
-        if (!widgetRender) throw std::exception("LcWidgetDX10::AddComponent(): Invalid widget render");
+        auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
+        if (!textRender) throw std::exception("LcWidgetDX10::AddComponent(): Invalid widget render");
 
-        font = widgetRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
+        font = textRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
         if (!font) throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
 
-        RedrawText(widgetRender, context);
+        RedrawText(textRender, context);
     }
 
     LC_CATCH{ LC_THROW("LcWidgetDX10::AddComponent()") }
@@ -108,17 +109,17 @@ void LcWidgetDX10::RecreateFont(const LcAppContext& context)
     if (auto textComp = GetTextComponent())
     {
         auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
-        auto widgetRender = renderDX10 ? renderDX10->GetWidgetRender() : nullptr;
-        if (!widgetRender) throw std::exception("LcWidgetDX10::RecreateFont(): Invalid widget render");
+        auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
+        if (!textRender) throw std::exception("LcWidgetDX10::RecreateFont(): Invalid widget render");
 
-        font = widgetRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
+        font = textRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
         if (!font) throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
 
-        RedrawText(widgetRender, context);
+        RedrawText(textRender, context);
     }
 }
 
-void LcWidgetDX10::RedrawText(LcWidgetRenderDX10* widgetRender, const LcAppContext& context)
+void LcWidgetDX10::RedrawText(LcTextRenderDX10* textRender, const LcAppContext& context)
 {
     if (auto textComp = GetTextComponent())
     {
@@ -126,11 +127,11 @@ void LcWidgetDX10::RedrawText(LcWidgetRenderDX10* widgetRender, const LcAppConte
         textTextureSV.Reset();
         textTexture.Reset();
 
-        widgetRender->CreateTextureAndRenderTarget(*this, context.world->GetWorldScale().GetScale(), context);
+        textRender->CreateTextureAndRenderTarget(*this, context.world->GetWorldScale().GetScale(), context);
 
         auto size = GetSize() * context.world->GetWorldScale().GetScale();
         LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-        widgetRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
+        textRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
             textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
         prevRenderedText = textComp->GetText();
     }

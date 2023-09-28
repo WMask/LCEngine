@@ -7,13 +7,12 @@
 #pragma once
 
 #include "Core/LCTypes.h"
-#include "RenderSystem/SpriteRender.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 
 
 /**
 * Animated sprite render */
-class LcAnimatedSpriteRenderDX10 : public ISpriteRender
+class LcAnimatedSpriteRenderDX10 : public IVisual2DRender
 {
 public:
 	//
@@ -26,7 +25,7 @@ public:// IVisual2DRender interface implementation
 	//
 	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderSprite(const ISprite* sprite, const LcAppContext& context) override;
+	virtual void Render(const IVisual* visual, const LcAppContext& context) override;
 	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 

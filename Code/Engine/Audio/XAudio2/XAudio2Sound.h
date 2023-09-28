@@ -20,6 +20,9 @@ using namespace Microsoft::WRL;
 #pragma warning(disable : 4275)
 
 
+namespace LcCreatables { constexpr int XAudio2Sound = 0; }
+
+
 /**
 * XAudio2 sound */
 class LcXAudio2Sound : public ISound
@@ -30,6 +33,8 @@ public:
 	virtual ~LcXAudio2Sound() override;
 	//
 	void Load(const char* filePath, IXAudio2* audio);
+	//
+	static int GetStaticId() { return LcCreatables::XAudio2Sound; }
 
 
 public: // ISound interface implementation

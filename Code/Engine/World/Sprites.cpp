@@ -208,7 +208,7 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 	int uvColumns = int(imagewidth / tilewidth);
 	float offsetX = tilewidth * columns / -2.0f;
 	float offsetY = tileheight * rows / -2.0f;
-
+	float z = owner->GetPos().z;
 	scale.x = owner->GetSize().x / (tilewidth * columns);
 	scale.y = owner->GetSize().y / (tileheight * rows);
 
@@ -243,10 +243,10 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 					float oy = uvy * uvRow;
 
 					LC_TILES_DATA tile{};
-					tile.pos[0] = LcVector3(x, y, 0.0f);
-					tile.pos[1] = LcVector3(x + tilewidth, y + tileheight, 0.0f);
-					tile.pos[2] = LcVector3(x + tilewidth, y, 0.0f);
-					tile.pos[3] = LcVector3(x, y + tileheight, 0.0f);
+					tile.pos[0] = LcVector3(x, y, z);
+					tile.pos[1] = LcVector3(x + tilewidth, y + tileheight, z);
+					tile.pos[2] = LcVector3(x + tilewidth, y, z);
+					tile.pos[3] = LcVector3(x, y + tileheight, z);
 					tile.uv[0] = LcVector2(ox, oy);
 					tile.uv[1] = LcVector2(ox + uvx, oy + uvy);
 					tile.uv[2] = LcVector2(ox + uvx, oy);

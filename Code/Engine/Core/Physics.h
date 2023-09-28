@@ -87,7 +87,7 @@ public:
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density = 1.0f, bool fixedRotation = true) = 0;
 	/**
 	* Remove all dynamic bodies */
-	virtual void RemoveAllBodies() = 0;
+	virtual void RemoveBodies() = 0;
 	/**
 	* Get dynamic body list */
 	virtual const TBodiesList& GetDynamicBodies() const = 0;

@@ -83,7 +83,7 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 		throw std::exception("LcXAudio2System::AddSound(): Invalid audio system");
 	}
 
-	newSound = sounds.AddT<LcXAudio2Sound>();
+	newSound = sounds.Add<LcXAudio2Sound>();
 	if (!newSound)
 	{
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create sound");

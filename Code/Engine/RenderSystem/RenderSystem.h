@@ -114,11 +114,8 @@ public:// IRenderSystem interface implementation
 
 protected:
 	/**
-	* Render sprite */
-	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;
-	/**
-	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
+	* Render visual */
+	virtual void Render(const class IVisual* visual, const LcAppContext& context) = 0;
 
 
 protected:
@@ -145,10 +142,7 @@ public:
 	virtual void Setup(const IVisual* visual, const LcAppContext& context) = 0;
 	/**
 	* Render sprite */
-	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) = 0;
-	/**
-	* Render widget */
-	virtual void RenderWidget(const class IWidget* widget, const LcAppContext& context) = 0;
+	virtual void Render(const class IVisual* visual, const LcAppContext& context) = 0;
 	/**
 	* Checks support for the feature */
 	virtual bool Supports(const TVFeaturesList& features) const = 0;

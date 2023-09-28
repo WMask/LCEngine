@@ -21,7 +21,7 @@ typedef std::map<const IVisual*, LC_TILES_BUFFER> LcTileBuffersList;
 
 /**
 * Textured visual render */
-class LcTiledVisual2DRenderDX10 : public ISpriteRender
+class LcTiledVisual2DRenderDX10 : public IVisual2DRender
 {
 public:
 	/**
@@ -45,7 +45,7 @@ public:// IVisual2DRender interface implementation
 	//
 	virtual void Setup(const IVisual* visual, const LcAppContext& context) override;
 	//
-	virtual void RenderSprite(const class ISprite* sprite, const LcAppContext& context) override;
+	virtual void Render(const IVisual* visual, const LcAppContext& context) override;
 	//
 	virtual bool Supports(const TVFeaturesList& features) const override;
 

@@ -8,9 +8,17 @@
 
 #include "WorldInterface.h"
 #include "Core/LCCreator.h"
+#include "Visual.h"
 #include "Camera.h"
 
 #pragma warning(disable : 4251)
+
+
+inline bool operator < (const std::shared_ptr<IVisual>& a, const std::shared_ptr<IVisual>& b)
+{
+	if (a->GetPos().z == b->GetPos().z) return a->GetTypeId() < b->GetTypeId();
+	return (a->GetPos().z < b->GetPos().z);
+}
 
 
 /**
@@ -18,10 +26,11 @@
 class LcWorld : public IWorld
 {
 public:
-	typedef std::shared_ptr<LcLifetimeStrategy<ISprite>> TSpriteLifetime;
-	typedef std::shared_ptr<LcLifetimeStrategy<IWidget>> TWidgetLifetime;
+	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual>, TVisualSet> TVisualCreator;
+	typedef std::shared_ptr<LcLifetimeStrategy<class IVisual>> TVisualLifetime;
 	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
 	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
+
 
 public:
 	LcWorld(const LcAppContext& context);
@@ -30,30 +39,32 @@ public:
 	//
 	LcWorld& operator=(const LcWorld&) = delete;
 	//
-	void SetSpriteLifetimeStrategy(TSpriteLifetime inSpriteLifetime) { sprites.SetLifetimeStrategy(inSpriteLifetime); }
-	//
-	void SetWidgetLifetimeStrategy(TWidgetLifetime inWidgetLifetime) { widgets.SetLifetimeStrategy(inWidgetLifetime); }
+	void SetLifetimeStrategy(TVisualLifetime inVisualLifetime) { items.SetLifetimeStrategy(inVisualLifetime); }
 
 
 public: // IWorld interface implementation
 	//
 	virtual ~LcWorld() override {}
 	//
-	virtual ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ = 0.0f, bool visible = true) override;
+	virtual class ISprite* AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ = 0.0f, bool visible = true) override;
 	//
-	virtual ISprite* AddSprite2D(float x, float y, float width, float height, float rotZ = 0.0f, bool visible = true) override;
+	virtual class ISprite* AddSprite(float x, float y, float width, float height, float rotZ = 0.0f, bool visible = true) override;
 	//
-	virtual void RemoveSprite(ISprite* sprite) override;
+	virtual void RemoveSprite(class ISprite* sprite) override;
 	//
-	virtual TSpriteList& GetSprites() override { return sprites.GetList(); }
+	virtual class IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible = true) override;
 	//
-	virtual IWidget* AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible = true) override;
+	virtual class IWidget* AddWidget(float x, float y, float width, float height, bool visible = true) override;
 	//
-	virtual IWidget* AddWidget(float x, float y, float width, float height, bool visible = true) override;
+	virtual void RemoveWidget(class IWidget* widget) override;
 	//
-	virtual void RemoveWidget(IWidget* widget) override;
+	virtual void Clear() override { items.Clear(); }
 	//
-	virtual TWidgetList& GetWidgets() override { return widgets.GetList(); }
+	virtual class IVisual* GetVisualByTag(VisualTag tag) const override;
+	//
+	virtual const TVisualSet& GetVisuals() const override { return items.GetItems(); }
+	//
+	virtual TVisualSet& GetVisuals() override { return items.GetItems(); }
 	//
 	virtual const LcCamera& GetCamera() const override { return camera; }
 	//
@@ -67,7 +78,7 @@ public: // IWorld interface implementation
 	//
 	virtual LcColor3 GetGlobalTint() const override { return globalTint; }
 	//
-	virtual IVisual* GetLastAddedVisual() const override { return lastVisual; }
+	virtual class IVisual* GetLastAddedVisual() const override { return lastVisual; }
 	//
 	virtual const class LcSpriteHelper& GetSpriteHelper() const override { return *spriteHelper.get(); }
 	//
@@ -77,9 +88,7 @@ public: // IWorld interface implementation
 protected:
 	const LcAppContext& context;
 	//
-	LcCreator<class ISprite, class LcSprite> sprites;
-	//
-	LcCreator<class IWidget, class LcWidget> widgets;
+	TVisualCreator items;
 	//
 	TSpriteHelperPtr spriteHelper;
 	//
@@ -91,6 +100,6 @@ protected:
 	//
 	LcColor3 globalTint;
 	//
-	IVisual* lastVisual;
+	class IVisual* lastVisual;
 
 };

@@ -113,6 +113,16 @@ class GUI_API IWidget : public IVisualBase
 {
 public:
     //
+    static int GetStaticId() { return LcCreatables::Widget; }
+
+
+public: // IVisual interface implementation
+    //
+    virtual int GetTypeId() const override { return LcCreatables::Widget; }
+
+
+public:
+    //
     IWidgetTextComponent* GetTextComponent() const { return (IWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
     //
     IWidgetButtonComponent* GetButtonComponent() const { return (IWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }

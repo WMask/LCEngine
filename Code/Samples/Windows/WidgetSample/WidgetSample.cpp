@@ -50,7 +50,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddWidget(500, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
-                widgetHelper.AddTextComponent(L"SUBMIT");
+                widgetHelper.AddTextComponent(L"SUBMIT", LcDefaults::Black4, L"Calibri", 22, LcFontWeight::Bold);
             }
         };
 

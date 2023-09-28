@@ -14,10 +14,8 @@ using namespace Microsoft::WRL;
 
 #include "Module.h"
 #include "RenderSystem/RenderSystemDX10/UtilsDX10.h"
-#include "RenderSystem/RenderSystemDX10/WidgetRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/ConstantBuffersDX10.h"
 #include "RenderSystem/RenderSystem.h"
-#include "RenderSystem/SpriteRender.h"
 #include "GUI/WidgetInterface.h"
 
 #pragma warning(disable : 4251)
@@ -64,11 +62,11 @@ public:
 	//
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 	//
+	class LcTextRenderDX10* GetTextRender() { return textRender.get(); }
+	//
 	class LcTiledVisual2DRenderDX10* GetTiledRender() { return tiledRender; }
 	//
-	class ISpriteRender* GetTextureRender() { return textureRender; }
-	//
-	class LcWidgetRenderDX10* GetWidgetRender() { return widgetRender; }
+	class IVisual2DRender* GetTextureRender() { return textureRender; }
 
 
 public:// IRenderSystem interface implementation
@@ -104,9 +102,7 @@ public:// IRenderSystem interface implementation
 
 protected:// LcRenderSystemBase interface implementation
 	//
-	virtual void RenderSprite(const ISprite* sprite, const LcAppContext& context) override;
-	//
-	virtual void RenderWidget(const IWidget* widget, const LcAppContext& context) override;
+	virtual void Render(const IVisual* visual, const LcAppContext& context) override;
 
 
 public:// IDX10RenderDevice interface implementation
@@ -141,15 +137,15 @@ protected:
 	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
+	std::unique_ptr<class LcTextRenderDX10> textRender;
+	//
 	TVisual2DRenderList visual2DRenders;
 	//
 	LcConstantBuffersDX10 constBuffers;
 	//
-	LcWidgetRenderDX10* widgetRender;
-	//
 	class LcTiledVisual2DRenderDX10* tiledRender;
 	//
-	class ISpriteRender* textureRender;
+	class IVisual2DRender* textureRender;
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//
