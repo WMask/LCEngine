@@ -91,7 +91,7 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const L
 	}
 }
 
-void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames) const
+void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames) const
 {
 	if (auto visual = context.world->GetLastAddedVisual())
 	{
@@ -277,7 +277,7 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 				auto objectType = object["type"].get<std::string>();
 				auto properties = object["properties"];
 
-				LcObjectProps props;
+				LcTiledProps props;
 				if (properties.is_array())
 				{
 					for (auto entry : properties)

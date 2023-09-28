@@ -139,18 +139,18 @@ namespace LcTiles
 }
 
 typedef std::deque<std::string> LcLayersList;
-typedef std::deque<std::pair<std::string, LcAny>> LcObjectProps;
+typedef std::deque<std::pair<std::string, LcAny>> LcTiledProps;
 
 /** Tiled sprite object handler */
 typedef std::function<void(
 	const std::string&,		// layer name
 	const std::string&,		// object name
 	const std::string&,		// object type
-	const LcObjectProps&,	// object properties
+	const LcTiledProps&,	// object properties
 	LcVector2,				// object position
 	LcSizef					// object size
 )>
-LcObjectHandler;
+LcTiledObjectHandler;
 
 
 /** Sprite helper */
@@ -195,7 +195,7 @@ public:
 	/**
 	* Add tiled component to the last added sprite */
 	void AddTiledComponent(const std::string& tiledJsonPath,
-		LcObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{}) const;
+		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{}) const;
 
 
 protected:

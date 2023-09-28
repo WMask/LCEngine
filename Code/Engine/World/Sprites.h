@@ -169,7 +169,7 @@ public:
 	LcTiledSpriteComponent(const std::string& inTiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}) :
 		tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames), scale(LcDefaults::OneVec2) {}
 	//
-	LcTiledSpriteComponent(const std::string& inTiledJsonPath, LcObjectHandler inObjectHandler,
+	LcTiledSpriteComponent(const std::string& inTiledJsonPath, LcTiledObjectHandler inObjectHandler,
 		const LcLayersList& inLayerNames = LcLayersList{}) : tiledJsonPath(inTiledJsonPath), layerNames(inLayerNames),
 		objectHandler(inObjectHandler), scale(LcDefaults::OneVec2) {}
 
@@ -191,7 +191,7 @@ public: // IVisualComponent interface implementation
 protected:
 	std::vector<LC_TILES_DATA> tiles;
 	std::string tiledJsonPath;
-	LcObjectHandler objectHandler;
+	LcTiledObjectHandler objectHandler;
 	LcLayersList layerNames;
 	LcVector2 scale;
 };
