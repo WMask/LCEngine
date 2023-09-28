@@ -29,27 +29,11 @@ void LcWidgetHelper::AddAlignedTextComponent(const std::wstring& inText, LcColor
     }
 }
 
-void LcWidgetHelper::AddTextureComponent(const std::string& texture) const
-{
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
-    }
-}
-
-void LcWidgetHelper::AddTextureComponent(const LcBytes& inData) const
-{
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
-    }
-}
-
 void LcWidgetHelper::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const
 {
     if (auto visual = context.world->GetLastAddedVisual())
     {
-        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
+        AddTextureComponent(texture);
         visual->AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos), context);
     }
 }
@@ -59,7 +43,7 @@ void LcWidgetHelper::AddCheckboxComponent(const std::string& texture, LcVector2 
 {
     if (auto visual = context.world->GetLastAddedVisual())
     {
-        visual->AddComponent(std::make_shared<LcVisualTextureComponent>(texture), context);
+        AddTextureComponent(texture);
         visual->AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos), context);
     }
 }
@@ -109,7 +93,7 @@ void LcWidgetButtonComponent::Init(const LcAppContext& context)
 {
     IVisualComponent::Init(context);
 
-    if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
+    if (auto texComp = owner ? owner->GetTextureComponent() : nullptr)
     {
         LcSizef size = owner->GetSize();
         LcSizef texSize = texComp->GetTextureSize();
@@ -174,7 +158,7 @@ void LcWidgetCheckboxComponent::Init(const LcAppContext& context)
 {
     IVisualComponent::Init(context);
 
-    if (auto texComp = owner ? (LcVisualTextureComponent*)owner->GetComponent(EVCType::Texture).get() : nullptr)
+    if (auto texComp = owner ? owner->GetTextureComponent() : nullptr)
     {
         LcSizef size = owner->GetSize();
         LcSizef texSize = texComp->GetTextureSize();

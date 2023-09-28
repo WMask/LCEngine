@@ -12,26 +12,6 @@
 #include <functional>
 
 
-/** Sprite tint component */
-class ISpriteTintComponent : public IVisualComponent
-{
-public:
-	//
-	virtual void SetColor(LcColor4 inTint) = 0;
-	// return sprite color data LcColor4[4]
-	virtual const void* GetData() const = 0;
-};
-
-
-/** Sprite colors component */
-class ISpriteColorsComponent : public IVisualComponent
-{
-public:
-	// return sprite color data LcColor4[4]
-	virtual const void* GetData() const = 0;
-};
-
-
 /** Sprite custom UV component */
 class ISpriteCustomUVComponent : public IVisualComponent
 {
@@ -99,9 +79,13 @@ public: // IVisual interface implementation
 
 
 public:
-	ISpriteTintComponent* GetTintComponent() const { return (ISpriteTintComponent*)GetComponent(EVCType::Tint).get(); }
 	//
-	ISpriteColorsComponent* GetColorsComponent() const { return (ISpriteColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	static int GetStaticId() { return LcCreatables::Sprite; }
+	//
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
+
+
+public:
 	//
 	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
 	//
@@ -110,14 +94,6 @@ public:
 	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
 	//
 	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
-	//
-	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
-
-
-public:
-	virtual const TVFeaturesList& GetFeaturesList() const = 0;
-	//
-	static int GetStaticId() { return LcCreatables::Sprite; }
 
 };
 
@@ -154,31 +130,13 @@ LcTiledObjectHandler;
 
 
 /** Sprite helper */
-class WORLD_API LcSpriteHelper
+class WORLD_API LcSpriteHelper : public LcVisualHelper
 {
 public:
-	LcSpriteHelper(const LcAppContext& inContext) : context(inContext) {}
+	LcSpriteHelper(const LcAppContext& inContext) : LcVisualHelper(inContext) {}
 
 
 public:
-	/**
-	* Add tint component to the last added sprite */
-	void AddTintComponent(LcColor4 tint) const;
-	/**
-	* Add tint component to the last added sprite */
-	void AddTintComponent(LcColor3 tint) const;
-	/**
-	* Add colors component to the last added sprite */
-	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const;
-	/**
-	* Add colors component to the last added sprite */
-	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const;
-	/**
-	* Add texture component to the last added sprite or widget */
-	void AddTextureComponent(const std::string& inTexture) const;
-	/**
-	* Add texture component to the last added sprite or widget */
-	void AddTextureComponent(const LcBytes& inData) const;
 	/**
 	* Add custom UV component to the last added sprite */
 	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const;
@@ -189,16 +147,11 @@ public:
 	* Add tiled component to the last added sprite */
 	void AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}) const;
 	/**
-	* Add basic particles component to the last added sprite */
-	void AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
-		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) const;
-	/**
 	* Add tiled component to the last added sprite */
 	void AddTiledComponent(const std::string& tiledJsonPath,
 		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{}) const;
-
-
-protected:
-	const LcAppContext& context;
-
+	/**
+	* Add basic particles component to the last added sprite */
+	void AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
+		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) const;
 };

@@ -31,12 +31,14 @@ public:
 	//
 	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override
 	{
+		auto inWidget = static_cast<IWidget*>(&item);
+
 		for (auto& visual : items)
 		{
-			if (visual->GetTypeId() == LcCreatables::Widget)
+			if (visual.get() != inWidget &&
+				visual->GetTypeId() == LcCreatables::Widget)
 			{
 				auto curWidget = static_cast<IWidget*>(visual.get());
-				auto inWidget = static_cast<IWidget*>(&item);
 				curWidget->RemoveChild(inWidget);
 			}
 		}

@@ -12,6 +12,9 @@
 #include "Core/LCTypesEx.h"
 
 
+GUI_API bool HasInvisibleParent(class IWidget* widget);
+
+
 /**
 * GUI manager */
 class IGuiManager

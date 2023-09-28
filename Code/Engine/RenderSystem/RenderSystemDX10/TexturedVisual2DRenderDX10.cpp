@@ -121,8 +121,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		throw std::exception("LcTexturedVisual2DRenderDX10::Render(): Invalid render params");
 	}
 
-	auto sprite = (visual->GetTypeId() == LcCreatables::Sprite) ? static_cast<const ISprite*>(visual) : nullptr;
-	if (sprite)
+	if (auto sprite = (visual->GetTypeId() == LcCreatables::Sprite) ? static_cast<const ISprite*>(visual) : nullptr)
 	{
 		// update components
 		auto colors = sprite->GetColorsComponent();
@@ -166,12 +165,21 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		d3dDevice->Draw(4, 0);
 	}
 
-	auto widget = (visual->GetTypeId() == LcCreatables::Widget) ? static_cast<const IWidget*>(visual) : nullptr;
-	if (widget)
+	if (auto widget = (visual->GetTypeId() == LcCreatables::Widget) ? static_cast<const IWidget*>(visual) : nullptr)
 	{
 		// update components
-		static LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
-		d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
+		auto colors = widget->GetColorsComponent();
+		auto tint = widget->GetTintComponent();
+		if (colors || tint)
+		{
+			auto colorsData = colors ? colors->GetData() : tint->GetData();
+			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colorsData, 0, 0);
+		}
+		else
+		{
+			static LcColor4 defaultColors[] = { LcDefaults::ZeroVec4, LcDefaults::ZeroVec4, LcDefaults::ZeroVec4, LcDefaults::ZeroVec4 };
+			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
+		}
 
 		if (auto customUV = widget->GetButtonComponent())
 		{

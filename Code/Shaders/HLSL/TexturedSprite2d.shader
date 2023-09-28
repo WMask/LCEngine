@@ -61,5 +61,14 @@ SamplerState linearSampler
 
 float4 PShader(float4 vPosition : SV_POSITION, float4 vColor : COLOR0, float4 vTint : COLOR1, float2 vCoord : TEXCOORD) : SV_TARGET
 {
-    return tex2D.Sample(linearSampler, vCoord) * vColor * vTint;
+	float4 texColor = tex2D.Sample(linearSampler, vCoord);
+	if (texColor.a == 0.0f)
+		return vColor * vTint;
+	else
+	{
+		if (vColor.a == 0.0f)
+			return texColor * vTint;
+		else
+			return texColor * vColor * vTint;
+	}
 }

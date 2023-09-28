@@ -245,7 +245,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
         auto& visuals = world->GetVisuals();
         for (auto visual : visuals)
         {
-            if (auto texComp = static_cast<LcVisualTextureComponent*>(visual->GetComponent(EVCType::Texture).get()))
+            if (auto texComp = visual->GetTextureComponent())
             {
                 aliveTexList.insert(texComp->GetTexturePath());
             }

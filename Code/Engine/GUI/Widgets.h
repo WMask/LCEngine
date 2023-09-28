@@ -213,8 +213,6 @@ public:// IWidget interface implementation
     //
     virtual void RemoveChild(IWidget* child) override;
     //
-    virtual void RemoveParent(IWidget* inParent) override { if (parent == inParent) parent = nullptr; }
-    //
     virtual IWidget* GetParent() const override { return parent; }
     //
     virtual const TChildsList& GetChilds() const override { return childs; }

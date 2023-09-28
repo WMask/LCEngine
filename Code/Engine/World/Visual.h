@@ -134,7 +134,7 @@ public:
 	* Visual state */
 	virtual bool IsVisible() const = 0;
 	/**
-	* Set visual tag */
+	* Set visual tag. Default: -1 */
 	virtual void SetTag(VisualTag tag) = 0;
 	/**
 	* Get visual tag */
@@ -155,7 +155,16 @@ public:
 	* Mouse leave event */
 	virtual void OnMouseLeave(const LcAppContext& context) = 0;
 
+
+public:
+	class IVisualTintComponent* GetTintComponent() const { return (class IVisualTintComponent*)GetComponent(EVCType::Tint).get(); }
+	//
+	class IVisualColorsComponent* GetColorsComponent() const { return (class IVisualColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	//
+	class IVisualTextureComponent* GetTextureComponent() const { return (class IVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
+
 };
+
 
 /** Visual feature list */
 typedef std::function<void(class IVisualComponent&, const LcAppContext&)> TLifespanHandler;
@@ -217,7 +226,7 @@ public:
 	IVisualBase() : tag(-1) {}
 
 
-public:// IVisual interface implementation
+public: // IVisual interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override {}
 	//
@@ -246,38 +255,69 @@ protected:
 };
 
 
-/**
-* Visual texture component */
-class LcVisualTextureComponent : public IVisualComponent
+/** Visual helper */
+class WORLD_API LcVisualHelper
 {
 public:
-	LcVisualTextureComponent() : texSize(LcDefaults::ZeroVec2) {}
-	//
-	LcVisualTextureComponent(const LcVisualTextureComponent& texture) :
-		texture(texture.texture), data(texture.data), texSize(texture.texSize) {}
-	//
-	LcVisualTextureComponent(const std::string& inTexture) : texture(inTexture), texSize(LcDefaults::ZeroVec2)
-	{
-	}
-	//
-	LcVisualTextureComponent(const LcBytes& inData) : data(inData), texSize(LcDefaults::ZeroVec2)
-	{
-	}
-	//
-	inline void SetTextureSize(LcVector2 newSize) { texSize = newSize; }
-	//
-	inline LcVector2 GetTextureSize() const { return texSize; }
-	//
-	inline std::string GetTexturePath() const { return texture; }
+	LcVisualHelper(const LcAppContext& inContext) : context(inContext) {}
 
 
-public:// IVisualComponent interface implementation
-	//
-	virtual EVCType GetType() const override { return EVCType::Texture; }
+public:
+	/**
+	* Add tint component to the last added sprite */
+	void AddTintComponent(LcColor4 tint) const;
+	/**
+	* Add tint component to the last added sprite */
+	void AddTintComponent(LcColor3 tint) const;
+	/**
+	* Add colors component to the last added sprite */
+	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const;
+	/**
+	* Add colors component to the last added sprite */
+	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const;
+	/**
+	* Add texture component to the last added sprite or widget */
+	void AddTextureComponent(const std::string& inTexture) const;
+	/**
+	* Add texture component to the last added sprite or widget */
+	void AddTextureComponent(const LcBytes& inData) const;
 
 
 protected:
-	std::string texture;	// texture file path
-	LcBytes data;			// texture data
-	LcVector2 texSize;		// texture size in pixels
+	const LcAppContext& context;
+
+};
+
+
+/** Visual tint component */
+class IVisualTintComponent : public IVisualComponent
+{
+public:
+	//
+	virtual void SetColor(LcColor4 inTint) = 0;
+	// return visual color data LcColor4[4]
+	virtual const void* GetData() const = 0;
+};
+
+
+/** Visual colors component */
+class IVisualColorsComponent : public IVisualComponent
+{
+public:
+	// return visual color data LcColor4[4]
+	virtual const void* GetData() const = 0;
+};
+
+
+/**
+* Visual texture component */
+class IVisualTextureComponent : public IVisualComponent
+{
+public:
+	//
+	virtual void SetTextureSize(LcVector2 newSize) = 0;
+	//
+	virtual LcVector2 GetTextureSize() const = 0;
+	//
+	virtual std::string GetTexturePath() const = 0;
 };

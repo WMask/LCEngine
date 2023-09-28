@@ -19,54 +19,6 @@
 using json = nlohmann::json;
 
 
-void LcSpriteHelper::AddTintComponent(LcColor4 tint) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcSpriteTintComponent>(tint), context);
-	}
-}
-
-void LcSpriteHelper::AddTintComponent(LcColor3 tint) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcSpriteTintComponent>(tint), context);
-	}
-}
-
-void LcSpriteHelper::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
-	}
-}
-
-void LcSpriteHelper::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcSpriteColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
-	}
-}
-
-void LcSpriteHelper::AddTextureComponent(const std::string& inTexture) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture), context);
-	}
-}
-
-void LcSpriteHelper::AddTextureComponent(const LcBytes& inData) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
-	}
-}
-
 void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const
 {
 	if (auto visual = context.world->GetLastAddedVisual())
@@ -180,7 +132,7 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 	auto texPath = tilsetObject["image"].get<std::string>();
 	if (!texPath.empty())
 	{
-		owner->AddComponent(std::make_shared<LcVisualTextureComponent>(texPath), context);
+		context.world->GetSpriteHelper().AddTextureComponent(texPath);
 	}
 
 	// check parameters

@@ -117,21 +117,6 @@ public: // IVisual interface implementation
 
 
 public:
-    //
-    IWidgetTextComponent* GetTextComponent() const { return (IWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
-    //
-    IWidgetButtonComponent* GetButtonComponent() const { return (IWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
-    //
-    IWidgetCheckboxComponent* GetCheckboxComponent() const { return (IWidgetCheckboxComponent*)GetComponent(EVCType::Checkbox).get(); }
-    //
-    IWidgetClickComponent* GetClickHandlerComponent() const { return (IWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
-    //
-    IWidgetCheckComponent* GetCheckHandlerComponent() const { return (IWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
-    //
-    LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
-
-
-public:
     typedef std::deque<class IWidget*> TChildsList;
     /**
     * Add child widget */
@@ -139,9 +124,6 @@ public:
     /**
     * Remove child widget */
     virtual void RemoveChild(IWidget* child) = 0;
-    /**
-    * Remove parent widget */
-    virtual void RemoveParent(IWidget* parent) = 0;
     /**
     * Get parent widget */
     virtual IWidget* GetParent() const = 0;
@@ -178,23 +160,30 @@ public:
     * Focused state */
     virtual bool HasFocus() const = 0;
 
+
+public:
+    //
+    IWidgetTextComponent* GetTextComponent() const { return (IWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
+    //
+    IWidgetButtonComponent* GetButtonComponent() const { return (IWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
+    //
+    IWidgetCheckboxComponent* GetCheckboxComponent() const { return (IWidgetCheckboxComponent*)GetComponent(EVCType::Checkbox).get(); }
+    //
+    IWidgetClickComponent* GetClickHandlerComponent() const { return (IWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
+    //
+    IWidgetCheckComponent* GetCheckHandlerComponent() const { return (IWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
+
 };
 
 
 /** Widget helper */
-class GUI_API LcWidgetHelper
+class GUI_API LcWidgetHelper : public LcVisualHelper
 {
 public:
-    LcWidgetHelper(const LcAppContext& inContext) : context(inContext) {}
+    LcWidgetHelper(const LcAppContext& inContext) : LcVisualHelper(inContext) {}
 
 
 public:
-    /**
-    * Add texture component to the last added sprite or widget */
-    void AddTextureComponent(const std::string& inTexture) const;
-    /**
-    * Add texture component to the last added sprite or widget */
-    void AddTextureComponent(const LcBytes& inData) const;
     /**
     * Add text component to the last added widget */
     void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
@@ -218,9 +207,5 @@ public:
     /**
     * Add check handler component to the last added widget */
     void AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultCheckboxSkin = true) const;
-
-
-protected:
-    const LcAppContext& context;
 
 };

@@ -13,6 +13,22 @@
 #include "Core/LCUtils.h"
 
 
+bool HasInvisibleParent(IWidget* widget)
+{
+    if (widget)
+    {
+        if (widget->GetParent())
+        {
+            if (!widget->GetParent()->IsVisible())
+                return true;
+            else
+                return HasInvisibleParent(widget->GetParent());
+        }
+    }
+
+    return false;
+}
+
 void LcGuiManager::OnKeys(int btn, LcKeyState state, const LcAppContext& context)
 {
     LC_TRY
@@ -20,11 +36,18 @@ void LcGuiManager::OnKeys(int btn, LcKeyState state, const LcAppContext& context
     auto& visuals = context.world->GetVisuals();
     for (auto& visual : visuals)
     {
-        if (visual->GetTypeId() == LcCreatables::Widget)
+        if ((visual->GetTypeId() != LcCreatables::Widget) ||
+            !visual->IsVisible())
         {
-            auto widget = static_cast<IWidget*>(visual.get());
+            continue;
+        }
 
-            if (widget->IsVisible() && !widget->IsDisabled()) widget->OnKeys(btn, state, context);
+        auto widget = static_cast<IWidget*>(visual.get());
+        if (HasInvisibleParent(widget)) continue;
+
+        if (widget->HasFocus() && !widget->IsDisabled())
+        {
+            widget->OnKeys(btn, state, context);
         }
     }
 
@@ -48,6 +71,7 @@ void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y,
         }
 
         auto widget = static_cast<IWidget*>(visual.get());
+        if (HasInvisibleParent(widget)) continue;
 
         LcVector2 point((float)x, (float)y);
         LcVector2 widgetPos = To2(widget->GetPos() * scale3);
@@ -81,6 +105,7 @@ void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
         }
 
         auto widget = static_cast<IWidget*>(visual.get());
+        if (HasInvisibleParent(widget)) continue;
 
         LcVector2 point((float)x, (float)y);
         LcVector2 widgetPos = To2(widget->GetPos() * scale3);
