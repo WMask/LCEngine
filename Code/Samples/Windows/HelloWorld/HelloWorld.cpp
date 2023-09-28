@@ -23,10 +23,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto& spriteHelper = context.world->GetSpriteHelper();
 
-            if (auto sprite = context.world->AddSprite(250, 400, 200, 200))
+            if (context.world->AddSprite(250, 400, 200, 200))
             {
                 spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
-                sprite->SetTag(1);
+                spriteHelper.SetTag(1);
             }
         };
 
@@ -47,7 +47,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-            if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
+        if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
         };
 
         auto app = GetApp();

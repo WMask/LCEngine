@@ -264,23 +264,26 @@ public:
 
 public:
 	/**
-	* Add tint component to the last added sprite */
+	* Add tint component to the last added visual */
 	void AddTintComponent(LcColor4 tint) const;
 	/**
-	* Add tint component to the last added sprite */
+	* Add tint component to the last added visual */
 	void AddTintComponent(LcColor3 tint) const;
 	/**
-	* Add colors component to the last added sprite */
+	* Add colors component to the last added visual */
 	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const;
 	/**
-	* Add colors component to the last added sprite */
+	* Add colors component to the last added visual */
 	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const;
 	/**
-	* Add texture component to the last added sprite or widget */
+	* Add texture component to the last added visual */
 	void AddTextureComponent(const std::string& inTexture) const;
 	/**
-	* Add texture component to the last added sprite or widget */
+	* Add texture component to the last added visual */
 	void AddTextureComponent(const LcBytes& inData) const;
+	/**
+	* Set tag to the last added visual */
+	void SetTag(VisualTag tag) const;
 
 
 protected:

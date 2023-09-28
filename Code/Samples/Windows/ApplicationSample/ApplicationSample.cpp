@@ -31,10 +31,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // sprites
             auto& spriteHelper = context.world->GetSpriteHelper();
-            if (auto sprite = context.world->AddSprite(200, 200, 300, 300))
+            if (context.world->AddSprite(200, 200, 300, 300))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
-                sprite->SetTag(1);
+                spriteHelper.SetTag(1);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
@@ -51,10 +51,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // window resize controls
             auto& widgetHelper = context.world->GetWidgetHelper();
-            if (auto widget = context.world->AddWidget(45, 16, 80, 32))
+            if (context.world->AddWidget(45, 16, 80, 32))
             {
                 widgetHelper.AddAlignedTextComponent(L"FPS: 0", LcDefaults::White4, LcTextAlignment::Left, L"Calibri", 18);
-                widget->SetTag(2);
+                widgetHelper.SetTag(2);
             }
 
             if (context.world->AddWidget(182, 550, 94, 32))

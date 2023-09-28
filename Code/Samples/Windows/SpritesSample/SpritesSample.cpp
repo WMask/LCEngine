@@ -23,16 +23,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto& spriteHelper = context.world->GetSpriteHelper();
 
-            if (auto sprite1 = context.world->AddSprite(200, 550, 250, 250))
+            if (context.world->AddSprite(200, 550, 250, 250))
             {
                 spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
-                sprite1->SetTag(1);
+                spriteHelper.SetTag(1);
             }
 
-            if (auto sprite2 = context.world->AddSprite(200, 200, 300, 300))
+            if (context.world->AddSprite(200, 200, 300, 300))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
-                sprite2->SetTag(2);
+                spriteHelper.SetTag(2);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))

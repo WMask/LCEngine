@@ -173,6 +173,14 @@ void LcVisualHelper::AddTextureComponent(const LcBytes& inData) const
 	}
 }
 
+void LcVisualHelper::SetTag(VisualTag tag) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->SetTag(tag);
+	}
+}
+
 
 void IVisualComponent::Update(float deltaSeconds, const LcAppContext& context)
 {

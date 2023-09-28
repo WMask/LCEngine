@@ -28,7 +28,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (parent = context.world->AddWidget(500, 400, LcLayers::Z2, 200, 200))
             {
                 widgetHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
-                parent->SetTag(1);
+                widgetHelper.SetTag(1);
             }
 
             if (auto child = context.world->AddWidget(500, 340, LcLayers::Z1, 180, 60))
@@ -56,8 +56,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             {
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
                 widgetHelper.AddTextComponent(L"SUBMIT", LcDefaults::Black4, L"Calibri", 22, LcFontWeight::Bold);
+                widgetHelper.SetTag(2);
                 parent->AddChild(child);
-                child->SetTag(2);
             }
         };
 
