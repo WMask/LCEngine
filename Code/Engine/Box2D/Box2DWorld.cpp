@@ -110,7 +110,7 @@ public: // IPhysicsBody interface implementation
     }
 };
 
-class LcBodyLifetimeStrategy : public LcLifetimeStrategy<IPhysicsBody>
+class LcBodyLifetimeStrategy : public LcLifetimeStrategy<IPhysicsBody, IPhysicsWorld::TBodiesList>
 {
 public:
     LcBodyLifetimeStrategy() {}
@@ -119,7 +119,7 @@ public:
     //
     virtual std::shared_ptr<IPhysicsBody> Create() override { return std::make_shared<LcBox2DBody>(); }
     //
-    virtual void Destroy(IPhysicsBody& item) override
+    virtual void Destroy(IPhysicsBody& item, IPhysicsWorld::TBodiesList& items) override
     {
         LcBox2DBody& body = static_cast<LcBox2DBody&>(item);
         body.body->DestroyFixture(body.fixture);

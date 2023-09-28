@@ -218,6 +218,21 @@ const void* LcWidgetCheckboxComponent::GetData() const
     return unchecked;
 }
 
+void LcWidget::AddChild(IWidget* child)
+{
+    if (!child) throw std::exception("LcWidget::AddChild(): Invalid child");
+
+    childs.push_back(child);
+}
+
+void LcWidget::RemoveChild(IWidget* child)
+{
+    if (!child) throw std::exception("LcWidget::RemoveChild(): Invalid child");
+
+    auto it = std::find(childs.begin(), childs.end(), child);
+    if (it != childs.end()) childs.erase(it);
+}
+
 void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())

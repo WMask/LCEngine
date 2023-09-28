@@ -20,7 +20,7 @@
 #include "Core/LCException.h"
 
 
-class LcVisual2DLifetimeStrategyDX10 : public LcLifetimeStrategy<IVisual>
+class LcVisual2DLifetimeStrategyDX10 : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
 {
 public:
 	LcVisual2DLifetimeStrategyDX10() {}
@@ -37,7 +37,7 @@ public:
 		return std::shared_ptr<IVisual>();
 	}
 	//
-	virtual void Destroy(IVisual& item) override {}
+	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override {}
 };
 
 

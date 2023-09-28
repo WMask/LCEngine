@@ -93,12 +93,6 @@ public:
 * Sprite interface */
 class ISprite : public IVisualBase
 {
-public:
-	virtual const TVFeaturesList& GetFeaturesList() const = 0;
-	//
-	static int GetStaticId() { return LcCreatables::Sprite; }
-
-
 public: // IVisual interface implementation
 	//
 	virtual int GetTypeId() const override { return LcCreatables::Sprite; }
@@ -118,6 +112,12 @@ public:
 	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
 	//
 	LcVisualTextureComponent* GetTextureComponent() const { return (LcVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
+
+
+public:
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
+	//
+	static int GetStaticId() { return LcCreatables::Sprite; }
 
 };
 

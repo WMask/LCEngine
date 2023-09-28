@@ -14,7 +14,7 @@
 
 
 /** Default lifetime strategy */
-template<class T>
+template<class T, class Container>
 class LcLifetimeStrategy
 {
 public:
@@ -24,18 +24,23 @@ public:
 	//
 	virtual std::shared_ptr<T> Create() { return std::shared_ptr<T>(); }
 	//
-	virtual void Destroy(T& item) {}
+	virtual void Destroy(T& item, Container& items) {}
 	// need static int GetStaticId() from each type
 	int curTypeId;
 };
 
 
 /** Object creator */
-template<class I, class Strategy = LcLifetimeStrategy<I>, class Container = std::deque<std::shared_ptr<I>>>
+template<
+	class I,
+	class Strategy = LcLifetimeStrategy<I, std::deque<std::shared_ptr<I>>>,
+	class Container = std::deque<std::shared_ptr<I>>>
 class LcCreator
 {
 public:
 	typedef std::shared_ptr<Strategy> TStrategyPtr;
+	//
+	typedef std::shared_ptr<I> TItemPtr;
 	//
 	typedef Container TItemsList;
 
@@ -57,7 +62,7 @@ public:
 	T* Add()
 	{
 		strategy->curTypeId = T::GetStaticId();
-		auto newItem = strategy->Create();
+		TItemPtr newItem = strategy->Create();
 		items.insert(items.end(), newItem);
 		return static_cast<T*>(newItem.get());
 	}
@@ -70,16 +75,16 @@ public:
 				return curItem.get() == item;
 			});
 
-			strategy->Destroy(*item);
+			strategy->Destroy(*item, items);
 			items.erase(it);
 		}
 	}
 	//
 	void Clear()
 	{
-		for (auto& item : items)
+		for (const TItemPtr& item : items)
 		{
-			strategy->Destroy(*item.get());
+			strategy->Destroy(*item.get(), items);
 		}
 
 		items.clear();

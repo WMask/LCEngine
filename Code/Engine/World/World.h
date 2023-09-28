@@ -26,8 +26,8 @@ inline bool operator < (const std::shared_ptr<IVisual>& a, const std::shared_ptr
 class LcWorld : public IWorld
 {
 public:
-	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual>, TVisualSet> TVisualCreator;
-	typedef std::shared_ptr<LcLifetimeStrategy<class IVisual>> TVisualLifetime;
+	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual, TVisualSet>, TVisualSet> TVisualCreator;
+	typedef std::shared_ptr<LcLifetimeStrategy<class IVisual, TVisualSet>> TVisualLifetime;
 	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
 	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
 

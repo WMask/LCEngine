@@ -111,11 +111,6 @@ public:
 * Widget interface */
 class GUI_API IWidget : public IVisualBase
 {
-public:
-    //
-    static int GetStaticId() { return LcCreatables::Widget; }
-
-
 public: // IVisual interface implementation
     //
     virtual int GetTypeId() const override { return LcCreatables::Widget; }
@@ -137,6 +132,21 @@ public:
 
 
 public:
+    typedef std::deque<class IWidget*> TChildsList;
+    /**
+    * Add child widget */
+    virtual void AddChild(IWidget* child) = 0;
+    /**
+    * Remove child widget */
+    virtual void RemoveChild(IWidget* child) = 0;
+    /**
+    * Get child widgets */
+    virtual const TChildsList& GetChilds() const = 0;
+    /**
+    * Get child widgets */
+    virtual TChildsList& GetChilds() = 0;
+    //
+    static int GetStaticId() { return LcCreatables::Widget; }
     /**
     * Keyboard key event */
     virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) = 0;

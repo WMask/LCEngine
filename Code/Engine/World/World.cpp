@@ -12,7 +12,7 @@
 #include "GUI/Widgets.h"
 
 
-class LcVisualLifetimeStrategy : public LcLifetimeStrategy<IVisual>
+class LcVisualLifetimeStrategy : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
 {
 public:
 	LcVisualLifetimeStrategy() {}
@@ -29,7 +29,17 @@ public:
 		return std::shared_ptr<IVisual>();
 	}
 	//
-	virtual void Destroy(IVisual& item) override {}
+	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override
+	{
+		for (auto& visual : items)
+		{
+			if (visual->GetTypeId() == LcCreatables::Widget)
+			{
+				auto widget = static_cast<IWidget*>(&item);
+				widget->RemoveChild(widget);
+			}
+		}
+	}
 };
 
 

@@ -208,6 +208,14 @@ public:
 
 public:// IWidget interface implementation
     //
+    virtual void AddChild(IWidget* child) override;
+    //
+    virtual void RemoveChild(IWidget* child) override;
+    //
+    virtual const TChildsList& GetChilds() const override { return childs; }
+    //
+    virtual TChildsList& GetChilds() override { return childs; }
+    //
     virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) override {}
     //
     virtual void RecreateFont(const LcAppContext& context) override {}
@@ -261,6 +269,8 @@ public:// IVisual interface implementation
 
 
 protected:
+    //
+    TChildsList childs;
     //
     TVFeaturesList features;
     // [0,0] - leftTop, x - right, y - down
