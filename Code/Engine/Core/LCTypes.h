@@ -48,6 +48,7 @@ typedef int VisualTag;
 /** Window mode */
 enum class LcWinMode : int { Windowed, Fullscreen };
 
+constexpr float LcPI = 3.14159265f;
 
 constexpr int LcKeysCount = 150;
 

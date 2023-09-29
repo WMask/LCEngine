@@ -47,6 +47,34 @@ public:
 };
 
 
+/** Particle settings */
+struct LcBasicParticleSettings
+{
+	LcBasicParticleSettings()
+		: frameSize(LcDefaults::ZeroSize)
+		, numFrames(0)
+		, lifetime(-1.0f)
+		, fadeInRate(-1.0f)
+		, fadeOutRate(-1.0f)
+		, speed(1.0f)
+		, movementRadius(16.0f)
+	{}
+	// size of each particle frame on texture in pixels
+	LcSizef frameSize;
+	// frames count on texture
+	unsigned short numFrames;
+	// lifetime in seconds (-1.0 == forever)
+	float lifetime;
+	// fadeIn = particleLifetime * fadeInRate (-1.0 == no fade in)
+	float fadeInRate;
+	// fadeOut = particleLifetime * fadeOutRate (-1.0 == no fade out)
+	float fadeOutRate;
+	// speed multiplier
+	float speed;
+	// distance around start position in pixels
+	float movementRadius;
+};
+
 /**
 * @brief Sprite basic particles component.
 * Particles spawned in random places of sprite area and move around start position.
@@ -57,15 +85,8 @@ public:
 	//
 	virtual unsigned short GetNumParticles() const = 0;
 	//
-	virtual unsigned short GetNumFrames() const = 0;
-	// size of each particle frame on texture in pixels
-	virtual LcSizef GetFrameSize() const = 0;
-	// lifetime in seconds
-	virtual float GetParticleLifetime() const = 0;
-	// speed multiplier
-	virtual float GetParticleSpeed() const = 0;
-	// distance around start position
-	virtual float GetParticleMovementRadius() const = 0;
+	virtual const LcBasicParticleSettings& GetSettings() const = 0;
+
 };
 
 
@@ -152,6 +173,5 @@ public:
 		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{}) const;
 	/**
 	* Add basic particles component to the last added sprite */
-	void AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
-		float inParticleSpeed, float inParticleMovementRadius, float inParticleLifetime = -1.0f) const;
+	void AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings) const;
 };

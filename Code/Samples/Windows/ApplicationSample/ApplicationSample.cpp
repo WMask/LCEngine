@@ -40,7 +40,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddSprite(800, 360, LcLayers::Z2, 800, 600))
             {
                 spriteHelper.AddTextureComponent("../../Assets/particles.png");
-                spriteHelper.AddParticlesComponent(100, 4, LcSizef(32.0f, 32.0f), 0.2f, 16.0f);
+
+                LcBasicParticleSettings settings;
+                settings.frameSize = LcSizef(32.0f, 32.0f);
+                settings.numFrames = 4;
+                settings.lifetime = LcPI * 4.0f;
+                settings.fadeInRate = 0.2f;
+                settings.fadeOutRate = 0.2f;
+                settings.speed = 0.2f;
+                settings.movementRadius = 20.0f;
+
+                spriteHelper.AddParticlesComponent(100, settings);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))

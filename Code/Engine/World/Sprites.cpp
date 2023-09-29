@@ -51,13 +51,11 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcTiled
 	}
 }
 
-void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
-	float inParticleSpeed, float inParticleMovementRadius, float inParticleLifetime) const
+void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings) const
 {
 	if (auto visual = context.world->GetLastAddedVisual())
 	{
-		visual->AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inNumFrames,
-			inFrameSize, inParticleSpeed, inParticleMovementRadius, inParticleLifetime), context);
+		visual->AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inSettings), context);
 	}
 }
 

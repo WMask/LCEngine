@@ -27,37 +27,62 @@ cbuffer VS_SETTINGS_BUFFER : register(b6)
 struct VOut
 {
     float4 vPosition : SV_POSITION;
+    float2 vCoord : TEXCOORD;
     float4 vTint : COLOR;
-	float2 vCoord : TEXCOORD;
 };
 
-VOut VShader(float4 vPosition : POSITION, float2 vUV : TEXCOORD, int iAnimType : BLENDINDICES)
+VOut VShader(float4 vPosition : POSITION0, float4 vUV : POSITION1, int iAnimType : BLENDINDICES)
 {
     VOut output;
 	float4x4 mWVP = mul(mTrans, mul(mView, mProj));
-    
+  
+    float parTimeOffset = vPosition.w;
     float parSpeed = vParticleSettings.x;
-    float parMovementRadius = vParticleSettings.y;
-    float parLifetime = vParticleSettings.z;
+    float parLifetime = vParticleSettings.y;
+    float parMovementRadius = vParticleSettings.z;
     float parTime = vParticleSettings.w;
+ 
+    float u = vUV.x;
+    float v = vUV.y;
+    float fadeInRate = vUV.z;
+    float fadeOutRate = vUV.w;
 
-    float2 pos2D = float2(vPosition.x, vPosition.y);
+    // animation
+    float2 vPos2d = float2(vPosition.x, vPosition.y);
 
     switch (iAnimType)
     {
         // horizontal
-        case 0: pos2D += float2(parMovementRadius * parSpeed * cos(parTime), 0.0f); break;
+        case 0: vPos2d += float2(parMovementRadius * parSpeed * cos(parTime), 0.0f); break;
         // vertical
-        case 1: pos2D += float2(0.0f, parMovementRadius * parSpeed * sin(parTime)); break;
+        case 1: vPos2d += float2(0.0f, parMovementRadius * parSpeed * sin(parTime)); break;
         // cw
-        case 2: pos2D += float2(parMovementRadius * parSpeed * cos(parTime), parMovementRadius * parSpeed * sin(parTime)); break;
+        case 2: vPos2d += float2(parMovementRadius * parSpeed * cos(parTime), parMovementRadius * parSpeed * sin(parTime)); break;
         // ccw
-        case 3: pos2D += float2(parMovementRadius * parSpeed * cos(-parTime), parMovementRadius * parSpeed * sin(-parTime)); break;
+        case 3: vPos2d += float2(parMovementRadius * parSpeed * cos(-parTime), parMovementRadius * parSpeed * sin(-parTime)); break;
     }
 
-    output.vPosition = mul(float4(pos2D.x, pos2D.y, vPosition.z, 1.0f), mWVP);
-    output.vTint = vGlobalTint;
-	output.vCoord = vUV;
+    // opacity
+    parTime += parTimeOffset;
+    float fadeIn = parLifetime * fadeInRate;
+    float fadeOut = parLifetime * fadeOutRate;
+    float4 vTint = vGlobalTint;
+    if (parLifetime > 0.0f)
+    {
+        float time = parTime % parLifetime;
+        if (time < fadeIn && (fadeInRate > 0.0f))
+        {
+            vTint.a = sin(time / fadeIn);
+        }
+        else if (((parLifetime - time) < fadeOut) && (fadeOutRate > 0.0f))
+        {
+            vTint.a = cos(fadeOut - (parLifetime - time));
+        }
+    }
+
+    output.vPosition = mul(float4(vPos2d.x, vPos2d.y, vPosition.z, 1.0f), mWVP);
+    output.vCoord = float2(u, v);
+    output.vTint = vTint;
 
 	return output;
 }
@@ -71,7 +96,7 @@ SamplerState linearSampler
     AddressV = Wrap;
 };
 
-float4 PShader(float4 vPosition : SV_POSITION, float4 vTint : COLOR, float2 vCoord : TEXCOORD) : SV_TARGET
+float4 PShader(float4 vPosition : SV_POSITION, float2 vCoord : TEXCOORD, float4 vTint : COLOR) : SV_TARGET
 {
     return tex2D.Sample(linearSampler, vCoord) * vTint;
 }

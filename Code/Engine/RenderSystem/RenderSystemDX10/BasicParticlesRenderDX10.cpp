@@ -14,8 +14,8 @@
 static const char* basicParticlesShaderName = "BasicParticles2d.shader";
 struct DX10PARTICLESDATA
 {
-	LcVector3 pos;	// position
-	LcVector2 uv;	// UV texture coordinates
+	LcVector4 pos;	// position
+	LcVector4 uv;	// UV texture coordinates + fadeIn, fadeOut rate
 	int id;			// movement type
 };
 
@@ -55,9 +55,9 @@ LcBasicParticlesRenderDX10::LcBasicParticlesRenderDX10(const LcAppContext& conte
 
 	D3D10_INPUT_ELEMENT_DESC layout[] =
 	{
-		{"POSITION",     0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D10_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD",     0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0},
-		{"BLENDINDICES", 0, DXGI_FORMAT_R32_UINT,        0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0}
+		{"POSITION",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,  D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"POSITION",     1, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"BLENDINDICES", 0, DXGI_FORMAT_R32_UINT,           0, 32, D3D10_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	if (FAILED(d3dDevice->CreateInputLayout(layout, 3, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &vertexLayout)))
@@ -88,19 +88,20 @@ std::vector<DX10PARTICLESDATA> GenerateParticles(
 	std::vector<DX10PARTICLESDATA> particles;
 	particles.reserve(particlesComp.GetNumParticles() * 6);
 
+	const auto& settings = particlesComp.GetSettings();
 	const float offset = 1.0f;
 	const float offsetX = visual.GetSize().x / -2.0f;
 	const float offsetY = visual.GetSize().y / -2.0f;
-	const float minX = (particlesComp.GetFrameSize().x / 2.0f + offset);
-	const float minY = (particlesComp.GetFrameSize().y / 2.0f + offset);
-	const float maxX = (visual.GetSize().x - particlesComp.GetFrameSize().x / 2.0f - 2.0f * offset);
-	const float maxY = (visual.GetSize().y - particlesComp.GetFrameSize().y / 2.0f - 2.0f * offset);
+	const float sizeX = settings.frameSize.x;
+	const float sizeY = settings.frameSize.y;
+	const float halfSizeX = sizeX / 2.0f;
+	const float halfSizeY = sizeY / 2.0f;
+	const float minX = (sizeX / 2.0f + offset);
+	const float minY = (sizeY / 2.0f + offset);
+	const float maxX = (visual.GetSize().x - sizeX / 2.0f - 2.0f * offset);
+	const float maxY = (visual.GetSize().y - sizeY / 2.0f - 2.0f * offset);
 	const float rangeX = maxX - minX;
 	const float rangeY = maxY - minY;
-	const float sizeX = particlesComp.GetFrameSize().x;
-	const float sizeY = particlesComp.GetFrameSize().y;
-	const float halfSizeX = particlesComp.GetFrameSize().x / 2.0f;
-	const float halfSizeY = particlesComp.GetFrameSize().y / 2.0f;
 
 	int uvColumns = int(textureComp.GetTextureSize().x / sizeX);
 	int uvRows = int(textureComp.GetTextureSize().y / sizeY);
@@ -113,26 +114,27 @@ std::vector<DX10PARTICLESDATA> GenerateParticles(
 		float y = offsetY + minY + RandHelper() * rangeY;
 		float z = (-0.01f * particlesComp.GetNumParticles()) + 0.01f * i;
 
-		LcVector3 pos[4] = {
-			{x - halfSizeX, y - halfSizeY, z},
-			{x + halfSizeX, y + halfSizeY, z},
-			{x + halfSizeX, y - halfSizeY, z},
-			{x - halfSizeX, y + halfSizeY, z},
-		};
-
 		int id = RandHelper(0, 3);
 		int uvTileId = RandHelper(0, uvColumns * uvRows - 1);
+		float time = RandHelper() * settings.lifetime;
+
+		LcVector4 pos[4] = {
+			{x - halfSizeX, y - halfSizeY, z, time},
+			{x + halfSizeX, y + halfSizeY, z, time},
+			{x + halfSizeX, y - halfSizeY, z, time},
+			{x - halfSizeX, y + halfSizeY, z, time},
+		};
 
 		int uvRow = uvTileId / uvColumns;
 		int uvColumn = uvTileId % uvColumns;
 		float ox = uvx * uvColumn;
 		float oy = uvy * uvRow;
 
-		LcVector2 uv[4] = {
-			{ox, oy},
-			{ox + uvx, oy + uvy},
-			{ox + uvx, oy},
-			{ox, oy + uvy},
+		LcVector4 uv[4] = {
+			{ox, oy, settings.fadeInRate, settings.fadeOutRate},
+			{ox + uvx, oy + uvy, settings.fadeInRate, settings.fadeOutRate},
+			{ox + uvx, oy, settings.fadeInRate, settings.fadeOutRate},
+			{ox, oy + uvy, settings.fadeInRate, settings.fadeOutRate},
 		};
 
 		particles.push_back(DX10PARTICLESDATA{ pos[0], uv[0], id });
@@ -215,10 +217,11 @@ void LcBasicParticlesRenderDX10::Render(const IVisual* visual, const LcAppContex
 	// update components
 	if (auto particles = sprite->GetParticlesComponent())
 	{
+		const auto& settings = particles->GetSettings();
 		LcVector4 animData = {
-			particles->GetParticleSpeed(),
-			particles->GetParticleMovementRadius(),
-			particles->GetParticleLifetime(),
+			settings.speed,
+			settings.lifetime,
+			settings.movementRadius,
 			context.gameTime - vbIt->second.creationTime
 		};
 		d3dDevice->UpdateSubresource(animBuffer, 0, NULL, &animData, 0, 0);
