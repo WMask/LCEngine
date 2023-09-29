@@ -84,12 +84,12 @@ std::vector<DX10TILEDSPRITEDATA> GenerateTiles(const LcTiledSpriteComponent& til
 
 	for (const auto& tile : tiledComp.GetTilesData())
 	{
-		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[0], tile.uv[0] });
-		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[1], tile.uv[1] });
-		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[2], tile.uv[2] });
-		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[0], tile.uv[0] });
-		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[3], tile.uv[3] });
-		tiles.emplace_back(DX10TILEDSPRITEDATA{ tile.pos[1], tile.uv[1] });
+		tiles.push_back(DX10TILEDSPRITEDATA{ tile.pos[0], tile.uv[0] });
+		tiles.push_back(DX10TILEDSPRITEDATA{ tile.pos[1], tile.uv[1] });
+		tiles.push_back(DX10TILEDSPRITEDATA{ tile.pos[2], tile.uv[2] });
+		tiles.push_back(DX10TILEDSPRITEDATA{ tile.pos[0], tile.uv[0] });
+		tiles.push_back(DX10TILEDSPRITEDATA{ tile.pos[3], tile.uv[3] });
+		tiles.push_back(DX10TILEDSPRITEDATA{ tile.pos[1], tile.uv[1] });
 	}
 
 	return tiles;

@@ -12,6 +12,7 @@
 #include "World/WorldInterface.h"
 #include "World/SpriteInterface.h"
 #include "GUI/WidgetInterface.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCUtils.h"
 
 
@@ -21,7 +22,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        auto onInitHandler = [](const LcAppContext& context)
+        LcLocalization loc;
+        loc.Load("../../Assets/loc.txt");
+
+        auto onInitHandler = [&loc](const LcAppContext& context)
         {
             auto app = context.app;
             context.world->GetWorldScale().GetScaleList().clear();
@@ -31,10 +35,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // sprites
             auto& spriteHelper = context.world->GetSpriteHelper();
-            if (auto sprite = context.world->AddSprite(200, 200, 300, 300))
+            if (context.world->AddSprite(200, 200, 300, 300))
             {
                 spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
-                sprite->SetTag(1);
+                spriteHelper.SetTag(1);
+            }
+
+            if (context.world->AddSprite(800, 360, LcLayers::Z2, 800, 600))
+            {
+                spriteHelper.AddTextureComponent("../../Assets/particles.png");
+
+                LcBasicParticleSettings settings;
+                settings.frameSize = LcSizef(32.0f, 32.0f);
+                settings.numFrames = 4;
+                settings.lifetime = LcPI * 4.0f;
+                settings.fadeInRate = 0.2f;
+                settings.fadeOutRate = 0.2f;
+                settings.speed = 0.2f;
+                settings.movementRadius = 20.0f;
+
+                spriteHelper.AddParticlesComponent(100, settings);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
@@ -51,15 +71,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // window resize controls
             auto& widgetHelper = context.world->GetWidgetHelper();
-            if (auto widget = context.world->AddWidget(45, 16, 80, 32))
+            if (context.world->AddWidget(45, 16, 80, 32))
             {
                 widgetHelper.AddAlignedTextComponent(L"FPS: 0", LcDefaults::White4, LcTextAlignment::Left, L"Calibri", 18);
-                widget->SetTag(2);
+                widgetHelper.SetTag(2);
             }
 
             if (context.world->AddWidget(182, 550, 94, 32))
             {
-                widgetHelper.AddTextComponent(L"Fullscreen", LcDefaults::White4, L"Calibri", 18);
+                widgetHelper.AddTextComponent(loc.Get("btn_fullscreen"), LcDefaults::White4, L"Calibri", 18);
             }
 
             if (context.world->AddWidget(242, 552, 32, 32))
@@ -73,19 +93,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddWidget(200, 500, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
-                widgetHelper.AddTextComponent(L"1920x1080");
+                widgetHelper.AddTextComponent(loc.Get("btn_1080"));
             }
 
             if (context.world->AddWidget(200, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
-                widgetHelper.AddTextComponent(L"1600x900");
+                widgetHelper.AddTextComponent(loc.Get("btn_900"));
             }
 
             if (context.world->AddWidget(200, 400, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
-                widgetHelper.AddTextComponent(L"1280x720");
+                widgetHelper.AddTextComponent(loc.Get("btn_720"));
             }
         };
 

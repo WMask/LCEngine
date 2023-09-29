@@ -40,20 +40,23 @@ Windows samples are in **Code/Samples/Windows** folder.
 
 int WinMain(...)
 {
-    auto onInitHandler = [](IApplication* app)
+    auto onInitHandler = [](const LcAppContext& context)
     {
-        auto& spriteHelper = app->GetWorld()->GetSpriteHelper();
+        auto& spriteHelper = context.world->GetSpriteHelper();
 
-        if (app->GetWorld()->AddSprite2D(250, 400, 200, 200))
+        if (context.world->AddSprite(250, 400, 200, 200))
         {
             spriteHelper.AddColorsComponent(
                 LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+            spriteHelper.SetTag(1);
         }
     };
 
-    auto onUpdateHandler = [](float dt, IApplication* app)
+    auto onUpdateHandler = [](float deltaSeconds, const LcAppContext& context)
     {
-        auto sprite = app->GetWorld()->GetSprites()[0];
+        DebugMsg("FPS: %.3f\n", (1.0f / deltaSeconds));
+
+        auto sprite = context.world->GetObjectByTag<ISprite>(1);
         auto& keys = app->GetInputSystem()->GetActiveInputDevice()->GetState();
 
         if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite->AddPos(LcVector3(-200 * dt, 0, 0));
@@ -76,7 +79,7 @@ int WinMain(...)
     app->SetWindowSize(1024, 768);
     app->Init(hInstance);
     app->Run();
-  
+
     return 0;
 }
 ```

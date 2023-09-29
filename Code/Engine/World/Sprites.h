@@ -129,25 +129,15 @@ public:
 	//
 	LcBasicParticlesComponent(const LcBasicParticlesComponent& sprite) = default;
 	//
-	LcBasicParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
-		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) :
-		numParticles(inNumParticles), numFrames(inNumFrames), frameSize(inFrameSize),
-		particleLifetime(inParticleLifetime), particleSpeed(inParticleSpeed), particleMovementRadius(inParticleMovementRadius) {}
+	LcBasicParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings) :
+		numParticles(inNumParticles), settings(inSettings) {}
 
 
 public: // IBasicParticlesComponent interface implementation
 	//
 	virtual unsigned short GetNumParticles() const override { return numParticles; }
 	//
-	virtual unsigned short GetNumFrames() const override { return numFrames; }
-	//
-	virtual LcSizef GetFrameSize() const override { return frameSize; }
-	//
-	virtual float GetParticleLifetime() const override { return particleLifetime; }
-	//
-	virtual float GetParticleSpeed() const override { return particleSpeed; }
-	//
-	virtual float GetParticleMovementRadius() const override { return particleMovementRadius; }
+	virtual const LcBasicParticleSettings& GetSettings() const override { return settings; }
 
 
 public: // IVisualComponent interface implementation
@@ -156,12 +146,9 @@ public: // IVisualComponent interface implementation
 
 
 protected:
+	LcBasicParticleSettings settings;
+	//
 	unsigned short numParticles;
-	unsigned short numFrames;
-	float particleLifetime;
-	float particleSpeed;
-	float particleMovementRadius;
-	LcSizef frameSize;
 };
 
 

@@ -34,6 +34,12 @@ CORE_API void ShowMessageModal(const char* message, const char* title);
 
 
 /**
+* To Utf8 string char array */
+std::string ToUtf8(const std::wstring& str);
+/**
+* From Utf8 string char array */
+std::wstring FromUtf8(const std::string& str);
+/**
 * To lower case */
 CORE_API std::string ToLower(const char* str);
 /**
@@ -51,3 +57,12 @@ CORE_API std::wstring ToStringW(int value);
 /**
 * To string */
 CORE_API std::wstring ToStringW(float value);
+
+
+/**
+* Random including bound values */
+CORE_API int RandHelper(int randMin, int randMax);
+
+/**
+* Random (0.0f - 1.0f) */
+CORE_API float RandHelper();

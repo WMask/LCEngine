@@ -60,6 +60,9 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.h">
       <Filter>Header Files\RenderSystemDX10</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\BasicParticlesRenderDX10.h">
+      <Filter>Header Files\RenderSystemDX10</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -95,6 +98,9 @@
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\ConstantBuffersDX10.cpp">
       <Filter>Source Files\RenderSystemDX10</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemDX10\BasicParticlesRenderDX10.cpp">
+      <Filter>Source Files\RenderSystemDX10</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Code\Shaders\HLSL\AnimatedSprite2d.shader">
@@ -107,6 +113,9 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="..\..\..\Code\Shaders\HLSL\TiledSprite2d.shader">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Code\Shaders\HLSL\BasicParticles2d.shader">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

@@ -131,10 +131,6 @@ protected:
 	//
 	ComPtr<ID3D10RasterizerState> rasterizerState;
 	//
-	ComPtr<ID3D10DepthStencilView> depthStencilView;
-	//
-	ComPtr<ID3D10Texture2D> depthStencil;
-	//
 	std::unique_ptr<class LcTextureLoaderDX10> texLoader;
 	//
 	std::unique_ptr<class LcTextRenderDX10> textRender;
