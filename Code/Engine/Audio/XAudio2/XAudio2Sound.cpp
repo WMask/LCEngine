@@ -181,3 +181,8 @@ void LcXAudio2Sound::Pause()
 	playing = false;
 	paused = true;
 }
+
+void LcXAudio2Sound::SetVolume(float volume)
+{
+	voice->SetVolume(volume);
+}

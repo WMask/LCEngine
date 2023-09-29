@@ -42,6 +42,9 @@ public:
 	* Pause playing */
 	virtual void Pause() = 0;
 	/**
+	* Set volume. Default: 1.0 */
+	virtual void SetVolume(float volume) = 0;
+	/**
 	* Get sound playing state */
 	virtual bool IsPlaying() const = 0;
 	/**

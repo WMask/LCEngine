@@ -49,6 +49,8 @@ public: // ISound interface implementation
 	//
 	virtual void Pause() override;
 	//
+	virtual void SetVolume(float volume) override;
+	//
 	virtual bool IsPlaying() const override { return playing; }
 	//
 	virtual bool IsPaused() const override { return paused; }
