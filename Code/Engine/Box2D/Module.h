@@ -16,4 +16,5 @@
 #endif
 
 
+/** Box2D physics system */
 BOX2D_API TPhysicsWorldPtr GetPhysicsWorld();

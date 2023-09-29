@@ -16,4 +16,5 @@
 #endif
 
 
+/** Windows XAudio2 system */
 XAUDIO2_API TAudioSystemPtr GetAudioSystem();
