@@ -153,5 +153,5 @@ public:
 	/**
 	* Add basic particles component to the last added sprite */
 	void AddParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
-		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) const;
+		float inParticleSpeed, float inParticleMovementRadius, float inParticleLifetime = -1.0f) const;
 };

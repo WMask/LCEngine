@@ -156,6 +156,10 @@ void LcWindowsApplication::Run()
 
     context.windowHandle = hWnd;
 
+    SYSTEMTIME time;
+    GetSystemTime(&time);
+    srand(time.wMilliseconds);
+
     inputSystem->Init(context);
 
     // set handles
@@ -255,6 +259,9 @@ void LcWindowsApplication::OnUpdate()
 
         double deltaSeconds = static_cast<double>(deltaTime.QuadPart) / 10000000.0;
         float deltaFloat = static_cast<float>(deltaSeconds);
+
+        double timeSeconds = static_cast<double>(curTime.QuadPart) / 10000000.0;
+        context.gameTime = static_cast<float>(timeSeconds);
 
         if (inputSystem)
         {

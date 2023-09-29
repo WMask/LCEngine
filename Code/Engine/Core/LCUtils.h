@@ -51,3 +51,12 @@ CORE_API std::wstring ToStringW(int value);
 /**
 * To string */
 CORE_API std::wstring ToStringW(float value);
+
+
+/**
+* Random including bound values */
+CORE_API int RandHelper(int randMin, int randMax);
+
+/**
+* Random (0.0f - 1.0f) */
+CORE_API float RandHelper();

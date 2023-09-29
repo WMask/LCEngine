@@ -253,12 +253,13 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 
 bool LcTexturedVisual2DRenderDX10::Supports(const TVFeaturesList& features) const
 {
-	bool needTexture = false, needAnimation = false, needTiles = false;
+	bool needTexture = false, needAnimation = false, needTiles = false, needBasicParticles = false;
 	for (auto& feature : features)
 	{
 		needTexture |= (feature == EVCType::Texture);
 		needAnimation |= (feature == EVCType::FrameAnimation);
 		needTiles |= (feature == EVCType::Tiled);
+		needBasicParticles |= (feature == EVCType::Particles);
 	}
-	return !needAnimation && !needTiles && needTexture;
+	return !needAnimation && !needTiles && !needBasicParticles && needTexture;
 }

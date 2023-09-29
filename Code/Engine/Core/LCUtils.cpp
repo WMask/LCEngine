@@ -121,6 +121,17 @@ std::wstring ToStringW(float value)
 	return ss.str();
 }
 
+int RandHelper(int randMin, int randMax)
+{
+	int diff = randMax - randMin + 1;
+	return randMin + rand() / (RAND_MAX / diff);
+}
+
+float RandHelper()
+{
+	return (float)rand() / (float)RAND_MAX;
+}
+
 #ifdef _WINDOWS
 
 #include <windows.h>

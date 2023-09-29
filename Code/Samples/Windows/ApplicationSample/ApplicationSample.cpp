@@ -37,6 +37,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.SetTag(1);
             }
 
+            if (context.world->AddSprite(800, 360, LcLayers::Z2, 800, 600))
+            {
+                spriteHelper.AddTextureComponent("../../Assets/particles.png");
+                spriteHelper.AddParticlesComponent(100, 4, LcSizef(32.0f, 32.0f), 0.2f, 16.0f);
+            }
+
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
             {
                 spriteHelper.AddTextureComponent("../../Assets/tree.png");

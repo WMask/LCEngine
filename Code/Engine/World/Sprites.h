@@ -130,9 +130,9 @@ public:
 	LcBasicParticlesComponent(const LcBasicParticlesComponent& sprite) = default;
 	//
 	LcBasicParticlesComponent(unsigned short inNumParticles, unsigned short inNumFrames, LcSizef inFrameSize,
-		float inParticleLifetime, float inParticleSpeed, float inParticleMovementRadius) :
+		float inParticleSpeed, float inParticleMovementRadius, float inParticleLifetime) :
 		numParticles(inNumParticles), numFrames(inNumFrames), frameSize(inFrameSize),
-		particleLifetime(inParticleLifetime), particleSpeed(inParticleSpeed), particleMovementRadius(inParticleMovementRadius) {}
+		particleSpeed(inParticleSpeed), particleMovementRadius(inParticleMovementRadius), particleLifetime(inParticleLifetime) {}
 
 
 public: // IBasicParticlesComponent interface implementation

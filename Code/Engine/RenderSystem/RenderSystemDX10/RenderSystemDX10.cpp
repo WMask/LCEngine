@@ -10,6 +10,7 @@
 #include "RenderSystem/RenderSystemDX10/AnimatedSpriteRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TexturedVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
+#include "RenderSystem/RenderSystemDX10/BasicParticlesRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TextRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "Application/ApplicationInterface.h"
@@ -106,33 +107,8 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 
 	backBuffer.Reset();
 
-	// setup depth buffer
-	D3D10_TEXTURE2D_DESC descDepth{};
-	descDepth.Width = width;
-	descDepth.Height = height;
-	descDepth.MipLevels = 1;
-	descDepth.ArraySize = 1;
-	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	descDepth.SampleDesc.Count = 1;
-	descDepth.Usage = D3D10_USAGE_DEFAULT;
-	descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
-
-	if (FAILED(d3dDevice->CreateTexture2D(&descDepth, NULL, depthStencil.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10::Create(): Cannot create depth buffer");
-	}
-
-	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV{};
-	descDSV.Format = descDepth.Format;
-	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
-
-	if (FAILED(d3dDevice->CreateDepthStencilView(depthStencil.Get(), &descDSV, depthStencilView.GetAddressOf())))
-	{
-		throw std::exception("LcRenderSystemDX10::Create(): Cannot create depth stencil view");
-	}
-
 	// set render targets
-	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+	d3dDevice->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), nullptr);
 
 	// set the viewport
 	D3D10_VIEWPORT viewPort;
@@ -192,6 +168,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	textureRender = static_cast<IVisual2DRender*>(visual2DRenders.back().get());
 	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(context));
 	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(context));
+	visual2DRenders.push_back(std::make_shared<LcBasicParticlesRenderDX10>(context));
 	tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(visual2DRenders.back().get());
 	visual2DRenders.front()->Setup(nullptr, context);
 
@@ -230,8 +207,6 @@ void LcRenderSystemDX10::Shutdown()
 	visual2DRenders.clear();
 
 	constBuffers.Destroy();
-	depthStencilView.Reset();
-	depthStencil.Reset();
 	rasterizerState.Reset();
 	blendState.Reset();
 	renderTargetView.Reset();
@@ -305,7 +280,6 @@ void LcRenderSystemDX10::Render(const LcAppContext& context)
 
 	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
-	d3dDevice->ClearDepthStencilView(depthStencilView.Get(), D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, 1.0f, 0);
 
 	LcRenderSystemBase::Render(context);
 
