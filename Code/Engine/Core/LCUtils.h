@@ -34,6 +34,12 @@ CORE_API void ShowMessageModal(const char* message, const char* title);
 
 
 /**
+* To Utf8 string char array */
+std::string ToUtf8(const std::wstring& str);
+/**
+* From Utf8 string char array */
+std::wstring FromUtf8(const std::string& str);
+/**
 * To lower case */
 CORE_API std::string ToLower(const char* str);
 /**

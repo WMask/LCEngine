@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);..\..\..\Code\Engine;..\..\..\Code\Engine\Json\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir);..\..\..\Code\Engine;$(IncludePath)</IncludePath>
@@ -152,6 +152,7 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCCreator.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCDelegate.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCException.h" />
+    <ClInclude Include="..\..\..\Code\Engine\Core\LCLocalization.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypesEx.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\Core\LCTypes.h" />
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\Core\InputSystem.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Core\LCLocalization.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypes.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCTypesEx.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Core\LCUtils.cpp" />

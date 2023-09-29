@@ -71,6 +71,30 @@ void WriteTextFile(const char* filePath, const std::string& text)
 	LC_CATCH{ LC_THROW_EX("WriteTextFile('", filePath, "')"); }
 }
 
+std::string ToUtf8(const std::wstring& str)
+{
+	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(), NULL, 0, NULL, NULL);
+	if (requiredSize <= 0) throw std::exception("ToUtf8(): Convert error");
+
+	std::string mbChars(requiredSize, ' ');
+	int result = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(), &mbChars[0], (int)mbChars.length(), NULL, NULL);
+	if (result != requiredSize) throw std::exception("ToUtf8(): Cannot convert");
+
+	return mbChars;
+}
+
+std::wstring FromUtf8(const std::string& str)
+{
+	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.length(), NULL, 0);
+	if (requiredSize <= 0) throw std::exception("FromUtf8(): Convert error");
+
+	std::wstring wideChars(requiredSize, ' ');
+	int result = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.length(), &wideChars[0], (int)wideChars.length());
+	if (result != requiredSize) throw std::exception("FromUtf8(): Cannot convert");
+
+	return wideChars;
+}
+
 std::string ToLower(const char* str)
 {
 	std::string src(str);
