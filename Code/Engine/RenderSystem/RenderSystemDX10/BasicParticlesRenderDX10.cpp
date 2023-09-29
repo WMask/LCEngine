@@ -112,17 +112,16 @@ std::vector<DX10PARTICLESDATA> GenerateParticles(
 	{
 		float x = offsetX + minX + RandHelper() * rangeX;
 		float y = offsetY + minY + RandHelper() * rangeY;
-		float z = (-0.01f * particlesComp.GetNumParticles()) + 0.01f * i;
 
 		int id = RandHelper(0, 3);
 		int uvTileId = RandHelper(0, uvColumns * uvRows - 1);
 		float time = RandHelper() * settings.lifetime;
 
 		LcVector4 pos[4] = {
-			{x - halfSizeX, y - halfSizeY, z, time},
-			{x + halfSizeX, y + halfSizeY, z, time},
-			{x + halfSizeX, y - halfSizeY, z, time},
-			{x - halfSizeX, y + halfSizeY, z, time},
+			{x - halfSizeX, y - halfSizeY, 0.0f, time},
+			{x + halfSizeX, y + halfSizeY, 0.0f, time},
+			{x + halfSizeX, y - halfSizeY, 0.0f, time},
+			{x - halfSizeX, y + halfSizeY, 0.0f, time},
 		};
 
 		int uvRow = uvTileId / uvColumns;
