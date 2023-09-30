@@ -28,18 +28,3 @@ public:
 	virtual LcAny RunScriptEx(const std::string& script) = 0;
 
 };
-
-
-/**
-* Script module */
-class IScriptModule
-{
-public:
-	/**
-	* Virtual destructor */
-	virtual ~IScriptModule() {}
-	/**
-	* Adds script module */
-	virtual void AddTo(IScriptSystem& system) = 0;
-
-};

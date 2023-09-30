@@ -19,3 +19,11 @@
 /**
 * Lua script system */
 LCLUA_API TScriptSystemPtr GetScriptSystem();
+
+
+/**
+* @brief Add Application functions to script system.
+* Functions:
+* - RequestQuit()
+*/
+LCLUA_API void AddLuaModuleApplication(const LcAppContext& context);
