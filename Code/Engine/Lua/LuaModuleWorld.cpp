@@ -51,7 +51,7 @@ static int AddTintComponent(lua_State* luaState)
 	{
 		if (auto app = GetApp(luaState))
 		{
-			visual->AddTintComponent(LcColor3(r, g, b), app->GetContext());
+			visual->AddTintComponent(app->GetContext(), LcColor3(r, g, b));
 		}
 		else throw std::exception("AddTintComponent(): Invalid Application");
 	}

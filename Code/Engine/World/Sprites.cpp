@@ -19,28 +19,28 @@
 using json = nlohmann::json;
 
 
-void ISprite::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom, const LcAppContext& context)
+void ISprite::AddCustomUVComponent(const LcAppContext& context, LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom)
 {
 	AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 }
 
-void ISprite::AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond, const LcAppContext& context)
+void ISprite::AddAnimationComponent(const LcAppContext& context, LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond)
 {
 	AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond), context);
 }
 
-void ISprite::AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames, const LcAppContext* context)
+void ISprite::AddTiledComponent(const LcAppContext& context, const std::string& tiledJsonPath, const LcLayersList& inLayerNames)
 {
-	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames), *context);
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames), context);
 }
 
-void ISprite::AddTiledComponent(const std::string& tiledJsonPath, LcTiledObjectHandler inObjectHandler,
-	const LcLayersList& inLayerNames, const LcAppContext* context)
+void ISprite::AddTiledComponent(const LcAppContext& context, const std::string& tiledJsonPath,
+	LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames)
 {
-	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), *context);
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), context);
 }
 
-void ISprite::AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings, const LcAppContext& context)
+void ISprite::AddParticlesComponent(const LcAppContext& context, unsigned short inNumParticles, const LcBasicParticleSettings& inSettings)
 {
 	AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inSettings), context);
 }
@@ -259,7 +259,7 @@ void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRight
 {
 	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
 	{
-		sprite->AddCustomUVComponent(inLeftTop, inRightTop, inRightBottom, inLeftBottom, context);
+		sprite->AddCustomUVComponent(context, inLeftTop, inRightTop, inRightBottom, inLeftBottom);
 	}
 }
 
@@ -267,7 +267,7 @@ void LcSpriteHelper::AddAnimationComponent(LcSizef inFrameSize, unsigned short i
 {
 	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
 	{
-		sprite->AddAnimationComponent(inFrameSize, inNumFrames, inFramesPerSecond, context);
+		sprite->AddAnimationComponent(context, inFrameSize, inNumFrames, inFramesPerSecond);
 	}
 }
 
@@ -275,7 +275,7 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const L
 {
 	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
 	{
-		sprite->AddTiledComponent(tiledJsonPath, inLayerNames, &context);
+		sprite->AddTiledComponent(context, tiledJsonPath, inLayerNames);
 	}
 }
 
@@ -283,7 +283,7 @@ void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcTiled
 {
 	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
 	{
-		sprite->AddTiledComponent(tiledJsonPath, inObjectHandler, inLayerNames, &context);
+		sprite->AddTiledComponent(context, tiledJsonPath, inObjectHandler, inLayerNames);
 	}
 }
 
@@ -291,6 +291,6 @@ void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, const 
 {
 	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
 	{
-		sprite->AddParticlesComponent(inNumParticles, inSettings, context);
+		sprite->AddParticlesComponent(context, inNumParticles, inSettings);
 	}
 }

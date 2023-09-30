@@ -140,20 +140,20 @@ public:
 public:
 	/**
 	* Add custom UV component to the last added sprite */
-	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom, const LcAppContext& context);
+	void AddCustomUVComponent(const LcAppContext& context, LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom);
 	/**
 	* Add frame animation component to the last added sprite */
-	void AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond, const LcAppContext& context);
+	void AddAnimationComponent(const LcAppContext& context, LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond);
 	/**
 	* Add tiled component to the last added sprite */
-	void AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}, const LcAppContext* context = nullptr);
+	void AddTiledComponent(const LcAppContext& context, const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{});
 	/**
 	* Add tiled component to the last added sprite */
-	void AddTiledComponent(const std::string& tiledJsonPath,
-		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{}, const LcAppContext* context = nullptr);
+	void AddTiledComponent(const LcAppContext& context, const std::string& tiledJsonPath,
+		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{});
 	/**
 	* Add basic particles component to the last added sprite */
-	void AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings, const LcAppContext& context);
+	void AddParticlesComponent(const LcAppContext& context, unsigned short inNumParticles, const LcBasicParticleSettings& inSettings);
 
 
 public:

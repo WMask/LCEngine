@@ -31,7 +31,7 @@ void IWidget::AddButtonComponent(const std::string& texture, LcVector2 idlePos, 
 void IWidget::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
     LcVector2 checkedPos, LcVector2 checkedHoveredPos, const LcAppContext& context)
 {
-    AddTextureComponent(texture, context);
+    AddTextureComponent(context, texture);
     AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos), context);
 }
 

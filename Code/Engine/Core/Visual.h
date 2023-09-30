@@ -159,22 +159,22 @@ public:
 public:
 	/**
 	* Add tint component to the last added visual */
-	void AddTintComponent(LcColor4 tint, const LcAppContext& context);
+	void AddTintComponent(const LcAppContext& context, LcColor4 tint);
 	/**
 	* Add tint component to the last added visual */
-	void AddTintComponent(LcColor3 tint, const LcAppContext& context);
+	void AddTintComponent(const LcAppContext& context, LcColor3 tint);
 	/**
 	* Add colors component to the last added visual */
-	void AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom, const LcAppContext& context);
+	void AddColorsComponent(const LcAppContext& context, LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom);
 	/**
 	* Add colors component to the last added visual */
-	void AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom, const LcAppContext& context);
+	void AddColorsComponent(const LcAppContext& context, LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom);
 	/**
 	* Add texture component to the last added visual */
-	void AddTextureComponent(const std::string& inTexture, const LcAppContext& context);
+	void AddTextureComponent(const LcAppContext& context, const std::string& inTexture);
 	/**
 	* Add texture component to the last added visual */
-	void AddTextureComponent(const LcBytes& inData, const LcAppContext& context);
+	void AddTextureComponent(const LcAppContext& context, const LcBytes& inData);
 
 
 public:
