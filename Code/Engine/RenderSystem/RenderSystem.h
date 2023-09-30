@@ -8,7 +8,7 @@
 
 #include "Module.h"
 #include "GUI/Module.h"
-#include "World/Visual.h"
+#include "Core/Visual.h"
 #include "Core/LCTypesEx.h"
 #include "Core/LCDelegate.h"
 

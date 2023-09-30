@@ -174,7 +174,7 @@ void LcWindowsApplication::Run()
     // set initial world size
     if (renderSystem) renderSystem->Subscribe(context);
 
-    world->GetWorldScale().UpdateWorldScale(windowSize);
+    world->UpdateWorldScale(windowSize);
 
     // init subsystems
     if (renderSystem)

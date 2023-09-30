@@ -43,7 +43,7 @@ namespace LcLayers
 * Game world scaling parameters for different resolutions.
 * For resolutions not added to scaleList scale selected by resolution.y >= newScreenSize.y
 */
-class WORLD_API LcWorldScale
+class LcWorldScale
 {
 public:
 	LcDelegate<LcVector2> onScaleChanged;
@@ -144,6 +144,9 @@ public:
 	/**
 	* Get world scale */
 	virtual LcWorldScale& GetWorldScale() = 0;
+	/**
+	* Update world scale */
+	virtual void UpdateWorldScale(LcSize newScreenSize) = 0;
 	/**
 	* Set global sprites and widgets tint color */
 	virtual void SetGlobalTint(LcColor3 tint) = 0;

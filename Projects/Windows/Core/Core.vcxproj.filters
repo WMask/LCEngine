@@ -63,6 +63,9 @@
     <ClInclude Include="..\..\..\Code\Engine\Core\LCLocalization.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\Core\Visual.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -85,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Core\LCLocalization.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Core\Visual.cpp">
+      <Filter>Header Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

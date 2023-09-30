@@ -7,7 +7,7 @@
 #pragma once
 
 #include "pch.h"
-#include "World/Visual.h"
+#include "Visual.h"
 #include "World/WorldInterface.h"
 
 

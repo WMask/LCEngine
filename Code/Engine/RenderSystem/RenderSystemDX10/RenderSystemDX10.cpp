@@ -357,7 +357,7 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-		context.world->GetWorldScale().UpdateWorldScale(newViewportSize);
+		context.world->UpdateWorldScale(newViewportSize);
 		context.world->GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 

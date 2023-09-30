@@ -8,7 +8,7 @@
 
 #include "WorldInterface.h"
 #include "Core/LCCreator.h"
-#include "Visual.h"
+#include "Core/Visual.h"
 #include "Camera.h"
 
 #pragma warning(disable : 4251)
@@ -73,6 +73,8 @@ public: // IWorld interface implementation
 	virtual const LcWorldScale& GetWorldScale() const override { return worldScale; }
 	//
 	virtual LcWorldScale& GetWorldScale() override { return worldScale; }
+	//
+	virtual void UpdateWorldScale(LcSize newScreenSize) { worldScale.UpdateWorldScale(newScreenSize); }
 	//
 	virtual void SetGlobalTint(LcColor3 tint) override;
 	//

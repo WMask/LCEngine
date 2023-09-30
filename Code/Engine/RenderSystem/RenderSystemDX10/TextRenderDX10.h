@@ -15,7 +15,7 @@
 #include <map>
 
 #include "Core/LCTypesEx.h"
-#include "World/Visual.h"
+#include "Core/Visual.h"
 
 using Microsoft::WRL::ComPtr;
 

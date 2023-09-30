@@ -12,7 +12,7 @@
 #include <functional>
 
 #include "Module.h"
-#include "Core/LCTypesEx.h"
+#include "LCTypesEx.h"
 
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
@@ -172,7 +172,7 @@ typedef std::function<void(class IVisualComponent&, const LcAppContext&)> TLifes
 
 /**
 * Visual component interface */
-class WORLD_API IVisualComponent
+class CORE_API IVisualComponent
 {
 public:
 	/**
@@ -220,7 +220,7 @@ protected:
 
 /**
 * Visual base interface */
-class WORLD_API IVisualBase : public IVisual
+class CORE_API IVisualBase : public IVisual
 {
 public:
 	IVisualBase() : tag(-1) {}
@@ -256,7 +256,7 @@ protected:
 
 
 /** Visual helper */
-class WORLD_API LcVisualHelper
+class CORE_API LcVisualHelper
 {
 public:
 	LcVisualHelper(const LcAppContext& inContext) : context(inContext) {}

@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Module.h"
-#include "World/Visual.h"
+#include "Core/Visual.h"
 
 #include <functional>
 
