@@ -19,45 +19,32 @@
 using json = nlohmann::json;
 
 
-void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const
+void ISprite::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
-	}
+	AddComponent(std::make_shared<LcSpriteCustomUVComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 }
 
-void LcSpriteHelper::AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const
+void ISprite::AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond), context);
-	}
+	AddComponent(std::make_shared<LcSpriteAnimationComponent>(inFrameSize, inNumFrames, inFramesPerSecond), context);
 }
 
-void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames) const
+void ISprite::AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames, const LcAppContext* context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames), context);
-	}
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inLayerNames), *context);
 }
 
-void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames) const
+void ISprite::AddTiledComponent(const std::string& tiledJsonPath, LcTiledObjectHandler inObjectHandler,
+	const LcLayersList& inLayerNames, const LcAppContext* context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), context);
-	}
+	AddComponent(std::make_shared<LcTiledSpriteComponent>(tiledJsonPath, inObjectHandler, inLayerNames), *context);
 }
 
-void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings) const
+void ISprite::AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inSettings), context);
-	}
+	AddComponent(std::make_shared<LcBasicParticlesComponent>(inNumParticles, inSettings), context);
 }
+
 
 void LcSpriteAnimationComponent::Update(float deltaSeconds, const LcAppContext& context)
 {
@@ -259,9 +246,51 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 	LC_CATCH { LC_THROW("LcTiledSpriteComponent::Init()") }
 }
 
+
 void LcSprite::AddComponent(TVComponentPtr comp, const LcAppContext& context)
 {
 	IVisualBase::AddComponent(comp, context);
 
 	features.insert(comp->GetType());
+}
+
+
+void LcSpriteHelper::AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom) const
+{
+	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
+	{
+		sprite->AddCustomUVComponent(inLeftTop, inRightTop, inRightBottom, inLeftBottom, context);
+	}
+}
+
+void LcSpriteHelper::AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond) const
+{
+	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
+	{
+		sprite->AddAnimationComponent(inFrameSize, inNumFrames, inFramesPerSecond, context);
+	}
+}
+
+void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames) const
+{
+	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
+	{
+		sprite->AddTiledComponent(tiledJsonPath, inLayerNames, &context);
+	}
+}
+
+void LcSpriteHelper::AddTiledComponent(const std::string& tiledJsonPath, LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames) const
+{
+	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
+	{
+		sprite->AddTiledComponent(tiledJsonPath, inObjectHandler, inLayerNames, &context);
+	}
+}
+
+void LcSpriteHelper::AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings) const
+{
+	if (auto sprite = static_cast<ISprite*>(context.world->GetLastAddedVisual()))
+	{
+		sprite->AddParticlesComponent(inNumParticles, inSettings, context);
+	}
 }

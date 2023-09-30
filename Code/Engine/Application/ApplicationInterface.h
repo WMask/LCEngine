@@ -128,6 +128,9 @@ public:
 	* Get vertical synchronization mode */
 	virtual bool GetVSync() const noexcept = 0;
 	/**
+	* Get application context */
+	virtual const LcAppContext& GetContext() const noexcept = 0;
+	/**
 	* Get application stats */
 	virtual LcAppStats GetAppStats() const noexcept = 0;
 	/**

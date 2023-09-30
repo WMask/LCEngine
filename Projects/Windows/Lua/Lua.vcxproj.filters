@@ -41,5 +41,8 @@
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleApplication.cpp">
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleWorld.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

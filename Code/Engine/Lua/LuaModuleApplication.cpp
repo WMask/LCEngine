@@ -5,38 +5,28 @@
 */
 
 #include "Lua/LuaScriptSystem.h"
-#include "Application/ApplicationInterface.h"
+#include "Core/Visual.h"
 
 #include "src/lua.hpp"
 
 
-static IApplication* getApp(lua_State* luaState)
+static int RequestQuit(lua_State* luaState)
 {
-	lua_getglobal(luaState, "app");
-	int top = lua_gettop(luaState);
-	auto appPtr = lua_touserdata(luaState, top);
-	return static_cast<IApplication*>(appPtr);
-}
-
-static int requestQuit(lua_State* luaState)
-{
-	if (auto app = getApp(luaState))
-	{
-		app->RequestQuit();
-	}
-
+	auto app = GetApp(luaState);
+	app->RequestQuit();
 	return 0;
 }
 
-void AddLuaModuleApplication(const LcAppContext& context)
+void AddLuaModuleApplication(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
-	auto luaState = luaSystem ? luaSystem->GetState() : nullptr;
+	auto luaSystemCustom = static_cast<LcLuaScriptSystem*>(scriptSystem);
+	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
 	if (!luaState) throw std::exception("AddLuaModuleApplication(): Invalid Lua state");
 
 	lua_pushlightuserdata(luaState, context.app);
-	lua_setglobal(luaState, "app");
+	lua_setglobal(luaState, LuaAppGlobalName);
 
-	lua_pushcfunction(luaState, requestQuit);
+	lua_pushcfunction(luaState, RequestQuit);
 	lua_setglobal(luaState, "RequestQuit");
 }

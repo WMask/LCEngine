@@ -24,7 +24,17 @@ public:
 	* Runs script */
 	virtual void RunScript(const std::string& script) = 0;
 	/**
+	* Runs script from file */
+	virtual void RunScriptFile(const char* filePath) = 0;
+	/**
 	* Runs script and return value */
 	virtual LcAny RunScriptEx(const std::string& script) = 0;
+	/**
+	* Runs script from file and return value */
+	virtual LcAny RunScriptFileEx(const char* filePath) = 0;
 
 };
+
+
+constexpr const char* LuaAppGlobalName = "app";
+constexpr const char* LuaWorldGlobalName = "world";

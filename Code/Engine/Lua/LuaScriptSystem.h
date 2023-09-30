@@ -8,8 +8,15 @@
 
 #include "Module.h"
 #include "Core/ScriptSystem.h"
+#include "World/WorldInterface.h"
+#include "Application/ApplicationInterface.h"
 
 #pragma warning(disable : 4275)
+
+#define lua_tofloat(L,i) (float)lua_tonumberx(L,(i),NULL)
+
+LCLUA_API IApplication* GetApp(struct lua_State* luaState);
+LCLUA_API IWorld* GetWorld(struct lua_State* luaState);
 
 
 /**
@@ -17,24 +24,23 @@
 class LCLUA_API LcLuaScriptSystem : public IScriptSystem
 {
 public:
-	/**
-	* Constructor */
+	//
 	LcLuaScriptSystem(bool openBaseDefaultLibs = true, bool openAllDefaultLibs = false);
-	/**
-	* Get Lua state */
+	//
 	struct lua_State* GetState() { return luaState; }
 
 
 public: // IScriptSystem interface implementation
-	/**
-	* Destructor */
+	//
 	~LcLuaScriptSystem();
-	/**
-	* Runs script */
+	//
 	virtual void RunScript(const std::string& script) override;
-	/**
-	* Runs script and return value */
+	//
+	virtual void RunScriptFile(const char* filePath) override;
+	//
 	virtual LcAny RunScriptEx(const std::string& script) override;
+	//
+	virtual LcAny RunScriptFileEx(const char* filePath) override;
 
 
 public:

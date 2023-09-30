@@ -157,6 +157,9 @@ public:
 	* Get last added visual */
 	virtual class IVisual* GetLastAddedVisual() const = 0;
 	/**
+	* Get visual helper */
+	virtual const class LcVisualHelper& GetVisualHelper() const = 0;
+	/**
 	* Get sprite helper */
 	virtual const class LcSpriteHelper& GetSpriteHelper() const = 0;
 	/**

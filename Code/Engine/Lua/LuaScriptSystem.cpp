@@ -5,8 +5,13 @@
 */
 
 #include "Lua/LuaScriptSystem.h"
+#include "Core/LCException.h"
+#include "Core/LCUtils.h"
+
 // put headers and lua546.lib compiled static library into Code/Engine/Lua/src folder
 #include "src/lua.hpp"
+
+static const char* CurPath = nullptr;
 
 
 LcLuaScriptSystem::LcLuaScriptSystem(bool openBaseDefaultLibs, bool openAllDefaultLibs)
@@ -24,6 +29,7 @@ LcLuaScriptSystem::LcLuaScriptSystem(bool openBaseDefaultLibs, bool openAllDefau
 				luaopen_table(luaState);
 				luaopen_string(luaState);
 				luaopen_math(luaState);
+				luaopen_debug(luaState);
 			}
 		}
 	}
@@ -44,13 +50,33 @@ void LcLuaScriptSystem::RunScript(const std::string& script)
 {
 	if (!luaState) throw std::exception("LcLuaScriptSystem::RunScript(): Invalid Lua state");
 
+	LC_TRY
+
 	LcAny result;
 	if (luaL_loadbuffer(luaState, script.c_str(), script.length(), "Initializer") == 0)
 	{
-		if (lua_pcall(luaState, 0, 0, 0) != 0) throw std::exception("LcLuaScriptSystem::RunScript(): Script error");
+		if (lua_pcall(luaState, 0, 0, 0) != 0)
+		{
+			int top = lua_gettop(luaState);
+			auto error = lua_tostring(luaState, top);
+			throw std::exception(error);
+		}
 	}
 	else
-		throw std::exception("LcLuaScriptSystem::RunScript(): Buffer loading failed");
+	{
+		int top = lua_gettop(luaState);
+		auto error = lua_tostring(luaState, top);
+		throw std::exception(error);
+	}
+
+	LC_CATCH{ LC_THROW_EX("LcLuaScriptSystem():'", CurPath, "'"); }
+}
+
+void LcLuaScriptSystem::RunScriptFile(const char* filePath)
+{
+	std::string fileText = ReadTextFile(filePath);
+	CurPath = filePath;
+	RunScript(fileText);
 }
 
 LcAny LcLuaScriptSystem::RunScriptEx(const std::string& script)
@@ -90,6 +116,33 @@ LcAny LcLuaScriptSystem::RunScriptEx(const std::string& script)
 
 	return result;
 }
+
+LcAny LcLuaScriptSystem::RunScriptFileEx(const char* filePath)
+{
+	std::string fileText = ReadTextFile(filePath);
+	CurPath = filePath;
+	return RunScriptEx(fileText);
+}
+
+
+IApplication* GetApp(lua_State* luaState)
+{
+	lua_getglobal(luaState, LuaAppGlobalName);
+	auto appPtr = lua_touserdata(luaState, -1);
+	auto app = static_cast<IApplication*>(appPtr);
+	if (!app) throw std::exception("GetApp(): Invalid Application");
+	return app;
+}
+
+IWorld* GetWorld(lua_State* luaState)
+{
+	lua_getglobal(luaState, LuaWorldGlobalName);
+	auto worldPtr = lua_touserdata(luaState, -1);
+	auto world = static_cast<IWorld*>(worldPtr);
+	if (!world) throw std::exception("GetWorld(): Invalid World");
+	return world;
+}
+
 
 TScriptSystemPtr GetScriptSystem()
 {

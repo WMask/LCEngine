@@ -26,4 +26,11 @@ LCLUA_API TScriptSystemPtr GetScriptSystem();
 * Functions:
 * - RequestQuit()
 */
-LCLUA_API void AddLuaModuleApplication(const LcAppContext& context);
+LCLUA_API void AddLuaModuleApplication(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
+
+/**
+* @brief Add World functions to script system.
+* Functions:
+* - AddSprite()
+*/
+LCLUA_API void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);

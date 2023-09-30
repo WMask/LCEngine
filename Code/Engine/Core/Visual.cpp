@@ -125,60 +125,34 @@ protected:
 };
 
 
-void LcVisualHelper::AddTintComponent(LcColor4 tint) const
+void IVisual::AddTintComponent(LcColor4 tint, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualTintComponent>(tint), context);
-	}
+	AddComponent(std::make_shared<LcVisualTintComponent>(tint), context);
 }
 
-void LcVisualHelper::AddTintComponent(LcColor3 tint) const
+void IVisual::AddTintComponent(LcColor3 tint, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualTintComponent>(tint), context);
-	}
+	AddComponent(std::make_shared<LcVisualTintComponent>(tint), context);
 }
 
-void LcVisualHelper::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const
+void IVisual::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
-	}
+	AddComponent(std::make_shared<LcVisualColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 }
 
-void LcVisualHelper::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const
+void IVisual::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
-	}
+	AddComponent(std::make_shared<LcVisualColorsComponent>(inLeftTop, inRightTop, inRightBottom, inLeftBottom), context);
 }
 
-void LcVisualHelper::AddTextureComponent(const std::string& inTexture) const
+void IVisual::AddTextureComponent(const std::string& inTexture, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture), context);
-	}
+	AddComponent(std::make_shared<LcVisualTextureComponent>(inTexture), context);
 }
 
-void LcVisualHelper::AddTextureComponent(const LcBytes& inData) const
+void IVisual::AddTextureComponent(const LcBytes& inData, const LcAppContext& context)
 {
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
-	}
-}
-
-void LcVisualHelper::SetTag(VisualTag tag) const
-{
-	if (auto visual = context.world->GetLastAddedVisual())
-	{
-		visual->SetTag(tag);
-	}
+	AddComponent(std::make_shared<LcVisualTextureComponent>(inData), context);
 }
 
 
@@ -257,4 +231,61 @@ bool IVisualBase::HasComponent(EVCType type) const
 		return comp->GetType() == type;
 	});
 	return result != components.end();
+}
+
+
+void LcVisualHelper::SetTag(VisualTag tag) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->SetTag(tag);
+	}
+}
+
+void LcVisualHelper::AddTintComponent(LcColor4 tint) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->AddTintComponent(tint, context);
+	}
+}
+
+void LcVisualHelper::AddTintComponent(LcColor3 tint) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->AddTintComponent(tint, context);
+	}
+}
+
+void LcVisualHelper::AddColorsComponent(LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->AddColorsComponent(inLeftTop, inRightTop, inRightBottom, inLeftBottom, context);
+	}
+}
+
+void LcVisualHelper::AddColorsComponent(LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->AddColorsComponent(inLeftTop, inRightTop, inRightBottom, inLeftBottom, context);
+	}
+}
+
+void LcVisualHelper::AddTextureComponent(const std::string& inTexture) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->AddTextureComponent(inTexture, context);
+	}
+}
+
+void LcVisualHelper::AddTextureComponent(const LcBytes& inData) const
+{
+	if (auto visual = context.world->GetLastAddedVisual())
+	{
+		visual->AddTextureComponent(inData, context);
+	}
 }

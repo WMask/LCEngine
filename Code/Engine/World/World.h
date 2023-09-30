@@ -28,6 +28,7 @@ class LcWorld : public IWorld
 public:
 	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual, TVisualSet>, TVisualSet> TVisualCreator;
 	typedef std::shared_ptr<LcLifetimeStrategy<class IVisual, TVisualSet>> TVisualLifetime;
+	typedef std::unique_ptr<class LcVisualHelper> TVisualHelperPtr;
 	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
 	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
 
@@ -82,6 +83,8 @@ public: // IWorld interface implementation
 	//
 	virtual class IVisual* GetLastAddedVisual() const override { return lastVisual; }
 	//
+	virtual const class LcVisualHelper& GetVisualHelper() const override { return *visualHelper.get(); }
+	//
 	virtual const class LcSpriteHelper& GetSpriteHelper() const override { return *spriteHelper.get(); }
 	//
 	virtual const class LcWidgetHelper& GetWidgetHelper() const override { return *widgetHelper.get(); }
@@ -91,6 +94,8 @@ protected:
 	const LcAppContext& context;
 	//
 	TVisualCreator items;
+	//
+	TVisualHelperPtr visualHelper;
 	//
 	TSpriteHelperPtr spriteHelper;
 	//

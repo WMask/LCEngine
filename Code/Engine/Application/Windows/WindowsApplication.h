@@ -73,6 +73,8 @@ public: // IApplication interface implementation
 	//
 	virtual bool GetVSync() const noexcept override { return vSync; }
 	//
+	virtual const LcAppContext& GetContext() const noexcept { return context; }
+	//
 	virtual LcAppStats GetAppStats() const noexcept;
 	//
 	virtual class IInputSystem* GetInputSystem() noexcept override { return inputSystem.get(); }

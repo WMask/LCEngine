@@ -90,35 +90,6 @@ public:
 };
 
 
-/**
-* Sprite interface */
-class ISprite : public IVisualBase
-{
-public: // IVisual interface implementation
-	//
-	virtual int GetTypeId() const override { return LcCreatables::Sprite; }
-
-
-public:
-	//
-	static int GetStaticId() { return LcCreatables::Sprite; }
-	//
-	virtual const TVFeaturesList& GetFeaturesList() const = 0;
-
-
-public:
-	//
-	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
-	//
-	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
-	//
-	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
-	//
-	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
-
-};
-
-
 namespace LcTiles
 {
 	namespace Layers
@@ -148,6 +119,54 @@ typedef std::function<void(
 	LcSizef					// object size
 )>
 LcTiledObjectHandler;
+
+
+/**
+* Sprite interface */
+class ISprite : public IVisualBase
+{
+public: // IVisual interface implementation
+	//
+	virtual int GetTypeId() const override { return LcCreatables::Sprite; }
+
+
+public:
+	//
+	static int GetStaticId() { return LcCreatables::Sprite; }
+	//
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
+
+
+public:
+	/**
+	* Add custom UV component to the last added sprite */
+	void AddCustomUVComponent(LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom, const LcAppContext& context);
+	/**
+	* Add frame animation component to the last added sprite */
+	void AddAnimationComponent(LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond, const LcAppContext& context);
+	/**
+	* Add tiled component to the last added sprite */
+	void AddTiledComponent(const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{}, const LcAppContext* context = nullptr);
+	/**
+	* Add tiled component to the last added sprite */
+	void AddTiledComponent(const std::string& tiledJsonPath,
+		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{}, const LcAppContext* context = nullptr);
+	/**
+	* Add basic particles component to the last added sprite */
+	void AddParticlesComponent(unsigned short inNumParticles, const LcBasicParticleSettings& inSettings, const LcAppContext& context);
+
+
+public:
+	//
+	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
+	//
+	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
+	//
+	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
+	//
+	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
+
+};
 
 
 /** Sprite helper */

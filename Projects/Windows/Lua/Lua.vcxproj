@@ -156,6 +156,7 @@
     <ClInclude Include="framework.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleWorld.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleApplication.cpp" />
     <ClCompile Include="dllmain.cpp" />
