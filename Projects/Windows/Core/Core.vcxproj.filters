@@ -90,7 +90,7 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\Core\Visual.cpp">
-      <Filter>Header Files\Core</Filter>
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
