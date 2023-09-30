@@ -153,8 +153,8 @@ void LcBasicParticlesRenderDX10::Setup(const IVisual* visual, const LcAppContext
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcBasicParticlesRenderDX10::Setup(): Invalid render device");
 
-	auto particlesComp = static_cast<IBasicParticlesComponent*>(visual ? visual->GetComponent(EVCType::Particles).get() : nullptr);
-	auto textureComp = static_cast<IVisualTextureComponent*>(visual ? visual->GetComponent(EVCType::Texture).get() : nullptr);
+	auto particlesComp = static_cast<IBasicParticlesComponent*>(visual ? visual->GetComponent(LcComponents::Particles).get() : nullptr);
+	auto textureComp = static_cast<IVisualTextureComponent*>(visual ? visual->GetComponent(LcComponents::Texture).get() : nullptr);
 	if (!particlesComp || !textureComp) throw std::exception("LcBasicParticlesRenderDX10::Setup(): Invalid components");
 
 	auto vbIt = vertexBuffers.find(visual);
@@ -226,7 +226,7 @@ void LcBasicParticlesRenderDX10::Render(const IVisual* visual, const LcAppContex
 		d3dDevice->UpdateSubresource(animBuffer, 0, NULL, &animData, 0, 0);
 	}
 
-	if (sprite->HasComponent(EVCType::Texture))
+	if (sprite->HasComponent(LcComponents::Texture))
 	{
 		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
@@ -249,10 +249,10 @@ bool LcBasicParticlesRenderDX10::Supports(const TVFeaturesList& features) const
 	bool needTexture = false, needAnimation = false, needTiles = false, needBasicParticles = false;
 	for (auto& feature : features)
 	{
-		needTexture |= (feature == EVCType::Texture);
-		needAnimation |= (feature == EVCType::FrameAnimation);
-		needTiles |= (feature == EVCType::Tiled);
-		needBasicParticles |= (feature == EVCType::Particles);
+		needTexture |= (feature == LcComponents::Texture);
+		needAnimation |= (feature == LcComponents::FrameAnimation);
+		needTiles |= (feature == LcComponents::Tiled);
+		needBasicParticles |= (feature == LcComponents::Particles);
 	}
 	return !needAnimation && !needTiles && needTexture && needBasicParticles;
 }

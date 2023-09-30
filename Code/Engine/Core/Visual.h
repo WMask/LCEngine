@@ -18,35 +18,25 @@
 #pragma warning(disable : 4275)
 
 
-/** Visual component pointer */
-typedef std::shared_ptr<class IVisualComponent> TVComponentPtr;
-
-/** Visual component type */
-enum class EVCType : int
+namespace LcComponents
 {
-	// Sprites
-	Tint,
-	VertexColor,
-	Texture,
-	CustomUV,
-	FrameAnimation,
-	Tiled,
-	// Widgets
-	Text,
-	Button,
-	Checkbox,
-	ClickHandler,
-	CheckHandler,
-	// Particles
-	Particles
-};
-
+	constexpr int Tint = 10;
+	constexpr int VertexColor = 11;
+	constexpr int Texture = 12;
+}
 
 namespace LcCreatables
 {
 	constexpr int Sprite = 0;
 	constexpr int Widget = 1;
 }
+
+
+/** Visual component pointer */
+typedef std::shared_ptr<class IVisualComponent> TVComponentPtr;
+
+/** Visual component type */
+typedef int EVCType;
 
 
 /** Text font */
@@ -178,11 +168,11 @@ public:
 
 
 public:
-	class IVisualTintComponent* GetTintComponent() const { return (class IVisualTintComponent*)GetComponent(EVCType::Tint).get(); }
+	class IVisualTintComponent* GetTintComponent() const { return (class IVisualTintComponent*)GetComponent(LcComponents::Tint).get(); }
 	//
-	class IVisualColorsComponent* GetColorsComponent() const { return (class IVisualColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	class IVisualColorsComponent* GetColorsComponent() const { return (class IVisualColorsComponent*)GetComponent(LcComponents::VertexColor).get(); }
 	//
-	class IVisualTextureComponent* GetTextureComponent() const { return (class IVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	class IVisualTextureComponent* GetTextureComponent() const { return (class IVisualTextureComponent*)GetComponent(LcComponents::Texture).get(); }
 
 };
 

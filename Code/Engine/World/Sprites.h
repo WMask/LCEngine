@@ -34,7 +34,7 @@ public: // ISpriteCustomUVComponent interface implementation
 
 public: // IVisualComponent interface implementation
 	//
-	virtual EVCType GetType() const override { return EVCType::CustomUV; }
+	virtual EVCType GetType() const override { return LcComponents::CustomUV; }
 
 
 protected:
@@ -70,7 +70,7 @@ public: // IVisualComponent interface implementation
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
-	virtual EVCType GetType() const override { return EVCType::FrameAnimation; }
+	virtual EVCType GetType() const override { return LcComponents::FrameAnimation; }
 
 
 protected:
@@ -109,7 +109,7 @@ public: // IVisualComponent interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override;
 	//
-	virtual EVCType GetType() const override { return EVCType::Tiled; }
+	virtual EVCType GetType() const override { return LcComponents::Tiled; }
 
 
 protected:
@@ -142,7 +142,7 @@ public: // IBasicParticlesComponent interface implementation
 
 public: // IVisualComponent interface implementation
 	//
-	virtual EVCType GetType() const override { return EVCType::Particles; }
+	virtual EVCType GetType() const override { return LcComponents::Particles; }
 
 
 protected:

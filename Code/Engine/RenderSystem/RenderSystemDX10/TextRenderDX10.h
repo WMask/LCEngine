@@ -35,7 +35,7 @@ public:
 class LcTextRenderDX10
 {
 public:
-	LcTextRenderDX10(float inDpi) : dpi(inDpi), features{EVCType::Texture} {}
+	LcTextRenderDX10(float inDpi) : dpi(inDpi), features{ LcComponents::Texture } {}
 	//
 	~LcTextRenderDX10();
 	//

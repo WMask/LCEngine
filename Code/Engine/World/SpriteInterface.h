@@ -12,6 +12,15 @@
 #include <functional>
 
 
+namespace LcComponents
+{
+	constexpr int CustomUV = 30;
+	constexpr int FrameAnimation = 31;
+	constexpr int Tiled = 32;
+	constexpr int Particles = 33;
+}
+
+
 /** Sprite custom UV component */
 class ISpriteCustomUVComponent : public IVisualComponent
 {
@@ -158,13 +167,13 @@ public:
 
 public:
 	//
-	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
+	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(LcComponents::CustomUV).get(); }
 	//
-	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
+	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(LcComponents::FrameAnimation).get(); }
 	//
-	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
+	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(LcComponents::Tiled).get(); }
 	//
-	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
+	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(LcComponents::Particles).get(); }
 
 };
 

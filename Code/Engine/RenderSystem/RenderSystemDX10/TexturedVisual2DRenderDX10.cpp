@@ -152,7 +152,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
 		}
 
-		if (sprite->HasComponent(EVCType::Texture))
+		if (sprite->HasComponent(LcComponents::Texture))
 		{
 			const LcSpriteDX10* spriteDX10 = (LcSpriteDX10*)sprite;
 			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
@@ -205,7 +205,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		}
 
 		auto widgetDX10 = static_cast<const LcWidgetDX10*>(widget);
-		if (widget->HasComponent(EVCType::Texture))
+		if (widget->HasComponent(LcComponents::Texture))
 		{
 			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&widgetDX10->spriteTextureSV);
 			flags.bHasTexture = TRUE;
@@ -256,10 +256,10 @@ bool LcTexturedVisual2DRenderDX10::Supports(const TVFeaturesList& features) cons
 	bool needTexture = false, needAnimation = false, needTiles = false, needBasicParticles = false;
 	for (auto& feature : features)
 	{
-		needTexture |= (feature == EVCType::Texture);
-		needAnimation |= (feature == EVCType::FrameAnimation);
-		needTiles |= (feature == EVCType::Tiled);
-		needBasicParticles |= (feature == EVCType::Particles);
+		needTexture |= (feature == LcComponents::Texture);
+		needAnimation |= (feature == LcComponents::FrameAnimation);
+		needTiles |= (feature == LcComponents::Tiled);
+		needBasicParticles |= (feature == LcComponents::Particles);
 	}
 	return !needAnimation && !needTiles && !needBasicParticles && needTexture;
 }

@@ -39,7 +39,7 @@ public: // IVisualTintComponent interface implementation
 
 public: // IVisualComponent interface implementation
 	//
-	virtual EVCType GetType() const override { return EVCType::Tint; }
+	virtual EVCType GetType() const override { return LcComponents::Tint; }
 
 
 protected:
@@ -76,7 +76,7 @@ public: // IVisualColorsComponent interface implementation
 
 public: // IVisualComponent interface implementation
 	//
-	virtual EVCType GetType() const override { return EVCType::VertexColor; }
+	virtual EVCType GetType() const override { return LcComponents::VertexColor; }
 
 
 protected:
@@ -115,7 +115,7 @@ public: // IVisualComponent interface implementation
 
 public: // IVisualComponent interface implementation
 	//
-	virtual EVCType GetType() const override { return EVCType::Texture; }
+	virtual EVCType GetType() const override { return LcComponents::Texture; }
 
 
 protected:

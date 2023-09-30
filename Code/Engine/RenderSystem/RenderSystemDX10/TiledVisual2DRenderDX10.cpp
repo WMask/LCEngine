@@ -101,7 +101,7 @@ void LcTiledVisual2DRenderDX10::Setup(const IVisual* visual, const LcAppContext&
 	auto d3dDevice = render ? render->GetD3D10Device() : nullptr;
 	if (!d3dDevice) throw std::exception("LcTiledVisual2DRenderDX10::Setup(): Invalid render device");
 
-	auto tiledComp = static_cast<LcTiledSpriteComponent*>(visual ? visual->GetComponent(EVCType::Tiled).get() : nullptr);
+	auto tiledComp = static_cast<LcTiledSpriteComponent*>(visual ? visual->GetComponent(LcComponents::Tiled).get() : nullptr);
 	if (!tiledComp) throw std::exception("LcTiledVisual2DRenderDX10::Setup(): No Tiled component found");
 
 	auto vbIt = vertexBuffers.find(visual);
@@ -159,7 +159,7 @@ void LcTiledVisual2DRenderDX10::Render(const IVisual* visual, const LcAppContext
 	if (vbIt == vertexBuffers.end()) throw std::exception("LcTiledVisual2DRenderDX10::Render(): No vertex buffer found");
 
 	// update components
-	if (sprite->HasComponent(EVCType::Texture))
+	if (sprite->HasComponent(LcComponents::Texture))
 	{
 		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
@@ -184,9 +184,9 @@ bool LcTiledVisual2DRenderDX10::Supports(const TVFeaturesList& features) const
 	bool needTexture = false, needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
-		needTexture |= (feature == EVCType::Texture);
-		needAnimation |= (feature == EVCType::FrameAnimation);
-		needTiles |= (feature == EVCType::Tiled);
+		needTexture |= (feature == LcComponents::Texture);
+		needAnimation |= (feature == LcComponents::FrameAnimation);
+		needTiles |= (feature == LcComponents::Tiled);
 	}
 	return !needAnimation && needTexture && needTiles;
 }

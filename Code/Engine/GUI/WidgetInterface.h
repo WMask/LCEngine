@@ -13,6 +13,16 @@
 #include <string>
 
 
+namespace LcComponents
+{
+    constexpr int Text = 50;
+    constexpr int Button = 51;
+    constexpr int Checkbox = 52;
+    constexpr int ClickHandler = 53;
+    constexpr int CheckHandler = 54;
+}
+
+
 /** Button state */
 enum class EBtnState : int
 {
@@ -189,15 +199,15 @@ public:
 
 public:
     //
-    IWidgetTextComponent* GetTextComponent() const { return (IWidgetTextComponent*)GetComponent(EVCType::Text).get(); }
+    IWidgetTextComponent* GetTextComponent() const { return (IWidgetTextComponent*)GetComponent(LcComponents::Text).get(); }
     //
-    IWidgetButtonComponent* GetButtonComponent() const { return (IWidgetButtonComponent*)GetComponent(EVCType::Button).get(); }
+    IWidgetButtonComponent* GetButtonComponent() const { return (IWidgetButtonComponent*)GetComponent(LcComponents::Button).get(); }
     //
-    IWidgetCheckboxComponent* GetCheckboxComponent() const { return (IWidgetCheckboxComponent*)GetComponent(EVCType::Checkbox).get(); }
+    IWidgetCheckboxComponent* GetCheckboxComponent() const { return (IWidgetCheckboxComponent*)GetComponent(LcComponents::Checkbox).get(); }
     //
-    IWidgetClickComponent* GetClickHandlerComponent() const { return (IWidgetClickComponent*)GetComponent(EVCType::ClickHandler).get(); }
+    IWidgetClickComponent* GetClickHandlerComponent() const { return (IWidgetClickComponent*)GetComponent(LcComponents::ClickHandler).get(); }
     //
-    IWidgetCheckComponent* GetCheckHandlerComponent() const { return (IWidgetCheckComponent*)GetComponent(EVCType::CheckHandler).get(); }
+    IWidgetCheckComponent* GetCheckHandlerComponent() const { return (IWidgetCheckComponent*)GetComponent(LcComponents::CheckHandler).get(); }
 
 };
 

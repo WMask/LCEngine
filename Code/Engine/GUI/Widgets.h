@@ -47,7 +47,7 @@ public: // IWidgetTextComponent interface implementation
 
 public: // IVisualComponent interface implementation
     //
-    virtual EVCType GetType() const override { return EVCType::Text; }
+    virtual EVCType GetType() const override { return LcComponents::Text; }
 
 
 protected:
@@ -84,7 +84,7 @@ public: // IVisualComponent interface implementation
     //
     virtual void Init(const LcAppContext& context) override;
     //
-    virtual EVCType GetType() const override { return EVCType::Button; }
+    virtual EVCType GetType() const override { return LcComponents::Button; }
 
 
 protected:
@@ -120,7 +120,7 @@ public: // IVisualComponent interface implementation
     //
     virtual void Init(const LcAppContext& context) override;
     //
-    virtual EVCType GetType() const override { return EVCType::Checkbox; }
+    virtual EVCType GetType() const override { return LcComponents::Checkbox; }
 
 
 protected:
@@ -151,7 +151,7 @@ public: // IWidgetClickComponent interface implementation
 
 public: // IVisualComponent interface implementation
     //
-    virtual EVCType GetType() const override { return EVCType::ClickHandler; }
+    virtual EVCType GetType() const override { return LcComponents::ClickHandler; }
 
 
 protected:
@@ -178,7 +178,7 @@ public: // IWidgetCheckComponent interface implementation
 
 public: // IVisualComponent interface implementation
     //
-    virtual EVCType GetType() const override { return EVCType::CheckHandler; }
+    virtual EVCType GetType() const override { return LcComponents::CheckHandler; }
 
 
 protected:
@@ -194,7 +194,7 @@ class GUI_API LcWidget : public IWidget
 public:
     LcWidget()
         : parent(nullptr)
-        , features{ EVCType::Texture }
+        , features{ LcComponents::Texture }
         , pos(LcDefaults::ZeroVec3)
         , size(LcDefaults::ZeroSize)
         , visible(true)
