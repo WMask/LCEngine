@@ -22,7 +22,7 @@ public:
 	//
 	virtual ~LcLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<T> Create() { return std::shared_ptr<T>(); }
+	virtual std::shared_ptr<T> Create(const void* userData) { return std::shared_ptr<T>(); }
 	//
 	virtual void Destroy(T& item, Container& items) {}
 	// need static int GetStaticId() from each type
@@ -46,7 +46,7 @@ public:
 
 
 public:
-	LcCreator() {}
+	LcCreator() : userData(nullptr) {}
 	//
 	~LcCreator()
 	{
@@ -58,11 +58,16 @@ public:
 		if (inStrategy) strategy = inStrategy;
 	}
 	//
+	void SetUserData(void* data)
+	{
+		userData = data;
+	}
+	//
 	template<class T>
 	T* Add()
 	{
 		strategy->curTypeId = T::GetStaticId();
-		TItemPtr newItem = strategy->Create();
+		TItemPtr newItem = strategy->Create(userData);
 		items.insert(items.end(), newItem);
 		return static_cast<T*>(newItem.get());
 	}
@@ -99,5 +104,7 @@ protected:
 	TItemsList items;
 	//
 	TStrategyPtr strategy;
+	//
+	void* userData;
 
 };

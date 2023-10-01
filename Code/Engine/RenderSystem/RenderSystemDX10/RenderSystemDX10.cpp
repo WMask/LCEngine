@@ -28,14 +28,21 @@ public:
 	//
 	virtual ~LcVisual2DLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<IVisual> Create() override
+	virtual std::shared_ptr<IVisual> Create(const void* userData) override
 	{
+		auto layerPtr = static_cast<const float*>(userData);
+		std::shared_ptr<IVisual> newVisual;
+
 		switch (curTypeId)
 		{
-		case LcCreatables::Sprite: return std::make_shared<LcSpriteDX10>();
-		case LcCreatables::Widget: return std::make_shared<LcWidgetDX10>();
+		case LcCreatables::Sprite: newVisual = std::make_shared<LcSpriteDX10>(); break;
+		case LcCreatables::Widget: newVisual = std::make_shared<LcWidgetDX10>(); break;
 		}
-		return std::shared_ptr<IVisual>();
+
+		// add layer Z for initial valid sorting in multiset
+		newVisual->SetPos(LcVector3(0.0f, 0.0f, *layerPtr));
+
+		return newVisual;
 	}
 	//
 	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override {}

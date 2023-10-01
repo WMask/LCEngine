@@ -78,7 +78,7 @@ struct LcBasicParticleSettings
 	float fadeInRate;
 	// fadeOut = particleLifetime * fadeOutRate (-1.0 == no fade out)
 	float fadeOutRate;
-	// speed multiplier
+	// speed multiplier (default = 1.0)
 	float speed;
 	// distance around start position in pixels
 	float movementRadius;
@@ -132,7 +132,7 @@ LcTiledObjectHandler;
 
 /**
 * Sprite interface */
-class ISprite : public IVisualBase
+class WORLD_API ISprite : public IVisualBase
 {
 public: // IVisual interface implementation
 	//

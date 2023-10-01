@@ -117,7 +117,7 @@ public:
     //
     virtual ~LcBodyLifetimeStrategy() {}
     //
-    virtual std::shared_ptr<IPhysicsBody> Create() override { return std::make_shared<LcBox2DBody>(); }
+    virtual std::shared_ptr<IPhysicsBody> Create(const void* userData) override { return std::make_shared<LcBox2DBody>(); }
     //
     virtual void Destroy(IPhysicsBody& item, IPhysicsWorld::TBodiesList& items) override
     {
