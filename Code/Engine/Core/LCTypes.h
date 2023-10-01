@@ -102,6 +102,8 @@ struct LcRange
 	//
 	inline operator T () const { return value; }
 	//
+	inline T* get() const { return const_cast<T*>(&value); }
+	//
 	T value;
 };
 
