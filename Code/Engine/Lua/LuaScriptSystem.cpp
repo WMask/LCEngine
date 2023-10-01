@@ -213,58 +213,6 @@ LcVector3 GetVector(struct lua_State* luaState, int table)
 	return vector;
 }
 
-LcBasicParticleSettings GetParticleSettings(struct lua_State* luaState, int table)
-{
-	if (!lua_istable(luaState, table)) throw std::exception("AddParticlesComponent(): Invalid table");
-
-	LcBasicParticleSettings settings;
-
-	lua_getfield(luaState, table, "frameSize");
-	if (!lua_istable(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
-
-	{
-		lua_getfield(luaState, -1, "x");
-		if (!lua_isnumber(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
-		settings.frameSize.x = lua_tofloat(luaState, -1);
-		lua_pop(luaState, 1);
-
-		lua_getfield(luaState, -1, "y");
-		if (!lua_isnumber(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
-		settings.frameSize.y = lua_tofloat(luaState, -1);
-		lua_pop(luaState, 1);
-	}
-
-	lua_pop(luaState, 1);
-
-	lua_getfield(luaState, table, "numFrames");
-	if (!lua_isnumber(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
-	settings.numFrames = lua_toint(luaState, -1);
-	lua_pop(luaState, 1);
-
-	lua_getfield(luaState, table, "movementRadius");
-	if (!lua_isnumber(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
-	settings.movementRadius = lua_tofloat(luaState, -1);
-	lua_pop(luaState, 1);
-
-	lua_getfield(luaState, table, "lifetime");
-	settings.lifetime = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : -1.0f;
-	lua_pop(luaState, 1);
-
-	lua_getfield(luaState, table, "fadeInRate");
-	settings.fadeInRate = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : -1.0f;
-	lua_pop(luaState, 1);
-
-	lua_getfield(luaState, table, "fadeOutRate");
-	settings.fadeOutRate = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : -1.0f;
-	lua_pop(luaState, 1);
-
-	lua_getfield(luaState, table, "speed");
-	settings.speed = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : 1.0f;
-	lua_pop(luaState, 1);
-
-	return settings;
-}
-
 
 TScriptSystemPtr GetScriptSystem()
 {
