@@ -9,14 +9,31 @@
 #include "Module.h"
 #include "Core/ScriptSystem.h"
 #include "World/WorldInterface.h"
+#include "World/SpriteInterface.h"
 #include "Application/ApplicationInterface.h"
 
 #pragma warning(disable : 4275)
 
 #define lua_tofloat(L,i) (float)lua_tonumberx(L,(i),NULL)
+#define lua_toint(L,i)   (int)lua_tointegerx(L,(i),NULL)
 
+// throws exception if can't get
 LCLUA_API IApplication* GetApp(struct lua_State* luaState);
+
+// throws exception if can't get
 LCLUA_API IWorld* GetWorld(struct lua_State* luaState);
+
+// throws exception if can't get
+LCLUA_API LcColor4 GetColor(struct lua_State* luaState, int table);
+
+// throws exception if can't get
+LCLUA_API LcVector2 GetVector2(struct lua_State* luaState, int table);
+
+// throws exception if can't get
+LCLUA_API LcVector3 GetVector(struct lua_State* luaState, int table);
+
+// throws exception if can't get
+LCLUA_API LcBasicParticleSettings GetParticleSettings(struct lua_State* luaState, int table);
 
 
 /**
