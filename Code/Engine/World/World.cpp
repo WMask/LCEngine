@@ -67,9 +67,7 @@ LcWorld::LcWorld(const LcAppContext& inContext)
 ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ, bool visible)
 {
 	float layer = z;
-	items.SetUserData(&layer);
-
-	auto newSprite = items.Add<LcSprite>();
+	auto newSprite = items.Add<LcSprite>(&layer);
 	if (newSprite)
 	{
 		newSprite->SetPos(LcVector3(x, y, z));
@@ -102,9 +100,7 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 IWidget* LcWorld::AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible)
 {
 	float layer = z;
-	items.SetUserData(&layer);
-
-	auto newWidget = items.Add<LcWidget>();
+	auto newWidget = items.Add<LcWidget>(&layer);
 	if (newWidget)
 	{
 		newWidget->SetPos(LcVector3(x, y, z));

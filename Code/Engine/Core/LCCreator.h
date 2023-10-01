@@ -46,7 +46,7 @@ public:
 
 
 public:
-	LcCreator() : userData(nullptr) {}
+	LcCreator() {}
 	//
 	~LcCreator()
 	{
@@ -58,13 +58,8 @@ public:
 		if (inStrategy) strategy = inStrategy;
 	}
 	//
-	void SetUserData(void* data)
-	{
-		userData = data;
-	}
-	//
 	template<class T>
-	T* Add()
+	T* Add(void* userData = nullptr)
 	{
 		strategy->curTypeId = T::GetStaticId();
 		TItemPtr newItem = strategy->Create(userData);
@@ -104,7 +99,5 @@ protected:
 	TItemsList items;
 	//
 	TStrategyPtr strategy;
-	//
-	void* userData;
 
 };
