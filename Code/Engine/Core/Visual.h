@@ -51,8 +51,14 @@ public:
 /** Font weight */
 enum class LcFontWeight { Light, Normal, Bold };
 
+/** Get font weight */
+CORE_API LcFontWeight ToWeight(const std::string& weight);
+
 /** Text alignment */
 enum class LcTextAlignment { Left, Center, Right, Justified };
+
+/** Get font alignment */
+CORE_API LcTextAlignment ToAlignment(const std::string& alignment);
 
 /** Visual feature list */
 typedef std::set<EVCType> TVFeaturesList;

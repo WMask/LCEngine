@@ -9,7 +9,34 @@
 #include "pch.h"
 #include "Visual.h"
 #include "World/WorldInterface.h"
+#include "Core/LCUtils.h"
 
+
+LcFontWeight ToWeight(const std::string& weight)
+{
+	std::string weightName = ToLower(weight.c_str());
+
+	if (weightName == "light")
+		return LcFontWeight::Light;
+	else if (weightName == "bold")
+		return LcFontWeight::Bold;
+
+	return LcFontWeight::Normal;
+}
+
+LcTextAlignment ToAlignment(const std::string& alignment)
+{
+	std::string alignmentName = ToLower(alignment.c_str());
+
+	if (alignmentName == "left")
+		return LcTextAlignment::Left;
+	else if (alignmentName == "right")
+		return LcTextAlignment::Right;
+	else if (alignmentName == "justified")
+		return LcTextAlignment::Justified;
+
+	return LcTextAlignment::Center;
+}
 
 class LcVisualTintComponent : public IVisualTintComponent
 {

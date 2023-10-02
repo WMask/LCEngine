@@ -7,6 +7,7 @@
 #include "Lua/LuaScriptSystem.h"
 #include "World/SpriteInterface.h"
 #include "GUI/WidgetInterface.h"
+#include "Core/LCUtils.h"
 #include "Core/Visual.h"
 
 #include "src/lua.hpp"
@@ -14,37 +15,82 @@
 
 static int AddSprite(lua_State* luaState)
 {
-	float x, y, z = 0.0f, width, height;
+	bool visible = true;
+	float x, y, z = 0.0f, width, height, rotation = 0.0f;
 	int top = lua_gettop(luaState);
 
-	if (lua_istable(luaState, top - 2))
+	if (lua_istable(luaState, top - 4))
 	{
-		x = lua_tofloat(luaState, top - 4);
-		y = lua_tofloat(luaState, top - 3);
+		x = lua_tofloat(luaState, top - 6);
+		y = lua_tofloat(luaState, top - 5);
 
-		lua_getfield(luaState, top - 2, "z");
+		lua_getfield(luaState, top - 4, "z");
 		if (!lua_isnumber(luaState, -1)) throw std::exception("AddSprite(): Invalid table");
 		z = lua_tofloat(luaState, -1);
 		lua_pop(luaState, 1);
 
-		width = lua_tofloat(luaState, top - 1);
-		height = lua_tofloat(luaState, top - 0);
+		width = lua_tofloat(luaState, top - 3);
+		height = lua_tofloat(luaState, top - 2);
+		rotation = lua_tofloat(luaState, top - 1);
+		visible = (lua_toboolean(luaState, top - 0) != 0);
 	}
 	else
 	{
-		x = lua_tofloat(luaState, top - 3);
-		y = lua_tofloat(luaState, top - 2);
-		width = lua_tofloat(luaState, top - 1);
-		height = lua_tofloat(luaState, top - 0);
+		x = lua_tofloat(luaState, top - 5);
+		y = lua_tofloat(luaState, top - 4);
+		width = lua_tofloat(luaState, top - 3);
+		height = lua_tofloat(luaState, top - 2);
+		rotation = lua_tofloat(luaState, top - 1);
+		visible = (lua_toboolean(luaState, top - 0) != 0);
 	}
 
 	auto world = GetWorld(luaState);
 	if (world)
 	{
-		auto sprite = world->AddSprite(x, y, LcLayersRange(z), width, height);
+		auto sprite = world->AddSprite(x, y, LcLayersRange(z), width, height, rotation, visible);
 		lua_pushlightuserdata(luaState, sprite);
 	}
 	else throw std::exception("AddSprite(): Invalid World");
+
+	return 1;
+}
+
+static int AddWidget(lua_State* luaState)
+{
+	bool visible = true;
+	float x, y, z = 0.0f, width, height;
+	int top = lua_gettop(luaState);
+
+	if (lua_istable(luaState, top - 3))
+	{
+		x = lua_tofloat(luaState, top - 5);
+		y = lua_tofloat(luaState, top - 4);
+
+		lua_getfield(luaState, top - 3, "z");
+		if (!lua_isnumber(luaState, -1)) throw std::exception("AddWidget(): Invalid table");
+		z = lua_tofloat(luaState, -1);
+		lua_pop(luaState, 1);
+
+		width = lua_tofloat(luaState, top - 2);
+		height = lua_tofloat(luaState, top - 1);
+		visible = (lua_toboolean(luaState, top - 0) != 0);
+	}
+	else
+	{
+		x = lua_tofloat(luaState, top - 4);
+		y = lua_tofloat(luaState, top - 3);
+		width = lua_tofloat(luaState, top - 2);
+		height = lua_tofloat(luaState, top - 1);
+		visible = (lua_toboolean(luaState, top - 0) != 0);
+	}
+
+	auto world = GetWorld(luaState);
+	if (world)
+	{
+		auto widget = world->AddWidget(x, y, LcLayersRange(z), width, height, visible);
+		lua_pushlightuserdata(luaState, widget);
+	}
+	else throw std::exception("AddWidget(): Invalid World");
 
 	return 1;
 }
@@ -282,12 +328,55 @@ static int AddParticlesComponent(lua_State* luaState)
 	return 0;
 }
 
+LcTextBlockSettings GetTextBlockSettings(struct lua_State* luaState, int table);
+
+static int AddTextComponent(lua_State* luaState)
+{
+	IWidget* widget = nullptr;
+	LcTextBlockSettings settings;
+	std::string textUtf8;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 2))
+	{
+		widget = static_cast<IWidget*>(lua_touserdata(luaState, top - 2));
+		textUtf8 = lua_tolstring(luaState, top - 1, 0);
+		settings = GetTextBlockSettings(luaState, top - 0);
+	}
+	else
+	{
+		textUtf8 = lua_tolstring(luaState, top - 1, 0);
+		settings = GetTextBlockSettings(luaState, top - 0);
+	}
+
+	if (widget)
+	{
+		auto app = GetApp(luaState);
+		widget->AddTextComponent(app->GetContext(), FromUtf8(textUtf8), settings);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetWidgetHelper().AddTextComponent(FromUtf8(textUtf8), settings);
+	}
+
+	return 0;
+}
+
 void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
 	auto luaSystemCustom = static_cast<LcLuaScriptSystem*>(scriptSystem);
 	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
 	if (!luaState) throw std::exception("AddLuaModuleWorld(): Invalid Lua state");
+
+	for (int i = 1; i <= 9; i++)
+	{
+		std::string layerName = "Z" + ToString(i);
+		float value = static_cast<float>(i) / -10.0f;
+		lua_pushnumber(luaState, value);
+		lua_setglobal(luaState, layerName.c_str());
+	}
 
 	lua_pushlightuserdata(luaState, context.world);
 	lua_setglobal(luaState, LuaWorldGlobalName);
@@ -315,6 +404,12 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 
 	lua_pushcfunction(luaState, AddParticlesComponent);
 	lua_setglobal(luaState, "AddParticlesComponent");
+
+	lua_pushcfunction(luaState, AddWidget);
+	lua_setglobal(luaState, "AddWidget");
+
+	lua_pushcfunction(luaState, AddTextComponent);
+	lua_setglobal(luaState, "AddTextComponent");
 }
 
 
@@ -365,6 +460,40 @@ LcBasicParticleSettings GetParticleSettings(struct lua_State* luaState, int tabl
 
 	lua_getfield(luaState, table, "speed");
 	settings.speed = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : 1.0f;
+	lua_pop(luaState, 1);
+
+	return settings;
+}
+
+LcTextBlockSettings GetTextBlockSettings(struct lua_State* luaState, int table)
+{
+	if (!lua_istable(luaState, table)) throw std::exception("GetTextBlockSettings(): Invalid table");
+
+	LcTextBlockSettings settings;
+
+	lua_getfield(luaState, table, "textColor");
+	if (!lua_istable(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
+	settings.textColor = GetColor(luaState, -1);
+	lua_pop(luaState, 1);
+
+	lua_getfield(luaState, table, "textAlign");
+	if (!lua_isstring(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
+	settings.textAlign = ToAlignment(lua_tolstring(luaState, -1, 0));
+	lua_pop(luaState, 1);
+
+	lua_getfield(luaState, table, "fontName");
+	if (!lua_isstring(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
+	settings.fontName = FromUtf8(lua_tolstring(luaState, -1, 0));
+	lua_pop(luaState, 1);
+
+	lua_getfield(luaState, table, "fontWeight");
+	if (!lua_isstring(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
+	settings.fontWeight = ToWeight(lua_tolstring(luaState, -1, 0));
+	lua_pop(luaState, 1);
+
+	lua_getfield(luaState, table, "fontSize");
+	if (!lua_isinteger(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
+	settings.fontSize = lua_toint(luaState, -1);
 	lua_pop(luaState, 1);
 
 	return settings;
