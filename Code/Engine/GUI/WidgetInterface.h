@@ -23,28 +23,26 @@ namespace LcComponents
 }
 
 
-/** Button state */
-enum class EBtnState : int
+/** Text block settings */
+struct LcTextBlockSettings
 {
-    Idle,
-    Over,
-    Pressed
+    LcTextBlockSettings()
+        : textColor(LcDefaults::Black4)
+        , textAlign(LcTextAlignment::Center)
+        , fontWeight(LcFontWeight::Normal)
+        , fontSize(14)
+    {}
+    //
+    LcColor4 textColor;
+    //
+    LcTextAlignment textAlign;
+    //
+    std::wstring fontName;
+    //
+    LcFontWeight fontWeight;
+    //
+    unsigned short fontSize;
 };
-
-/** Checkbox state */
-enum class ECheckboxState : int
-{
-    Unchecked,
-    UncheckedHovered,
-    Checked,
-    CheckedHovered
-};
-
-/** Widget click handler */
-typedef std::function<void()> LcClickHandler;
-
-/** Widget check handler */
-typedef std::function<void(bool)> LcCheckHandler;
 
 
 /**
@@ -57,17 +55,20 @@ public:
     //
     virtual const std::wstring& GetText() const = 0;
     //
-    virtual const std::wstring& GetFontName() const = 0;
-    //
-    virtual unsigned short GetFontSize() const = 0;
-    //
-    virtual LcFontWeight GetFontWeight() const = 0;
-    //
-    virtual LcTextAlignment GetTextAlignment() const = 0;
-    //
-    virtual LcColor4 GetTextColor() const = 0;
+    virtual const LcTextBlockSettings& GetSettings() const = 0;
 };
 
+
+/** Button state */
+enum class EBtnState : int
+{
+    Idle,
+    Over,
+    Pressed
+};
+
+/** Widget click handler */
+typedef std::function<void()> LcClickHandler;
 
 /**
 * Widget button component */
@@ -82,6 +83,18 @@ public:
     virtual const void* GetData() const = 0;
 };
 
+
+/** Checkbox state */
+enum class ECheckboxState : int
+{
+    Unchecked,
+    UncheckedHovered,
+    Checked,
+    CheckedHovered
+};
+
+/** Widget check handler */
+typedef std::function<void(bool)> LcCheckHandler;
 
 /**
 * Widget checkbox component */
@@ -174,27 +187,20 @@ public:
 public:
     /**
     * Add text component to the last added widget */
-    void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
-        const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22, LcFontWeight inFontWeight = LcFontWeight::Normal,
-        LcTextAlignment inTextAlign = LcTextAlignment::Center, const LcAppContext* context = nullptr);
-    /**
-    * Add text component to the last added widget */
-    void AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
-        LcTextAlignment inTextAlign = LcTextAlignment::Center, const std::wstring& inFontName = L"Calibri",
-        unsigned short inFontSize = 22, LcFontWeight inFontWeight = LcFontWeight::Normal, const LcAppContext* context = nullptr);
+    void AddTextComponent(const LcAppContext& context, const std::wstring& inText, const LcTextBlockSettings& inSettings);
     /**
     * Add button component to the last added widget */
-    void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos, const LcAppContext& context);
+    void AddButtonComponent(const LcAppContext& context, const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos);
     /**
     * Add checkbox component to the last added widget */
-    void AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
-        LcVector2 checkedPos, LcVector2 checkedHoveredPos, const LcAppContext& context);
+    void AddCheckboxComponent(const LcAppContext& context, const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
+        LcVector2 checkedPos, LcVector2 checkedHoveredPos);
     /**
     * Add click handler component to the last added widget */
-    void AddClickHandlerComponent(LcClickHandler handler, bool addDefaultButtonSkin = true, const LcAppContext* context = nullptr);
+    void AddClickHandlerComponent(const LcAppContext& context, LcClickHandler handler, bool addDefaultButtonSkin = true);
     /**
     * Add check handler component to the last added widget */
-    void AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultCheckboxSkin = true, const LcAppContext* context = nullptr);
+    void AddCheckHandlerComponent(const LcAppContext& context, LcCheckHandler handler, bool addDefaultCheckboxSkin = true);
 
 
 public:
@@ -222,14 +228,7 @@ public:
 public:
     /**
     * Add text component to the last added widget */
-    void AddTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
-        const std::wstring& inFontName = L"Calibri", unsigned short inFontSize = 22,
-        LcFontWeight inFontWeight = LcFontWeight::Normal, LcTextAlignment inTextAlign = LcTextAlignment::Center) const;
-    /**
-    * Add text component to the last added widget */
-    void AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor = LcDefaults::Black4,
-        LcTextAlignment inTextAlign = LcTextAlignment::Center, const std::wstring& inFontName = L"Calibri",
-        unsigned short inFontSize = 22, LcFontWeight inFontWeight = LcFontWeight::Normal) const;
+    void AddTextComponent(const std::wstring& inText, const LcTextBlockSettings& inSettings) const;
     /**
     * Add button component to the last added widget */
     void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const;

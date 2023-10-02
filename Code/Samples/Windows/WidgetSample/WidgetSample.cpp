@@ -24,6 +24,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto& widgetHelper = context.world->GetWidgetHelper();
 
+            LcTextBlockSettings settings;
+            settings.fontName = L"Calibri";
+            settings.fontSize = 30;
+            settings.textColor = LcDefaults::Black4;
+
             IWidget* parent = nullptr;
             if (parent = context.world->AddWidget(500, 400, LcLayers::Z2, 200, 200))
             {
@@ -39,7 +44,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto child = context.world->AddWidget(500, 340, 200, 50))
             {
-                widgetHelper.AddTextComponent(L"Label Text", LcDefaults::Black4, L"Calibri", 30);
+                widgetHelper.AddTextComponent(L"Label Text", settings);
                 parent->AddChild(child);
             }
 
@@ -54,8 +59,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto child = context.world->AddWidget(500, 450, 124, 40))
             {
+                settings.fontSize = 22;
+                settings.fontWeight = LcFontWeight::Bold;
+                widgetHelper.AddTextComponent(L"SUBMIT", settings);
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
-                widgetHelper.AddTextComponent(L"SUBMIT", LcDefaults::Black4, L"Calibri", 22, LcFontWeight::Bold);
                 widgetHelper.SetTag(2);
                 parent->AddChild(child);
             }
