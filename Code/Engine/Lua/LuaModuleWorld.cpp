@@ -363,6 +363,205 @@ static int AddTextComponent(lua_State* luaState)
 	return 0;
 }
 
+static int AddButtonComponent(lua_State* luaState)
+{
+	IWidget* widget = nullptr;
+	std::string texture;
+	LcVector2 idlePos, overPos, presPos;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 4))
+	{
+		widget = static_cast<IWidget*>(lua_touserdata(luaState, top - 4));
+		texture = lua_tolstring(luaState, top - 3, 0);
+		idlePos = GetVector2(luaState, top - 2);
+		overPos = GetVector2(luaState, top - 1);
+		presPos = GetVector2(luaState, top - 0);
+	}
+	else
+	{
+		texture = lua_tolstring(luaState, top - 3, 0);
+		idlePos = GetVector2(luaState, top - 2);
+		overPos = GetVector2(luaState, top - 1);
+		presPos = GetVector2(luaState, top - 0);
+	}
+
+	if (widget)
+	{
+		auto app = GetApp(luaState);
+		widget->AddButtonComponent(app->GetContext(), texture, idlePos, overPos, presPos);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetWidgetHelper().AddButtonComponent(texture, idlePos, overPos, presPos);
+	}
+
+	return 0;
+}
+
+static int AddCheckboxComponent(lua_State* luaState)
+{
+	IWidget* widget = nullptr;
+	std::string texture;
+	LcVector2 uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 5))
+	{
+		widget = static_cast<IWidget*>(lua_touserdata(luaState, top - 5));
+		texture = lua_tolstring(luaState, top - 4, 0);
+		uncheckedPos = GetVector2(luaState, top - 3);
+		uncheckedHoveredPos = GetVector2(luaState, top - 2);
+		checkedPos = GetVector2(luaState, top - 1);
+		checkedHoveredPos = GetVector2(luaState, top - 0);
+	}
+	else
+	{
+		texture = lua_tolstring(luaState, top - 4, 0);
+		uncheckedPos = GetVector2(luaState, top - 3);
+		uncheckedHoveredPos = GetVector2(luaState, top - 2);
+		checkedPos = GetVector2(luaState, top - 1);
+		checkedHoveredPos = GetVector2(luaState, top - 0);
+	}
+
+	if (widget)
+	{
+		auto app = GetApp(luaState);
+		widget->AddCheckboxComponent(app->GetContext(), texture, uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetWidgetHelper().AddCheckboxComponent(texture, uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos);
+	}
+
+	return 0;
+}
+
+static int AddClickHandlerComponent(lua_State* luaState)
+{
+	IWidget* widget = nullptr;
+	std::string handlerName;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 1))
+	{
+		widget = static_cast<IWidget*>(lua_touserdata(luaState, top - 1));
+		handlerName = lua_tolstring(luaState, top - 0, 0);
+	}
+	else
+	{
+		handlerName = lua_tolstring(luaState, top - 0, 0);
+	}
+
+	if (handlerName.empty()) throw std::exception("AddClickHandlerComponent(): Invalid handler name");
+
+	auto handler = [luaState, handlerName]() {
+		lua_getglobal(luaState, handlerName.c_str());
+		lua_call(luaState, 0, 0);
+	};
+
+	if (widget)
+	{
+		auto app = GetApp(luaState);
+		widget->AddClickHandlerComponent(app->GetContext(), handler);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetWidgetHelper().AddClickHandlerComponent(handler);
+	}
+
+	return 0;
+}
+
+static int AddCheckHandlerComponent(lua_State* luaState)
+{
+	IWidget* widget = nullptr;
+	std::string handlerName;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 1))
+	{
+		widget = static_cast<IWidget*>(lua_touserdata(luaState, top - 1));
+		handlerName = lua_tolstring(luaState, top - 0, 0);
+	}
+	else
+	{
+		handlerName = lua_tolstring(luaState, top - 0, 0);
+	}
+
+	if (handlerName.empty()) throw std::exception("AddCheckHandlerComponent(): Invalid handler name");
+
+	auto handler = [luaState, handlerName](bool checked) {
+		lua_getglobal(luaState, handlerName.c_str());
+		lua_pushboolean(luaState, (checked ? 1 : 0));
+		lua_call(luaState, 1, 0);
+	};
+
+	if (widget)
+	{
+		auto app = GetApp(luaState);
+		widget->AddCheckHandlerComponent(app->GetContext(), handler);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetWidgetHelper().AddCheckHandlerComponent(handler);
+	}
+
+	return 0;
+}
+
+static int SetTag(lua_State* luaState)
+{
+	IVisual* visual = nullptr;
+	int tag = -1;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 1))
+	{
+		visual = static_cast<IWidget*>(lua_touserdata(luaState, top - 1));
+		tag = lua_toint(luaState, top - 0);
+	}
+	else
+	{
+		tag = lua_toint(luaState, top - 0);
+	}
+
+	if (visual)
+	{
+		auto app = GetApp(luaState);
+		visual->SetTag(tag);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetWidgetHelper().SetTag(tag);
+	}
+
+	return 0;
+}
+
+static int GetTag(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top))
+	{
+		auto visual = static_cast<IVisual*>(lua_touserdata(luaState, top));
+		lua_pushinteger(luaState, visual->GetTag());
+	}
+	else
+	{
+		throw std::exception("GetTag(): Invalid object");
+	}
+
+	return 1;
+}
+
+
 void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
@@ -410,6 +609,24 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 
 	lua_pushcfunction(luaState, AddTextComponent);
 	lua_setglobal(luaState, "AddTextComponent");
+
+	lua_pushcfunction(luaState, AddButtonComponent);
+	lua_setglobal(luaState, "AddButtonComponent");
+
+	lua_pushcfunction(luaState, AddCheckboxComponent);
+	lua_setglobal(luaState, "AddCheckboxComponent");
+
+	lua_pushcfunction(luaState, AddClickHandlerComponent);
+	lua_setglobal(luaState, "AddClickHandlerComponent");
+
+	lua_pushcfunction(luaState, AddCheckHandlerComponent);
+	lua_setglobal(luaState, "AddCheckHandlerComponent");
+
+	lua_pushcfunction(luaState, SetTag);
+	lua_setglobal(luaState, "SetTag");
+
+	lua_pushcfunction(luaState, GetTag);
+	lua_setglobal(luaState, "GetTag");
 }
 
 
