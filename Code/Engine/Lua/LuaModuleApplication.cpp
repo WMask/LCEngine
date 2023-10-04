@@ -24,9 +24,6 @@ void AddLuaModuleApplication(const LcAppContext& context, IScriptSystem* scriptS
 	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
 	if (!luaState) throw std::exception("AddLuaModuleApplication(): Invalid Lua state");
 
-	lua_pushlightuserdata(luaState, context.app);
-	lua_setglobal(luaState, LuaAppGlobalName);
-
 	lua_pushcfunction(luaState, RequestQuit);
 	lua_setglobal(luaState, "RequestQuit");
 }

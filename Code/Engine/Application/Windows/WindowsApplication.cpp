@@ -183,11 +183,8 @@ void LcWindowsApplication::Run()
 
         renderSystem->Create(hWnd, winMode, vSync, allowFullscreen, context);
     }
-
-    if (audioSystem)
-    {
-        audioSystem->Init(context);
-    }
+    if (audioSystem) audioSystem->Init(context);
+    if (scriptSystem) scriptSystem->Init(context);
 
     // call app init handler
     if (initHandler)

@@ -514,53 +514,6 @@ static int AddCheckHandlerComponent(lua_State* luaState)
 	return 0;
 }
 
-static int SetTag(lua_State* luaState)
-{
-	IVisual* visual = nullptr;
-	int tag = -1;
-	int top = lua_gettop(luaState);
-
-	if (lua_isuserdata(luaState, top - 1))
-	{
-		visual = static_cast<IWidget*>(lua_touserdata(luaState, top - 1));
-		tag = lua_toint(luaState, top - 0);
-	}
-	else
-	{
-		tag = lua_toint(luaState, top - 0);
-	}
-
-	if (visual)
-	{
-		auto app = GetApp(luaState);
-		visual->SetTag(tag);
-	}
-	else
-	{
-		auto world = GetWorld(luaState);
-		world->GetWidgetHelper().SetTag(tag);
-	}
-
-	return 0;
-}
-
-static int GetTag(lua_State* luaState)
-{
-	int top = lua_gettop(luaState);
-
-	if (lua_isuserdata(luaState, top))
-	{
-		auto visual = static_cast<IVisual*>(lua_touserdata(luaState, top));
-		lua_pushinteger(luaState, visual->GetTag());
-	}
-	else
-	{
-		throw std::exception("GetTag(): Invalid object");
-	}
-
-	return 1;
-}
-
 
 void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
@@ -576,9 +529,6 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 		lua_pushnumber(luaState, value);
 		lua_setglobal(luaState, layerName.c_str());
 	}
-
-	lua_pushlightuserdata(luaState, context.world);
-	lua_setglobal(luaState, LuaWorldGlobalName);
 
 	lua_pushcfunction(luaState, AddSprite);
 	lua_setglobal(luaState, "AddSprite");
@@ -621,12 +571,6 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 
 	lua_pushcfunction(luaState, AddCheckHandlerComponent);
 	lua_setglobal(luaState, "AddCheckHandlerComponent");
-
-	lua_pushcfunction(luaState, SetTag);
-	lua_setglobal(luaState, "SetTag");
-
-	lua_pushcfunction(luaState, GetTag);
-	lua_setglobal(luaState, "GetTag");
 }
 
 

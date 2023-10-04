@@ -66,7 +66,7 @@ typedef std::set<EVCType> TVFeaturesList;
 
 /**
 * Visual interface */
-class CORE_API IVisual
+class CORE_API IVisual : public IObjectTag
 {
 public:
 	/**
@@ -129,12 +129,6 @@ public:
 	/**
 	* Visual state */
 	virtual bool IsVisible() const = 0;
-	/**
-	* Set visual tag. Default: -1 */
-	virtual void SetTag(VisualTag tag) = 0;
-	/**
-	* Get visual tag */
-	virtual VisualTag GetTag() const = 0;
 	/**
 	* Get visual id (LcCreatables) */
 	virtual int GetTypeId() const = 0;
@@ -243,6 +237,13 @@ public:
 	IVisualBase() : tag(-1) {}
 
 
+public: // IObjectTag interface implementation
+	//
+	virtual void SetTag(ObjectTag inTag) override { tag = inTag; }
+	//
+	virtual ObjectTag GetTag() const override { return tag; }
+
+
 public: // IVisual interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override {}
@@ -258,16 +259,12 @@ public: // IVisual interface implementation
 	virtual TVComponentPtr GetComponent(EVCType type) const override;
 	//
 	virtual bool HasComponent(EVCType type) const override;
-	//
-	virtual void SetTag(VisualTag inTag) override { tag = inTag; }
-	//
-	virtual VisualTag GetTag() const override { return tag; }
 
 
 protected:
 	std::deque<TVComponentPtr> components;
 	//
-	VisualTag tag;
+	ObjectTag tag;
 
 };
 
@@ -300,7 +297,7 @@ public:
 	void AddTextureComponent(const LcBytes& inData) const;
 	/**
 	* Set tag to the last added visual */
-	void SetTag(VisualTag tag) const;
+	void SetTag(ObjectTag tag) const;
 
 
 protected:

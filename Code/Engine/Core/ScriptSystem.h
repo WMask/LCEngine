@@ -21,6 +21,9 @@ public:
 	* Virtual destructor */
 	virtual ~IScriptSystem() {}
 	/**
+	* Init script system */
+	virtual void Init(const struct LcAppContext& context) = 0;
+	/**
 	* Runs script */
 	virtual void RunScript(const std::string& script) = 0;
 	/**

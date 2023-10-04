@@ -121,11 +121,11 @@ public:
 	virtual void Clear() = 0;
 	/**
 	* Get visual by tag */
-	virtual class IVisual* GetVisualByTag(VisualTag tag) const = 0;
+	virtual class IVisual* GetVisualByTag(ObjectTag tag) const = 0;
 	/**
 	* Get object by tag */
 	template<class T>
-	T* GetObjectByTag(VisualTag tag) const { return static_cast<T*>(GetVisualByTag(tag)); }
+	T* GetObjectByTag(ObjectTag tag) const { return static_cast<T*>(GetVisualByTag(tag)); }
 	/**
 	* Get sprites and widgets */
 	virtual const TVisualSet& GetVisuals() const = 0;

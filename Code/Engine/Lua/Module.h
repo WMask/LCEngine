@@ -31,6 +31,16 @@ LCLUA_API void AddLuaModuleApplication(const LcAppContext& context, IScriptSyste
 /**
 * @brief Add World functions to script system.
 * Functions:
-* - AddSprite()
+* - ISprite* AddSprite(float x, float y, [optional { float z },] float width, float height, float rotation, bool visible)
 */
 LCLUA_API void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
+
+/**
+* @brief Add Audio functions to script system.
+* Functions:
+* - ISound* AddSound(string filePath)
+* - void PlaySound(ISound* sound)
+* - void PauseSound(ISound* sound)
+* - void StopSound(ISound* sound)
+*/
+LCLUA_API void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);

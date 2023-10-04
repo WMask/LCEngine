@@ -61,7 +61,7 @@ public: // IWorld interface implementation
 	//
 	virtual void Clear() override { items.Clear(); }
 	//
-	virtual class IVisual* GetVisualByTag(VisualTag tag) const override;
+	virtual class IVisual* GetVisualByTag(ObjectTag tag) const override;
 	//
 	virtual const TVisualSet& GetVisuals() const override { return items.GetItems(); }
 	//

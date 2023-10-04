@@ -32,14 +32,21 @@ public:
 	//
 	virtual ~LcXAudio2Sound() override;
 	//
-	void Load(const char* filePath, IXAudio2* audio);
-	//
 	static int GetStaticId() { return LcCreatables::XAudio2Sound; }
+
+
+public: // IObjectTag interface implementation
+	//
+	virtual void SetTag(ObjectTag inTag) override { tag = inTag; }
+	//
+	virtual ObjectTag GetTag() const override { return tag; }
 
 
 public: // ISound interface implementation
 	//
 	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) override { streamedEndHandler = handler; }
+	//
+	virtual void Load(const char* filePath, class IAudioSystem* audio) override;
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
@@ -74,6 +81,8 @@ protected:
 	LcRiffFile riffBuffer;
 	//
 	LcOggFile oggBuffer;
+	//
+	ObjectTag tag;
 	//
 	bool streamed;
 	//

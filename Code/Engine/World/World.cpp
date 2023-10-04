@@ -127,7 +127,7 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	items.Remove(widget);
 }
 
-IVisual* LcWorld::GetVisualByTag(VisualTag tag) const
+IVisual* LcWorld::GetVisualByTag(ObjectTag tag) const
 {
 	auto it = std::find_if(items.GetItems().begin(), items.GetItems().end(), [tag](const std::shared_ptr<IVisual>& visual) {
 		return visual->GetTag() == tag;

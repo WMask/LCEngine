@@ -89,7 +89,7 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 		throw std::exception("LcXAudio2System::AddSound(): Cannot create sound");
 	}
 
-	newSound->Load(filePath, xAudio2.Get());
+	newSound->Load(filePath, this);
 
 	LC_CATCH{ LC_THROW("LcXAudio2System::AddSound()") }
 

@@ -28,10 +28,12 @@ class LcXAudio2System : public LcXAudio2SystemBase
 public:
 	LcXAudio2System();
 	//
-	virtual ~LcXAudio2System() override;
+	virtual IXAudio2* GetXAudio() const { return xAudio2.Get(); }
 
 
 public:// IAudioSystem interface implementation
+	//
+	virtual ~LcXAudio2System() override;
 	//
 	virtual void Init(const LcAppContext& context) override;
 	//

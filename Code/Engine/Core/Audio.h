@@ -20,14 +20,14 @@ typedef std::function<void(class ISound&)> LcPlaybackEndHandler;
 
 /**
 * Playable sound interface */
-class ISound
+class ISound : public IObjectTag
 {
 public:
 	/**
 	* Virtual destructor */
 	virtual ~ISound() {}
 	/**
-	* Set streamed sound end hanfler */
+	* Set streamed sound end handler */
 	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) = 0;
 	/**
 	* Update sound */
@@ -53,6 +53,12 @@ public:
 	/**
 	* Get sound streamed state. Wav - not streamed, Ogg - streamed. */
 	virtual bool IsStreamed() const = 0;
+
+
+protected:
+	/**
+	* Load sound */
+	virtual void Load(const char* filePath, class IAudioSystem* audio) = 0;
 
 };
 

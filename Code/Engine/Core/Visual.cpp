@@ -261,7 +261,7 @@ bool IVisualBase::HasComponent(EVCType type) const
 }
 
 
-void LcVisualHelper::SetTag(VisualTag tag) const
+void LcVisualHelper::SetTag(ObjectTag tag) const
 {
 	if (auto visual = context.world->GetLastAddedVisual())
 	{

@@ -42,9 +42,6 @@ enum class LcRenderSystemType
 	DX10
 };
 
-/** Visual tag */
-typedef int VisualTag;
-
 /** Window mode */
 enum class LcWinMode : int { Windowed, Fullscreen };
 
@@ -66,6 +63,21 @@ struct CORE_API KEYS
 	unsigned char keys[LcKeysCount];
 };
 
+/** Object tag */
+typedef int ObjectTag;
+
+
+/** Object tag interface */
+class IObjectTag
+{
+public:
+	/**
+	* Set visual tag. Default: -1 */
+	virtual void SetTag(ObjectTag tag) = 0;
+	/**
+	* Get visual tag */
+	virtual ObjectTag GetTag() const = 0;
+};
 
 /** Any value container */
 struct LcAny

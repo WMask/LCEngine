@@ -39,7 +39,11 @@ class LCLUA_API LcLuaScriptSystem : public IScriptSystem
 {
 public:
 	//
-	LcLuaScriptSystem(bool openBaseDefaultLibs = true, bool openAllDefaultLibs = false);
+	LcLuaScriptSystem(bool inOpenBaseDefaultLibs = true, bool inOpenAllDefaultLibs = false)
+		: openBaseDefaultLibs(inOpenBaseDefaultLibs)
+		, openAllDefaultLibs(inOpenAllDefaultLibs)
+		, luaState(nullptr)
+	{}
 	//
 	struct lua_State* GetState() { return luaState; }
 
@@ -47,6 +51,8 @@ public:
 public: // IScriptSystem interface implementation
 	//
 	~LcLuaScriptSystem();
+	//
+	virtual void Init(const struct LcAppContext& context) override;
 	//
 	virtual void RunScript(const std::string& script) override;
 	//
@@ -59,10 +65,15 @@ public: // IScriptSystem interface implementation
 
 public:
 	LcLuaScriptSystem(const LcLuaScriptSystem&) = delete;
+	//
 	LcLuaScriptSystem& operator=(const LcLuaScriptSystem&) = delete;
 
 
 protected:
 	struct lua_State* luaState;
+	//
+	bool openBaseDefaultLibs;
+	//
+	bool openAllDefaultLibs;
 
 };
