@@ -157,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleAudio.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModulePhysics.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleWorld.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleApplication.cpp" />

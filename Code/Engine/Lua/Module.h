@@ -94,3 +94,17 @@ LCLUA_API void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scr
 * - void SetSoundVolume(ISound* sound, float volume)
 */
 LCLUA_API void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
+
+/**
+* @brief Add Audio functions to script system.
+* Functions:
+* - void AddStaticBox(string filePath)
+*
+* - IPhysicsBody* AddDynamic(LcVector2 pos, float radius, float density, bool fixedRotation)
+* 
+*	LcSizef -> { x = 10.0, y = 10.0 }
+* - IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation)
+*
+* - void SetUserData(IPhysicsBody* body, void* userData)
+*/
+LCLUA_API void AddLuaModulePhysics(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
