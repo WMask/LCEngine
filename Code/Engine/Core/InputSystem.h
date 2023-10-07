@@ -11,13 +11,34 @@
 
 #include <functional>
 
+#ifdef _WINDOWS
+# include <windows.h>
+#endif
+
 #pragma warning(disable : 4275)
 #pragma warning(disable : 4251)
 
 
+constexpr int LcKeysCount = 150;
 constexpr int LcJoysticksMaxCount = 4;
 constexpr int LcJoystickKeysOffset = 130;
 constexpr int LcJoystickKeysCount = (LcKeysCount - LcJoystickKeysOffset);
+
+
+/** Mouse buttons */
+enum class LcMouseBtn
+{
+	Left,
+	Right,
+	Middle
+};
+
+/** Key state: Up, Down */
+enum class LcKeyState
+{
+	Up,
+	Down
+};
 
 /** Input device type */
 enum class LcInputDeviceType : int {
@@ -26,6 +47,21 @@ enum class LcInputDeviceType : int {
 	Joystick2,
 	Joystick3,
 	Joystick4
+};
+
+
+/** Keys struct */
+struct CORE_API KEYS
+{
+	KEYS();
+	//
+	unsigned char* Get() { return keys; }
+	//
+	const unsigned char* Get() const { return keys; }
+	//
+	unsigned char& operator[](int index);
+	//
+	unsigned char keys[LcKeysCount];
 };
 
 /** Joystick keys */
@@ -48,6 +84,23 @@ namespace LcJKeys
 	constexpr int Left	= LcJoystickKeysOffset + 13;
 	constexpr int StartArrows = Up;
 	constexpr int EndArrows = Left;
+}
+
+/** Keyboard keys */
+namespace LcKeys
+{
+#ifdef _WINDOWS
+
+	constexpr int Escape = VK_ESCAPE;
+	constexpr int Space = VK_SPACE;
+	constexpr int Return = VK_RETURN;
+	constexpr int Enter = VK_RETURN;
+	constexpr int Up = VK_UP;
+	constexpr int Right = VK_RIGHT;
+	constexpr int Down = VK_DOWN;
+	constexpr int Left = VK_LEFT;
+
+#endif
 }
 
 /** Joystick axis */

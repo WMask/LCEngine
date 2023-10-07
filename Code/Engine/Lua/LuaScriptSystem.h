@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Module.h"
+#include "Core/InputSystem.h"
 #include "Core/ScriptSystem.h"
 #include "World/WorldInterface.h"
 #include "World/SpriteInterface.h"
@@ -18,10 +19,16 @@
 #define lua_toint(L,i)   (int)lua_tointegerx(L,(i),NULL)
 
 // throws exception if can't get
+LCLUA_API IScriptSystem* GetScript(struct lua_State* luaState);
+
+// throws exception if can't get
 LCLUA_API IApplication* GetApp(struct lua_State* luaState);
 
 // throws exception if can't get
 LCLUA_API IWorld* GetWorld(struct lua_State* luaState);
+
+// throws exception if can't get
+LCLUA_API IInputSystem* GetInput(struct lua_State* luaState);
 
 // throws exception if can't get
 LCLUA_API LcColor4 GetColor(struct lua_State* luaState, int table);
@@ -52,7 +59,7 @@ public: // IScriptSystem interface implementation
 	//
 	~LcLuaScriptSystem();
 	//
-	virtual void Init(const struct LcAppContext& context) override;
+	virtual void Init(const LcAppContext& context) override;
 	//
 	virtual void RunScript(const std::string& script) override;
 	//
@@ -61,6 +68,18 @@ public: // IScriptSystem interface implementation
 	virtual LcAny RunScriptEx(const std::string& script) override;
 	//
 	virtual LcAny RunScriptFileEx(const char* filePath) override;
+	//
+	virtual void RunUpdateHandler(float deltaSeconds) override;
+	//
+	virtual void RunActionsHandler(const std::string& action) override;
+	//
+	virtual void RunKeysHandler(int key, LcKeyState keyEvent) override;
+	//
+	virtual void RunAxisHandler(int axis, float x, float y) override;
+	//
+	virtual void SetHandlerName(LcScriptHandler type, const char* name) override;
+	//
+	virtual const char* GetHandlerName(LcScriptHandler type) const override;
 
 
 public:
@@ -75,5 +94,13 @@ protected:
 	bool openBaseDefaultLibs;
 	//
 	bool openAllDefaultLibs;
+	//
+	std::string updateHandlerName;
+	//
+	std::string actionsHandlerName;
+	//
+	std::string keysHandlerName;
+	//
+	std::string axisHandlerName;
 
 };

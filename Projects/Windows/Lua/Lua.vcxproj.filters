@@ -50,5 +50,8 @@
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModulePhysics.cpp">
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleInput.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

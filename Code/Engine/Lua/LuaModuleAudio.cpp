@@ -91,7 +91,7 @@ void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
 	auto luaSystemCustom = static_cast<LcLuaScriptSystem*>(scriptSystem);
-	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
+	auto luaState = luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState();
 	if (!luaState) throw std::exception("AddLuaModuleAudio(): Invalid Lua state");
 
 	lua_pushcfunction(luaState, AddSound);

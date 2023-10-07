@@ -50,6 +50,10 @@ LCLUA_API void AddLuaModuleApplication(const LcAppContext& context, IScriptSyste
 *
 * - void AddTiledComponent([optional ISprite* sprite,] string tilesPath)
 *
+*   LcTiledProps -> { string name, any value }
+*   Handler -> void (string layerName, string objName, string objType, LcTiledProps objProps, LcVector2 objPos, LcSizef objSize)
+* - void AddTiledComponent([optional ISprite* sprite,] string tilesPath, string objectsHandlerName)
+*
 *	LcBasicParticleSettings -> {
 *		frameSize = { x = 32.0, y = 32.0 },
 *		numFrames = 8,
@@ -77,6 +81,10 @@ LCLUA_API void AddLuaModuleApplication(const LcAppContext& context, IScriptSyste
 * - void AddClickHandlerComponent([optional ISprite* sprite,] string handlerFuncName)
 *
 * - void AddCheckHandlerComponent([optional ISprite* sprite,] string handlerFuncName)
+*
+* - void SetVisualPos(ISprite* sprite, LcVector3 pos)
+*
+* - LcVector3 GetVisualPos(ISprite* sprite)
 */
 LCLUA_API void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
 
@@ -101,10 +109,30 @@ LCLUA_API void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scr
 * - void AddStaticBox(string filePath)
 *
 * - IPhysicsBody* AddDynamic(LcVector2 pos, float radius, float density, bool fixedRotation)
-* 
+*
 *	LcSizef -> { x = 10.0, y = 10.0 }
 * - IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation)
 *
-* - void SetUserData(IPhysicsBody* body, void* userData)
+* - void ApplyBodyImpulse(IPhysicsBody* body, LcVector2 impulse)
+*
+* - void SetBodyPos(IPhysicsBody* body, LcVector2 pos)
+*
+* - LcVector2 GetBodyPos(IPhysicsBody* body)
+*
+* - void SetBodyVelocity(IPhysicsBody* body, LcVector2 velocity)
+*
+* - LcVector2 GetBodyVelocity(IPhysicsBody* body)
+* 
+* - bool InBodyFalling(IPhysicsBody* body)
+*
+* - void SetBodyUserData(IPhysicsBody* body, void* userData)
 */
 LCLUA_API void AddLuaModulePhysics(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
+
+/**
+* @brief Add Audio functions to script system.
+* Functions:
+*
+* - bool IsKeyPressed(int key)
+*/
+LCLUA_API void AddLuaModuleInput(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);

@@ -98,7 +98,131 @@ static int AddDynamicBox(lua_State* luaState)
 	return 1;
 }
 
-static int SetUserData(lua_State* luaState)
+static int SetBodyPos(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top - 1) ||
+		!lua_istable(luaState, top - 0))
+	{
+		throw std::exception("SetBodyPos(): Invalid params");
+	}
+	else
+	{
+		IPhysicsBody* body = static_cast<IPhysicsBody*>(lua_touserdata(luaState, top - 1));
+		LcVector2 pos = GetVector2(luaState, top - 0);
+
+		body->SetPos(pos);
+	}
+
+	return 0;
+}
+
+static int ApplyBodyImpulse(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top - 1) ||
+		!lua_istable(luaState, top - 0))
+	{
+		throw std::exception("ApplyBodyImpulse(): Invalid params");
+	}
+	else
+	{
+		IPhysicsBody* body = static_cast<IPhysicsBody*>(lua_touserdata(luaState, top - 1));
+		LcVector2 impulse = GetVector2(luaState, top - 0);
+
+		body->ApplyImpulse(impulse);
+	}
+
+	return 0;
+}
+
+static int GetBodyPos(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("GetBodyPos(): Invalid params");
+	}
+	else
+	{
+		IPhysicsBody* body = static_cast<IPhysicsBody*>(lua_touserdata(luaState, top));
+		LcVector2 pos = body->GetPos();
+
+		lua_createtable(luaState, 0, 2);
+		lua_pushnumber(luaState, pos.x);
+		lua_setfield(luaState, -2, "x");
+		lua_pushnumber(luaState, pos.y);
+		lua_setfield(luaState, -2, "y");
+	}
+
+	return 1;
+}
+
+static int SetBodyVelocity(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top - 1) ||
+		!lua_istable(luaState, top - 0))
+	{
+		throw std::exception("SetBodyVelocity(): Invalid params");
+	}
+	else
+	{
+		IPhysicsBody* body = static_cast<IPhysicsBody*>(lua_touserdata(luaState, top - 1));
+		LcVector2 vel = GetVector2(luaState, top - 0);
+
+		body->SetVelocity(vel);
+	}
+
+	return 0;
+}
+
+static int GetBodyVelocity(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("GetBodyVelocity(): Invalid params");
+	}
+	else
+	{
+		IPhysicsBody* body = static_cast<IPhysicsBody*>(lua_touserdata(luaState, top));
+		LcVector2 vel = body->GetVelocity();
+
+		lua_createtable(luaState, 0, 2);
+		lua_pushnumber(luaState, vel.x);
+		lua_setfield(luaState, -2, "x");
+		lua_pushnumber(luaState, vel.y);
+		lua_setfield(luaState, -2, "y");
+	}
+
+	return 1;
+}
+
+static int IsBodyFalling(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("IsBodyFalling(): Invalid params");
+	}
+	else
+	{
+		IPhysicsBody* body = static_cast<IPhysicsBody*>(lua_touserdata(luaState, top));
+
+		lua_pushboolean(luaState, body->IsFalling() ? 1 : 0);
+	}
+
+	return 1;
+}
+
+static int SetBodyUserData(lua_State* luaState)
 {
 	IPhysicsBody* body = nullptr;
 	void* userData = nullptr;
@@ -107,7 +231,7 @@ static int SetUserData(lua_State* luaState)
 	if (!lua_islightuserdata(luaState, top - 1) ||
 		!lua_islightuserdata(luaState, top - 0))
 	{
-		throw std::exception("SetUserData(): Invalid params");
+		throw std::exception("SetBodyUserData(): Invalid params");
 	}
 	else
 	{
@@ -125,8 +249,8 @@ void AddLuaModulePhysics(const LcAppContext& context, IScriptSystem* scriptSyste
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
 	auto luaSystemCustom = static_cast<LcLuaScriptSystem*>(scriptSystem);
-	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
-	if (!luaState) throw std::exception("AddLuaModuleAudio(): Invalid Lua state");
+	auto luaState = luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState();
+	if (!luaState) throw std::exception("AddLuaModulePhysics(): Invalid Lua state");
 
 	lua_pushcfunction(luaState, AddStaticBox);
 	lua_setglobal(luaState, "AddStaticBox");
@@ -137,6 +261,24 @@ void AddLuaModulePhysics(const LcAppContext& context, IScriptSystem* scriptSyste
 	lua_pushcfunction(luaState, AddDynamicBox);
 	lua_setglobal(luaState, "AddDynamicBox");
 
-	lua_pushcfunction(luaState, SetUserData);
-	lua_setglobal(luaState, "SetUserData");
+	lua_pushcfunction(luaState, ApplyBodyImpulse);
+	lua_setglobal(luaState, "ApplyBodyImpulse");
+
+	lua_pushcfunction(luaState, SetBodyPos);
+	lua_setglobal(luaState, "SetBodyPos");
+
+	lua_pushcfunction(luaState, GetBodyPos);
+	lua_setglobal(luaState, "GetBodyPos");
+
+	lua_pushcfunction(luaState, SetBodyVelocity);
+	lua_setglobal(luaState, "SetBodyVelocity");
+
+	lua_pushcfunction(luaState, GetBodyVelocity);
+	lua_setglobal(luaState, "GetBodyVelocity");
+
+	lua_pushcfunction(luaState, IsBodyFalling);
+	lua_setglobal(luaState, "IsBodyFalling");
+
+	lua_pushcfunction(luaState, SetBodyUserData);
+	lua_setglobal(luaState, "SetBodyUserData");
 }

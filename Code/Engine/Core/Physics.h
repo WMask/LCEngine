@@ -35,6 +35,9 @@ public:
 	* Get velocity */
 	virtual LcVector2 GetVelocity() const = 0;
 	/**
+	* Set position */
+	virtual void SetPos(LcVector2 pos) = 0;
+	/**
 	* Get position */
 	virtual LcVector2 GetPos() const = 0;
 	/**

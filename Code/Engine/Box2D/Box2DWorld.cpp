@@ -86,6 +86,8 @@ public: // IPhysicsBody interface implementation
 	virtual void SetVelocity(LcVector2 velocity) override { body->SetLinearVelocity(FromLC(velocity, false)); }
     //
     virtual LcVector2 GetVelocity() const override { return ToLC(body->GetLinearVelocity(), false); }
+    //
+    virtual void SetPos(LcVector2 pos) override { return body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f); }
 	//
 	virtual LcVector2 GetPos() const override { return ToLC(body->GetPosition()); }
 	//

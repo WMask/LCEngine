@@ -14,8 +14,9 @@
 
 static const char* CurPath = nullptr;
 
-int SetTag(lua_State* luaState);
-int GetTag(lua_State* luaState);
+static int SetTag(lua_State* luaState);
+static int GetTag(lua_State* luaState);
+static int SetScriptHandlerName(lua_State* luaState);
 
 
 LcLuaScriptSystem::~LcLuaScriptSystem()
@@ -27,7 +28,7 @@ LcLuaScriptSystem::~LcLuaScriptSystem()
 	}
 }
 
-void LcLuaScriptSystem::Init(const struct LcAppContext& context)
+void LcLuaScriptSystem::Init(const LcAppContext& context)
 {
 	luaState = luaL_newstate();
 	if (!luaState)
@@ -41,18 +42,38 @@ void LcLuaScriptSystem::Init(const struct LcAppContext& context)
 	}
 	else if (openBaseDefaultLibs)
 	{
-		luaopen_base(luaState);
-		luaopen_table(luaState);
-		luaopen_string(luaState);
-		luaopen_math(luaState);
-		luaopen_debug(luaState);
+		luaL_requiref(luaState, "base", luaopen_base, 1);
+		luaL_requiref(luaState, "table", luaopen_table, 1);
+		luaL_requiref(luaState, "string", luaopen_string, 1);
+		luaL_requiref(luaState, "math", luaopen_math, 1);
+		luaL_requiref(luaState, "debug", luaopen_debug, 1);
 	}
+
+	lua_createtable(luaState, 0, 4);
+	lua_pushinteger(luaState, (int)LcScriptHandler::Update);
+	lua_setfield(luaState, -2, "Update");
+	lua_pushinteger(luaState, (int)LcScriptHandler::Actions);
+	lua_setfield(luaState, -2, "Actions");
+	lua_pushinteger(luaState, (int)LcScriptHandler::Keys);
+	lua_setfield(luaState, -2, "Keys");
+	lua_pushinteger(luaState, (int)LcScriptHandler::Axis);
+	lua_setfield(luaState, -2, "Axis");
+	lua_setglobal(luaState, "ScriptHandler");
+
+	lua_pushcfunction(luaState, SetScriptHandlerName);
+	lua_setglobal(luaState, "SetScriptHandlerName");
+
+	lua_pushlightuserdata(luaState, this);
+	lua_setglobal(luaState, LuaScriptGlobalName);
 
 	lua_pushlightuserdata(luaState, context.app);
 	lua_setglobal(luaState, LuaAppGlobalName);
 
 	lua_pushlightuserdata(luaState, context.world);
 	lua_setglobal(luaState, LuaWorldGlobalName);
+
+	lua_pushlightuserdata(luaState, context.input);
+	lua_setglobal(luaState, LuaInputGlobalName);
 
 	lua_pushcfunction(luaState, SetTag);
 	lua_setglobal(luaState, "SetTag");
@@ -147,6 +168,93 @@ LcAny LcLuaScriptSystem::RunScriptFileEx(const char* filePath)
 	return RunScriptEx(fileText);
 }
 
+void LcLuaScriptSystem::RunUpdateHandler(float deltaSeconds)
+{
+	lua_getglobal(luaState, updateHandlerName.c_str());
+	lua_pushnumber(luaState, deltaSeconds);
+	lua_call(luaState, 1, 0);
+}
+
+void LcLuaScriptSystem::RunActionsHandler(const std::string& action)
+{
+	lua_getglobal(luaState, actionsHandlerName.c_str());
+	lua_pushstring(luaState, action.c_str());
+	lua_call(luaState, 1, 0);
+}
+
+void LcLuaScriptSystem::RunKeysHandler(int key, LcKeyState keyEvent)
+{
+	lua_getglobal(luaState, keysHandlerName.c_str());
+	lua_pushinteger(luaState, key);
+	lua_pushinteger(luaState, (int)keyEvent);
+	lua_call(luaState, 2, 0);
+}
+
+void LcLuaScriptSystem::RunAxisHandler(int axis, float x, float y)
+{
+	lua_getglobal(luaState, axisHandlerName.c_str());
+	lua_pushinteger(luaState, axis);
+	lua_pushnumber(luaState, x);
+	lua_pushnumber(luaState, y);
+	lua_call(luaState, 3, 0);
+}
+
+void LcLuaScriptSystem::SetHandlerName(LcScriptHandler type, const char* name)
+{
+	switch (type)
+	{
+	case LcScriptHandler::Update: updateHandlerName = name; break;
+	case LcScriptHandler::Actions: actionsHandlerName = name; break;
+	case LcScriptHandler::Keys: keysHandlerName = name; break;
+	case LcScriptHandler::Axis: axisHandlerName = name; break;
+	}
+}
+
+const char* LcLuaScriptSystem::GetHandlerName(LcScriptHandler type) const
+{
+	switch (type)
+	{
+	case LcScriptHandler::Update: return updateHandlerName.c_str();
+	case LcScriptHandler::Actions: return actionsHandlerName.c_str();
+	case LcScriptHandler::Keys: return keysHandlerName.c_str();
+	case LcScriptHandler::Axis: return axisHandlerName.c_str();
+	}
+
+	return nullptr;
+}
+
+
+int SetScriptHandlerName(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isinteger(luaState, top - 1) ||
+		!lua_isstring(luaState, top - 0))
+	{
+		throw std::exception("SetScriptHandlerName(): Invalid params");
+	}
+	else
+	{
+		LcScriptHandler type = static_cast<LcScriptHandler>(lua_toint(luaState, top - 1));
+		const char* name = lua_tostring(luaState, top - 0);
+
+		if (auto script = GetScript(luaState))
+		{
+			script->SetHandlerName(type, name);
+		}
+	}
+
+	return 0;
+}
+
+IScriptSystem* GetScript(struct lua_State* luaState)
+{
+	lua_getglobal(luaState, LuaScriptGlobalName);
+	auto scriptPtr = lua_touserdata(luaState, -1);
+	auto script = static_cast<IScriptSystem*>(scriptPtr);
+	if (!script) throw std::exception("GetScript(): Invalid Script system");
+	return script;
+}
 
 IApplication* GetApp(lua_State* luaState)
 {
@@ -164,6 +272,15 @@ IWorld* GetWorld(lua_State* luaState)
 	auto world = static_cast<IWorld*>(worldPtr);
 	if (!world) throw std::exception("GetWorld(): Invalid World");
 	return world;
+}
+
+IInputSystem* GetInput(struct lua_State* luaState)
+{
+	lua_getglobal(luaState, LuaInputGlobalName);
+	auto inputPtr = lua_touserdata(luaState, -1);
+	auto input = static_cast<IInputSystem*>(inputPtr);
+	if (!input) throw std::exception("GetInput(): Invalid Input");
+	return input;
 }
 
 LcColor4 GetColor(struct lua_State* luaState, int table)

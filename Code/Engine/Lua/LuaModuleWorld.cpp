@@ -266,28 +266,84 @@ static int AddAnimationComponent(lua_State* luaState)
 static int AddTiledComponent(lua_State* luaState)
 {
 	ISprite* sprite = nullptr;
-	const char* tilesPath = nullptr;
+	std::string tilesPath;
+	std::string handlerName;
 	int top = lua_gettop(luaState);
 
-	if (lua_isuserdata(luaState, top))
+	if (lua_isuserdata(luaState, top - 2) &&
+		lua_isstring(luaState, top - 1) &&
+		lua_isstring(luaState, top - 0))
 	{
-		sprite = static_cast<ISprite*>(lua_touserdata(luaState, top));
+		sprite = static_cast<ISprite*>(lua_touserdata(luaState, top - 2));
 		tilesPath = lua_tolstring(luaState, top - 1, 0);
+		handlerName = lua_tolstring(luaState, top - 0, 0);
+	}
+	else if (
+		lua_isuserdata(luaState, top - 1) &&
+		lua_isstring(luaState, top - 0))
+	{
+		sprite = static_cast<ISprite*>(lua_touserdata(luaState, top - 1));
+		tilesPath = lua_tolstring(luaState, top - 0, 0);
 	}
 	else
 	{
-		tilesPath = lua_tolstring(luaState, top - 0, 0);
+		tilesPath = lua_tolstring(luaState, top, 0);
 	}
+
+	if (tilesPath.empty()) throw std::exception("AddTiledComponent(): Invalid handler name");
+
+	auto handler = [luaState, handlerName](
+		const std::string& layerName,
+		const std::string& objName,
+		const std::string& objType,
+		const LcTiledProps& objProps,
+		LcVector2 objPos,
+		LcSizef objSize)
+	{
+		lua_getglobal(luaState, handlerName.c_str());
+
+		// 1
+		lua_pushstring(luaState, layerName.c_str());
+		// 2
+		lua_pushstring(luaState, objName.c_str());
+		// 3
+		lua_pushstring(luaState, objType.c_str());
+
+		// 4
+		lua_createtable(luaState, 0, 0);
+
+		// 5
+		lua_createtable(luaState, 0, 2);
+		lua_pushnumber(luaState, objPos.x);
+		lua_setfield(luaState, -2, "x");
+		lua_pushnumber(luaState, objPos.y);
+		lua_setfield(luaState, -2, "y");
+
+		// 6
+		lua_createtable(luaState, 0, 2);
+		lua_pushnumber(luaState, objSize.x);
+		lua_setfield(luaState, -2, "x");
+		lua_pushnumber(luaState, objSize.y);
+		lua_setfield(luaState, -2, "y");
+
+		lua_call(luaState, 6, 0);
+	};
 
 	if (sprite)
 	{
 		auto app = GetApp(luaState);
-		sprite->AddTiledComponent(app->GetContext(), tilesPath);
+		if (handlerName.empty())
+			sprite->AddTiledComponent(app->GetContext(), tilesPath);
+		else
+			sprite->AddTiledComponent(app->GetContext(), tilesPath, handler);
 	}
 	else
 	{
 		auto world = GetWorld(luaState);
-		world->GetSpriteHelper().AddTiledComponent(tilesPath);
+		if (handlerName.empty())
+			world->GetSpriteHelper().AddTiledComponent(tilesPath);
+		else
+			world->GetSpriteHelper().AddTiledComponent(tilesPath, handler);
 	}
 
 	return 0;
@@ -514,12 +570,57 @@ static int AddCheckHandlerComponent(lua_State* luaState)
 	return 0;
 }
 
+static int SetVisualPos(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top - 1) ||
+		!lua_istable(luaState, top - 0))
+	{
+		throw std::exception("SetVisualPos(): Invalid params");
+	}
+	else
+	{
+		IVisual* visual = static_cast<IVisual*>(lua_touserdata(luaState, top - 1));
+		LcVector3 pos = GetVector(luaState, top - 0);
+
+		visual->SetPos(pos);
+	}
+
+	return 0;
+}
+
+static int GetVisualPos(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("GetVisualPos(): Invalid params");
+	}
+	else
+	{
+		IVisual* visual = static_cast<IVisual*>(lua_touserdata(luaState, top));
+		LcVector3 pos = visual->GetPos();
+
+		lua_createtable(luaState, 0, 3);
+		lua_pushnumber(luaState, pos.x);
+		lua_setfield(luaState, -2, "x");
+		lua_pushnumber(luaState, pos.y);
+		lua_setfield(luaState, -2, "y");
+		lua_pushnumber(luaState, pos.z);
+		lua_setfield(luaState, -2, "z");
+	}
+
+	return 1;
+}
+
 
 void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
 	auto luaSystemCustom = static_cast<LcLuaScriptSystem*>(scriptSystem);
-	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
+	auto luaState = luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState();
 	if (!luaState) throw std::exception("AddLuaModuleWorld(): Invalid Lua state");
 
 	for (int i = 1; i <= 9; i++)
@@ -529,6 +630,15 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 		lua_pushnumber(luaState, value);
 		lua_setglobal(luaState, layerName.c_str());
 	}
+
+	lua_createtable(luaState, 0, 3);
+	lua_pushstring(luaState, LcTiles::Layers::Default.c_str());
+	lua_setfield(luaState, -2, "Default");
+	lua_pushstring(luaState, LcTiles::Layers::Collision.c_str());
+	lua_setfield(luaState, -2, "Collision");
+	lua_pushstring(luaState, LcTiles::Layers::Objects.c_str());
+	lua_setfield(luaState, -2, "Objects");
+	lua_setglobal(luaState, "Layers");
 
 	lua_pushcfunction(luaState, AddSprite);
 	lua_setglobal(luaState, "AddSprite");
@@ -571,6 +681,12 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 
 	lua_pushcfunction(luaState, AddCheckHandlerComponent);
 	lua_setglobal(luaState, "AddCheckHandlerComponent");
+
+	lua_pushcfunction(luaState, SetVisualPos);
+	lua_setglobal(luaState, "SetVisualPos");
+
+	lua_pushcfunction(luaState, GetVisualPos);
+	lua_setglobal(luaState, "GetVisualPos");
 }
 
 

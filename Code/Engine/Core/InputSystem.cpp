@@ -50,6 +50,19 @@ void LcDefaultInputSystem::SetActiveDevice(const IInputDevice* inActiveDevice)
     }
 }
 
+KEYS::KEYS()
+{
+    memset(keys, 0, sizeof(keys));
+}
+
+unsigned char& KEYS::operator[](int index)
+{
+    if (index < 0 || index >= LcKeysCount) throw std::exception("KEYS::operator[]: Invalid index");
+
+    return keys[index];
+}
+
+
 TInputSystemPtr GetDefaultInputSystem()
 {
     return std::make_unique<LcDefaultInputSystem>();

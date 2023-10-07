@@ -17,22 +17,6 @@
 /** vector of unsigned chars */
 typedef std::vector<unsigned char> LcBytes;
 
-
-/** Mouse buttons */
-enum class LcMouseBtn
-{
-	Left,
-	Right,
-	Middle
-};
-
-/** Key state: Up, Down */
-enum class LcKeyState
-{
-	Up,
-	Down
-};
-
 /** Render system type */
 enum class LcRenderSystemType
 {
@@ -46,22 +30,6 @@ enum class LcRenderSystemType
 enum class LcWinMode : int { Windowed, Fullscreen };
 
 constexpr float LcPI = 3.14159265f;
-
-constexpr int LcKeysCount = 150;
-
-/** Keys struct */
-struct CORE_API KEYS
-{
-	KEYS();
-	//
-	unsigned char* Get() { return keys; }
-	//
-	const unsigned char* Get() const { return keys; }
-	//
-	unsigned char& operator[](int index);
-	//
-	unsigned char keys[LcKeysCount];
-};
 
 /** Object tag */
 typedef int ObjectTag;

@@ -21,7 +21,7 @@ void AddLuaModuleApplication(const LcAppContext& context, IScriptSystem* scriptS
 {
 	auto luaSystem = static_cast<LcLuaScriptSystem*>(context.scripts);
 	auto luaSystemCustom = static_cast<LcLuaScriptSystem*>(scriptSystem);
-	auto luaState = luaSystem ? (luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState()) : nullptr;
+	auto luaState = luaSystemCustom ? luaSystemCustom->GetState() : luaSystem->GetState();
 	if (!luaState) throw std::exception("AddLuaModuleApplication(): Invalid Lua state");
 
 	lua_pushcfunction(luaState, RequestQuit);

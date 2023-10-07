@@ -12,7 +12,8 @@
 #include <functional>
 
 #include "Module.h"
-#include "LCTypesEx.h"
+#include "Core/LCTypesEx.h"
+#include "Core/InputSystem.h"
 
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
