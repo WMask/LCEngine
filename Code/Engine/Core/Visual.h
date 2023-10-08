@@ -13,40 +13,31 @@
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
+#include "Core/InputSystem.h"
 
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
 
-/** Visual component pointer */
-typedef std::shared_ptr<class IVisualComponent> TVComponentPtr;
-
-/** Visual component type */
-enum class EVCType : int
+namespace LcComponents
 {
-	// Sprites
-	Tint,
-	VertexColor,
-	Texture,
-	CustomUV,
-	FrameAnimation,
-	Tiled,
-	// Widgets
-	Text,
-	Button,
-	Checkbox,
-	ClickHandler,
-	CheckHandler,
-	// Particles
-	Particles
-};
-
+	constexpr int Tint = 10;
+	constexpr int VertexColor = 11;
+	constexpr int Texture = 12;
+}
 
 namespace LcCreatables
 {
 	constexpr int Sprite = 0;
 	constexpr int Widget = 1;
 }
+
+
+/** Visual component pointer */
+typedef std::shared_ptr<class IVisualComponent> TVComponentPtr;
+
+/** Visual component type */
+typedef int EVCType;
 
 
 /** Text font */
@@ -61,8 +52,14 @@ public:
 /** Font weight */
 enum class LcFontWeight { Light, Normal, Bold };
 
+/** Get font weight */
+CORE_API LcFontWeight ToWeight(const std::string& weight);
+
 /** Text alignment */
 enum class LcTextAlignment { Left, Center, Right, Justified };
+
+/** Get font alignment */
+CORE_API LcTextAlignment ToAlignment(const std::string& alignment);
 
 /** Visual feature list */
 typedef std::set<EVCType> TVFeaturesList;
@@ -70,7 +67,7 @@ typedef std::set<EVCType> TVFeaturesList;
 
 /**
 * Visual interface */
-class IVisual
+class CORE_API IVisual : public IObjectBase
 {
 public:
 	/**
@@ -134,12 +131,6 @@ public:
 	* Visual state */
 	virtual bool IsVisible() const = 0;
 	/**
-	* Set visual tag. Default: -1 */
-	virtual void SetTag(VisualTag tag) = 0;
-	/**
-	* Get visual tag */
-	virtual VisualTag GetTag() const = 0;
-	/**
 	* Get visual id (LcCreatables) */
 	virtual int GetTypeId() const = 0;
 	/**
@@ -157,11 +148,32 @@ public:
 
 
 public:
-	class IVisualTintComponent* GetTintComponent() const { return (class IVisualTintComponent*)GetComponent(EVCType::Tint).get(); }
+	/**
+	* Add tint component to the last added visual */
+	void AddTintComponent(const LcAppContext& context, LcColor4 tint);
+	/**
+	* Add tint component to the last added visual */
+	void AddTintComponent(const LcAppContext& context, LcColor3 tint);
+	/**
+	* Add colors component to the last added visual */
+	void AddColorsComponent(const LcAppContext& context, LcColor4 inLeftTop, LcColor4 inRightTop, LcColor4 inRightBottom, LcColor4 inLeftBottom);
+	/**
+	* Add colors component to the last added visual */
+	void AddColorsComponent(const LcAppContext& context, LcColor3 inLeftTop, LcColor3 inRightTop, LcColor3 inRightBottom, LcColor3 inLeftBottom);
+	/**
+	* Add texture component to the last added visual */
+	void AddTextureComponent(const LcAppContext& context, const std::string& inTexture);
+	/**
+	* Add texture component to the last added visual */
+	void AddTextureComponent(const LcAppContext& context, const LcBytes& inData);
+
+
+public:
+	class IVisualTintComponent* GetTintComponent() const { return (class IVisualTintComponent*)GetComponent(LcComponents::Tint).get(); }
 	//
-	class IVisualColorsComponent* GetColorsComponent() const { return (class IVisualColorsComponent*)GetComponent(EVCType::VertexColor).get(); }
+	class IVisualColorsComponent* GetColorsComponent() const { return (class IVisualColorsComponent*)GetComponent(LcComponents::VertexColor).get(); }
 	//
-	class IVisualTextureComponent* GetTextureComponent() const { return (class IVisualTextureComponent*)GetComponent(EVCType::Texture).get(); }
+	class IVisualTextureComponent* GetTextureComponent() const { return (class IVisualTextureComponent*)GetComponent(LcComponents::Texture).get(); }
 
 };
 
@@ -172,7 +184,7 @@ typedef std::function<void(class IVisualComponent&, const LcAppContext&)> TLifes
 
 /**
 * Visual component interface */
-class WORLD_API IVisualComponent
+class CORE_API IVisualComponent
 {
 public:
 	/**
@@ -220,12 +232,8 @@ protected:
 
 /**
 * Visual base interface */
-class WORLD_API IVisualBase : public IVisual
+class CORE_API IVisualBase : public IVisual
 {
-public:
-	IVisualBase() : tag(-1) {}
-
-
 public: // IVisual interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override {}
@@ -241,22 +249,16 @@ public: // IVisual interface implementation
 	virtual TVComponentPtr GetComponent(EVCType type) const override;
 	//
 	virtual bool HasComponent(EVCType type) const override;
-	//
-	virtual void SetTag(VisualTag inTag) override { tag = inTag; }
-	//
-	virtual VisualTag GetTag() const override { return tag; }
 
 
 protected:
 	std::deque<TVComponentPtr> components;
-	//
-	VisualTag tag;
 
 };
 
 
 /** Visual helper */
-class WORLD_API LcVisualHelper
+class CORE_API LcVisualHelper
 {
 public:
 	LcVisualHelper(const LcAppContext& inContext) : context(inContext) {}
@@ -283,7 +285,7 @@ public:
 	void AddTextureComponent(const LcBytes& inData) const;
 	/**
 	* Set tag to the last added visual */
-	void SetTag(VisualTag tag) const;
+	void SetTag(ObjectTag tag) const;
 
 
 protected:

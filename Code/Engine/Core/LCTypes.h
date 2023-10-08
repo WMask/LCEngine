@@ -17,22 +17,6 @@
 /** vector of unsigned chars */
 typedef std::vector<unsigned char> LcBytes;
 
-
-/** Mouse buttons */
-enum class LcMouseBtn
-{
-	Left,
-	Right,
-	Middle
-};
-
-/** Key state: Up, Down */
-enum class LcKeyState
-{
-	Up,
-	Down
-};
-
 /** Render system type */
 enum class LcRenderSystemType
 {
@@ -42,30 +26,72 @@ enum class LcRenderSystemType
 	DX10
 };
 
-/** Visual tag */
-typedef int VisualTag;
-
 /** Window mode */
 enum class LcWinMode : int { Windowed, Fullscreen };
 
 constexpr float LcPI = 3.14159265f;
 
-constexpr int LcKeysCount = 150;
+/** Object tag */
+typedef int ObjectTag;
 
-/** Keys struct */
-struct CORE_API KEYS
+
+/** Object tag interface */
+class IObjectTag
 {
-	KEYS();
-	//
-	unsigned char* Get() { return keys; }
-	//
-	const unsigned char* Get() const { return keys; }
-	//
-	unsigned char& operator[](int index);
-	//
-	unsigned char keys[LcKeysCount];
+public:
+	/**
+	* Set visual tag. Default: -1 */
+	virtual void SetTag(ObjectTag tag) = 0;
+	/**
+	* Get visual tag */
+	virtual ObjectTag GetTag() const = 0;
 };
 
+/** Root object interface */
+class IRootObject
+{
+public:
+	/**
+	* Add object to root to skip World clear process */
+	virtual void AddToRoot() = 0;
+	/**
+	* Remove object from root */
+	virtual void RemoveFromRoot() = 0;
+	/**
+	* Is object rooted */
+	virtual bool IsRooted() const = 0;
+};
+
+/** Base object interface */
+class IObjectBase
+	: public IRootObject
+	, public IObjectTag
+{
+public:
+	IObjectBase() : tag(-1), rooted(false) {}
+
+
+public: // IRootObject interface implementation
+	//
+	virtual void AddToRoot() override { rooted = true; }
+	//
+	virtual void RemoveFromRoot() override { rooted = false; }
+	//
+	virtual bool IsRooted() const override { return rooted; }
+
+
+public: // IObjectTag interface implementation
+	//
+	virtual void SetTag(ObjectTag inTag) override { tag = inTag; }
+	//
+	virtual ObjectTag GetTag() const override { return tag; }
+
+
+protected:
+	ObjectTag tag;
+	//
+	bool rooted;
+};
 
 /** Any value container */
 struct LcAny
@@ -101,6 +127,8 @@ struct LcRange
 	inline LcRange& operator = (const LcRange& ref) { value = ref.value; return *this; }
 	//
 	inline operator T () const { return value; }
+	//
+	inline T* get() const { return const_cast<T*>(&value); }
 	//
 	T value;
 };

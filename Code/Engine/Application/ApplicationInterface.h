@@ -114,7 +114,7 @@ public:
 	virtual void Run() = 0;
 	/**
 	* Remove all sprites, widgets, textures etc. */
-	virtual void ClearWorld() = 0;
+	virtual void ClearWorld(bool removeRooted = false) = 0;
 	/**
 	* Request application quit */
 	virtual void RequestQuit() noexcept = 0;
@@ -127,6 +127,9 @@ public:
 	/**
 	* Get vertical synchronization mode */
 	virtual bool GetVSync() const noexcept = 0;
+	/**
+	* Get application context */
+	virtual const LcAppContext& GetContext() const noexcept = 0;
 	/**
 	* Get application stats */
 	virtual LcAppStats GetAppStats() const noexcept = 0;

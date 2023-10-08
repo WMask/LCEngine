@@ -63,7 +63,7 @@ public: // IApplication interface implementation
 	//
 	virtual void Run() override;
 	//
-	virtual void ClearWorld() override;
+	virtual void ClearWorld(bool removeRooted = false) override;
 	//
 	virtual void RequestQuit() noexcept override { quit = true; }
 	//
@@ -72,6 +72,8 @@ public: // IApplication interface implementation
 	virtual int GetWindowHeight() const override { return windowSize.y; }
 	//
 	virtual bool GetVSync() const noexcept override { return vSync; }
+	//
+	virtual const LcAppContext& GetContext() const noexcept { return context; }
 	//
 	virtual LcAppStats GetAppStats() const noexcept;
 	//

@@ -28,14 +28,21 @@ public:
 	//
 	virtual ~LcVisual2DLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<IVisual> Create() override
+	virtual std::shared_ptr<IVisual> Create(const void* userData) override
 	{
+		auto layerPtr = static_cast<const float*>(userData);
+		std::shared_ptr<IVisual> newVisual;
+
 		switch (curTypeId)
 		{
-		case LcCreatables::Sprite: return std::make_shared<LcSpriteDX10>();
-		case LcCreatables::Widget: return std::make_shared<LcWidgetDX10>();
+		case LcCreatables::Sprite: newVisual = std::make_shared<LcSpriteDX10>(); break;
+		case LcCreatables::Widget: newVisual = std::make_shared<LcWidgetDX10>(); break;
 		}
-		return std::shared_ptr<IVisual>();
+
+		// add layer Z for initial valid sorting in multiset
+		newVisual->SetPos(LcVector3(0.0f, 0.0f, *layerPtr));
+
+		return newVisual;
 	}
 	//
 	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override {}
@@ -214,11 +221,20 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
-void LcRenderSystemDX10::Clear()
+void LcRenderSystemDX10::Clear(IWorld* world, bool removeRooted)
 {
-	texLoader->RemoveTextures();
-	if (tiledRender) tiledRender->RemoveTiles();
-	if (textRender) textRender->RemoveFonts();
+	if (removeRooted)
+	{
+		texLoader->RemoveTextures();
+		if (tiledRender) tiledRender->RemoveTiles();
+		if (textRender) textRender->RemoveFonts();
+	}
+	else
+	{
+		texLoader->ClearCache(world);
+		if (tiledRender) tiledRender->ClearCache(world);
+		if (textRender) textRender->ClearCache(world);
+	}
 }
 
 void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
@@ -357,7 +373,7 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
 		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
 
-		context.world->GetWorldScale().UpdateWorldScale(newViewportSize);
+		context.world->UpdateWorldScale(newViewportSize);
 		context.world->GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 

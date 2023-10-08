@@ -11,64 +11,40 @@
 #include "World/WorldInterface.h"
 
 
-void LcWidgetHelper::AddTextComponent(const std::wstring& inText, LcColor4 inTextColor, const std::wstring& inFontName,
-    unsigned short inFontSize, LcFontWeight inFontWeight, LcTextAlignment inTextAlign) const
+void IWidget::AddTextComponent(const LcAppContext& context, const std::wstring& inText, const LcTextBlockSettings& inSettings)
 {
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inTextColor, inTextAlign, inFontName, inFontSize, inFontWeight), context);
-    }
+    AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inSettings), context);
 }
 
-void LcWidgetHelper::AddAlignedTextComponent(const std::wstring& inText, LcColor4 inTextColor, LcTextAlignment inTextAlign, const std::wstring& inFontName,
-    unsigned short inFontSize, LcFontWeight inFontWeight) const
+void IWidget::AddButtonComponent(const LcAppContext& context, const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
 {
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        visual->AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inTextColor, inTextAlign, inFontName, inFontSize, inFontWeight), context);
-    }
+    AddTextureComponent(context, texture);
+    AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos), context);
 }
 
-void LcWidgetHelper::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const
+void IWidget::AddCheckboxComponent(const LcAppContext& context, const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
+    LcVector2 checkedPos, LcVector2 checkedHoveredPos)
 {
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        AddTextureComponent(texture);
-        visual->AddComponent(std::make_shared<LcWidgetButtonComponent>(idlePos, overPos, pressedPos), context);
-    }
+    AddTextureComponent(context, texture);
+    AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos), context);
 }
 
-void LcWidgetHelper::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
-    LcVector2 checkedPos, LcVector2 checkedHoveredPos) const
+void IWidget::AddClickHandlerComponent(const LcAppContext& context, LcClickHandler handler, bool addDefaultSkin)
 {
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        AddTextureComponent(texture);
-        visual->AddComponent(std::make_shared<LcWidgetCheckboxComponent>(uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos), context);
-    }
+    AddComponent(std::make_shared<LcWidgetClickComponent>(handler), context);
+
+    if (addDefaultSkin) AddButtonComponent(context, "../../Assets/button.png",
+        LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
 }
 
-void LcWidgetHelper::AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin) const
+void IWidget::AddCheckHandlerComponent(const LcAppContext& context, LcCheckHandler handler, bool addDefaultSkin)
 {
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        visual->AddComponent(std::make_shared<LcWidgetClickComponent>(handler), context);
+    AddComponent(std::make_shared<LcWidgetCheckComponent>(handler), context);
 
-        if (addDefaultSkin) AddButtonComponent("../../Assets/button.png",
-            LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
-    }
+    if (addDefaultSkin) AddCheckboxComponent(context, "../../Assets/checkbox.png",
+        LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
 }
 
-void LcWidgetHelper::AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin) const
-{
-    if (auto visual = context.world->GetLastAddedVisual())
-    {
-        visual->AddComponent(std::make_shared<LcWidgetCheckComponent>(handler), context);
-
-        if (addDefaultSkin) AddCheckboxComponent("../../Assets/checkbox.png",
-            LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
-    }
-}
 
 LcWidgetButtonComponent::LcWidgetButtonComponent(const LcWidgetButtonComponent& button) : state(EBtnState::Idle)
 {
@@ -285,5 +261,47 @@ void LcWidget::OnMouseLeave(const LcAppContext& context)
     if (auto checkbox = GetCheckboxComponent())
     {
         checkbox->SetState(checkbox->IsChecked() ? ECheckboxState::Checked : ECheckboxState::Unchecked);
+    }
+}
+
+
+void LcWidgetHelper::AddTextComponent(const std::wstring& inText, const LcTextBlockSettings& inSettings) const
+{
+    if (auto widget = static_cast<IWidget*>(context.world->GetLastAddedVisual()))
+    {
+        widget->AddTextComponent(context, inText, inSettings);
+    }
+}
+
+void LcWidgetHelper::AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const
+{
+    if (auto widget = static_cast<IWidget*>(context.world->GetLastAddedVisual()))
+    {
+        widget->AddButtonComponent(context, texture, idlePos, overPos, pressedPos);
+    }
+}
+
+void LcWidgetHelper::AddCheckboxComponent(const std::string& texture, LcVector2 uncheckedPos, LcVector2 uncheckedHoveredPos,
+    LcVector2 checkedPos, LcVector2 checkedHoveredPos) const
+{
+    if (auto widget = static_cast<IWidget*>(context.world->GetLastAddedVisual()))
+    {
+        widget->AddCheckboxComponent(context, texture, uncheckedPos, uncheckedHoveredPos, checkedPos, checkedHoveredPos);
+    }
+}
+
+void LcWidgetHelper::AddClickHandlerComponent(LcClickHandler handler, bool addDefaultSkin) const
+{
+    if (auto widget = static_cast<IWidget*>(context.world->GetLastAddedVisual()))
+    {
+        widget->AddClickHandlerComponent(context, handler, addDefaultSkin);
+    }
+}
+
+void LcWidgetHelper::AddCheckHandlerComponent(LcCheckHandler handler, bool addDefaultSkin) const
+{
+    if (auto widget = static_cast<IWidget*>(context.world->GetLastAddedVisual()))
+    {
+        widget->AddCheckHandlerComponent(context, handler, addDefaultSkin);
     }
 }

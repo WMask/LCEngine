@@ -8,7 +8,7 @@
 
 #include "Module.h"
 #include "GUI/Module.h"
-#include "World/Visual.h"
+#include "Core/Visual.h"
 #include "Core/LCTypesEx.h"
 #include "Core/LCDelegate.h"
 
@@ -55,7 +55,7 @@ public:
 	virtual void Render(const LcAppContext& context) = 0;
 	/**
 	* Remove all graphics objects: textures, fonts etc. */
-	virtual void Clear() = 0;
+	virtual void Clear(IWorld* world, bool removeRooted = false) = 0;
 	/**
 	* Return render system state */
 	virtual bool CanRender() const = 0;

@@ -15,7 +15,7 @@
 #include <map>
 
 #include "Core/LCTypesEx.h"
-#include "World/Visual.h"
+#include "Core/Visual.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -35,7 +35,7 @@ public:
 class LcTextRenderDX10
 {
 public:
-	LcTextRenderDX10(float inDpi) : dpi(inDpi), features{EVCType::Texture} {}
+	LcTextRenderDX10(float inDpi) : dpi(inDpi), features{ LcComponents::Texture } {}
 	//
 	~LcTextRenderDX10();
 	//
@@ -48,6 +48,8 @@ public:
 	bool RemoveFont(const ITextFont* font);
 	//
 	void RemoveFonts() { fonts.clear(); }
+	//
+	void ClearCache(IWorld* world);
 	//
 	void RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
 		const ITextFont* font, ID2D1RenderTarget* target, const LcAppContext& context);

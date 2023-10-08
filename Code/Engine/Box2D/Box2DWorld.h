@@ -51,7 +51,7 @@ public:
 
 public:// IPhysicsWorld interface implementation
 	//
-	virtual void Clear() override;
+	virtual void Clear(bool removeRooted = false) override;
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
@@ -61,11 +61,11 @@ public:// IPhysicsWorld interface implementation
 	//
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density, bool fixedRotation = true) override;
 	//
-	virtual void RemoveBodies() override { dynamicBodies.Clear(); }
-	//
 	virtual const TBodiesList& GetDynamicBodies() const override { return dynamicBodies.GetItems(); }
 	//
 	virtual TBodiesList& GetDynamicBodies() override { return dynamicBodies.GetItems(); }
+	//
+	virtual IPhysicsBody* GetBodyByTag(ObjectTag tag) const override;
 
 
 protected:

@@ -43,7 +43,7 @@ namespace LcLayers
 * Game world scaling parameters for different resolutions.
 * For resolutions not added to scaleList scale selected by resolution.y >= newScreenSize.y
 */
-class WORLD_API LcWorldScale
+class LcWorldScale
 {
 public:
 	LcDelegate<LcVector2> onScaleChanged;
@@ -118,14 +118,14 @@ public:
 	virtual void RemoveWidget(class IWidget* widget) = 0;
 	/**
 	* Remove all sprites and widgets */
-	virtual void Clear() = 0;
+	virtual void Clear(bool removeRooted = false) = 0;
 	/**
 	* Get visual by tag */
-	virtual class IVisual* GetVisualByTag(VisualTag tag) const = 0;
+	virtual class IVisual* GetVisualByTag(ObjectTag tag) const = 0;
 	/**
 	* Get object by tag */
 	template<class T>
-	T* GetObjectByTag(VisualTag tag) const { return static_cast<T*>(GetVisualByTag(tag)); }
+	T* GetObjectByTag(ObjectTag tag) const { return static_cast<T*>(GetVisualByTag(tag)); }
 	/**
 	* Get sprites and widgets */
 	virtual const TVisualSet& GetVisuals() const = 0;
@@ -145,6 +145,9 @@ public:
 	* Get world scale */
 	virtual LcWorldScale& GetWorldScale() = 0;
 	/**
+	* Update world scale */
+	virtual void UpdateWorldScale(LcSize newScreenSize) = 0;
+	/**
 	* Set global sprites and widgets tint color */
 	virtual void SetGlobalTint(LcColor3 tint) = 0;
 	/**
@@ -153,6 +156,9 @@ public:
 	/**
 	* Get last added visual */
 	virtual class IVisual* GetLastAddedVisual() const = 0;
+	/**
+	* Get visual helper */
+	virtual const class LcVisualHelper& GetVisualHelper() const = 0;
 	/**
 	* Get sprite helper */
 	virtual const class LcSpriteHelper& GetSpriteHelper() const = 0;

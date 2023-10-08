@@ -8,7 +8,7 @@
 
 #include "WorldInterface.h"
 #include "Core/LCCreator.h"
-#include "Visual.h"
+#include "Core/Visual.h"
 #include "Camera.h"
 
 #pragma warning(disable : 4251)
@@ -28,6 +28,7 @@ class LcWorld : public IWorld
 public:
 	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual, TVisualSet>, TVisualSet> TVisualCreator;
 	typedef std::shared_ptr<LcLifetimeStrategy<class IVisual, TVisualSet>> TVisualLifetime;
+	typedef std::unique_ptr<class LcVisualHelper> TVisualHelperPtr;
 	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
 	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
 
@@ -58,9 +59,9 @@ public: // IWorld interface implementation
 	//
 	virtual void RemoveWidget(class IWidget* widget) override;
 	//
-	virtual void Clear() override { items.Clear(); }
+	virtual void Clear(bool removeRooted = false) override;
 	//
-	virtual class IVisual* GetVisualByTag(VisualTag tag) const override;
+	virtual class IVisual* GetVisualByTag(ObjectTag tag) const override;
 	//
 	virtual const TVisualSet& GetVisuals() const override { return items.GetItems(); }
 	//
@@ -74,11 +75,15 @@ public: // IWorld interface implementation
 	//
 	virtual LcWorldScale& GetWorldScale() override { return worldScale; }
 	//
+	virtual void UpdateWorldScale(LcSize newScreenSize) { worldScale.UpdateWorldScale(newScreenSize); }
+	//
 	virtual void SetGlobalTint(LcColor3 tint) override;
 	//
 	virtual LcColor3 GetGlobalTint() const override { return globalTint; }
 	//
 	virtual class IVisual* GetLastAddedVisual() const override { return lastVisual; }
+	//
+	virtual const class LcVisualHelper& GetVisualHelper() const override { return *visualHelper.get(); }
 	//
 	virtual const class LcSpriteHelper& GetSpriteHelper() const override { return *spriteHelper.get(); }
 	//
@@ -89,6 +94,8 @@ protected:
 	const LcAppContext& context;
 	//
 	TVisualCreator items;
+	//
+	TVisualHelperPtr visualHelper;
 	//
 	TSpriteHelperPtr spriteHelper;
 	//

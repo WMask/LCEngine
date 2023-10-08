@@ -15,17 +15,11 @@
 class LcWidgetTextComponent : public IWidgetTextComponent
 {
 public:
-    LcWidgetTextComponent() : fontSize(0), fontWeight(LcFontWeight::Normal), textAlign(LcTextAlignment::Center), textColor(LcDefaults::White4) {}
+    LcWidgetTextComponent() {}
     //
-    LcWidgetTextComponent(const LcWidgetTextComponent& textComp) :
-        text(textComp.text), textColor(textComp.textColor), textAlign(textComp.textAlign),
-        fontName(textComp.fontName), fontSize(textComp.fontSize), fontWeight(textComp.fontWeight) {}
+    LcWidgetTextComponent(const LcWidgetTextComponent& textComp) : text(textComp.text), settings(textComp.settings) {}
     //
-    LcWidgetTextComponent(const std::wstring& inText, LcColor4 inTextColor, LcTextAlignment inTextAlign,
-        const std::wstring& inFontName, unsigned short inFontSize, LcFontWeight inFontWeight = LcFontWeight::Normal) :
-        text(inText), textColor(inTextColor), textAlign(inTextAlign), fontName(inFontName), fontSize(inFontSize), fontWeight(inFontWeight)
-    {
-    }
+    LcWidgetTextComponent(const std::wstring& inText, const LcTextBlockSettings& inSettings) : text(inText), settings(inSettings) {}
 
 
 public: // IWidgetTextComponent interface implementation
@@ -34,29 +28,18 @@ public: // IWidgetTextComponent interface implementation
     //
     virtual const std::wstring& GetText() const override { return text; }
     //
-    virtual const std::wstring& GetFontName() const override { return fontName; }
-    //
-    virtual unsigned short GetFontSize() const override { return fontSize; }
-    //
-    virtual LcFontWeight GetFontWeight() const override { return fontWeight; }
-    //
-    virtual LcTextAlignment GetTextAlignment() const override { return textAlign; }
-    //
-    virtual LcColor4 GetTextColor() const override { return textColor; }
+    virtual const LcTextBlockSettings& GetSettings() const { return settings; }
 
 
 public: // IVisualComponent interface implementation
     //
-    virtual EVCType GetType() const override { return EVCType::Text; }
+    virtual EVCType GetType() const override { return LcComponents::Text; }
 
 
 protected:
     std::wstring text;
-    std::wstring fontName;
-    unsigned short fontSize;
-    LcFontWeight fontWeight;
-    LcTextAlignment textAlign;
-    LcColor4 textColor;
+    //
+    LcTextBlockSettings settings;
 };
 
 
@@ -84,7 +67,7 @@ public: // IVisualComponent interface implementation
     //
     virtual void Init(const LcAppContext& context) override;
     //
-    virtual EVCType GetType() const override { return EVCType::Button; }
+    virtual EVCType GetType() const override { return LcComponents::Button; }
 
 
 protected:
@@ -120,7 +103,7 @@ public: // IVisualComponent interface implementation
     //
     virtual void Init(const LcAppContext& context) override;
     //
-    virtual EVCType GetType() const override { return EVCType::Checkbox; }
+    virtual EVCType GetType() const override { return LcComponents::Checkbox; }
 
 
 protected:
@@ -151,7 +134,7 @@ public: // IWidgetClickComponent interface implementation
 
 public: // IVisualComponent interface implementation
     //
-    virtual EVCType GetType() const override { return EVCType::ClickHandler; }
+    virtual EVCType GetType() const override { return LcComponents::ClickHandler; }
 
 
 protected:
@@ -178,7 +161,7 @@ public: // IWidgetCheckComponent interface implementation
 
 public: // IVisualComponent interface implementation
     //
-    virtual EVCType GetType() const override { return EVCType::CheckHandler; }
+    virtual EVCType GetType() const override { return LcComponents::CheckHandler; }
 
 
 protected:
@@ -194,7 +177,7 @@ class GUI_API LcWidget : public IWidget
 public:
     LcWidget()
         : parent(nullptr)
-        , features{ EVCType::Texture }
+        , features{ LcComponents::Texture }
         , pos(LcDefaults::ZeroVec3)
         , size(LcDefaults::ZeroSize)
         , visible(true)

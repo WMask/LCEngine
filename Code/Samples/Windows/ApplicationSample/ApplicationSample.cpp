@@ -69,17 +69,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
             }
 
+            LcTextBlockSettings settings;
+            settings.fontName = L"Calibri";
+            settings.fontSize = 18;
+            settings.textColor = LcDefaults::White4;
+
             // window resize controls
             auto& widgetHelper = context.world->GetWidgetHelper();
             if (context.world->AddWidget(45, 16, 80, 32))
             {
-                widgetHelper.AddAlignedTextComponent(L"FPS: 0", LcDefaults::White4, LcTextAlignment::Left, L"Calibri", 18);
+                settings.textAlign = LcTextAlignment::Left;
+                widgetHelper.AddTextComponent(L"FPS: 0", settings);
                 widgetHelper.SetTag(2);
             }
 
             if (context.world->AddWidget(182, 550, 94, 32))
             {
-                widgetHelper.AddTextComponent(loc.Get("btn_fullscreen"), LcDefaults::White4, L"Calibri", 18);
+                settings.textAlign = LcTextAlignment::Center;
+                widgetHelper.AddTextComponent(loc.Get("btn_fullscreen"), settings);
             }
 
             if (context.world->AddWidget(242, 552, 32, 32))
@@ -90,22 +97,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 widgetHelper.AddCheckHandlerComponent(onToggleMode);
             }
 
+            settings.fontSize = 22;
+            settings.textColor = LcDefaults::Black4;
+
             if (context.world->AddWidget(200, 500, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
-                widgetHelper.AddTextComponent(loc.Get("btn_1080"));
+                widgetHelper.AddTextComponent(loc.Get("btn_1080"), settings);
             }
 
             if (context.world->AddWidget(200, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
-                widgetHelper.AddTextComponent(loc.Get("btn_900"));
+                widgetHelper.AddTextComponent(loc.Get("btn_900"), settings);
             }
 
             if (context.world->AddWidget(200, 400, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
-                widgetHelper.AddTextComponent(loc.Get("btn_720"));
+                widgetHelper.AddTextComponent(loc.Get("btn_720"), settings);
             }
         };
 

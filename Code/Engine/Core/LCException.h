@@ -29,14 +29,14 @@ public:
 	LcException(const std::exception& prevEx, const char* curLocation)
 	{
 		message = prevEx.what();
-		message += " -> \n";
+		message += ">\n";
 		message += curLocation;
 	}
 	//
 	LcException(const std::exception& prevEx, const char* preMsg, const char* msg, const char* postMsg)
 	{
 		message = prevEx.what();
-		message += " -> \n";
+		message += ">\n";
 		message += preMsg;
 		message += msg;
 		message += postMsg;

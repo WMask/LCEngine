@@ -7,7 +7,6 @@
 #include "framework.h"
 #include "LuaSample.h"
 #include "Application/Windows/Module.h"
-#include "Lua/ApplicationLuaModule.h"
 #include "Lua/LuaScriptSystem.h"
 #include "Core/LCUtils.h"
 
@@ -22,8 +21,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             if (auto lua = context.scripts)
             {
-                // Add requestQuit() function
-                GetApplicationLuaModule(*context.app).AddTo(*lua);
+                AddLuaModuleApplication(context);
             }
         };
 
@@ -33,7 +31,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             {
                 if (key == 'Q' && (keyEvent == LcKeyState::Down))
                 {
-                    lua->RunScript("print(\"Quit request!\"); requestQuit()");
+                    lua->RunScript("print(\"Quit request!\"); RequestQuit()");
                     OutputDebugStringA("\n");
                 }
                 if (key == 'P' && (keyEvent == LcKeyState::Down))

@@ -28,20 +28,24 @@ class LcXAudio2System : public LcXAudio2SystemBase
 public:
 	LcXAudio2System();
 	//
+	virtual IXAudio2* GetXAudio() const { return xAudio2.Get(); }
+
+
+public: // IAudioSystem interface implementation
+	//
 	virtual ~LcXAudio2System() override;
-
-
-public:// IAudioSystem interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override;
 	//
+	virtual void Clear(bool removeRooted = false) override;
+	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual ISound* AddSound(const char* filePath) override;
 	//
-	virtual void RemoveSounds() override { sounds.Clear(); }
+	virtual ISound* GetSoundByTag(ObjectTag tag) const override;
 
 
 protected:

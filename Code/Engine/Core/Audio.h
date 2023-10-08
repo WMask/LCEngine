@@ -20,14 +20,14 @@ typedef std::function<void(class ISound&)> LcPlaybackEndHandler;
 
 /**
 * Playable sound interface */
-class ISound
+class ISound : public IObjectBase
 {
 public:
 	/**
 	* Virtual destructor */
 	virtual ~ISound() {}
 	/**
-	* Set streamed sound end hanfler */
+	* Set streamed sound end handler */
 	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) = 0;
 	/**
 	* Update sound */
@@ -42,6 +42,9 @@ public:
 	* Pause playing */
 	virtual void Pause() = 0;
 	/**
+	* Set volume. Default: 1.0 */
+	virtual void SetVolume(float volume) = 0;
+	/**
 	* Get sound playing state */
 	virtual bool IsPlaying() const = 0;
 	/**
@@ -50,6 +53,12 @@ public:
 	/**
 	* Get sound streamed state. Wav - not streamed, Ogg - streamed. */
 	virtual bool IsStreamed() const = 0;
+
+
+protected:
+	/**
+	* Load sound */
+	virtual void Load(const char* filePath, class IAudioSystem* audio) = 0;
 
 };
 
@@ -75,6 +84,9 @@ public:
 	* Shutdown system */
 	virtual void Shutdown() = 0;
 	/**
+	* Remove all sounds */
+	virtual void Clear(bool removeRooted = false) = 0;
+	/**
 	* Update system */
 	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
@@ -84,8 +96,8 @@ public:
 	* Remove sound */
 	virtual void RemoveSound(ISound* sound) = 0;
 	/**
-	* Remove all sounds */
-	virtual void RemoveSounds() = 0;
+	* Get sound */
+	virtual ISound* GetSoundByTag(ObjectTag tag) const = 0;
 	/**
 	* Get sounds list */
 	virtual const TSoundsList& GetSounds() const = 0;

@@ -40,6 +40,13 @@ inline bool operator==(const LC_FONT_DATA& a, const LC_FONT_DATA& b)
     return a.fontName == b.fontName && a.fontSize == b.fontSize && a.fontWeight == b.fontWeight;
 }
 
+std::wstring MakeFontName(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight)
+{
+    std::wstringstream ss;
+    ss << fontName << L"_" << fontSize << L"_" << (int)fontWeight;
+    return ss.str();
+}
+
 struct LcTextFontDX10 : public ITextFontDX10
 {
 public:
@@ -95,9 +102,7 @@ public:
     //
     virtual std::wstring GetFontName() const override
     {
-        std::wstringstream ss;
-        ss << data.fontName << L"_" << data.fontSize << L"_" << (int)data.fontWeight;
-        return ss.str();
+        return MakeFontName(data.fontName, data.fontSize, data.fontWeight);
     }
     //
     virtual const LC_FONT_DATA& GetData() const { return data; }
@@ -148,6 +153,48 @@ bool LcTextRenderDX10::RemoveFont(const ITextFont* font)
     }
 
     return false;
+}
+
+void LcTextRenderDX10::ClearCache(IWorld* world)
+{
+    LC_TRY
+
+    if (world)
+    {
+        std::set<std::wstring> aliveFontList;
+        auto& visuals = world->GetVisuals();
+        for (auto visual : visuals)
+        {
+            auto widget = static_cast<IWidget*>(visual.get());
+            auto textComp = widget ? widget->GetTextComponent() : nullptr;
+            if (textComp)
+            {
+                auto& settings = textComp->GetSettings();
+                std::wstring name = MakeFontName(settings.fontName, settings.fontSize, settings.fontWeight);
+                aliveFontList.insert(name);
+            }
+        }
+
+        std::set<std::wstring> eraseFontList;
+        for (auto font : fonts)
+        {
+            if (aliveFontList.find(font.first) == aliveFontList.end())
+            {
+                eraseFontList.insert(font.first);
+            }
+        }
+
+        for (auto entry : eraseFontList)
+        {
+            fonts.erase(entry);
+        }
+    }
+    else
+    {
+        fonts.clear();
+    }
+
+    LC_CATCH{ LC_THROW("LcTextRenderDX10::ClearCache()") }
 }
 
 void LcTextRenderDX10::Init(const LcAppContext& context)

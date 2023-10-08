@@ -32,14 +32,14 @@ public:
 	//
 	virtual ~LcXAudio2Sound() override;
 	//
-	void Load(const char* filePath, IXAudio2* audio);
-	//
 	static int GetStaticId() { return LcCreatables::XAudio2Sound; }
 
 
 public: // ISound interface implementation
 	//
 	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) override { streamedEndHandler = handler; }
+	//
+	virtual void Load(const char* filePath, class IAudioSystem* audio) override;
 	//
 	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
@@ -48,6 +48,8 @@ public: // ISound interface implementation
 	virtual void Stop() override;
 	//
 	virtual void Pause() override;
+	//
+	virtual void SetVolume(float volume) override;
 	//
 	virtual bool IsPlaying() const override { return playing; }
 	//

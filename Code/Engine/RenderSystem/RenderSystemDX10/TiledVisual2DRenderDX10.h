@@ -24,20 +24,17 @@ typedef std::map<const IVisual*, LC_TILES_BUFFER> LcTileBuffersList;
 class LcTiledVisual2DRenderDX10 : public IVisual2DRender
 {
 public:
-	/**
-	* Constructor */
+	//
 	LcTiledVisual2DRenderDX10(const LcAppContext& context);
-	/**
-	* Destructor */
+	//
 	~LcTiledVisual2DRenderDX10();
-	/**
-	* Removes tile's vertex buffer */
-	void RemoveTiles(const IVisual* visual);
-	/**
-	* Removes all tiles */
+	//
+	void RemoveTiles(const IVisual* visual) { vertexBuffers.erase(visual); }
+	//
 	void RemoveTiles() { vertexBuffers.clear(); }
-	/**
-	* Get tiles count */
+	//
+	void ClearCache(IWorld* world);
+	//
 	inline int GetNumTiles() const { return (int)vertexBuffers.size(); }
 
 

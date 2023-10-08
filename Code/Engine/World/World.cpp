@@ -11,6 +11,8 @@
 #include "World/Sprites.h"
 #include "GUI/Widgets.h"
 
+#include <iterator>
+
 
 class LcVisualLifetimeStrategy : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
 {
@@ -19,14 +21,21 @@ public:
 	//
 	virtual ~LcVisualLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<IVisual> Create() override
+	virtual std::shared_ptr<IVisual> Create(const void* userData) override
 	{
+		auto layerPtr = static_cast<const float*>(userData);
+		std::shared_ptr<IVisual> newVisual;
+
 		switch (curTypeId)
 		{
-		case LcCreatables::Sprite: return std::make_shared<LcSprite>();
-		case LcCreatables::Widget: return std::make_shared<LcWidget>();
+		case LcCreatables::Sprite: newVisual = std::make_shared<LcSprite>(); break;
+		case LcCreatables::Widget: newVisual = std::make_shared<LcWidget>(); break;
 		}
-		return std::shared_ptr<IVisual>();
+
+		// add layer Z for initial valid sorting in multiset
+		newVisual->SetPos(LcVector3(0.0f, 0.0f, *layerPtr));
+
+		return newVisual;
 	}
 	//
 	virtual void Destroy(IVisual& item, IWorld::TVisualSet& items) override
@@ -48,6 +57,7 @@ public:
 
 LcWorld::LcWorld(const LcAppContext& inContext)
 	: context(inContext)
+	, visualHelper(std::make_unique<LcVisualHelper>(inContext))
 	, spriteHelper(std::make_unique<LcSpriteHelper>(inContext))
 	, widgetHelper(std::make_unique<LcWidgetHelper>(inContext))
 	, globalTint(LcDefaults::White3)
@@ -58,7 +68,7 @@ LcWorld::LcWorld(const LcAppContext& inContext)
 
 ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ, bool visible)
 {
-	auto newSprite = items.Add<LcSprite>();
+	auto newSprite = items.Add<LcSprite>(z.get());
 	if (newSprite)
 	{
 		newSprite->SetPos(LcVector3(x, y, z));
@@ -90,7 +100,7 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 
 IWidget* LcWorld::AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible)
 {
-	auto newWidget = items.Add<LcWidget>();
+	auto newWidget = items.Add<LcWidget>(z.get());
 	if (newWidget)
 	{
 		newWidget->SetPos(LcVector3(x, y, z));
@@ -119,9 +129,28 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	items.Remove(widget);
 }
 
-IVisual* LcWorld::GetVisualByTag(VisualTag tag) const
+void LcWorld::Clear(bool removeRooted)
 {
-	auto it = std::find_if(items.GetItems().begin(), items.GetItems().end(), [tag](const std::shared_ptr<IVisual>& visual) {
+	if (removeRooted)
+	{
+		items.Clear();
+	}
+	else
+	{
+		TVisualCreator::TItemsList removedVisuals;
+		auto& visuals = items.GetItems();
+
+		std::copy_if(visuals.begin(), visuals.end(), std::inserter(removedVisuals, removedVisuals.begin()), [](auto& visual) {
+			return !visual->IsRooted();
+		});
+
+		visuals.erase(removedVisuals.begin(), removedVisuals.end());
+	}
+}
+
+IVisual* LcWorld::GetVisualByTag(ObjectTag tag) const
+{
+	auto it = std::find_if(items.GetItems().begin(), items.GetItems().end(), [tag](auto& visual) {
 		return visual->GetTag() == tag;
 	});
 	return (it != items.GetItems().end()) ? it->get() : nullptr;

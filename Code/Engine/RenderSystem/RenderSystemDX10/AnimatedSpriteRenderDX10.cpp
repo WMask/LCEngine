@@ -144,7 +144,7 @@ void LcAnimatedSpriteRenderDX10::Render(const IVisual* visual, const LcAppContex
 		d3dDevice->UpdateSubresource(animBuffer, 0, NULL, &animData, 0, 0);
 	}
 
-	if (sprite->HasComponent(EVCType::Texture))
+	if (sprite->HasComponent(LcComponents::Texture))
 	{
 		auto spriteDX10 = static_cast<const LcSpriteDX10*>(sprite);
 		d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&spriteDX10->textureSV);
@@ -167,8 +167,8 @@ bool LcAnimatedSpriteRenderDX10::Supports(const TVFeaturesList& features) const
 	bool needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
-		needAnimation |= (feature == EVCType::FrameAnimation);
-		needTiles |= (feature == EVCType::Tiled);
+		needAnimation |= (feature == LcComponents::FrameAnimation);
+		needTiles |= (feature == LcComponents::Tiled);
 	}
 	return !needTiles && needAnimation;
 }

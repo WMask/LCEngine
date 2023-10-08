@@ -60,8 +60,8 @@ void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
         {
             auto size = GetSize() * context.world->GetWorldScale().GetScale();
             LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-            textRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
-                textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
+            textRender->RenderText(textComp->GetText(), rect, textComp->GetSettings().textColor,
+                textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context);
             prevRenderedText = textComp->GetText();
         }
     }
@@ -94,7 +94,7 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
         auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
         if (!textRender) throw std::exception("LcWidgetDX10::AddComponent(): Invalid widget render");
 
-        font = textRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
+        font = textRender->AddFont(textComp->GetSettings().fontName, GetFontSize(*textComp, context), textComp->GetSettings().fontWeight);
         if (!font) throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
 
         RedrawText(textRender, context);
@@ -112,7 +112,7 @@ void LcWidgetDX10::RecreateFont(const LcAppContext& context)
         auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
         if (!textRender) throw std::exception("LcWidgetDX10::RecreateFont(): Invalid widget render");
 
-        font = textRender->AddFont(textComp->GetFontName(), GetFontSize(*textComp, context), textComp->GetFontWeight());
+        font = textRender->AddFont(textComp->GetSettings().fontName, GetFontSize(*textComp, context), textComp->GetSettings().fontWeight);
         if (!font) throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
 
         RedrawText(textRender, context);
@@ -131,8 +131,8 @@ void LcWidgetDX10::RedrawText(LcTextRenderDX10* textRender, const LcAppContext& 
 
         auto size = GetSize() * context.world->GetWorldScale().GetScale();
         LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-        textRender->RenderText(textComp->GetText(), rect, textComp->GetTextColor(),
-            textComp->GetTextAlignment(), font, textRenderTarget.Get(), context);
+        textRender->RenderText(textComp->GetText(), rect, textComp->GetSettings().textColor,
+            textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context);
         prevRenderedText = textComp->GetText();
     }
 }
@@ -140,5 +140,5 @@ void LcWidgetDX10::RedrawText(LcTextRenderDX10* textRender, const LcAppContext& 
 float LcWidgetDX10::GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const
 {
     float scale = context.world->GetWorldScale().GetScaleFonts() ? context.world->GetWorldScale().GetScale().y : 1.0f;
-    return static_cast<float>(textComp.GetFontSize()) * scale;
+    return static_cast<float>(textComp.GetSettings().fontSize) * scale;
 }

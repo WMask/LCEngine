@@ -7,9 +7,18 @@
 #pragma once
 
 #include "Module.h"
-#include "World/Visual.h"
+#include "Core/Visual.h"
 
 #include <functional>
+
+
+namespace LcComponents
+{
+	constexpr int CustomUV = 30;
+	constexpr int FrameAnimation = 31;
+	constexpr int Tiled = 32;
+	constexpr int Particles = 33;
+}
 
 
 /** Sprite custom UV component */
@@ -69,7 +78,7 @@ struct LcBasicParticleSettings
 	float fadeInRate;
 	// fadeOut = particleLifetime * fadeOutRate (-1.0 == no fade out)
 	float fadeOutRate;
-	// speed multiplier
+	// speed multiplier (default = 1.0)
 	float speed;
 	// distance around start position in pixels
 	float movementRadius;
@@ -86,35 +95,6 @@ public:
 	virtual unsigned short GetNumParticles() const = 0;
 	//
 	virtual const LcBasicParticleSettings& GetSettings() const = 0;
-
-};
-
-
-/**
-* Sprite interface */
-class ISprite : public IVisualBase
-{
-public: // IVisual interface implementation
-	//
-	virtual int GetTypeId() const override { return LcCreatables::Sprite; }
-
-
-public:
-	//
-	static int GetStaticId() { return LcCreatables::Sprite; }
-	//
-	virtual const TVFeaturesList& GetFeaturesList() const = 0;
-
-
-public:
-	//
-	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(EVCType::CustomUV).get(); }
-	//
-	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(EVCType::FrameAnimation).get(); }
-	//
-	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(EVCType::Tiled).get(); }
-	//
-	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(EVCType::Particles).get(); }
 
 };
 
@@ -136,7 +116,8 @@ namespace LcTiles
 }
 
 typedef std::deque<std::string> LcLayersList;
-typedef std::deque<std::pair<std::string, LcAny>> LcTiledProps;
+typedef std::pair<std::string, LcAny> LcTiledProp;
+typedef std::deque<LcTiledProp> LcTiledProps;
 
 /** Tiled sprite object handler */
 typedef std::function<void(
@@ -148,6 +129,54 @@ typedef std::function<void(
 	LcSizef					// object size
 )>
 LcTiledObjectHandler;
+
+
+/**
+* Sprite interface */
+class WORLD_API ISprite : public IVisualBase
+{
+public: // IVisual interface implementation
+	//
+	virtual int GetTypeId() const override { return LcCreatables::Sprite; }
+
+
+public:
+	//
+	static int GetStaticId() { return LcCreatables::Sprite; }
+	//
+	virtual const TVFeaturesList& GetFeaturesList() const = 0;
+
+
+public:
+	/**
+	* Add custom UV component to the last added sprite */
+	void AddCustomUVComponent(const LcAppContext& context, LcVector2 inLeftTop, LcVector2 inRightTop, LcVector2 inRightBottom, LcVector2 inLeftBottom);
+	/**
+	* Add frame animation component to the last added sprite */
+	void AddAnimationComponent(const LcAppContext& context, LcSizef inFrameSize, unsigned short inNumFrames, float inFramesPerSecond);
+	/**
+	* Add tiled component to the last added sprite */
+	void AddTiledComponent(const LcAppContext& context, const std::string& tiledJsonPath, const LcLayersList& inLayerNames = LcLayersList{});
+	/**
+	* Add tiled component to the last added sprite */
+	void AddTiledComponent(const LcAppContext& context, const std::string& tiledJsonPath,
+		LcTiledObjectHandler inObjectHandler, const LcLayersList& inLayerNames = LcLayersList{});
+	/**
+	* Add basic particles component to the last added sprite */
+	void AddParticlesComponent(const LcAppContext& context, unsigned short inNumParticles, const LcBasicParticleSettings& inSettings);
+
+
+public:
+	//
+	ISpriteCustomUVComponent* GetCustomUVComponent() const { return (ISpriteCustomUVComponent*)GetComponent(LcComponents::CustomUV).get(); }
+	//
+	ISpriteAnimationComponent* GetAnimationComponent() const { return (ISpriteAnimationComponent*)GetComponent(LcComponents::FrameAnimation).get(); }
+	//
+	ITiledSpriteComponent* GetTiledComponent() const { return (ITiledSpriteComponent*)GetComponent(LcComponents::Tiled).get(); }
+	//
+	IBasicParticlesComponent* GetParticlesComponent() const { return (IBasicParticlesComponent*)GetComponent(LcComponents::Particles).get(); }
+
+};
 
 
 /** Sprite helper */

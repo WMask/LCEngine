@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "Audio/XAudio2/XAudio2Sound.h"
+#include "Audio/XAudio2/XAudio2System.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
@@ -32,8 +33,9 @@ LcXAudio2Sound::~LcXAudio2Sound()
 	}
 }
 
-void LcXAudio2Sound::Load(const char* filePath, IXAudio2* audio)
+void LcXAudio2Sound::Load(const char* filePath, IAudioSystem* audio)
 {
+	auto xAudio = static_cast<LcXAudio2System*>(audio);
 	auto path = ToLower(filePath);
 	streamed = (path.find(".ogg") == path.length() - 4);
 
@@ -41,7 +43,7 @@ void LcXAudio2Sound::Load(const char* filePath, IXAudio2* audio)
 	{
 		oggBuffer.Load(filePath);
 
-		if (FAILED(audio->CreateSourceVoice(&voice, oggBuffer.getFormat())))
+		if (FAILED(xAudio->GetXAudio()->CreateSourceVoice(&voice, oggBuffer.getFormat())))
 		{
 			throw std::exception("LcXAudio2Sound::Load(): Cannot create voice");
 		}
@@ -56,7 +58,7 @@ void LcXAudio2Sound::Load(const char* filePath, IXAudio2* audio)
 		xBuffer.pAudioData = riffBuffer.getAudioData();
 		xBuffer.Flags = XAUDIO2_END_OF_STREAM;
 
-		if (FAILED(audio->CreateSourceVoice(&voice, riffBuffer.getFormat())))
+		if (FAILED(xAudio->GetXAudio()->CreateSourceVoice(&voice, riffBuffer.getFormat())))
 		{
 			throw std::exception("LcXAudio2Sound::Load(): Cannot create voice");
 		}
@@ -180,4 +182,9 @@ void LcXAudio2Sound::Pause()
 
 	playing = false;
 	paused = true;
+}
+
+void LcXAudio2Sound::SetVolume(float volume)
+{
+	voice->SetVolume(volume);
 }

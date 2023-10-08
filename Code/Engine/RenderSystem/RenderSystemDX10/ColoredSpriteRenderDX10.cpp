@@ -150,9 +150,9 @@ bool LcColoredSpriteRenderDX10::Supports(const TVFeaturesList& features) const
 	bool needTexture = false, needAnimation = false, needTiles = false;
 	for (auto& feature : features)
 	{
-		needTexture |= (feature == EVCType::Texture);
-		needAnimation |= (feature == EVCType::FrameAnimation);
-		needTiles |= (feature == EVCType::Tiled);
+		needTexture |= (feature == LcComponents::Texture);
+		needAnimation |= (feature == LcComponents::FrameAnimation);
+		needTiles |= (feature == LcComponents::Tiled);
 	}
 	return !needTiles && !needAnimation && !needTexture;
 }

@@ -127,7 +127,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;lua546.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;lua546.lib;World.lib;GUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,18 +147,21 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Core.lib;lua546.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Core.lib;lua546.lib;World.lib;GUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.h" />
     <ClInclude Include="..\..\..\Code\Engine\Lua\Module.h" />
-    <ClInclude Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.h" />
     <ClInclude Include="framework.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleAudio.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleInput.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModulePhysics.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleWorld.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\Lua\LuaScriptSystem.cpp" />
-    <ClCompile Include="..\..\..\Code\Engine\Lua\ApplicationLuaModule.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\Lua\LuaModuleApplication.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

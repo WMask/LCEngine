@@ -16,7 +16,7 @@
 
 /**
 * Physics body */
-class IPhysicsBody
+class IPhysicsBody : public IObjectBase
 {
 public:
 	/**
@@ -34,6 +34,9 @@ public:
 	/**
 	* Get velocity */
 	virtual LcVector2 GetVelocity() const = 0;
+	/**
+	* Set position */
+	virtual void SetPos(LcVector2 pos) = 0;
 	/**
 	* Get position */
 	virtual LcVector2 GetPos() const = 0;
@@ -72,7 +75,7 @@ public:
 	virtual ~IPhysicsWorld() {}
 	/**
 	* Remove all physics objects */
-	virtual void Clear() = 0;
+	virtual void Clear(bool removeRooted = false) = 0;
 	/**
 	* Update world */
 	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
@@ -86,13 +89,13 @@ public:
 	* Add dynamic box body */
 	virtual IPhysicsBody* AddDynamicBox(LcVector2 pos, LcSizef size, float density = 1.0f, bool fixedRotation = true) = 0;
 	/**
-	* Remove all dynamic bodies */
-	virtual void RemoveBodies() = 0;
-	/**
 	* Get dynamic body list */
 	virtual const TBodiesList& GetDynamicBodies() const = 0;
 	/**
 	* Get dynamic body list */
 	virtual TBodiesList& GetDynamicBodies() = 0;
+	/**
+	* Get sound */
+	virtual IPhysicsBody* GetBodyByTag(ObjectTag tag) const = 0;
 
 };
