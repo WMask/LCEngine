@@ -31,7 +31,7 @@ public:
 	virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) = 0;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
+	virtual void OnMouseButton(int btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
 	/**
 	* Mouse move event */
 	virtual void OnMouseMove(int x, int y, const LcAppContext& context) = 0;
@@ -55,7 +55,7 @@ public:
 	virtual void OnKeys(int btn, LcKeyState state, const LcAppContext& context) override;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) override;
+	virtual void OnMouseButton(int btn, LcKeyState state, int x, int y, const LcAppContext& context) override;
 	/**
 	* Mouse move event */
 	virtual void OnMouseMove(int x, int y, const LcAppContext& context) override;

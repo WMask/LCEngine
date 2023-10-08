@@ -135,7 +135,7 @@ public:
 	virtual int GetTypeId() const = 0;
 	/**
 	* Mouse button event */
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
+	virtual void OnMouseButton(int btn, LcKeyState state, int x, int y, const LcAppContext& context) = 0;
 	/**
 	* Mouse move event */
 	virtual void OnMouseMove(LcVector3 pos, const LcAppContext& context) = 0;

@@ -139,7 +139,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
         };
 
-        LCAppConfig cfg;
+        LcAppConfig cfg;
         LoadConfig(cfg, "../../Assets/config.txt");
 
         auto app = GetApp();

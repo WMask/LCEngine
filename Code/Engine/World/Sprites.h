@@ -193,7 +193,7 @@ public: // IVisual interface implementation
 	//
 	virtual bool IsVisible() const override { return visible; }
 	//
-	virtual void OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context) override {}
+	virtual void OnMouseButton(int btn, LcKeyState state, int x, int y, const LcAppContext& context) override {}
 	//
 	virtual void OnMouseMove(LcVector3 pos, const LcAppContext& context) override {}
 	//

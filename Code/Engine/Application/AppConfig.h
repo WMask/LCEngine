@@ -12,11 +12,22 @@
 #include "Core/LCTypes.h"
 
 
-typedef std::map<std::string, LcAny> CONFIG_ITEMS;
-
-struct APPLICATION_API LCAppConfig
+struct LcActionBinding
 {
-    LCAppConfig();
+    std::string Name;
+    //
+    int Key;
+    //
+    int JoyKey;
+    //
+    int MouseBtn;
+    //
+    int AxisId;
+};
+
+struct APPLICATION_API LcAppConfig
+{
+    LcAppConfig();
 
     // [Application]
     unsigned int WinWidth;
@@ -25,13 +36,15 @@ struct APPLICATION_API LCAppConfig
     bool bVSync;
     bool bAllowFullscreen;
     bool bNoDelay;
+    // [Actions]
+    std::deque<LcActionBinding> Actions;
 };
 
 
 /**
 * Loads Application config from file */
-APPLICATION_API bool LoadConfig(LCAppConfig& outConfig, const char* fileName = "config.txt", char delim = '\n');
+APPLICATION_API bool LoadConfig(LcAppConfig& outConfig, const char* fileName = "config.txt", char delim = '\n');
 
 /**
 * Loads Application config from file */
-APPLICATION_API void SaveConfig(const LCAppConfig& config, const char* fileName = "config.txt");
+APPLICATION_API void SaveConfig(const LcAppConfig& config, const char* fileName = "config.txt");

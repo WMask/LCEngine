@@ -202,7 +202,7 @@ void LcWidget::RemoveChild(IWidget* child)
     }
 }
 
-void LcWidget::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)
+void LcWidget::OnMouseButton(int btn, LcKeyState state, int x, int y, const LcAppContext& context)
 {
     if (auto button = GetButtonComponent())
     {

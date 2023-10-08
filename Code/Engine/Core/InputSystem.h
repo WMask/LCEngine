@@ -26,12 +26,12 @@ constexpr int LcJoystickKeysCount = (LcKeysCount - LcJoystickKeysOffset);
 
 
 /** Mouse buttons */
-enum class LcMouseBtn
+namespace LcMouseBtn
 {
-	Left,
-	Right,
-	Middle
-};
+	constexpr int Left = 0;
+	constexpr int Right = 1;
+	constexpr int Middle = 2;
+}
 
 /** Key state: Up, Down */
 enum class LcKeyState
@@ -154,7 +154,7 @@ typedef std::function<void(int, LcKeyState, const struct LcAppContext&)> LcKeysH
 typedef std::function<void(int, float, float, const struct LcAppContext&)> LcAxisHandler;
 
 /** Mouse button handler */
-typedef std::function<void(LcMouseBtn, LcKeyState, float, float, const struct LcAppContext&)> LcMouseButtonHandler;
+typedef std::function<void(int, LcKeyState, float, float, const struct LcAppContext&)> LcMouseButtonHandler;
 
 /** Mouse move handler */
 typedef std::function<void(float, float, const struct LcAppContext&)> LcMouseMoveHandler;

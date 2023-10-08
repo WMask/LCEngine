@@ -54,7 +54,7 @@ void LcGuiManager::OnKeys(int btn, LcKeyState state, const LcAppContext& context
     LC_CATCH{ LC_THROW("LcGuiManager::OnKeys()") }
 }
 
-void LcGuiManager::OnMouseButton(LcMouseBtn btn, LcKeyState state, int x, int y, const LcAppContext& context)
+void LcGuiManager::OnMouseButton(int btn, LcKeyState state, int x, int y, const LcAppContext& context)
 {
     LC_TRY
 

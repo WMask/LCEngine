@@ -332,7 +332,7 @@ void LcWindowsApplication::SetWindowMode(LcWinMode mode)
     }
 }
 
-LcMouseBtn MapMouseKeys(WPARAM wParam)
+int MapMouseKeys(WPARAM wParam)
 {
     switch (wParam)
     {
