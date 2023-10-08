@@ -221,11 +221,20 @@ void LcRenderSystemDX10::Shutdown()
 	d3dDevice.Reset();
 }
 
-void LcRenderSystemDX10::Clear()
+void LcRenderSystemDX10::Clear(IWorld* world, bool removeRooted)
 {
-	texLoader->RemoveTextures();
-	if (tiledRender) tiledRender->RemoveTiles();
-	if (textRender) textRender->RemoveFonts();
+	if (removeRooted)
+	{
+		texLoader->RemoveTextures();
+		if (tiledRender) tiledRender->RemoveTiles();
+		if (textRender) textRender->RemoveFonts();
+	}
+	else
+	{
+		texLoader->ClearCache(world);
+		if (tiledRender) tiledRender->ClearCache(world);
+		if (textRender) textRender->ClearCache(world);
+	}
 }
 
 void LcRenderSystemDX10::Subscribe(const LcAppContext& context)

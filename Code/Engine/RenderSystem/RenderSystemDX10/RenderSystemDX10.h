@@ -77,7 +77,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void Shutdown() override;
 	//
-	virtual void Clear() override;
+	virtual void Clear(IWorld* world, bool removeRooted = false) override;
 	//
 	virtual void Subscribe(const LcAppContext& context);
 	//

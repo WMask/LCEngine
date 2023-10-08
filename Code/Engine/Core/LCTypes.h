@@ -47,6 +47,52 @@ public:
 	virtual ObjectTag GetTag() const = 0;
 };
 
+/** Root object interface */
+class IRootObject
+{
+public:
+	/**
+	* Add object to root to skip World clear process */
+	virtual void AddToRoot() = 0;
+	/**
+	* Remove object from root */
+	virtual void RemoveFromRoot() = 0;
+	/**
+	* Is object rooted */
+	virtual bool IsRooted() const = 0;
+};
+
+/** Base object interface */
+class IObjectBase
+	: public IRootObject
+	, public IObjectTag
+{
+public:
+	IObjectBase() : tag(-1), rooted(false) {}
+
+
+public: // IRootObject interface implementation
+	//
+	virtual void AddToRoot() override { rooted = true; }
+	//
+	virtual void RemoveFromRoot() override { rooted = false; }
+	//
+	virtual bool IsRooted() const override { return rooted; }
+
+
+public: // IObjectTag interface implementation
+	//
+	virtual void SetTag(ObjectTag inTag) override { tag = inTag; }
+	//
+	virtual ObjectTag GetTag() const override { return tag; }
+
+
+protected:
+	ObjectTag tag;
+	//
+	bool rooted;
+};
+
 /** Any value container */
 struct LcAny
 {

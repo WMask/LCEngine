@@ -85,6 +85,8 @@ LCLUA_API void AddLuaModuleApplication(const LcAppContext& context, IScriptSyste
 * - void SetVisualPos(ISprite* sprite, LcVector3 pos)
 *
 * - LcVector3 GetVisualPos(ISprite* sprite)
+*
+* - IVisual* GetVisualByTag(int tag)
 */
 LCLUA_API void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
 
@@ -100,6 +102,8 @@ LCLUA_API void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scr
 * - void StopSound(ISound* sound)
 *
 * - void SetSoundVolume(ISound* sound, float volume)
+*
+* - ISound* GetSoundByTag(int tag)
 */
 LCLUA_API void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
 
@@ -122,10 +126,12 @@ LCLUA_API void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scr
 * - void SetBodyVelocity(IPhysicsBody* body, LcVector2 velocity)
 *
 * - LcVector2 GetBodyVelocity(IPhysicsBody* body)
-* 
+*
 * - bool InBodyFalling(IPhysicsBody* body)
 *
 * - void SetBodyUserData(IPhysicsBody* body, void* userData)
+*
+* - IPhysicsBody* GetBodyByTag(int tag)
 */
 LCLUA_API void AddLuaModulePhysics(const LcAppContext& context, IScriptSystem* scriptSystem = nullptr);
 

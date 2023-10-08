@@ -20,7 +20,6 @@ LcXAudio2Sound::LcXAudio2Sound()
 	, playing(false)
 	, paused(false)
 	, xBuffer{}
-	, tag(-1)
 {
 }
 

@@ -232,12 +232,12 @@ void LcWindowsApplication::Run()
     }
 }
 
-void LcWindowsApplication::ClearWorld()
+void LcWindowsApplication::ClearWorld(bool removeRooted)
 {
-    world->Clear();
-    if (renderSystem) renderSystem->Clear();
-    if (audioSystem) audioSystem->RemoveSounds();
-    if (physWorld) physWorld->RemoveBodies();
+    world->Clear(removeRooted);
+    if (renderSystem) renderSystem->Clear(world.get(), removeRooted);
+    if (audioSystem) audioSystem->Clear(removeRooted);
+    if (physWorld) physWorld->Clear(removeRooted);
 }
 
 void LcWindowsApplication::OnUpdate()

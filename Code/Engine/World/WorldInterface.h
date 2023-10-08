@@ -118,7 +118,7 @@ public:
 	virtual void RemoveWidget(class IWidget* widget) = 0;
 	/**
 	* Remove all sprites and widgets */
-	virtual void Clear() = 0;
+	virtual void Clear(bool removeRooted = false) = 0;
 	/**
 	* Get visual by tag */
 	virtual class IVisual* GetVisualByTag(ObjectTag tag) const = 0;

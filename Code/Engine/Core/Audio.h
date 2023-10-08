@@ -20,7 +20,7 @@ typedef std::function<void(class ISound&)> LcPlaybackEndHandler;
 
 /**
 * Playable sound interface */
-class ISound : public IObjectTag
+class ISound : public IObjectBase
 {
 public:
 	/**
@@ -84,6 +84,9 @@ public:
 	* Shutdown system */
 	virtual void Shutdown() = 0;
 	/**
+	* Remove all sounds */
+	virtual void Clear(bool removeRooted = false) = 0;
+	/**
 	* Update system */
 	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
@@ -93,8 +96,8 @@ public:
 	* Remove sound */
 	virtual void RemoveSound(ISound* sound) = 0;
 	/**
-	* Remove all sounds */
-	virtual void RemoveSounds() = 0;
+	* Get sound */
+	virtual ISound* GetSoundByTag(ObjectTag tag) const = 0;
 	/**
 	* Get sounds list */
 	virtual const TSoundsList& GetSounds() const = 0;

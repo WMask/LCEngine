@@ -28,6 +28,12 @@ LCLUA_API IApplication* GetApp(struct lua_State* luaState);
 LCLUA_API IWorld* GetWorld(struct lua_State* luaState);
 
 // throws exception if can't get
+LCLUA_API IPhysicsWorld* GetPhysWorld(struct lua_State* luaState);
+
+// throws exception if can't get
+LCLUA_API IAudioSystem* GetAudio(struct lua_State* luaState);
+
+// throws exception if can't get
 LCLUA_API IInputSystem* GetInput(struct lua_State* luaState);
 
 // throws exception if can't get

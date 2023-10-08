@@ -59,7 +59,7 @@ public: // IWorld interface implementation
 	//
 	virtual void RemoveWidget(class IWidget* widget) override;
 	//
-	virtual void Clear() override { items.Clear(); }
+	virtual void Clear(bool removeRooted = false) override;
 	//
 	virtual class IVisual* GetVisualByTag(ObjectTag tag) const override;
 	//

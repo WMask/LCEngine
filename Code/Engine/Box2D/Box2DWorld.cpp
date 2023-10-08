@@ -13,6 +13,8 @@
 // put Box2D library into Code/Engine/Box2D folder
 #include "box2d/box2d.h"
 
+#include <iterator>
+
 static const float BOX2D_SCALE = 100.0f;
 
 
@@ -144,10 +146,24 @@ LcBox2DWorld::~LcBox2DWorld()
 {
 }
 
-void LcBox2DWorld::Clear()
+void LcBox2DWorld::Clear(bool removeRooted)
 {
-    dynamicBodies.Clear();
-    box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
+    if (removeRooted)
+    {
+        dynamicBodies.Clear();
+        box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
+    }
+    else
+    {
+        IPhysicsWorld::TBodiesList removedBodies;
+        auto& bodies = dynamicBodies.GetItems();
+
+        std::copy_if(bodies.begin(), bodies.end(), std::inserter(removedBodies, removedBodies.begin()), [](auto& body) {
+            return !body->IsRooted();
+        });
+
+        dynamicBodies.Clear(removedBodies.begin(), removedBodies.end());
+    }
 }
 
 void LcBox2DWorld::Update(float deltaSeconds, const LcAppContext& context)
@@ -227,6 +243,15 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
 
     return newBody;
 }
+
+IPhysicsBody* LcBox2DWorld::GetBodyByTag(ObjectTag tag) const
+{
+    auto it = std::find_if(dynamicBodies.GetItems().begin(), dynamicBodies.GetItems().end(), [tag](auto& body) {
+        return body->GetTag() == tag;
+    });
+    return (it != dynamicBodies.GetItems().end()) ? it->get() : nullptr;
+}
+
 
 TPhysicsWorldPtr GetPhysicsWorld()
 {

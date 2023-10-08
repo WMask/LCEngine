@@ -620,48 +620,20 @@ static int GetVisualPos(lua_State* luaState)
 	return 1;
 }
 
-int SetVisualTag(lua_State* luaState)
+static int GetVisualByTag(lua_State* luaState)
 {
-	IVisual* visual = nullptr;
-	int tag = -1;
 	int top = lua_gettop(luaState);
 
-	if (lua_isuserdata(luaState, top - 1))
+	if (!lua_isinteger(luaState, top))
 	{
-		visual = static_cast<IVisual*>(lua_touserdata(luaState, top - 1));
-		tag = lua_toint(luaState, top - 0);
+		throw std::exception("GetVisualByTag(): Invalid params");
 	}
 	else
 	{
-		tag = lua_toint(luaState, top - 0);
-	}
-
-	if (visual)
-	{
-		auto app = GetApp(luaState);
-		visual->SetTag(tag);
-	}
-	else
-	{
+		int tag = lua_toint(luaState, top);
 		auto world = GetWorld(luaState);
-		world->GetVisualHelper().SetTag(tag);
-	}
 
-	return 0;
-}
-
-int GetVisualTag(lua_State* luaState)
-{
-	int top = lua_gettop(luaState);
-
-	if (lua_isuserdata(luaState, top))
-	{
-		auto visual = static_cast<IVisual*>(lua_touserdata(luaState, top));
-		lua_pushinteger(luaState, visual->GetTag());
-	}
-	else
-	{
-		throw std::exception("GetVisualTag(): Invalid object");
+		lua_pushlightuserdata(luaState, world->GetVisualByTag(tag));
 	}
 
 	return 1;
@@ -740,11 +712,8 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 	lua_pushcfunction(luaState, GetVisualPos);
 	lua_setglobal(luaState, "GetVisualPos");
 
-	lua_pushcfunction(luaState, SetVisualTag);
-	lua_setglobal(luaState, "SetVisualTag");
-
-	lua_pushcfunction(luaState, GetVisualTag);
-	lua_setglobal(luaState, "GetVisualTag");
+	lua_pushcfunction(luaState, GetVisualByTag);
+	lua_setglobal(luaState, "GetVisualByTag");
 }
 
 

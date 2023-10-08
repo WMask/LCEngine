@@ -86,6 +86,25 @@ static int SetSoundVolume(lua_State* luaState)
 	return 0;
 }
 
+static int GetSoundByTag(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isinteger(luaState, top))
+	{
+		throw std::exception("GetSoundByTag(): Invalid params");
+	}
+	else
+	{
+		int tag = lua_toint(luaState, top);
+		auto audio = GetAudio(luaState);
+
+		lua_pushlightuserdata(luaState, audio->GetSoundByTag(tag));
+	}
+
+	return 1;
+}
+
 
 void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
@@ -108,4 +127,7 @@ void AddLuaModuleAudio(const LcAppContext& context, IScriptSystem* scriptSystem)
 
 	lua_pushcfunction(luaState, SetSoundVolume);
 	lua_setglobal(luaState, "SetSoundVolume");
+
+	lua_pushcfunction(luaState, GetSoundByTag);
+	lua_setglobal(luaState, "GetSoundByTag");
 }

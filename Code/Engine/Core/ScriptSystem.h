@@ -64,4 +64,6 @@ public:
 constexpr const char* LuaScriptGlobalName = "script";
 constexpr const char* LuaAppGlobalName = "app";
 constexpr const char* LuaWorldGlobalName = "world";
+constexpr const char* LuaPhysicsGlobalName = "physics";
+constexpr const char* LuaAudioGlobalName = "audio";
 constexpr const char* LuaInputGlobalName = "input";

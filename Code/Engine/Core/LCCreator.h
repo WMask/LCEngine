@@ -43,6 +43,8 @@ public:
 	typedef std::shared_ptr<I> TItemPtr;
 	//
 	typedef Container TItemsList;
+	//
+	typedef typename TItemsList::iterator TItemIterator;
 
 
 public:
@@ -78,6 +80,16 @@ public:
 			strategy->Destroy(*item, items);
 			items.erase(it);
 		}
+	}
+	//
+	void Clear(const TItemIterator& begin, const TItemIterator& end)
+	{
+		for (auto it = begin; it != end; ++it)
+		{
+			strategy->Destroy(*it->get(), items);
+		}
+
+		items.clear();
 	}
 	//
 	void Clear()

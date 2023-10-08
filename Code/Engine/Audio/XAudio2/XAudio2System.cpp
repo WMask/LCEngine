@@ -10,6 +10,9 @@
 #include "Audio/RiffFile.h"
 #include "Core/LCException.h"
 
+#include <algorithm>
+#include <iterator>
+
 
 class LcSoundLifetimeStrategy : public LcLifetimeStrategy<ISound, IAudioSystem::TSoundsList>
 {
@@ -67,6 +70,25 @@ void LcXAudio2System::Shutdown()
 	xAudio2.Reset();
 }
 
+void LcXAudio2System::Clear(bool removeRooted)
+{
+	if (removeRooted)
+	{
+		sounds.Clear();
+	}
+	else
+	{
+		IAudioSystem::TSoundsList removedSounds;
+		auto& soundsList = sounds.GetItems();
+
+		std::copy_if(soundsList.begin(), soundsList.end(), std::inserter(removedSounds, removedSounds.begin()), [](auto& sound) {
+			return !sound->IsRooted();
+		});
+
+		sounds.Clear(removedSounds.begin(), removedSounds.end());
+	}
+}
+
 void LcXAudio2System::Update(float deltaSeconds, const LcAppContext& context)
 {
 	LcXAudio2SystemBase::Update(deltaSeconds, context);
@@ -95,6 +117,15 @@ ISound* LcXAudio2System::AddSound(const char* filePath)
 
 	return newSound;
 }
+
+ISound* LcXAudio2System::GetSoundByTag(ObjectTag tag) const
+{
+	auto it = std::find_if(sounds.GetItems().begin(), sounds.GetItems().end(), [tag](auto& sound) {
+		return sound->GetTag() == tag;
+	});
+	return (it != sounds.GetItems().end()) ? it->get() : nullptr;
+}
+
 
 TAudioSystemPtr GetAudioSystem()
 {

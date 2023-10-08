@@ -222,6 +222,25 @@ static int IsBodyFalling(lua_State* luaState)
 	return 1;
 }
 
+static int GetBodyByTag(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isinteger(luaState, top))
+	{
+		throw std::exception("GetBodyByTag(): Invalid params");
+	}
+	else
+	{
+		int tag = lua_toint(luaState, top);
+		auto world = GetPhysWorld(luaState);
+
+		lua_pushlightuserdata(luaState, world->GetBodyByTag(tag));
+	}
+
+	return 1;
+}
+
 static int SetBodyUserData(lua_State* luaState)
 {
 	IPhysicsBody* body = nullptr;
@@ -278,6 +297,9 @@ void AddLuaModulePhysics(const LcAppContext& context, IScriptSystem* scriptSyste
 
 	lua_pushcfunction(luaState, IsBodyFalling);
 	lua_setglobal(luaState, "IsBodyFalling");
+
+	lua_pushcfunction(luaState, GetBodyByTag);
+	lua_setglobal(luaState, "GetBodyByTag");
 
 	lua_pushcfunction(luaState, SetBodyUserData);
 	lua_setglobal(luaState, "SetBodyUserData");

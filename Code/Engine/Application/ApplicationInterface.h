@@ -114,7 +114,7 @@ public:
 	virtual void Run() = 0;
 	/**
 	* Remove all sprites, widgets, textures etc. */
-	virtual void ClearWorld() = 0;
+	virtual void ClearWorld(bool removeRooted = false) = 0;
 	/**
 	* Request application quit */
 	virtual void RequestQuit() noexcept = 0;

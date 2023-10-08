@@ -67,7 +67,7 @@ typedef std::set<EVCType> TVFeaturesList;
 
 /**
 * Visual interface */
-class CORE_API IVisual : public IObjectTag
+class CORE_API IVisual : public IObjectBase
 {
 public:
 	/**
@@ -234,17 +234,6 @@ protected:
 * Visual base interface */
 class CORE_API IVisualBase : public IVisual
 {
-public:
-	IVisualBase() : tag(-1) {}
-
-
-public: // IObjectTag interface implementation
-	//
-	virtual void SetTag(ObjectTag inTag) override { tag = inTag; }
-	//
-	virtual ObjectTag GetTag() const override { return tag; }
-
-
 public: // IVisual interface implementation
 	//
 	virtual void Init(const LcAppContext& context) override {}
@@ -264,8 +253,6 @@ public: // IVisual interface implementation
 
 protected:
 	std::deque<TVComponentPtr> components;
-	//
-	ObjectTag tag;
 
 };
 

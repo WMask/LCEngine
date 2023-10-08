@@ -35,13 +35,6 @@ public:
 	static int GetStaticId() { return LcCreatables::XAudio2Sound; }
 
 
-public: // IObjectTag interface implementation
-	//
-	virtual void SetTag(ObjectTag inTag) override { tag = inTag; }
-	//
-	virtual ObjectTag GetTag() const override { return tag; }
-
-
 public: // ISound interface implementation
 	//
 	virtual void SetStreamEndHandler(LcPlaybackEndHandler handler) override { streamedEndHandler = handler; }
@@ -81,8 +74,6 @@ protected:
 	LcRiffFile riffBuffer;
 	//
 	LcOggFile oggBuffer;
-	//
-	ObjectTag tag;
 	//
 	bool streamed;
 	//

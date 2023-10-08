@@ -11,6 +11,8 @@
 #include "World/Sprites.h"
 #include "GUI/Widgets.h"
 
+#include <iterator>
+
 
 class LcVisualLifetimeStrategy : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
 {
@@ -127,9 +129,28 @@ void LcWorld::RemoveWidget(IWidget* widget)
 	items.Remove(widget);
 }
 
+void LcWorld::Clear(bool removeRooted)
+{
+	if (removeRooted)
+	{
+		items.Clear();
+	}
+	else
+	{
+		TVisualCreator::TItemsList removedVisuals;
+		auto& visuals = items.GetItems();
+
+		std::copy_if(visuals.begin(), visuals.end(), std::inserter(removedVisuals, removedVisuals.begin()), [](auto& visual) {
+			return !visual->IsRooted();
+		});
+
+		visuals.erase(removedVisuals.begin(), removedVisuals.end());
+	}
+}
+
 IVisual* LcWorld::GetVisualByTag(ObjectTag tag) const
 {
-	auto it = std::find_if(items.GetItems().begin(), items.GetItems().end(), [tag](const std::shared_ptr<IVisual>& visual) {
+	auto it = std::find_if(items.GetItems().begin(), items.GetItems().end(), [tag](auto& visual) {
 		return visual->GetTag() == tag;
 	});
 	return (it != items.GetItems().end()) ? it->get() : nullptr;

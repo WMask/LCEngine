@@ -8,6 +8,7 @@
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
+#include "Core/LCException.h"
 
 
 static const char* tiledSpriteShaderName = "TiledSprite2d.shader";
@@ -72,9 +73,44 @@ LcTiledVisual2DRenderDX10::~LcTiledVisual2DRenderDX10()
 	if (ps) { ps->Release(); ps = nullptr; }
 }
 
-void LcTiledVisual2DRenderDX10::RemoveTiles(const IVisual* visual)
+void LcTiledVisual2DRenderDX10::ClearCache(IWorld* world)
 {
-	vertexBuffers.erase(visual);
+    LC_TRY
+
+    if (world)
+    {
+        std::set<const IVisual*> aliveBufList;
+        auto& visuals = world->GetVisuals();
+        for (auto visual : visuals)
+        {
+			auto sprite = static_cast<ISprite*>(visual.get());
+			auto tiledComp = sprite ? sprite->GetTiledComponent() : nullptr;
+            if (tiledComp)
+            {
+				aliveBufList.insert(sprite);
+            }
+        }
+
+        std::set<const IVisual*> eraseBufList;
+        for (auto buf : vertexBuffers)
+        {
+            if (aliveBufList.find(buf.first) == aliveBufList.end())
+            {
+				eraseBufList.insert(buf.first);
+            }
+        }
+
+        for (auto entry : eraseBufList)
+        {
+			vertexBuffers.erase(entry);
+        }
+    }
+    else
+    {
+		vertexBuffers.clear();
+    }
+
+    LC_CATCH{ LC_THROW("LcTiledVisual2DRenderDX10::ClearCache()") }
 }
 
 std::vector<DX10TILEDSPRITEDATA> GenerateTiles(const LcTiledSpriteComponent& tiledComp)

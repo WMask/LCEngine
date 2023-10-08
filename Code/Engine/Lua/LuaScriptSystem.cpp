@@ -15,6 +15,11 @@
 static const char* CurPath = nullptr;
 
 static int SetScriptHandlerName(lua_State* luaState);
+static int SetTag(lua_State* luaState);
+static int GetTag(lua_State* luaState);
+static int AddToRoot(lua_State* luaState);
+static int RemoveFromRoot(lua_State* luaState);
+static int IsRooted(lua_State* luaState);
 
 
 LcLuaScriptSystem::~LcLuaScriptSystem()
@@ -58,9 +63,6 @@ void LcLuaScriptSystem::Init(const LcAppContext& context)
 	lua_setfield(luaState, -2, "Axis");
 	lua_setglobal(luaState, "ScriptHandler");
 
-	lua_pushcfunction(luaState, SetScriptHandlerName);
-	lua_setglobal(luaState, "SetScriptHandlerName");
-
 	lua_pushlightuserdata(luaState, this);
 	lua_setglobal(luaState, LuaScriptGlobalName);
 
@@ -70,8 +72,32 @@ void LcLuaScriptSystem::Init(const LcAppContext& context)
 	lua_pushlightuserdata(luaState, context.world);
 	lua_setglobal(luaState, LuaWorldGlobalName);
 
+	lua_pushlightuserdata(luaState, context.physics);
+	lua_setglobal(luaState, LuaPhysicsGlobalName);
+
+	lua_pushlightuserdata(luaState, context.audio);
+	lua_setglobal(luaState, LuaAudioGlobalName);
+
 	lua_pushlightuserdata(luaState, context.input);
 	lua_setglobal(luaState, LuaInputGlobalName);
+
+	lua_pushcfunction(luaState, SetScriptHandlerName);
+	lua_setglobal(luaState, "SetScriptHandlerName");
+
+	lua_pushcfunction(luaState, SetTag);
+	lua_setglobal(luaState, "SetTag");
+
+	lua_pushcfunction(luaState, GetTag);
+	lua_setglobal(luaState, "GetTag");
+
+	lua_pushcfunction(luaState, AddToRoot);
+	lua_setglobal(luaState, "AddToRoot");
+
+	lua_pushcfunction(luaState, RemoveFromRoot);
+	lua_setglobal(luaState, "RemoveFromRoot");
+
+	lua_pushcfunction(luaState, IsRooted);
+	lua_setglobal(luaState, "IsRooted");
 }
 
 void LcLuaScriptSystem::RunScript(const std::string& script)
@@ -239,6 +265,94 @@ int SetScriptHandlerName(lua_State* luaState)
 	return 0;
 }
 
+int SetTag(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top - 1) ||
+		!lua_isinteger(luaState, top - 0))
+	{
+		throw std::exception("SetTag(): Invalid object");
+	}
+	else
+	{
+		IObjectBase* object = static_cast<IObjectBase*>(lua_touserdata(luaState, top - 1));
+		int tag = lua_toint(luaState, top - 0);
+	}
+
+	return 0;
+}
+
+int GetTag(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("GetTag(): Invalid object");
+	}
+	else
+	{
+		IObjectBase* object = static_cast<IObjectBase*>(lua_touserdata(luaState, top));
+		lua_pushinteger(luaState, object->GetTag());
+	}
+
+	return 1;
+}
+
+int AddToRoot(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("AddToRoot(): Invalid object");
+	}
+	else
+	{
+		IObjectBase* object = static_cast<IObjectBase*>(lua_touserdata(luaState, top));
+
+		object->AddToRoot();
+	}
+
+	return 0;
+}
+
+int RemoveFromRoot(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("RemoveFromRoot(): Invalid object");
+	}
+	else
+	{
+		IObjectBase* object = static_cast<IObjectBase*>(lua_touserdata(luaState, top));
+
+		object->RemoveFromRoot();
+	}
+
+	return 0;
+}
+
+int IsRooted(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (!lua_isuserdata(luaState, top))
+	{
+		throw std::exception("IsRooted(): Invalid object");
+	}
+	else
+	{
+		IObjectBase* object = static_cast<IObjectBase*>(lua_touserdata(luaState, top));
+		lua_pushboolean(luaState, object->IsRooted() ? 1 : 0);
+	}
+
+	return 1;
+}
+
 IScriptSystem* GetScript(struct lua_State* luaState)
 {
 	lua_getglobal(luaState, LuaScriptGlobalName);
@@ -264,6 +378,24 @@ IWorld* GetWorld(lua_State* luaState)
 	auto world = static_cast<IWorld*>(worldPtr);
 	if (!world) throw std::exception("GetWorld(): Invalid World");
 	return world;
+}
+
+IPhysicsWorld* GetPhysWorld(struct lua_State* luaState)
+{
+	lua_getglobal(luaState, LuaPhysicsGlobalName);
+	auto worldPtr = lua_touserdata(luaState, -1);
+	auto world = static_cast<IPhysicsWorld*>(worldPtr);
+	if (!world) throw std::exception("GetPhysWorld(): Invalid World");
+	return world;
+}
+
+IAudioSystem* GetAudio(struct lua_State* luaState)
+{
+	lua_getglobal(luaState, LuaAudioGlobalName);
+	auto audioPtr = lua_touserdata(luaState, -1);
+	auto audio = static_cast<IAudioSystem*>(audioPtr);
+	if (!audio) throw std::exception("GetAudio(): Invalid Audio system");
+	return audio;
 }
 
 IInputSystem* GetInput(struct lua_State* luaState)

@@ -63,7 +63,7 @@ public: // IApplication interface implementation
 	//
 	virtual void Run() override;
 	//
-	virtual void ClearWorld() override;
+	virtual void ClearWorld(bool removeRooted = false) override;
 	//
 	virtual void RequestQuit() noexcept override { quit = true; }
 	//
