@@ -111,6 +111,70 @@ namespace LcJAxis
 }
 
 
+/** Action type */
+enum class LcActionType
+{
+	Key,
+	JoyKey,
+	Mouse,
+	Axis
+};
+
+/** Action base */
+struct LcAction
+{
+	LcAction(LcActionType inType) : type(inType) {}
+	//
+	LcActionType type;
+};
+
+/** Key action */
+class LcKeyAction : public LcAction
+{
+	LcKeyAction(int inKey, LcKeyState inState, LcActionType inType)
+		: LcAction(inType)
+		, key(inKey)
+		, state(inState) {}
+	//
+	LcKeyState state;
+	//
+	int key;
+};
+
+/** Mouse action */
+class LcMouseAction : public LcAction
+{
+	LcMouseAction(int inButton, float inX, float inY, LcKeyState inState)
+		: LcAction(LcActionType::Mouse)
+		, button(inButton)
+		, x(inX), y(inY)
+		, state(inState) {}
+	//
+	LcKeyState state;
+	//
+	int button;
+	//
+	float x;
+	//
+	float y;
+};
+
+/** Axis action */
+class LcAxisAction : public LcAction
+{
+	LcAxisAction(int inAxis, float inX, float inY)
+		: LcAction(LcActionType::Axis)
+		, x(inX), y(inY)
+		, axis(inAxis) {}
+	//
+	int axis;
+	//
+	float x;
+	//
+	float y;
+};
+
+
 /**
 * Input device interface */
 class IInputDevice
@@ -150,14 +214,17 @@ typedef std::deque<std::shared_ptr<IInputDevice>> TInputDevicesList;
 /** Keyboard events handler */
 typedef std::function<void(int, LcKeyState, const struct LcAppContext&)> LcKeysHandler;
 
-/** Gamepad axis events handler */
-typedef std::function<void(int, float, float, const struct LcAppContext&)> LcAxisHandler;
-
 /** Mouse button handler */
 typedef std::function<void(int, LcKeyState, float, float, const struct LcAppContext&)> LcMouseButtonHandler;
 
 /** Mouse move handler */
 typedef std::function<void(float, float, const struct LcAppContext&)> LcMouseMoveHandler;
+
+/** Action handler */
+typedef std::function<void(const LcAction& action, const struct LcAppContext&)> LcActionHandler;
+
+/** Gamepad axis events handler */
+typedef std::function<void(int, float, float, const struct LcAppContext&)> LcAxisHandler;
 
 
 /**
@@ -187,8 +254,8 @@ public:
 	* Set keyboard handler */
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept = 0;
 	/**
-	* Set gamepad axis handler */
-	virtual void SetAxisHandler(LcAxisHandler handler) noexcept = 0;
+	* Set action handler */
+	virtual void SetActionHandler(LcActionHandler handler) noexcept = 0;
 	/**
 	* Set mouse move handler */
 	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept = 0;
@@ -196,17 +263,23 @@ public:
 	* Set mouse button handler */
 	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept = 0;
 	/**
+	* Set gamepad axis handler */
+	virtual void SetAxisHandler(LcAxisHandler handler) noexcept = 0;
+	/**
 	* Get keyboard handler */
 	virtual LcKeysHandler& GetKeysHandler() noexcept = 0;
 	/**
-	* Get gamepad axis handler */
-	virtual LcAxisHandler& GetAxisHandler() noexcept = 0;
+	* Get action handler */
+	virtual LcActionHandler& GetActionHandler() noexcept = 0;
 	/**
 	* Get mouse move handler */
 	virtual LcMouseMoveHandler& GetMouseMoveHandler() noexcept = 0;
 	/**
 	* Get mouse button handler */
 	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept = 0;
+	/**
+	* Get gamepad axis handler */
+	virtual LcAxisHandler& GetAxisHandler() noexcept = 0;
 	/**
 	* Get input devices list */
 	virtual const TInputDevicesList& GetInputDevicesList() const = 0;
@@ -289,19 +362,23 @@ public: // IInputSystem interface implementation
 	//
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept override { keysHandler = handler; }
 	//
-	virtual void SetAxisHandler(LcAxisHandler handler) noexcept override { axisHandler = handler; }
+	virtual void SetActionHandler(LcActionHandler handler) noexcept override { actionHandler = handler; }
 	//
 	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept override { mouseMoveHandler = handler; }
 	//
 	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept override { mouseButtonHandler = handler; }
 	//
+	virtual void SetAxisHandler(LcAxisHandler handler) noexcept override { axisHandler = handler; }
+	//
 	virtual LcKeysHandler& GetKeysHandler() noexcept override { return keysHandler; }
 	//
-	virtual LcAxisHandler& GetAxisHandler() noexcept override { return axisHandler; }
+	virtual LcActionHandler& GetActionHandler() noexcept override { return actionHandler; }
 	//
 	virtual LcMouseMoveHandler& GetMouseMoveHandler() noexcept override { return mouseMoveHandler; }
 	//
 	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept override { return mouseButtonHandler; }
+	//
+	virtual LcAxisHandler& GetAxisHandler() noexcept override { return axisHandler; }
 	//
 	virtual const TInputDevicesList& GetInputDevicesList() const override { return devices; }
 	//
@@ -316,11 +393,13 @@ protected:
 	//
 	LcKeysHandler keysHandler;
 	//
-	LcAxisHandler axisHandler;
+	LcActionHandler actionHandler;
 	//
 	LcMouseMoveHandler mouseMoveHandler;
 	//
 	LcMouseButtonHandler mouseButtonHandler;
+	//
+	LcAxisHandler axisHandler;
 	//
 	IInputDevice* activeDevice;
 	//
