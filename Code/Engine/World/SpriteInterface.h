@@ -116,7 +116,8 @@ namespace LcTiles
 }
 
 typedef std::deque<std::string> LcLayersList;
-typedef std::deque<std::pair<std::string, LcAny>> LcTiledProps;
+typedef std::pair<std::string, LcAny> LcTiledProp;
+typedef std::deque<LcTiledProp> LcTiledProps;
 
 /** Tiled sprite object handler */
 typedef std::function<void(

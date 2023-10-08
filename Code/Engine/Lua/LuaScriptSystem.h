@@ -39,6 +39,8 @@ LCLUA_API LcVector2 GetVector2(struct lua_State* luaState, int table);
 // throws exception if can't get
 LCLUA_API LcVector3 GetVector(struct lua_State* luaState, int table);
 
+LCLUA_API void PushAny(struct lua_State* luaState, const LcAny& any);
+
 
 /**
 * Lua script system */

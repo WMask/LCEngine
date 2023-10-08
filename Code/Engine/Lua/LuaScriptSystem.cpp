@@ -14,8 +14,6 @@
 
 static const char* CurPath = nullptr;
 
-static int SetTag(lua_State* luaState);
-static int GetTag(lua_State* luaState);
 static int SetScriptHandlerName(lua_State* luaState);
 
 
@@ -74,12 +72,6 @@ void LcLuaScriptSystem::Init(const LcAppContext& context)
 
 	lua_pushlightuserdata(luaState, context.input);
 	lua_setglobal(luaState, LuaInputGlobalName);
-
-	lua_pushcfunction(luaState, SetTag);
-	lua_setglobal(luaState, "SetTag");
-
-	lua_pushcfunction(luaState, GetTag);
-	lua_setglobal(luaState, "GetTag");
 }
 
 void LcLuaScriptSystem::RunScript(const std::string& script)
@@ -353,51 +345,15 @@ LcVector3 GetVector(struct lua_State* luaState, int table)
 	return vector;
 }
 
-int SetTag(lua_State* luaState)
+void PushAny(struct lua_State* luaState, const LcAny& any)
 {
-	IVisual* visual = nullptr;
-	int tag = -1;
-	int top = lua_gettop(luaState);
-
-	if (lua_isuserdata(luaState, top - 1))
+	switch (any.type)
 	{
-		visual = static_cast<IVisual*>(lua_touserdata(luaState, top - 1));
-		tag = lua_toint(luaState, top - 0);
+	case LcAny::LcAnyType::StringAny: lua_pushstring(luaState, any.sValue.c_str()); break;
+	case LcAny::LcAnyType::FloatAny: lua_pushnumber(luaState, any.fValue); break;
+	case LcAny::LcAnyType::IntAny: lua_pushinteger(luaState, any.iValue); break;
+	case LcAny::LcAnyType::BoolAny: lua_pushboolean(luaState, any.bValue ? 1 : 0); break;
 	}
-	else
-	{
-		tag = lua_toint(luaState, top - 0);
-	}
-
-	if (visual)
-	{
-		auto app = GetApp(luaState);
-		visual->SetTag(tag);
-	}
-	else
-	{
-		auto world = GetWorld(luaState);
-		world->GetVisualHelper().SetTag(tag);
-	}
-
-	return 0;
-}
-
-int GetTag(lua_State* luaState)
-{
-	int top = lua_gettop(luaState);
-
-	if (lua_isuserdata(luaState, top))
-	{
-		auto visual = static_cast<IVisual*>(lua_touserdata(luaState, top));
-		lua_pushinteger(luaState, visual->GetTag());
-	}
-	else
-	{
-		throw std::exception("GetTag(): Invalid object");
-	}
-
-	return 1;
 }
 
 

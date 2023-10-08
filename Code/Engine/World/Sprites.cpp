@@ -224,13 +224,13 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 
 						auto type = entry["type"].get<std::string>();
 						if (type == "int")
-							newProp.second.iValue = entry["value"].get<int>();
+							newProp.second = LcAny(entry["value"].get<int>());
 						else if (type == "float")
-							newProp.second.fValue = entry["value"].get<float>();
+							newProp.second = LcAny(entry["value"].get<float>());
 						else if (type == "bool")
-							newProp.second.bValue = entry["value"].get<bool>();
+							newProp.second = LcAny(entry["value"].get<bool>());
 						else if (type == "string")
-							newProp.second.sValue = entry["value"].get<std::string>();
+							newProp.second = LcAny(entry["value"].get<std::string>());
 
 						props.push_back(newProp);
 					}

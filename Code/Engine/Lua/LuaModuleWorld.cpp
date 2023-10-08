@@ -311,6 +311,11 @@ static int AddTiledComponent(lua_State* luaState)
 
 		// 4
 		lua_createtable(luaState, 0, 0);
+		for (const LcTiledProp& prop : objProps)
+		{
+			PushAny(luaState, prop.second);
+			lua_setfield(luaState, -2, prop.first.c_str());
+		}
 
 		// 5
 		lua_createtable(luaState, 0, 2);
@@ -615,6 +620,53 @@ static int GetVisualPos(lua_State* luaState)
 	return 1;
 }
 
+int SetVisualTag(lua_State* luaState)
+{
+	IVisual* visual = nullptr;
+	int tag = -1;
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top - 1))
+	{
+		visual = static_cast<IVisual*>(lua_touserdata(luaState, top - 1));
+		tag = lua_toint(luaState, top - 0);
+	}
+	else
+	{
+		tag = lua_toint(luaState, top - 0);
+	}
+
+	if (visual)
+	{
+		auto app = GetApp(luaState);
+		visual->SetTag(tag);
+	}
+	else
+	{
+		auto world = GetWorld(luaState);
+		world->GetVisualHelper().SetTag(tag);
+	}
+
+	return 0;
+}
+
+int GetVisualTag(lua_State* luaState)
+{
+	int top = lua_gettop(luaState);
+
+	if (lua_isuserdata(luaState, top))
+	{
+		auto visual = static_cast<IVisual*>(lua_touserdata(luaState, top));
+		lua_pushinteger(luaState, visual->GetTag());
+	}
+	else
+	{
+		throw std::exception("GetVisualTag(): Invalid object");
+	}
+
+	return 1;
+}
+
 
 void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 {
@@ -687,6 +739,12 @@ void AddLuaModuleWorld(const LcAppContext& context, IScriptSystem* scriptSystem)
 
 	lua_pushcfunction(luaState, GetVisualPos);
 	lua_setglobal(luaState, "GetVisualPos");
+
+	lua_pushcfunction(luaState, SetVisualTag);
+	lua_setglobal(luaState, "SetVisualTag");
+
+	lua_pushcfunction(luaState, GetVisualTag);
+	lua_setglobal(luaState, "GetVisualTag");
 }
 
 
