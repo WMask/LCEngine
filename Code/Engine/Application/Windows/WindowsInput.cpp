@@ -23,6 +23,26 @@ const static int LeftUpDirValue = 31500;
 const static int AxisValue = 32000;
 
 
+std::deque<LcActionBinding> GetActions(LcActionType type, int id, LcAppConfig& cfg)
+{
+    std::deque<LcActionBinding> actions;
+
+    for (auto& action : cfg.Actions)
+    {
+        switch (type)
+        {
+        case LcActionType::Key:
+            if (id == action.Key) actions.push_back(action);
+            break;
+        case LcActionType::Axis:
+            if (id == action.AxisId) actions.push_back(action);
+            break;
+        }
+    }
+
+    return actions;
+}
+
 LcDirectInputSystem::LcDirectInputSystem()
 {
     if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
@@ -59,6 +79,7 @@ void LcDirectInputSystem::Init(const LcAppContext& context)
         TInputDevicesList* devices;
         LcDirectInputJoystick* joystick;
         HWND windowHandle;
+        LcAppConfig* cfg;
         int id;
     };
 
@@ -66,12 +87,13 @@ void LcDirectInputSystem::Init(const LcAppContext& context)
     enumContext.directInput = directInput.Get();
     enumContext.devices = &devices;
     enumContext.windowHandle = (HWND)context.windowHandle;
+    enumContext.cfg = context.app ? &context.app->GetConfig() : nullptr;
     enumContext.id = 0;
 
     auto onNextDevice = [](LPCDIDEVICEINSTANCEW deviceInstance, LPVOID contextPtr) -> BOOL
     {
         DI_ENUM_CONTEXT* context = reinterpret_cast<DI_ENUM_CONTEXT*>(contextPtr);
-        auto newJoystick = std::make_shared<LcDirectInputJoystick>((WCHAR*)deviceInstance->tszInstanceName, context->id);
+        auto newJoystick = std::make_shared<LcDirectInputJoystick>((WCHAR*)deviceInstance->tszInstanceName, context->id, context->cfg);
         newJoystick->Deactivate();
 
         auto& device = newJoystick->GetDevice();
@@ -134,10 +156,8 @@ void LcDirectInputSystem::Shutdown()
     directInput.Reset();
 }
 
-void LcDirectInputSystem::Update(float deltaSeconds, const struct LcAppContext& context)
+void LcDirectInputSystem::Update(float deltaSeconds, const LcAppContext& context)
 {
-    if (!keysHandler) return;
-
     LC_TRY
 
     for (auto& device : devices)
@@ -174,8 +194,19 @@ void LcDirectInputSystem::Update(float deltaSeconds, const struct LcAppContext& 
                 BYTE cur = (newState.rgbButtons[key] == 0) ? 0 : 1;
                 if (cur != prev)
                 {
-                    auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-                    keysHandler(LcJoystickKeysOffset + key, action, context);
+                    auto joyKey = LcJoystickKeysOffset + key;
+                    auto keyState = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
+
+                    if (keysHandler) keysHandler(joyKey, keyState, context);
+
+                    if (actionHandler && cfg)
+                    {
+                        auto actions = GetActions(LcActionType::Key, joyKey, *cfg);
+                        for (auto& action : actions)
+                        {
+                            actionHandler(LcKeyAction(action.Name, joyKey, keyState), context);
+                        }
+                    }
                 }
 
                 curState[LcJoystickKeysOffset + key] = cur;
@@ -202,8 +233,17 @@ void LcDirectInputSystem::Update(float deltaSeconds, const struct LcAppContext& 
                     BYTE cur = curState[i];
                     if (cur != prev)
                     {
-                        auto action = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-                        keysHandler(i, action, context);
+                        auto keyState = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
+                        if (keysHandler) keysHandler(i, keyState, context);
+
+                        if (actionHandler && cfg)
+                        {
+                            auto actions = GetActions(LcActionType::Key, i, *cfg);
+                            for (auto& action : actions)
+                            {
+                                actionHandler(LcKeyAction(action.Name, i, keyState), context);
+                            }
+                        }
                     }
                 }
             }
@@ -229,6 +269,18 @@ void LcDirectInputSystem::Update(float deltaSeconds, const struct LcAppContext& 
                 if (abs(X) < 0.05f) X = 0.0f;
                 if (abs(Y) < 0.05f) Y = 0.0f;
                 axisHandler(LcJAxis::RStick, X, Y, context);
+
+                auto actionsL = GetActions(LcActionType::Key, LcJAxis::LStick, *cfg);
+                for (auto& action : actionsL)
+                {
+                    actionHandler(LcAxisAction(action.Name, LcJAxis::LStick, X, Y), context);
+                }
+
+                auto actionsR = GetActions(LcActionType::Key, LcJAxis::RStick, *cfg);
+                for (auto& action : actionsR)
+                {
+                    actionHandler(LcAxisAction(action.Name, LcJAxis::RStick, X, Y), context);
+                }
             }
 
             joystick->SetButtonsState(curState.Get());
@@ -240,7 +292,7 @@ void LcDirectInputSystem::Update(float deltaSeconds, const struct LcAppContext& 
 }
 
 
-LcDirectInputJoystick::LcDirectInputJoystick(const std::wstring& inName, int inDeviceId)
+LcDirectInputJoystick::LcDirectInputJoystick(const std::wstring& inName, int inDeviceId, const LcAppConfig* inCfg) : LcDefaultInputDevice(inCfg)
 {
     name = inName;
     deviceId = inDeviceId;

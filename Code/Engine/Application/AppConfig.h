@@ -11,6 +11,8 @@
 #include "Module.h"
 #include "Core/LCTypes.h"
 
+#pragma warning(disable : 4251)
+
 
 struct LcActionBinding
 {

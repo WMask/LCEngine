@@ -59,30 +59,31 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
 
             auto vel = body->GetVelocity();
-            auto& keys = context.input->GetActiveInputDevice()->GetState();
-            if (keys[VK_LEFT] || keys[LcJKeys::Left]) body->SetVelocity(LcVector2(-1.2f, vel.y));
-            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) body->SetVelocity(LcVector2(1.2f, vel.y));
+            const auto& actions = context.input->GetActiveInputDevice();
+            if (actions->Pressed("Left")) body->SetVelocity(LcVector2(-1.2f, vel.y));
+            if (actions->Pressed("Right")) body->SetVelocity(LcVector2(1.2f, vel.y));
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
+        auto onActionHandler = [](const LcAction& action, const LcAppContext& context)
         {
             auto body = context.physics->GetDynamicBodies()[0];
 
-            if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
+            if (action.Pressed("Quit")) context.app->RequestQuit();
 
             bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
-            if ((key == VK_UP || key == LcJKeys::A) && (keyEvent == LcKeyState::Down) && canJump)
+            if (action.Pressed("Up") && canJump)
             {
                 body->ApplyImpulse(LcVector2(0.0f, -4.0f));
             }
         };
 
         auto app = GetApp();
+        LoadConfig(app->GetConfig(), "../../Assets/Config.txt");
         app->SetRenderSystem(GetRenderSystem());
         app->SetPhysicsWorld(GetPhysicsWorld());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
-        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
+        app->GetInputSystem()->SetActionHandler(onActionHandler);
         app->SetWindowSize(1024, 768);
         app->Init(hInstance);
         app->Run();
