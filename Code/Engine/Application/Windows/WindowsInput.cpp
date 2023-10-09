@@ -32,7 +32,7 @@ std::deque<LcActionBinding> GetActions(LcActionType type, int id, LcAppConfig& c
         switch (type)
         {
         case LcActionType::Key:
-            if (id == action.Key) actions.push_back(action);
+            if (id == action.JoyKey) actions.push_back(action);
             break;
         case LcActionType::Axis:
             if (id == action.AxisId) actions.push_back(action);

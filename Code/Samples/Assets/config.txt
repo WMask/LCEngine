@@ -30,7 +30,7 @@
         },
         {
             "AxisId": -1,
-            "JoyKey": 139,
+            "JoyKey": 132,
             "Key": 81,
             "MouseBtn": -1,
             "Name": "Quit"

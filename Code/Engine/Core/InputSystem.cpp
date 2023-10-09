@@ -64,9 +64,15 @@ bool LcDefaultInputDevice::Pressed(const std::string& actionName) const
         {
             if (action.Name == actionName)
             {
-                if (action.Key >= 0 && action.Key < LcKeysCount) return (keys.keys[action.Key] != 0);
+                if (action.Key >= 0 && action.Key < LcKeysCount && (keys.keys[action.Key] != 0))
+                {
+                    return true;
+                }
 
-                if (action.JoyKey >= 0 && action.JoyKey < LcKeysCount) return (keys.keys[action.JoyKey] != 0);
+                if (action.JoyKey >= 0 && action.JoyKey < LcKeysCount && (keys.keys[action.JoyKey] != 0))
+                {
+                    return true;
+                }
             }
         }
     }
