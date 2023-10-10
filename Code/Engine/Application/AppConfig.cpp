@@ -30,11 +30,11 @@ bool LoadConfig(LcAppConfig& outConfig, const char* fileName, char delim)
 
 	outConfig.WinWidth			= cfg["Application"]["WinWidth"].get<unsigned int>();
 	outConfig.WinHeight			= cfg["Application"]["WinHeight"].get<unsigned int>();
-	outConfig.bVSync			= cfg["Render"]["bVSync"].get<bool>();
-	outConfig.bAllowFullscreen	= cfg["Render"]["bAllowFullscreen"].get<bool>();
-	outConfig.bNoDelay			= cfg["Render"]["bNoDelay"].get<bool>();
+	outConfig.bVSync			= cfg["Engine"]["bVSync"].get<bool>();
+	outConfig.bAllowFullscreen	= cfg["Engine"]["bAllowFullscreen"].get<bool>();
+	outConfig.bNoDelay			= cfg["Engine"]["bNoDelay"].get<bool>();
 
-	for (auto action : cfg["Actions"])
+	for (auto action : cfg["Input"])
 	{
 		LcActionBinding binding{};
 		binding.Name     = action["Name"].get<std::string>();
@@ -55,12 +55,12 @@ void SaveConfig(const LcAppConfig& config, const char* fileName)
 			{"WinWidth",			config.WinWidth},
 			{"WinHeight",			config.WinHeight}
 		}},
-		{"Render", {
+		{"Engine", {
 			{"bVSync",				config.bVSync},
 			{"bAllowFullscreen",	config.bAllowFullscreen},
 			{"bNoDelay",			config.bNoDelay}
 		}},
-		{"Actions", {}}
+		{"Input", {}}
 	};
 
 	for (auto& action : config.Actions)
@@ -72,7 +72,7 @@ void SaveConfig(const LcAppConfig& config, const char* fileName)
 			{"MouseBtn", action.MouseBtn},
 			{"AxisId", action.AxisId},
 		};
-		cfg["Actions"].push_back(binding);
+		cfg["Input"].push_back(binding);
 	}
 
 	WriteTextFile(fileName, cfg.dump(4) + "\n");

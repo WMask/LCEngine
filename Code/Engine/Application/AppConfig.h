@@ -34,11 +34,11 @@ struct APPLICATION_API LcAppConfig
     // [Application]
     unsigned int WinWidth;
     unsigned int WinHeight;
-    // [Render]
+    // [Engine]
     bool bVSync;
     bool bAllowFullscreen;
     bool bNoDelay;
-    // [Actions]
+    // [Input]
     std::deque<LcActionBinding> Actions;
 };
 

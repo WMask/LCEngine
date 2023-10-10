@@ -1,5 +1,14 @@
 {
-    "Actions": [
+    "Application": {
+        "WinHeight": 720,
+        "WinWidth": 1280
+    },
+    "Engine": {
+        "bAllowFullscreen": false,
+        "bNoDelay": false,
+        "bVSync": true
+    },
+    "Input": [
         {
             "AxisId": -1,
             "JoyKey": 143,
@@ -35,14 +44,5 @@
             "MouseBtn": -1,
             "Name": "Quit"
         }
-    ],
-    "Application": {
-        "WinHeight": 720,
-        "WinWidth": 1280
-    },
-    "Render": {
-        "bAllowFullscreen": false,
-        "bNoDelay": false,
-        "bVSync": true
-    }
+    ]
 }
