@@ -78,10 +78,10 @@ LcTexturedVisual2DRenderDX10::LcTexturedVisual2DRenderDX10(const LcAppContext& c
 	// fill vertex buffer
 	DX10TEXTUREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
-	vertices[1] = DX10TEXTUREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 2 };
-	vertices[2] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 0 };
-	vertices[3] = DX10TEXTUREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 3 };
+	vertices[0] = DX10TEXTUREDSPRITEDATA{ LcVector3{  0.5, 0.5, 0 }, 1 };
+	vertices[1] = DX10TEXTUREDSPRITEDATA{ LcVector3{  0.5,-0.5, 0 }, 2 };
+	vertices[2] = DX10TEXTUREDSPRITEDATA{ LcVector3{ -0.5, 0.5, 0 }, 0 };
+	vertices[3] = DX10TEXTUREDSPRITEDATA{ LcVector3{ -0.5,-0.5, 0 }, 3 };
 	vertexBuffer->Unmap();
 }
 
@@ -148,7 +148,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		}
 		else
 		{
-			static LcVector4 defaultUVs[] = { To4(LcVector2(0.0, 0.0)), To4(LcVector2(1.0, 0.0)), To4(LcVector2(1.0, 1.0)), To4(LcVector2(0.0, 1.0)) };
+			static LcVector4 defaultUVs[] = { To4(LcVector2{ 0.0, 0.0 }), To4(LcVector2{ 1.0, 0.0 }), To4(LcVector2{ 1.0, 1.0 }), To4(LcVector2{ 0.0, 1.0 }) };
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
 		}
 
@@ -163,7 +163,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 
 		// update transform
 		LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
-		LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
+		LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 		LcVector3 spritePos = sprite->GetPos() * worldScale;
 		LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 		LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());
@@ -188,7 +188,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 		}
 		else
 		{
-			static LcColor4 defaultColors[] = { LcDefaults::ZeroVec4, LcDefaults::ZeroVec4, LcDefaults::ZeroVec4, LcDefaults::ZeroVec4 };
+			static LcColor4 defaultColors[] = { LcDefaults::Invisible, LcDefaults::Invisible, LcDefaults::Invisible, LcDefaults::Invisible };
 			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
 		}
 
@@ -220,7 +220,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 
 		// update transform
 		LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
-		LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
+		LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 		LcVector3 widgetPos = widget->GetPos() * worldScale;
 		LcVector2 widgetSize = widget->GetSize() * worldScale2D;
 		LcMatrix4 trans = TransformMatrix(widgetPos, widgetSize);
@@ -235,7 +235,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->textTextureSV.GetAddressOf());
 			flags.bHasTexture = TRUE;
 
-			static LcVector4 defaultUVs[] = { To4(LcVector2(0.0, 0.0)), To4(LcVector2(1.0, 0.0)), To4(LcVector2(1.0, 1.0)), To4(LcVector2(0.0, 1.0)) };
+			static LcVector4 defaultUVs[] = { To4(LcVector2{ 0.0, 0.0 }), To4(LcVector2{ 1.0, 0.0 }), To4(LcVector2{ 1.0, 1.0 }), To4(LcVector2{ 0.0, 1.0 }) };
 			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
 			flags.bHasCustomUV = TRUE;
 

@@ -51,7 +51,7 @@ public:
 		SetColor(tint);
 	}
 	//
-	LcVisualTintComponent(LcColor3 inTint) : tint(inTint.x, inTint.y, inTint.z, 1.0f)
+	LcVisualTintComponent(LcColor3 inTint) : tint{ inTint.r, inTint.g, inTint.b, 1.0f }
 	{
 		SetColor(tint);
 	}

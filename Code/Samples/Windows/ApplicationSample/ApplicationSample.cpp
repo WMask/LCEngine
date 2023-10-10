@@ -37,7 +37,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto& spriteHelper = context.world->GetSpriteHelper();
             if (context.world->AddSprite(200, 200, 300, 300))
             {
-                spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                spriteHelper.AddTintComponent(LcColor3{ 0.7f, 0.7f, 0.7f });
                 spriteHelper.SetTag(1);
             }
 
@@ -46,7 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddTextureComponent("../../Assets/particles.png");
 
                 LcBasicParticleSettings settings;
-                settings.frameSize = LcSizef(32.0f, 32.0f);
+                settings.frameSize = LcSizef{ 32.0f, 32.0f };
                 settings.numFrames = 4;
                 settings.lifetime = LcPI * 4.0f;
                 settings.fadeInRate = 0.2f;
@@ -60,13 +60,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
             {
                 spriteHelper.AddTextureComponent("../../Assets/tree.png");
-                spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+                spriteHelper.AddColorsComponent(LcColor3{ 0, 1, 0 }, LcColor3{ 0, 1, 0 }, LcColor3{ 1, 0, 0 }, LcColor3{ 1, 0, 0 });
             }
 
             if (context.world->AddSprite(460, 315, 100, 100))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
-                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddAnimationComponent(LcSizef{ 128, 128 }, 10, 12);
             }
 
             LcTextBlockSettings settings;
@@ -131,7 +131,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto sprite = context.world->GetObjectByTag<ISprite>(1);
             auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
-            sprite->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
+            sprite->GetTintComponent()->SetColor(LcColor4{ 1.0f - tint, tint, 0.0f, 1.0f });
         };
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)

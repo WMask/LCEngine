@@ -239,7 +239,7 @@ void LcTextRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColo
     if (!fontPtr) throw std::exception("LcTextRenderDX10::RenderText(): Invalid font");
 
     D2D1_RECT_F frect{ rect.left, rect.top, rect.right, rect.bottom };
-    D2D1_COLOR_F fcolor{ color.x, color.y, color.z, color.w };
+    D2D1_COLOR_F fcolor{ color.r, color.g, color.b, color.a };
 
     fontDX10->SetAlignment(align);
 

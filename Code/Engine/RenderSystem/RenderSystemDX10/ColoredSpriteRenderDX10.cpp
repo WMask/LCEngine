@@ -76,10 +76,10 @@ LcColoredSpriteRenderDX10::LcColoredSpriteRenderDX10(const LcAppContext& context
 	// fill vertex buffer
 	DX10COLOREDSPRITEDATA* vertices;
 	vertexBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&vertices);
-	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5, 0.5, 0), 1 };
-	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3( 0.5,-0.5, 0), 2 };
-	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5, 0.5, 0), 0 };
-	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3(-0.5,-0.5, 0), 3 };
+	vertices[0] = DX10COLOREDSPRITEDATA{ LcVector3{  0.5, 0.5, 0 }, 1 };
+	vertices[1] = DX10COLOREDSPRITEDATA{ LcVector3{  0.5,-0.5, 0 }, 2 };
+	vertices[2] = DX10COLOREDSPRITEDATA{ LcVector3{ -0.5, 0.5, 0 }, 0 };
+	vertices[3] = DX10COLOREDSPRITEDATA{ LcVector3{ -0.5,-0.5, 0 }, 3 };
 	vertexBuffer->Unmap();
 }
 
@@ -135,7 +135,7 @@ void LcColoredSpriteRenderDX10::Render(const IVisual* visual, const LcAppContext
 
 	// update transform
 	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
-	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
+	LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	LcMatrix4 trans = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ());

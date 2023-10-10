@@ -60,7 +60,7 @@ void LcGuiManager::OnMouseButton(int btn, LcKeyState state, int x, int y, const 
 
     auto& visuals = context.world->GetVisuals();
     auto scale2 = context.world->GetWorldScale().GetScale();
-    auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
+    auto scale3 = LcVector3{ scale2.x, scale2.y, 1.0f };
 
     for (auto& visual : visuals)
     {
@@ -73,7 +73,7 @@ void LcGuiManager::OnMouseButton(int btn, LcKeyState state, int x, int y, const 
         auto widget = static_cast<IWidget*>(visual.get());
         if (HasInvisibleParent(widget)) continue;
 
-        LcVector2 point((float)x, (float)y);
+        LcVector2 point{ (float)x, (float)y };
         LcVector2 widgetPos = To2(widget->GetPos() * scale3);
         LcRectf widgetBox = ToF(
             widgetPos - widget->GetSize() / 2.0f * scale2,
@@ -94,7 +94,7 @@ void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
 
     auto& visuals = context.world->GetVisuals();
     auto scale2 = context.world->GetWorldScale().GetScale();
-    auto scale3 = LcVector3(scale2.x, scale2.y, 1.0f);
+    auto scale3 = LcVector3{ scale2.x, scale2.y, 1.0f };
 
     for (auto& visual : visuals)
     {
@@ -107,7 +107,7 @@ void LcGuiManager::OnMouseMove(int x, int y, const LcAppContext& context)
         auto widget = static_cast<IWidget*>(visual.get());
         if (HasInvisibleParent(widget)) continue;
 
-        LcVector2 point((float)x, (float)y);
+        LcVector2 point{ (float)x, (float)y };
         LcVector2 widgetPos = To2(widget->GetPos() * scale3);
         LcRectf widgetBox = ToF(
             widgetPos - widget->GetSize() / 2.0f * scale2,

@@ -33,7 +33,7 @@ public:
 		}
 
 		// add layer Z for initial valid sorting in multiset
-		newVisual->SetPos(LcVector3(0.0f, 0.0f, *layerPtr));
+		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, *layerPtr });
 
 		return newVisual;
 	}
@@ -71,8 +71,8 @@ ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, floa
 	auto newSprite = items.Add<LcSprite>(z.get());
 	if (newSprite)
 	{
-		newSprite->SetPos(LcVector3(x, y, z));
-		newSprite->SetSize(LcSizef(width, height));
+		newSprite->SetPos(LcVector3{ x, y, z });
+		newSprite->SetSize(LcSizef{ width, height });
 		newSprite->SetRotZ(rotZ);
 		newSprite->SetVisible(visible);
 		newSprite->Init(context);
@@ -103,8 +103,8 @@ IWidget* LcWorld::AddWidget(float x, float y, LcLayersRange z, float width, floa
 	auto newWidget = items.Add<LcWidget>(z.get());
 	if (newWidget)
 	{
-		newWidget->SetPos(LcVector3(x, y, z));
-		newWidget->SetSize(LcSizef(width, height));
+		newWidget->SetPos(LcVector3{ x, y, z });
+		newWidget->SetSize(LcSizef{ width, height });
 		newWidget->SetVisible(visible);
 		newWidget->Init(context);
 	}
@@ -166,7 +166,7 @@ void LcWorld::SetGlobalTint(LcColor3 tint)
 }
 
 
-LcWorldScale::LcWorldScale() : scaleList{ {LcSize(1920, 1080), LcDefaults::OneVec2} }, scale(LcDefaults::OneVec2), scaleFonts(true)
+LcWorldScale::LcWorldScale() : scaleList{ {LcSize{ 1920, 1080 }, LcDefaults::OneVec2} }, scale(LcDefaults::OneVec2), scaleFonts(true)
 {
 }
 

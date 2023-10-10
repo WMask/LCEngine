@@ -203,7 +203,7 @@ void LcTiledVisual2DRenderDX10::Render(const IVisual* visual, const LcAppContext
 
 	// update transform
 	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
-	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
+	LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	if (auto tiledComp = sprite->GetTiledComponent()) spriteSize = tiledComp->GetTilesScale() * To2(worldScale);

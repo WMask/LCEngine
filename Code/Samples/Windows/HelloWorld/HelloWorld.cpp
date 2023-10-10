@@ -25,7 +25,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (context.world->AddSprite(250, 400, 200, 200))
             {
-                spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+                spriteHelper.AddColorsComponent(LcColor3{ 1, 0, 0 }, LcColor3{ 1, 0, 1 }, LcColor3{ 0, 0, 0 }, LcColor3{ 0, 1, 0 });
                 spriteHelper.SetTag(1);
             }
         };
@@ -38,8 +38,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             // move sprite
             auto& keys = context.input->GetActiveInputDevice()->GetState();
-            if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
+            if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite->AddPos(LcVector3{ -200 * deltaSeconds, 0, 0 });
+            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite->AddPos(LcVector3{ 200 * deltaSeconds, 0, 0 });
 
             if (keys[VK_UP] || keys[LcJKeys::Up]) sprite->AddRotZ(-2 * deltaSeconds);
             if (keys[VK_DOWN] || keys[LcJKeys::Down]) sprite->AddRotZ(2 * deltaSeconds);

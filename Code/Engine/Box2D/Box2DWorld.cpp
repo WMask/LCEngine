@@ -20,7 +20,7 @@ static const float BOX2D_SCALE = 100.0f;
 
 inline LcVector2 ToLC(const b2Vec2& v, bool scale = true)
 {
-    return LcVector2(v.x * (scale ? BOX2D_SCALE : 1.0f), v.y * (scale ? BOX2D_SCALE : 1.0f));
+    return LcVector2{ v.x * (scale ? BOX2D_SCALE : 1.0f), v.y * (scale ? BOX2D_SCALE : 1.0f) };
 }
 inline b2Vec2 FromLC(const LcVector2& v, bool scale = true)
 {
@@ -235,7 +235,7 @@ IPhysicsBody* LcBox2DWorld::AddDynamic(LcVector2 pos, float radius, float densit
     b2Fixture* fixture = body->CreateFixture(&fixtureDef);
     if (!fixture) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create fixture");
 
-    LcSizef size(radius * 2.0f, radius * 2.0f);
+    LcSizef size{ radius * 2.0f, radius * 2.0f };
     auto newBody = dynamicBodies.Add<LcBox2DBody>();
     if (!newBody) throw std::exception("LcBox2DWorld::AddDynamic(): Cannot create dynamic body");
 

@@ -25,26 +25,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (context.world->AddSprite(200, 550, 250, 250))
             {
-                spriteHelper.AddColorsComponent(LcColor3(1, 0, 0), LcColor3(1, 0, 1), LcColor3(0, 0, 0), LcColor3(0, 1, 0));
+                spriteHelper.AddColorsComponent(LcColor3{ 1, 0, 0 }, LcColor3{ 1, 0, 1 }, LcColor3{ 0, 0, 0 }, LcColor3{ 0, 1, 0 });
                 spriteHelper.SetTag(1);
             }
 
             if (context.world->AddSprite(200, 200, 300, 300))
             {
-                spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                spriteHelper.AddTintComponent(LcColor3{ 0.7f, 0.7f, 0.7f });
                 spriteHelper.SetTag(2);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
             {
                 spriteHelper.AddTextureComponent("../../Assets/tree.png");
-                spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+                spriteHelper.AddColorsComponent(LcColor3{ 0, 1, 0 }, LcColor3{ 0, 1, 0 }, LcColor3{ 1, 0, 0 }, LcColor3{ 1, 0, 0 });
             }
 
             if (context.world->AddSprite(460, 315, 100, 100))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
-                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddAnimationComponent(LcSizef{ 128, 128 }, 10, 12);
             }
         };
 
@@ -58,12 +58,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             // change tint
             auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
-            sprite2->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
+            sprite2->GetTintComponent()->SetColor(LcColor4{ 1.0f - tint, tint, 0.0f, 1.0f });
 
             // move sprite
             auto& keys = context.input->GetActiveInputDevice()->GetState();
-            if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite1->AddPos(LcVector3(-200 * deltaSeconds, 0, 0));
-            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite1->AddPos(LcVector3(200 * deltaSeconds, 0, 0));
+            if (keys[VK_LEFT] || keys[LcJKeys::Left]) sprite1->AddPos(LcVector3{ -200 * deltaSeconds, 0, 0 });
+            if (keys[VK_RIGHT] || keys[LcJKeys::Right]) sprite1->AddPos(LcVector3{ 200 * deltaSeconds, 0, 0 });
 
             if (keys[VK_UP] || keys[LcJKeys::Up]) sprite1->AddRotZ(-2 * deltaSeconds);
             if (keys[VK_DOWN] || keys[LcJKeys::Down]) sprite1->AddRotZ(2 * deltaSeconds);
