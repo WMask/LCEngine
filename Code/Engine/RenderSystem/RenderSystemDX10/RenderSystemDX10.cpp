@@ -40,7 +40,7 @@ public:
 		}
 
 		// add layer Z for initial valid sorting in multiset
-		newVisual->SetPos(LcVector3(0.0f, 0.0f, *layerPtr));
+		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, *layerPtr });
 
 		return newVisual;
 	}
@@ -52,8 +52,8 @@ public:
 LcRenderSystemDX10::LcRenderSystemDX10()
 	: tiledRender(nullptr)
 	, textureRender(nullptr)
-	, renderSystemSize(0, 0)
-	, worldScale(1.0f, 1.0f, 1.0f)
+	, renderSystemSize{ 0, 0 }
+	, worldScale{ 1.0f, 1.0f, 1.0f }
 	, worldScaleFonts(false)
 	, prevSetupRequested(false)
 {
@@ -129,8 +129,8 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 	d3dDevice->RSSetViewports(1, &viewPort);
 
 	// init constant buffers
-	cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
-	cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+	cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
+	cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
 	constBuffers.Init(d3dDevice.Get(), cameraPos, cameraTarget, width, height);
 
 	// create blend state
@@ -200,7 +200,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 
 	LcMakeWindowAssociation(hWnd);
 
-	renderSystemSize = LcSize(width, height);
+	renderSystemSize = LcSize{ width, height };
 
 	LC_CATCH{ LC_THROW("LcRenderSystemDX10::Create()") }
 }
@@ -245,7 +245,7 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 	{
 		LC_TRY
 
-		worldScale = LcVector3(newScale.x, newScale.y, 1.0f);
+			worldScale = LcVector3{ newScale.x, newScale.y, 1.0f };
 
 		if (contextPtr->world->GetWorldScale().GetScaleFonts())
 		{
@@ -268,7 +268,7 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 		if (constBuffers.settingsBuffer)
 		{
 			VS_SETTINGS_BUFFER settings;
-			settings.worldTint = To4(globalTint);
+			settings.worldTint = ToV(globalTint);
 			d3dDevice->UpdateSubresource(constBuffers.settingsBuffer.Get(), 0, NULL, &settings, 0, 0);
 		}
 	});
@@ -294,7 +294,7 @@ void LcRenderSystemDX10::Render(const LcAppContext& context)
 		throw std::exception("LcRenderSystemDX10::Render(): Invalid render device");
 	}
 
-	LcColor4 color(0.0f, 0.0f, 1.0f, 0.0f);
+	LcColor4 color{ 0.0f, 0.0f, 1.0f, 0.0f };
 	d3dDevice->ClearRenderTargetView(renderTargetView.Get(), (FLOAT*)&color);
 
 	LcRenderSystemBase::Render(context);
@@ -323,7 +323,7 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 {
 	LC_TRY
 
-	LcSize newViewportSize(width, height);
+	LcSize newViewportSize{ width, height };
 	bool needResize = (renderSystemSize != newViewportSize);
 
 	if (swapChain && needResize)
@@ -370,15 +370,15 @@ void LcRenderSystemDX10::Resize(int width, int height, const LcAppContext& conte
 		textRender->Init(context);
 
 		// update world settings
-		cameraPos = LcVector3(width / 2.0f, height / 2.0f, 0.0f);
-		cameraTarget = LcVector3(cameraPos.x, cameraPos.y, 1.0f);
+		cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
+		cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
 
 		context.world->UpdateWorldScale(newViewportSize);
 		context.world->GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
 		// update projection matrix
-		LcMatrix4 proj = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+		LcMatrix4 proj = OrthoMatrix(LcSize{ width, height }, 1.0f, -1.0f);
 		d3dDevice->UpdateSubresource(constBuffers.projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
 
 		renderSystemSize = newViewportSize;

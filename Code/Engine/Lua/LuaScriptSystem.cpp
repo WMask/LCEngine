@@ -415,21 +415,21 @@ LcColor4 GetColor(struct lua_State* luaState, int table)
 
 	lua_getfield(luaState, table, "r");
 	if (!lua_isnumber(luaState, -1)) throw std::exception("GetColor(): Invalid table");
-	color.x = lua_tofloat(luaState, -1);
+	color.r = lua_tofloat(luaState, -1);
 	lua_pop(luaState, 1);
 
 	lua_getfield(luaState, table, "g");
 	if (!lua_isnumber(luaState, -1)) throw std::exception("GetColor(): Invalid table");
-	color.y = lua_tofloat(luaState, -1);
+	color.g = lua_tofloat(luaState, -1);
 	lua_pop(luaState, 1);
 
 	lua_getfield(luaState, table, "b");
 	if (!lua_isnumber(luaState, -1)) throw std::exception("GetColor(): Invalid table");
-	color.z = lua_tofloat(luaState, -1);
+	color.b = lua_tofloat(luaState, -1);
 	lua_pop(luaState, 1);
 
 	lua_getfield(luaState, table, "a");
-	color.w = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : 1.0f;
+	color.a = lua_isnumber(luaState, -1) ? lua_tofloat(luaState, -1) : 1.0f;
 	lua_pop(luaState, 1);
 
 	return color;

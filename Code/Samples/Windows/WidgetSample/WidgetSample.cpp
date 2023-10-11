@@ -32,13 +32,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             IWidget* parent = nullptr;
             if (parent = context.world->AddWidget(500, 400, LcLayers::Z2, 200, 200))
             {
-                widgetHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
+                widgetHelper.AddTintComponent(LcColor3{ 0.0f, 0.8f, 0.0f });
                 widgetHelper.SetTag(1);
             }
 
             if (auto child = context.world->AddWidget(500, 340, LcLayers::Z1, 180, 60))
             {
-                widgetHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
+                widgetHelper.AddTintComponent(LcColor3{ 0.9f, 0.9f, 0.9f });
                 parent->AddChild(child);
             }
 

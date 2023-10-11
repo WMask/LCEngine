@@ -41,9 +41,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (auto hero = context.world->AddSprite(100, 600, 64, 64))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
-                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddAnimationComponent(LcSizef{ 128, 128 }, 10, 12);
 
-                auto body = physWorld->AddDynamicBox(LcVector2(100, 600), LcSizef(35, 45), 5);
+                auto body = physWorld->AddDynamicBox(LcVector2{ 100, 600 }, LcSizef{ 35, 45 }, 5);
                 body->SetUserData(hero);
             }
         };
@@ -60,8 +60,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             auto vel = body->GetVelocity();
             const auto& actions = context.input->GetActiveInputDevice();
-            if (actions->Pressed("Left")) body->SetVelocity(LcVector2(-1.2f, vel.y));
-            if (actions->Pressed("Right")) body->SetVelocity(LcVector2(1.2f, vel.y));
+            if (actions->Pressed("Left")) body->SetVelocity(LcVector2{ -1.2f, vel.y });
+            if (actions->Pressed("Right")) body->SetVelocity(LcVector2{ 1.2f, vel.y });
         };
 
         auto onActionHandler = [](const LcAction& action, const LcAppContext& context)
@@ -73,7 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             bool canJump = !body->IsFalling() && (abs(body->GetVelocity().y) <= 0.1f);
             if (action.Pressed("Up") && canJump)
             {
-                body->ApplyImpulse(LcVector2(0.0f, -4.0f));
+                body->ApplyImpulse(LcVector2{ 0.0f, -4.0f });
             }
         };
 

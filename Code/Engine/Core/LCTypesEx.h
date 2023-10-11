@@ -16,15 +16,9 @@
 
 
 /** Geometry */
+
 #ifdef _WINDOWS
-typedef DirectX::XMINT2		LcPoint;
-typedef DirectX::XMINT2		LcSize;
-typedef DirectX::XMFLOAT2	LcSizef;
-typedef DirectX::XMFLOAT2	LcVector2;
-typedef DirectX::XMFLOAT3	LcVector3;
-typedef DirectX::XMFLOAT3	LcColor3;
-typedef DirectX::XMFLOAT4	LcColor4;
-typedef DirectX::XMFLOAT4	LcVector4;
+
 typedef DirectX::XMMATRIX	LcMatrix4;
 
 namespace LcDefaults
@@ -35,6 +29,12 @@ namespace LcDefaults
 
 #endif
 
+typedef struct { int x; int y; } LcPoint, LcSize;
+typedef struct { float x; float y; } LcVector2, LcSizef;
+struct LcVector3 { float x; float y; float z; };
+struct LcVector4 { float x; float y; float z; float w; };
+struct LcColor3 { float r; float g; float b; };
+struct LcColor4 { float r; float g; float b; float a; };
 struct LcRect { int left; int top; int right; int bottom; };
 struct LcRectf { float left; float top; float right; float bottom; };
 
@@ -56,16 +56,32 @@ inline LcVector3 operator*(const LcVector3& a, const LcVector3& b) { return LcVe
 inline LcVector2 operator*(const LcVector2& a, float f) { return LcVector2{ a.x * f, a.y * f }; }
 inline LcVector3 operator*(const LcVector3& a, float f) { return LcVector3{ a.x * f, a.y * f, a.z * f }; }
 inline LcVector4 operator*(const LcVector4& a, float f) { return LcVector4{ a.x * f, a.y * f, a.z * f, a.w * f }; }
+inline LcColor3 operator*(const LcColor3& c, float f) { return LcColor3{ c.r * f, c.g * f, c.b * f }; }
+inline LcColor4 operator*(const LcColor4& c, float f) { return LcColor4{ c.r * f, c.g * f, c.b * f, c.a * f }; }
 
 inline bool operator==(const LcSize& a, const LcSize& b) { return a.x == b.x && a.y == b.y; }
 inline bool operator==(const LcVector2& a, const LcVector2& b) { return a.x == b.x && a.y == b.y; }
 inline bool operator==(const LcVector3& a, const LcVector3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 inline bool operator==(const LcVector4& a, const LcVector4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
+inline bool operator==(const LcColor3& x, const LcColor3& y) { return x.r == y.r && x.g == y.g && x.b == y.b; }
+inline bool operator==(const LcColor4& x, const LcColor4& y) { return x.r == y.r && x.g == y.g && x.b == y.b && x.a == y.a; }
 
 inline bool operator!=(const LcSize& a, const LcSize& b) { return a.x != b.x || a.y != b.y; }
 inline bool operator!=(const LcVector2& a, const LcVector2& b) { return a.x != b.x || a.y != b.y; }
 inline bool operator!=(const LcVector3& a, const LcVector3& b) { return a.x != b.x || a.y != b.y || a.z != b.z; }
 inline bool operator!=(const LcVector4& a, const LcVector4& b) { return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w; }
+inline bool operator!=(const LcColor3& x, const LcColor3& y) { return x.r != y.r || x.g != y.g || x.b != y.b; }
+inline bool operator!=(const LcColor4& x, const LcColor4& y) { return x.r != y.r || x.g != y.g || x.b != y.b || x.a != y.a; }
+
+inline bool Contains(const LcRectf& r, const LcVector2& p)
+{
+	return p.x >= r.left && p.x < r.right && p.y >= r.top && p.y < r.bottom;
+}
+
+inline bool Contains(const LcRect& r, const LcPoint& p)
+{
+	return p.x >= r.left && p.x < r.right && p.y >= r.top && p.y < r.bottom;
+}
 
 
 namespace LcDefaults
@@ -76,6 +92,7 @@ namespace LcDefaults
 	extern CORE_API LcVector3 ZeroVec3;
 	extern CORE_API LcVector4 OneVec4;
 	extern CORE_API LcVector4 ZeroVec4;
+	extern CORE_API LcColor4 Invisible;
 	extern CORE_API LcColor4 White4;
 	extern CORE_API LcColor3 White3;
 	extern CORE_API LcColor4 Black4;
@@ -85,26 +102,18 @@ namespace LcDefaults
 
 
 /** Convert */
-inline      LcSizef		ToF(const LcSize& size) { return LcSizef((float)size.x, (float)size.y); }
-inline      LcSize		ToI(const LcSizef& size) { return LcSize((int)size.x, (int)size.y); }
-inline      LcVector2	To2(const LcVector3& v) { return LcVector2(v.x, v.y); }
-inline      LcVector3	To3(const LcVector2& v) { return LcVector3(v.x, v.y, 0.0f); }
-inline	    LcColor4	To4(const LcColor3& v) { return LcColor4{ v.x, v.y, v.z, 1.0f }; }
+
+inline      LcSizef		ToF(const LcSize& size) { return LcSizef{ (float)size.x, (float)size.y }; }
+inline      LcSize		ToI(const LcSizef& size) { return LcSize{ (int)size.x, (int)size.y }; }
+inline      LcVector2	To2(const LcVector3& v) { return LcVector2{ v.x, v.y }; }
+inline      LcVector3	To3(const LcVector2& v) { return LcVector3{ v.x, v.y, 0.0f }; }
+inline	    LcColor4	To4(const LcColor3& v) { return LcColor4{ v.r, v.g, v.b, 1.0f }; }
 inline	    LcVector4	To4(const LcVector2& v) { return LcVector4{ v.x, v.y, 0.0f, 0.0f }; }
+inline	    LcVector4	ToV(const LcColor3& c) { return LcVector4{ c.r, c.g, c.b, 1.0f }; }
+inline	    LcVector4	ToV(const LcColor4& c) { return LcVector4{ c.r, c.g, c.b, c.a }; }
 CORE_API    LcRectf		ToF(const LcRect& rect);
 CORE_API    LcRectf		ToF(const LcVector2& leftTop, const LcVector2& rightBottom);
 CORE_API	LcRect		ToI(const LcRectf& rect);
-
-
-/** Geometry */
-inline bool Contains(const LcRectf& r, const LcVector2& p)
-{
-	return p.x >= r.left && p.x < r.right && p.y >= r.top && p.y < r.bottom;
-}
-inline bool Contains(const LcRect& r, const LcPoint& p)
-{
-	return p.x >= r.left && p.x < r.right && p.y >= r.top && p.y < r.bottom;
-}
 
 
 /**

@@ -23,7 +23,7 @@ struct LcBox2DConfig
 	{
 	}
 	LcBox2DConfig(float gravity)
-		: gravity(LcVector2(0.0f, gravity)), velocityIterations(8), positionIterations(3)
+		: gravity(LcVector2{ 0.0f, gravity }), velocityIterations(8), positionIterations(3)
 	{
 	}
 	LcVector2 gravity;

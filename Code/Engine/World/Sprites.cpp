@@ -73,11 +73,12 @@ LcVector4 LcSpriteAnimationComponent::GetAnimData() const
 			float frameWidth = frameSize.x / texComp->GetTextureSize().x;
 			float frameHeight = frameSize.y / texComp->GetTextureSize().y;
 
-			return LcVector4(
+			return LcVector4 {
 				frameWidth,
 				frameHeight,
 				frameWidth * column,
-				frameHeight * row);
+				frameHeight * row
+			};
 		}
 	}
 
@@ -180,14 +181,14 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 					float oy = uvy * uvRow;
 
 					LC_TILES_DATA tile{};
-					tile.pos[0] = LcVector3(x, y, z);
-					tile.pos[1] = LcVector3(x + tilewidth, y + tileheight, z);
-					tile.pos[2] = LcVector3(x + tilewidth, y, z);
-					tile.pos[3] = LcVector3(x, y + tileheight, z);
-					tile.uv[0] = LcVector2(ox, oy);
-					tile.uv[1] = LcVector2(ox + uvx, oy + uvy);
-					tile.uv[2] = LcVector2(ox + uvx, oy);
-					tile.uv[3] = LcVector2(ox, oy + uvy);
+					tile.pos[0] = LcVector3{ x, y, z };
+					tile.pos[1] = LcVector3{ x + tilewidth, y + tileheight, z };
+					tile.pos[2] = LcVector3{ x + tilewidth, y, z };
+					tile.pos[3] = LcVector3{ x, y + tileheight, z };
+					tile.uv[0] = LcVector2{ ox, oy };
+					tile.uv[1] = LcVector2{ ox + uvx, oy + uvy };
+					tile.uv[2] = LcVector2{ ox + uvx, oy };
+					tile.uv[3] = LcVector2{ ox, oy + uvy };
 					tiles.push_back(tile);
 				}
 
@@ -207,8 +208,8 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 				auto y = object["y"].get<float>();
 				auto width = object["width"].get<float>();
 				auto height = object["height"].get<float>();
-				auto pos = LcVector2(x + width / 2.0f, y + height / 2.0f) * scale;
-				auto size = LcSizef(width, height) * scale;
+				auto pos = LcVector2{ x + width / 2.0f, y + height / 2.0f } *scale;
+				auto size = LcSizef{ width, height } *scale;
 
 				auto objectName = object["name"].get<std::string>();
 				auto objectType = object["type"].get<std::string>();

@@ -34,7 +34,7 @@ void IWidget::AddClickHandlerComponent(const LcAppContext& context, LcClickHandl
     AddComponent(std::make_shared<LcWidgetClickComponent>(handler), context);
 
     if (addDefaultSkin) AddButtonComponent(context, "../../Assets/button.png",
-        LcVector2(2.0f, 2.0f), LcVector2(2.0f, 44.0f), LcVector2(2.0f, 86.0f));
+        LcVector2{ 2.0f, 2.0f }, LcVector2{ 2.0f, 44.0f }, LcVector2{ 2.0f, 86.0f });
 }
 
 void IWidget::AddCheckHandlerComponent(const LcAppContext& context, LcCheckHandler handler, bool addDefaultSkin)
@@ -42,7 +42,7 @@ void IWidget::AddCheckHandlerComponent(const LcAppContext& context, LcCheckHandl
     AddComponent(std::make_shared<LcWidgetCheckComponent>(handler), context);
 
     if (addDefaultSkin) AddCheckboxComponent(context, "../../Assets/checkbox.png",
-        LcVector2(0.0f, 0.0f), LcVector2(32.0f, 0.0f), LcVector2(0.0f, 32.0f), LcVector2(32.0f, 32.0f));
+        LcVector2{ 0.0f, 0.0f }, LcVector2{ 32.0f, 0.0f }, LcVector2{ 0.0f, 32.0f }, LcVector2{ 32.0f, 32.0f });
 }
 
 
@@ -78,20 +78,20 @@ void LcWidgetButtonComponent::Init(const LcAppContext& context)
         LcVector2 pressedPos{ pressed[0].x, pressed[0].y };
 
         // generate UVs
-        idle[0] = To4(LcVector2(idlePos.x / texSize.x, idlePos.y / texSize.y));
-        idle[1] = To4(LcVector2((idlePos.x + size.x) / texSize.x, idlePos.y / texSize.y));
-        idle[2] = To4(LcVector2((idlePos.x + size.x) / texSize.x, (idlePos.y + size.y) / texSize.y));
-        idle[3] = To4(LcVector2(idlePos.x / texSize.x, (idlePos.y + size.y) / texSize.y));
+        idle[0] = To4(LcVector2{ idlePos.x / texSize.x, idlePos.y / texSize.y });
+        idle[1] = To4(LcVector2{ (idlePos.x + size.x) / texSize.x, idlePos.y / texSize.y });
+        idle[2] = To4(LcVector2{ (idlePos.x + size.x) / texSize.x, (idlePos.y + size.y) / texSize.y });
+        idle[3] = To4(LcVector2{ idlePos.x / texSize.x, (idlePos.y + size.y) / texSize.y });
 
-        over[0] = To4(LcVector2(overPos.x / texSize.x, overPos.y / texSize.y));
-        over[1] = To4(LcVector2((overPos.x + size.x) / texSize.x, overPos.y / texSize.y));
-        over[2] = To4(LcVector2((overPos.x + size.x) / texSize.x, (overPos.y + size.y) / texSize.y));
-        over[3] = To4(LcVector2(overPos.x / texSize.x, (overPos.y + size.y) / texSize.y));
+        over[0] = To4(LcVector2{ overPos.x / texSize.x, overPos.y / texSize.y });
+        over[1] = To4(LcVector2{ (overPos.x + size.x) / texSize.x, overPos.y / texSize.y });
+        over[2] = To4(LcVector2{ (overPos.x + size.x) / texSize.x, (overPos.y + size.y) / texSize.y });
+        over[3] = To4(LcVector2{ overPos.x / texSize.x, (overPos.y + size.y) / texSize.y });
 
-        pressed[0] = To4(LcVector2(pressedPos.x / texSize.x, pressedPos.y / texSize.y));
-        pressed[1] = To4(LcVector2((pressedPos.x + size.x) / texSize.x, pressedPos.y / texSize.y));
-        pressed[2] = To4(LcVector2((pressedPos.x + size.x) / texSize.x, (pressedPos.y + size.y) / texSize.y));
-        pressed[3] = To4(LcVector2(pressedPos.x / texSize.x, (pressedPos.y + size.y) / texSize.y));
+        pressed[0] = To4(LcVector2{ pressedPos.x / texSize.x, pressedPos.y / texSize.y });
+        pressed[1] = To4(LcVector2{ (pressedPos.x + size.x) / texSize.x, pressedPos.y / texSize.y });
+        pressed[2] = To4(LcVector2{ (pressedPos.x + size.x) / texSize.x, (pressedPos.y + size.y) / texSize.y });
+        pressed[3] = To4(LcVector2{ pressedPos.x / texSize.x, (pressedPos.y + size.y) / texSize.y });
     }
 }
 
@@ -144,25 +144,25 @@ void LcWidgetCheckboxComponent::Init(const LcAppContext& context)
         LcVector2 checkedHPos{ checkedH[0].x, checkedH[0].y };
 
         // generate UVs
-        unchecked[0] = To4(LcVector2(uncheckedPos.x / texSize.x, uncheckedPos.y / texSize.y));
-        unchecked[1] = To4(LcVector2((uncheckedPos.x + size.x) / texSize.x, uncheckedPos.y / texSize.y));
-        unchecked[2] = To4(LcVector2((uncheckedPos.x + size.x) / texSize.x, (uncheckedPos.y + size.y) / texSize.y));
-        unchecked[3] = To4(LcVector2(uncheckedPos.x / texSize.x, (uncheckedPos.y + size.y) / texSize.y));
+        unchecked[0] = To4(LcVector2{ uncheckedPos.x / texSize.x, uncheckedPos.y / texSize.y });
+        unchecked[1] = To4(LcVector2{ (uncheckedPos.x + size.x) / texSize.x, uncheckedPos.y / texSize.y });
+        unchecked[2] = To4(LcVector2{ (uncheckedPos.x + size.x) / texSize.x, (uncheckedPos.y + size.y) / texSize.y });
+        unchecked[3] = To4(LcVector2{ uncheckedPos.x / texSize.x, (uncheckedPos.y + size.y) / texSize.y });
 
-        uncheckedH[0] = To4(LcVector2(uncheckedHPos.x / texSize.x, uncheckedHPos.y / texSize.y));
-        uncheckedH[1] = To4(LcVector2((uncheckedHPos.x + size.x) / texSize.x, uncheckedHPos.y / texSize.y));
-        uncheckedH[2] = To4(LcVector2((uncheckedHPos.x + size.x) / texSize.x, (uncheckedHPos.y + size.y) / texSize.y));
-        uncheckedH[3] = To4(LcVector2(uncheckedHPos.x / texSize.x, (uncheckedHPos.y + size.y) / texSize.y));
+        uncheckedH[0] = To4(LcVector2{ uncheckedHPos.x / texSize.x, uncheckedHPos.y / texSize.y });
+        uncheckedH[1] = To4(LcVector2{ (uncheckedHPos.x + size.x) / texSize.x, uncheckedHPos.y / texSize.y });
+        uncheckedH[2] = To4(LcVector2{ (uncheckedHPos.x + size.x) / texSize.x, (uncheckedHPos.y + size.y) / texSize.y });
+        uncheckedH[3] = To4(LcVector2{ uncheckedHPos.x / texSize.x, (uncheckedHPos.y + size.y) / texSize.y });
 
-        checked[0] = To4(LcVector2(checkedPos.x / texSize.x, checkedPos.y / texSize.y));
-        checked[1] = To4(LcVector2((checkedPos.x + size.x) / texSize.x, checkedPos.y / texSize.y));
-        checked[2] = To4(LcVector2((checkedPos.x + size.x) / texSize.x, (checkedPos.y + size.y) / texSize.y));
-        checked[3] = To4(LcVector2(checkedPos.x / texSize.x, (checkedPos.y + size.y) / texSize.y));
+        checked[0] = To4(LcVector2{ checkedPos.x / texSize.x, checkedPos.y / texSize.y });
+        checked[1] = To4(LcVector2{ (checkedPos.x + size.x) / texSize.x, checkedPos.y / texSize.y });
+        checked[2] = To4(LcVector2{ (checkedPos.x + size.x) / texSize.x, (checkedPos.y + size.y) / texSize.y });
+        checked[3] = To4(LcVector2{ checkedPos.x / texSize.x, (checkedPos.y + size.y) / texSize.y });
 
-        checkedH[0] = To4(LcVector2(checkedHPos.x / texSize.x, checkedHPos.y / texSize.y));
-        checkedH[1] = To4(LcVector2((checkedHPos.x + size.x) / texSize.x, checkedHPos.y / texSize.y));
-        checkedH[2] = To4(LcVector2((checkedHPos.x + size.x) / texSize.x, (checkedHPos.y + size.y) / texSize.y));
-        checkedH[3] = To4(LcVector2(checkedHPos.x / texSize.x, (checkedHPos.y + size.y) / texSize.y));
+        checkedH[0] = To4(LcVector2{ checkedHPos.x / texSize.x, checkedHPos.y / texSize.y });
+        checkedH[1] = To4(LcVector2{ (checkedHPos.x + size.x) / texSize.x, checkedHPos.y / texSize.y });
+        checkedH[2] = To4(LcVector2{ (checkedHPos.x + size.x) / texSize.x, (checkedHPos.y + size.y) / texSize.y });
+        checkedH[3] = To4(LcVector2{ checkedHPos.x / texSize.x, (checkedHPos.y + size.y) / texSize.y });
     }
 }
 

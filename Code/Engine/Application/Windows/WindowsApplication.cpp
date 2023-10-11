@@ -41,7 +41,7 @@ LcWindowsApplication::LcWindowsApplication() : world(::GetWorld(context)), input
     hWnd = nullptr;
     cmds.clear();
     cmdsCount = 0;
-    windowSize = LcSize(800, 600);
+    windowSize = LcSize{ 800, 600 };
     winMode = LcWinMode::Windowed;
     quit = false;
     vSync = true;
@@ -313,7 +313,7 @@ LcAppStats LcWindowsApplication::GetAppStats() const noexcept
 
 void LcWindowsApplication::SetWindowSize(int width, int height)
 {
-    auto newSize = LcSize(width, height);
+    auto newSize = LcSize{ width, height };
     if (windowSize == newSize) return;
 
     windowSize = newSize;
