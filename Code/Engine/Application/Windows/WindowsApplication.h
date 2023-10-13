@@ -11,6 +11,7 @@
 #include "Module.h"
 #include "Application/ApplicationInterface.h"
 #include "Application/AppConfig.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCTypesEx.h"
 
 #pragma warning(disable : 4275)
@@ -135,6 +136,8 @@ protected:
 	TPhysicsWorldPtr physWorld;
 	//
 	TGuiManagerPtr guiManager;
+	//
+	TLocalizationPtr localization;
 	//
 	LcAppContext context;
 

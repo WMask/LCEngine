@@ -44,7 +44,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto child = context.world->AddWidget(500, 340, 200, 50))
             {
-                widgetHelper.AddTextComponent(L"Label Text", settings);
+                widgetHelper.AddTextComponent("label_text", settings);
                 parent->AddChild(child);
             }
 
@@ -61,7 +61,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             {
                 settings.fontSize = 22;
                 settings.fontWeight = LcFontWeight::Bold;
-                widgetHelper.AddTextComponent(L"SUBMIT", settings);
+                widgetHelper.AddTextComponent("submit_text", settings);
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
                 widgetHelper.SetTag(2);
                 parent->AddChild(child);

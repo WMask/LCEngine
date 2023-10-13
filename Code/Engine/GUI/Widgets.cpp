@@ -11,9 +11,9 @@
 #include "World/WorldInterface.h"
 
 
-void IWidget::AddTextComponent(const LcAppContext& context, const std::wstring& inText, const LcTextBlockSettings& inSettings)
+void IWidget::AddTextComponent(const LcAppContext& context, const std::string& inTextKey, const LcTextBlockSettings& inSettings)
 {
-    AddComponent(std::make_shared<LcWidgetTextComponent>(inText, inSettings), context);
+    AddComponent(std::make_shared<LcWidgetTextComponent>(inTextKey, inSettings), context);
 }
 
 void IWidget::AddButtonComponent(const LcAppContext& context, const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
@@ -265,11 +265,11 @@ void LcWidget::OnMouseLeave(const LcAppContext& context)
 }
 
 
-void LcWidgetHelper::AddTextComponent(const std::wstring& inText, const LcTextBlockSettings& inSettings) const
+void LcWidgetHelper::AddTextComponent(const std::string& inTextKey, const LcTextBlockSettings& inSettings) const
 {
     if (auto widget = static_cast<IWidget*>(context.world->GetLastAddedVisual()))
     {
-        widget->AddTextComponent(context, inText, inSettings);
+        widget->AddTextComponent(context, inTextKey, inSettings);
     }
 }
 

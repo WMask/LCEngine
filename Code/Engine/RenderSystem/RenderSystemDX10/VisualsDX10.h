@@ -46,6 +46,24 @@ class LcWidgetDX10 : public LcWidget
 public:
 	LcWidgetDX10() : spriteTexture(nullptr), spriteTextureSV(nullptr), font(nullptr) {}
 	//
+	void RedrawText(class LcTextRenderDX10* textRender, const LcAppContext& context);
+
+
+public: // IVisualBase interface implementation
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
+	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
+	//
+	virtual void RecreateFont(const LcAppContext& context) override;
+
+
+protected:
+	//
+	float GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const;
+
+
+public:
+	//
 	ID3D10Texture2D* spriteTexture;
 	//
 	ID3D10ShaderResourceView1* spriteTextureSV;
@@ -59,19 +77,5 @@ public:
 	std::wstring prevRenderedText;
 	//
 	const ITextFont* font;
-
-
-public: // IVisualBase interface implementation
-	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
-	//
-	virtual void AddComponent(TVComponentPtr comp, const LcAppContext& context) override;
-	//
-	virtual void RecreateFont(const LcAppContext& context) override;
-
-
-protected:
-	void RedrawText(class LcTextRenderDX10* textRender, const LcAppContext& context);
-	//
-	float GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const;
 
 };

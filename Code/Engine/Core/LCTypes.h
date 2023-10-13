@@ -140,7 +140,7 @@ struct LcAppContext
 	LcAppContext() : app(nullptr), world(nullptr),
 		render(nullptr), audio(nullptr), scripts(nullptr),
 		input(nullptr), gui(nullptr), physics(nullptr),
-		windowHandle(nullptr), gameTime(0.0f) {}
+		text(nullptr), windowHandle(nullptr), gameTime(0.0f) {}
 	//
 	class IApplication* app;
 	//
@@ -157,6 +157,8 @@ struct LcAppContext
 	class IGuiManager* gui;
 	//
 	class IPhysicsWorld* physics;
+	//
+	class ILocalizationManager* text;
 	//
 	void* windowHandle;
 	//

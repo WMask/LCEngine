@@ -35,7 +35,10 @@ struct LcWin32Handles
 };
 
 
-LcWindowsApplication::LcWindowsApplication() : world(::GetWorld(context)), inputSystem(GetDefaultInputSystem())
+LcWindowsApplication::LcWindowsApplication()
+    : world(::GetWorld(context))
+    , inputSystem(GetDefaultInputSystem())
+    , localization(std::make_shared<LcLocalizationManager>())
 {
     hInstance = nullptr;
     hWnd = nullptr;
@@ -121,6 +124,7 @@ void LcWindowsApplication::Run()
     context.input = inputSystem.get();
     context.gui = guiManager.get();
     context.physics = physWorld.get();
+    context.text = localization.get();
 
     // get window size
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -173,6 +177,8 @@ void LcWindowsApplication::Run()
         context, *this, cfg
     };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
+
+    if (context.text) context.text->Init(&context);
 
     // set initial world size
     if (renderSystem) renderSystem->Subscribe(context);

@@ -1,6 +1,9 @@
 {
 "culture": "en",
 "entries": [
+	{ "key": "label_text", "value": "Label text" },
+	{ "key": "submit_text", "value": "SUBMIT" },
+	{ "key": "fps_text", "value": "FPS: 0" },
 	{ "key": "btn_fullscreen", "value": "Fullscreen" },
 	{ "key": "btn_1080", "value": "1920x1080" },
 	{ "key": "btn_900", "value": "1600x900" },

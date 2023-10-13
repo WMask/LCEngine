@@ -49,7 +49,9 @@ public:
 	//
 	void RemoveFonts() { fonts.clear(); }
 	//
-	void ClearCache(IWorld* world);
+	void ClearCache(class IWorld* world);
+	//
+	void CultureChangedHandler(std::string newCulture, const LcAppContext& context);
 	//
 	void RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
 		const ITextFont* font, ID2D1RenderTarget* target, const LcAppContext& context);

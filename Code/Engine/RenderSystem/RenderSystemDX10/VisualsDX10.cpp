@@ -10,6 +10,7 @@
 #include "RenderSystem/RenderSystemDX10/TiledVisual2DRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/TextRenderDX10.h"
 #include "World/SpriteInterface.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
@@ -52,7 +53,8 @@ void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
     IVisualBase::Update(deltaSeconds, context);
 
     auto textComp = GetTextComponent();
-    if (textComp && textComp->GetText() != prevRenderedText)
+    std::wstring text = context.text->Get(textComp ? textComp->GetTextKey().c_str() : "");
+    if (textComp && text != prevRenderedText)
     {
         auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
         auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
@@ -60,9 +62,11 @@ void LcWidgetDX10::Update(float deltaSeconds, const LcAppContext& context)
         {
             auto size = GetSize() * context.world->GetWorldScale().GetScale();
             LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-            textRender->RenderText(textComp->GetText(), rect, textComp->GetSettings().textColor,
+
+            textRender->RenderText(text, rect, textComp->GetSettings().textColor,
                 textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context);
-            prevRenderedText = textComp->GetText();
+
+            prevRenderedText = text;
         }
     }
 }
@@ -121,20 +125,23 @@ void LcWidgetDX10::RecreateFont(const LcAppContext& context)
 
 void LcWidgetDX10::RedrawText(LcTextRenderDX10* textRender, const LcAppContext& context)
 {
-    if (auto textComp = GetTextComponent())
-    {
-        textRenderTarget.Reset();
-        textTextureSV.Reset();
-        textTexture.Reset();
+    auto textComp = GetTextComponent();
+    if (!textComp || !context.text) throw std::exception("LcWidgetDX10::RedrawText(): Invalid arguments");
 
-        textRender->CreateTextureAndRenderTarget(*this, context.world->GetWorldScale().GetScale(), context);
+    textRenderTarget.Reset();
+    textTextureSV.Reset();
+    textTexture.Reset();
 
-        auto size = GetSize() * context.world->GetWorldScale().GetScale();
-        LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
-        textRender->RenderText(textComp->GetText(), rect, textComp->GetSettings().textColor,
-            textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context);
-        prevRenderedText = textComp->GetText();
-    }
+    textRender->CreateTextureAndRenderTarget(*this, context.world->GetWorldScale().GetScale(), context);
+
+    auto size = GetSize() * context.world->GetWorldScale().GetScale();
+    LcRectf rect{ 0.0f, 0.0f, size.x, size.y };
+    std::wstring text = context.text->Get(textComp->GetTextKey().c_str());
+
+    textRender->RenderText(text, rect, textComp->GetSettings().textColor,
+        textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context);
+
+    prevRenderedText = text;
 }
 
 float LcWidgetDX10::GetFontSize(const IWidgetTextComponent& textComp, const LcAppContext& context) const

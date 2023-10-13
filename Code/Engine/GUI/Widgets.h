@@ -17,16 +17,16 @@ class LcWidgetTextComponent : public IWidgetTextComponent
 public:
     LcWidgetTextComponent() {}
     //
-    LcWidgetTextComponent(const LcWidgetTextComponent& textComp) : text(textComp.text), settings(textComp.settings) {}
+    LcWidgetTextComponent(const LcWidgetTextComponent& textComp) : textKey(textComp.textKey), settings(textComp.settings) {}
     //
-    LcWidgetTextComponent(const std::wstring& inText, const LcTextBlockSettings& inSettings) : text(inText), settings(inSettings) {}
+    LcWidgetTextComponent(const std::string& inTextKey, const LcTextBlockSettings& inSettings) : textKey(inTextKey), settings(inSettings) {}
 
 
 public: // IWidgetTextComponent interface implementation
     //
-    virtual void SetText(const std::wstring& inText) override { text = inText; }
+    virtual void SetTextKey(const std::string& inTextKey) override { textKey = inTextKey; }
     //
-    virtual const std::wstring& GetText() const override { return text; }
+    virtual const std::string& GetTextKey() const override { return textKey; }
     //
     virtual const LcTextBlockSettings& GetSettings() const { return settings; }
 
@@ -37,7 +37,7 @@ public: // IVisualComponent interface implementation
 
 
 protected:
-    std::wstring text;
+    std::string textKey;
     //
     LcTextBlockSettings settings;
 };

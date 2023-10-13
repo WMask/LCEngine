@@ -22,11 +22,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        LcLocalization loc;
-        loc.Load("../../Assets/loc.txt");
-
-        auto onInitHandler = [&loc](const LcAppContext& context)
+        auto onInitHandler = [](const LcAppContext& context)
         {
+            context.text->Add("../../Assets/loc.txt");
+
             auto app = context.app;
             context.world->GetWorldScale().GetScaleList().clear();
             context.world->GetWorldScale().GetScaleList().insert({ {1920, 1080}, {1.4f, 1.4f} });
@@ -79,14 +78,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddWidget(45, 16, 80, 32))
             {
                 settings.textAlign = LcTextAlignment::Left;
-                widgetHelper.AddTextComponent(L"FPS: 0", settings);
+                widgetHelper.AddTextComponent("fps_text", settings);
                 widgetHelper.SetTag(2);
             }
 
             if (context.world->AddWidget(182, 550, 94, 32))
             {
                 settings.textAlign = LcTextAlignment::Center;
-                widgetHelper.AddTextComponent(loc.Get("btn_fullscreen"), settings);
+                widgetHelper.AddTextComponent("btn_fullscreen", settings);
             }
 
             if (context.world->AddWidget(242, 552, 32, 32))
@@ -103,19 +102,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddWidget(200, 500, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
-                widgetHelper.AddTextComponent(loc.Get("btn_1080"), settings);
+                widgetHelper.AddTextComponent("btn_1080", settings);
             }
 
             if (context.world->AddWidget(200, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
-                widgetHelper.AddTextComponent(loc.Get("btn_900"), settings);
+                widgetHelper.AddTextComponent("btn_900", settings);
             }
 
             if (context.world->AddWidget(200, 400, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
-                widgetHelper.AddTextComponent(loc.Get("btn_720"), settings);
+                widgetHelper.AddTextComponent("btn_720", settings);
             }
         };
 
@@ -125,7 +124,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto widget = context.world->GetObjectByTag<IWidget>(2))
             {
-                widget->GetTextComponent()->SetText(L"FPS: " + ToStringW(int(1.0f / deltaSeconds)));
+                auto fpsText = L"FPS: " + ToStringW(int(1.0f / deltaSeconds));
+                context.text->Set("fps_text", fpsText.c_str());
             }
 
             auto sprite = context.world->GetObjectByTag<ISprite>(1);

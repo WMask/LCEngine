@@ -8,6 +8,7 @@
 #include "RenderSystem/RenderSystemDX10/TextRenderDX10.h"
 #include "RenderSystem/RenderSystemDX10/RenderSystemDX10.h"
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCException.h"
 
 #include <sstream>
@@ -123,6 +124,53 @@ void LcTextRenderDX10::Shutdown()
     d2dFactory.Reset();
 }
 
+void LcTextRenderDX10::Init(const LcAppContext& context)
+{
+    LC_TRY
+
+    auto render = static_cast<LcRenderSystemDX10*>(context.render);
+    auto swapChain = render ? render->GetD3D10SwapChain() : nullptr;
+    if (!swapChain) throw std::exception("LcTextRenderDX10::Init(): Invalid swap chain");
+
+    if (d2dFactory) Shutdown();
+
+    if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
+    {
+        throw std::exception("LcTextRenderDX10::Init(): Cannot create Direct2D factory");
+    }
+
+    ComPtr<IDXGISurface1> backBuffer;
+    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
+    {
+        throw std::exception("LcTextRenderDX10::Init(): Cannot get back buffer");
+    }
+
+    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(dwriteFactory.Get()),
+        reinterpret_cast<IUnknown**>(dwriteFactory.GetAddressOf()))))
+    {
+        throw std::exception("LcTextRenderDX10::Init(): Cannot create DirectWrite factory");
+    }
+
+    context.text->onCultureChanged.AddListener([this](std::string newCulture, const LcAppContext& context) {
+        CultureChangedHandler(newCulture, context);
+    });
+
+    LC_CATCH{ LC_THROW("LcTextRenderDX10::Init()") }
+}
+
+void LcTextRenderDX10::CultureChangedHandler(std::string newCulture, const LcAppContext& context)
+{
+    auto& visuals = context.world->GetVisuals();
+    for (auto& visual : visuals)
+    {
+        if (visual->GetTypeId() == LcCreatables::Widget)
+        {
+            auto widget = static_cast<LcWidgetDX10*>(visual.get());
+            widget->RedrawText(this, context);
+        }
+    }
+}
+
 const ITextFont* LcTextRenderDX10::AddFont(const std::wstring& fontName, float fontSize, LcFontWeight fontWeight)
 {
     std::shared_ptr<LcTextFontDX10> newFont;
@@ -195,36 +243,6 @@ void LcTextRenderDX10::ClearCache(IWorld* world)
     }
 
     LC_CATCH{ LC_THROW("LcTextRenderDX10::ClearCache()") }
-}
-
-void LcTextRenderDX10::Init(const LcAppContext& context)
-{
-    LC_TRY
-
-    auto render = static_cast<LcRenderSystemDX10*>(context.render);
-    auto swapChain = render ? render->GetD3D10SwapChain() : nullptr;
-    if (!swapChain) throw std::exception("LcTextRenderDX10::Init(): Invalid swap chain");
-
-    if (d2dFactory) Shutdown();
-
-    if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf())))
-    {
-        throw std::exception("LcTextRenderDX10::Init(): Cannot create Direct2D factory");
-    }
-
-    ComPtr<IDXGISurface1> backBuffer;
-    if (FAILED(swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
-    {
-        throw std::exception("LcTextRenderDX10::Init(): Cannot get back buffer");
-    }
-
-    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(dwriteFactory.Get()),
-        reinterpret_cast<IUnknown**>(dwriteFactory.GetAddressOf()))))
-    {
-        throw std::exception("LcTextRenderDX10::Init(): Cannot create DirectWrite factory");
-    }
-
-    LC_CATCH{ LC_THROW("LcTextRenderDX10::Init()") }
 }
 
 void LcTextRenderDX10::RenderText(const std::wstring& text, LcRectf rect, LcColor4 color, LcTextAlignment align,
