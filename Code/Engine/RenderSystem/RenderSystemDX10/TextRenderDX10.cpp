@@ -166,7 +166,10 @@ void LcTextRenderDX10::CultureChangedHandler(std::string newCulture, const LcApp
         if (visual->GetTypeId() == LcCreatables::Widget)
         {
             auto widget = static_cast<LcWidgetDX10*>(visual.get());
-            widget->RedrawText(this, context);
+            if (widget && widget->HasComponent(LcComponents::Text))
+            {
+                widget->RedrawText(this, context);
+            }
         }
     }
 }

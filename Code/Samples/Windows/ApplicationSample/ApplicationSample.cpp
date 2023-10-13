@@ -24,7 +24,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](const LcAppContext& context)
         {
-            context.text->Add("../../Assets/loc.txt");
+            context.text->AddCulture("../../Assets/loc.txt");
+            context.text->AddCulture("../../Assets/loc_ru.txt");
 
             auto app = context.app;
             context.world->GetWorldScale().GetScaleList().clear();
@@ -53,7 +54,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 settings.speed = 0.2f;
                 settings.movementRadius = 20.0f;
 
-                spriteHelper.AddParticlesComponent(100, settings);
+                spriteHelper.AddParticlesComponent(300, settings);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
@@ -82,12 +83,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 widgetHelper.SetTag(2);
             }
 
-            if (context.world->AddWidget(182, 550, 94, 32))
-            {
-                settings.textAlign = LcTextAlignment::Center;
-                widgetHelper.AddTextComponent("btn_fullscreen", settings);
-            }
-
             if (context.world->AddWidget(242, 552, 32, 32))
             {
                 auto onToggleMode = [app](bool fullscreen) {
@@ -96,8 +91,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 widgetHelper.AddCheckHandlerComponent(onToggleMode);
             }
 
+            if (context.world->AddWidget(165, 547, 110, 32))
+            {
+                settings.textAlign = LcTextAlignment::Right;
+                widgetHelper.AddTextComponent("btn_fullscreen", settings);
+            }
+
             settings.fontSize = 22;
             settings.textColor = LcDefaults::Black4;
+            settings.textAlign = LcTextAlignment::Center;
 
             if (context.world->AddWidget(200, 500, 124, 40))
             {
@@ -137,6 +139,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
             if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
+            if (key == 'L' && keyEvent == LcKeyState::Down)
+            {
+                context.text->SetCulture((context.text->GetCulture() == "en") ? "ru" : "en");
+            }
         };
 
         LcAppConfig cfg;

@@ -62,7 +62,7 @@ public:
 	//
 	virtual void Init(const struct LcAppContext* context) = 0;
 	// add new culture
-	virtual void Add(const char* filePath) = 0;
+	virtual void AddCulture(const char* filePath) = 0;
 	// culture like "en", "es", "fr"
 	virtual bool SetCulture(const char* culture) = 0;
 	// set value
@@ -87,7 +87,7 @@ public:
 	//
 	virtual void Init(const struct LcAppContext* inContext) { context = inContext; }
 	//
-	virtual void Add(const char* filePath) override;
+	virtual void AddCulture(const char* filePath) override;
 	//
 	virtual bool SetCulture(const char* culture) override;
 	//

@@ -11,6 +11,7 @@
 #include "World/SpriteInterface.h"
 #include "World/WorldInterface.h"
 #include "GUI/WidgetInterface.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCUtils.h"
 
 
@@ -22,6 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](const LcAppContext& context)
         {
+            context.text->AddCulture("../../Assets/loc.txt");
             auto& widgetHelper = context.world->GetWidgetHelper();
 
             LcTextBlockSettings settings;

@@ -42,7 +42,7 @@ std::wstring LcLocalization::Get(const char* key) const
     return (it == entries.end()) ? default_value : it->second;
 }
 
-void LcLocalizationManager::Add(const char* filePath)
+void LcLocalizationManager::AddCulture(const char* filePath)
 {
     LC_TRY
 
@@ -61,7 +61,7 @@ void LcLocalizationManager::Add(const char* filePath)
         if (context) onCultureChanged.Broadcast(cultureName, *context);
     }
 
-    LC_CATCH{ LC_THROW("LcLocalizationManager::Add()"); }
+    LC_CATCH{ LC_THROW("LcLocalizationManager::AddCulture()"); }
 }
 
 bool LcLocalizationManager::SetCulture(const char* inCulture)
