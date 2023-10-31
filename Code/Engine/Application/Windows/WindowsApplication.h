@@ -10,6 +10,8 @@
 
 #include "Module.h"
 #include "Application/ApplicationInterface.h"
+#include "Application/AppConfig.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCTypesEx.h"
 
 #pragma warning(disable : 4275)
@@ -73,6 +75,10 @@ public: // IApplication interface implementation
 	//
 	virtual bool GetVSync() const noexcept override { return vSync; }
 	//
+	virtual LcAppConfig& GetConfig() noexcept override { return cfg; }
+	//
+	virtual const LcAppConfig& GetConfig() const noexcept override { return cfg; }
+	//
 	virtual const LcAppContext& GetContext() const noexcept { return context; }
 	//
 	virtual LcAppStats GetAppStats() const noexcept;
@@ -112,6 +118,8 @@ protected:
 	LARGE_INTEGER frequency;
 	//
 	std::string shadersPath;
+	//
+	LcAppConfig cfg;
 
 
 protected:
@@ -128,6 +136,8 @@ protected:
 	TPhysicsWorldPtr physWorld;
 	//
 	TGuiManagerPtr guiManager;
+	//
+	TLocalizationPtr localization;
 	//
 	LcAppContext context;
 

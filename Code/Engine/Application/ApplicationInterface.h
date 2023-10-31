@@ -10,6 +10,7 @@
 #include "GUI/Module.h"
 #include "World/Module.h"
 #include "RenderSystem/Module.h"
+#include "Application/AppConfig.h"
 #include "Core/InputSystem.h"
 #include "Core/LCTypes.h"
 
@@ -127,6 +128,12 @@ public:
 	/**
 	* Get vertical synchronization mode */
 	virtual bool GetVSync() const noexcept = 0;
+	/**
+	* Get application config */
+	virtual LcAppConfig& GetConfig() noexcept = 0;
+	/**
+	* Get application config */
+	virtual const LcAppConfig& GetConfig() const noexcept = 0;
 	/**
 	* Get application context */
 	virtual const LcAppContext& GetContext() const noexcept = 0;

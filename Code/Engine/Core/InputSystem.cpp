@@ -7,13 +7,19 @@
 #include "pch.h"
 #include "Module.h"
 #include "Core/InputSystem.h"
+#include "Application/ApplicationInterface.h"
 
 
 const std::wstring LcDefaultInputDevice::Name = L"Keyboard";
 
-LcDefaultInputSystem::LcDefaultInputSystem() : activeDevice(nullptr)
+LcDefaultInputSystem::LcDefaultInputSystem() : activeDevice(nullptr), cfg(nullptr)
 {
-    devices.push_back(std::make_shared<LcDefaultInputDevice>());
+}
+
+void LcDefaultInputSystem::Init(const LcAppContext& context)
+{
+    cfg = context.app ? &context.app->GetConfig() : nullptr;
+    devices.push_back(std::make_shared<LcDefaultInputDevice>(cfg));
     activeDevice = devices[0].get();
 }
 
@@ -48,6 +54,30 @@ void LcDefaultInputSystem::SetActiveDevice(const IInputDevice* inActiveDevice)
             device->Deactivate();
         }
     }
+}
+
+bool LcDefaultInputDevice::Pressed(const std::string& actionName) const
+{
+    if (cfg)
+    {
+        for (auto& action : cfg->Actions)
+        {
+            if (action.Name == actionName)
+            {
+                if (action.Key >= 0 && action.Key < LcKeysCount && (keys.keys[action.Key] != 0))
+                {
+                    return true;
+                }
+
+                if (action.JoyKey >= 0 && action.JoyKey < LcKeysCount && (keys.keys[action.JoyKey] != 0))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 KEYS::KEYS()

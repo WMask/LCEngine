@@ -51,9 +51,9 @@ class IWidgetTextComponent : public IVisualComponent
 {
 public:
     //
-    virtual void SetText(const std::wstring& text) = 0;
+    virtual void SetTextKey(const std::string& textKey) = 0;
     //
-    virtual const std::wstring& GetText() const = 0;
+    virtual const std::string& GetTextKey() const = 0;
     //
     virtual const LcTextBlockSettings& GetSettings() const = 0;
 };
@@ -187,7 +187,7 @@ public:
 public:
     /**
     * Add text component to the last added widget */
-    void AddTextComponent(const LcAppContext& context, const std::wstring& inText, const LcTextBlockSettings& inSettings);
+    void AddTextComponent(const LcAppContext& context, const std::string& inTextKey, const LcTextBlockSettings& inSettings);
     /**
     * Add button component to the last added widget */
     void AddButtonComponent(const LcAppContext& context, const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos);
@@ -228,7 +228,7 @@ public:
 public:
     /**
     * Add text component to the last added widget */
-    void AddTextComponent(const std::wstring& inText, const LcTextBlockSettings& inSettings) const;
+    void AddTextComponent(const std::string& inTextKey, const LcTextBlockSettings& inSettings) const;
     /**
     * Add button component to the last added widget */
     void AddButtonComponent(const std::string& texture, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos) const;

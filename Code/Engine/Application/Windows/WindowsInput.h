@@ -51,7 +51,7 @@ typedef ComPtr<IDirectInputDevice8> TDevicePtr;
 class LcDirectInputJoystick : public LcDefaultInputDevice
 {
 public:
-	LcDirectInputJoystick(const std::wstring& inName, int inDeviceId);
+	LcDirectInputJoystick(const std::wstring& inName, int inDeviceId, const LcAppConfig* inCfg);
 	//
 	void SetButtonsState(const BYTE* inKeys);
 	//

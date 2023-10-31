@@ -25,21 +25,6 @@ constexpr int LcJoystickKeysOffset = 130;
 constexpr int LcJoystickKeysCount = (LcKeysCount - LcJoystickKeysOffset);
 
 
-/** Mouse buttons */
-enum class LcMouseBtn
-{
-	Left,
-	Right,
-	Middle
-};
-
-/** Key state: Up, Down */
-enum class LcKeyState
-{
-	Up,
-	Down
-};
-
 /** Input device type */
 enum class LcInputDeviceType : int {
 	Keyboard,
@@ -64,6 +49,38 @@ struct CORE_API KEYS
 	unsigned char keys[LcKeysCount];
 };
 
+/** Key state: Up, Down */
+enum class LcKeyState
+{
+	Up,
+	Down
+};
+
+/** Mouse buttons */
+namespace LcMouseBtn
+{
+	constexpr int Left = 0;
+	constexpr int Right = 1;
+	constexpr int Middle = 2;
+}
+
+/** Keyboard keys */
+namespace LcKeys
+{
+#ifdef _WINDOWS
+
+	constexpr int Escape = VK_ESCAPE;
+	constexpr int Space = VK_SPACE;
+	constexpr int Return = VK_RETURN;
+	constexpr int Enter = VK_RETURN;
+	constexpr int Up = VK_UP;
+	constexpr int Right = VK_RIGHT;
+	constexpr int Down = VK_DOWN;
+	constexpr int Left = VK_LEFT;
+
+#endif
+}
+
 /** Joystick keys */
 namespace LcJKeys
 {
@@ -86,29 +103,80 @@ namespace LcJKeys
 	constexpr int EndArrows = Left;
 }
 
-/** Keyboard keys */
-namespace LcKeys
-{
-#ifdef _WINDOWS
-
-	constexpr int Escape = VK_ESCAPE;
-	constexpr int Space = VK_SPACE;
-	constexpr int Return = VK_RETURN;
-	constexpr int Enter = VK_RETURN;
-	constexpr int Up = VK_UP;
-	constexpr int Right = VK_RIGHT;
-	constexpr int Down = VK_DOWN;
-	constexpr int Left = VK_LEFT;
-
-#endif
-}
-
 /** Joystick axis */
 namespace LcJAxis
 {
 	constexpr int LStick = 0;
 	constexpr int RStick = 1;
 }
+
+
+/** Action type */
+enum class LcActionType
+{
+	Key,
+	Mouse,
+	Axis
+};
+
+/** Action base */
+struct LcAction
+{
+	LcAction(const std::string& inName, LcActionType inType, LcKeyState inState = LcKeyState::Down)
+		: name(inName)
+		, type(inType)
+		, state(inState) {}
+	//
+	inline bool Pressed(const std::string& inName) const { return (name == inName) && (state == LcKeyState::Down); }
+	//
+	inline bool Released(const std::string& inName) const { return (name == inName) && (state == LcKeyState::Up); }
+	//
+	std::string name;
+	//
+	LcActionType type;
+	//
+	LcKeyState state;
+};
+
+/** Key action */
+struct LcKeyAction : public LcAction
+{
+	LcKeyAction(const std::string& inName, int inKey, LcKeyState inState)
+		: LcAction(inName, LcActionType::Key, inState)
+		, key(inKey) {}
+	// LcKeys + LcJKeys
+	int key;
+};
+
+/** Mouse action */
+struct LcMouseAction : public LcAction
+{
+	LcMouseAction(const std::string& inName, int inButton, LcKeyState inState, float inX, float inY)
+		: LcAction(inName, LcActionType::Mouse, inState)
+		, button(inButton)
+		, x(inX), y(inY) {}
+	// LcMouseBtn
+	int button;
+	//
+	float x;
+	//
+	float y;
+};
+
+/** Axis action */
+struct LcAxisAction : public LcAction
+{
+	LcAxisAction(const std::string& inName, int inAxis, float inX, float inY)
+		: LcAction(inName, LcActionType::Axis)
+		, axis(inAxis)
+		, x(inX), y(inY) {}
+	// LcJAxis
+	int axis;
+	//
+	float x;
+	//
+	float y;
+};
 
 
 /**
@@ -125,6 +193,9 @@ public:
 	/**
 	* Set as inactive */
 	virtual void Deactivate() = 0;
+	/**
+	* Get action state */
+	virtual bool Pressed(const std::string& actionName) const = 0;
 	/**
 	* Get active state */
 	virtual bool IsActive() const = 0;
@@ -148,16 +219,19 @@ public:
 typedef std::deque<std::shared_ptr<IInputDevice>> TInputDevicesList;
 
 /** Keyboard events handler */
-typedef std::function<void(int, LcKeyState, const struct LcAppContext&)> LcKeysHandler;
-
-/** Gamepad axis events handler */
-typedef std::function<void(int, float, float, const struct LcAppContext&)> LcAxisHandler;
+typedef std::function<void(int, LcKeyState, const LcAppContext&)> LcKeysHandler;
 
 /** Mouse button handler */
-typedef std::function<void(LcMouseBtn, LcKeyState, float, float, const struct LcAppContext&)> LcMouseButtonHandler;
+typedef std::function<void(int, LcKeyState, float, float, const LcAppContext&)> LcMouseButtonHandler;
 
 /** Mouse move handler */
-typedef std::function<void(float, float, const struct LcAppContext&)> LcMouseMoveHandler;
+typedef std::function<void(float, float, const LcAppContext&)> LcMouseMoveHandler;
+
+/** Action handler */
+typedef std::function<void(const LcAction& action, const LcAppContext&)> LcActionHandler;
+
+/** Gamepad axis events handler */
+typedef std::function<void(int, float, float, const LcAppContext&)> LcAxisHandler;
 
 
 /**
@@ -170,13 +244,13 @@ public:
 	virtual ~IInputSystem() {}
 	/**
 	* Initialize input system */
-	virtual void Init(const struct LcAppContext& context) = 0;
+	virtual void Init(const LcAppContext& context) = 0;
 	/**
 	* Shutdown input system */
 	virtual void Shutdown() = 0;
 	/**
 	* Update input system */
-	virtual void Update(float deltaSeconds, const struct LcAppContext& context) = 0;
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
 	/**
 	* Set active device */
 	virtual void SetActiveDevice(const IInputDevice* device) = 0;
@@ -187,8 +261,8 @@ public:
 	* Set keyboard handler */
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept = 0;
 	/**
-	* Set gamepad axis handler */
-	virtual void SetAxisHandler(LcAxisHandler handler) noexcept = 0;
+	* Set action handler */
+	virtual void SetActionHandler(LcActionHandler handler) noexcept = 0;
 	/**
 	* Set mouse move handler */
 	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept = 0;
@@ -196,17 +270,23 @@ public:
 	* Set mouse button handler */
 	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept = 0;
 	/**
+	* Set gamepad axis handler */
+	virtual void SetAxisHandler(LcAxisHandler handler) noexcept = 0;
+	/**
 	* Get keyboard handler */
 	virtual LcKeysHandler& GetKeysHandler() noexcept = 0;
 	/**
-	* Get gamepad axis handler */
-	virtual LcAxisHandler& GetAxisHandler() noexcept = 0;
+	* Get action handler */
+	virtual LcActionHandler& GetActionHandler() noexcept = 0;
 	/**
 	* Get mouse move handler */
 	virtual LcMouseMoveHandler& GetMouseMoveHandler() noexcept = 0;
 	/**
 	* Get mouse button handler */
 	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept = 0;
+	/**
+	* Get gamepad axis handler */
+	virtual LcAxisHandler& GetAxisHandler() noexcept = 0;
 	/**
 	* Get input devices list */
 	virtual const TInputDevicesList& GetInputDevicesList() const = 0;
@@ -232,7 +312,7 @@ public:
 
 
 public:
-	LcDefaultInputDevice() : name(Name), active(true) {}
+	LcDefaultInputDevice(const struct LcAppConfig* inCfg) : cfg(inCfg), name(Name), active(true) {}
 
 
 public:
@@ -242,6 +322,8 @@ public:
 	virtual void Activate() override { active = true; }
 	//
 	virtual void Deactivate() override { active = false; }
+	//
+	virtual bool Pressed(const std::string& actionName) const override;
 	//
 	virtual bool IsActive() const override { return active; }
 	//
@@ -256,6 +338,8 @@ public:
 
 protected:
 	KEYS keys;
+	//
+	const struct LcAppConfig* cfg;
 	//
 	std::wstring name;
 	//
@@ -277,11 +361,11 @@ public: // IInputSystem interface implementation
 	//
 	virtual ~LcDefaultInputSystem() override {}
 	//
-	virtual void Init(const struct LcAppContext& inContext) override {}
+	virtual void Init(const LcAppContext& context) override;
 	//
 	virtual void Shutdown() override {}
 	//
-	virtual void Update(float deltaSeconds, const struct LcAppContext& context) override {}
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override {}
 	//
 	virtual void SetActiveDevice(const std::wstring& deviceNamePart) override;
 	//
@@ -289,19 +373,23 @@ public: // IInputSystem interface implementation
 	//
 	virtual void SetKeysHandler(LcKeysHandler handler) noexcept override { keysHandler = handler; }
 	//
-	virtual void SetAxisHandler(LcAxisHandler handler) noexcept override { axisHandler = handler; }
+	virtual void SetActionHandler(LcActionHandler handler) noexcept override { actionHandler = handler; }
 	//
 	virtual void SetMouseMoveHandler(LcMouseMoveHandler handler) noexcept override { mouseMoveHandler = handler; }
 	//
 	virtual void SetMouseButtonHandler(LcMouseButtonHandler handler) noexcept override { mouseButtonHandler = handler; }
 	//
+	virtual void SetAxisHandler(LcAxisHandler handler) noexcept override { axisHandler = handler; }
+	//
 	virtual LcKeysHandler& GetKeysHandler() noexcept override { return keysHandler; }
 	//
-	virtual LcAxisHandler& GetAxisHandler() noexcept override { return axisHandler; }
+	virtual LcActionHandler& GetActionHandler() noexcept override { return actionHandler; }
 	//
 	virtual LcMouseMoveHandler& GetMouseMoveHandler() noexcept override { return mouseMoveHandler; }
 	//
 	virtual LcMouseButtonHandler& GetMouseButtonHandler() noexcept override { return mouseButtonHandler; }
+	//
+	virtual LcAxisHandler& GetAxisHandler() noexcept override { return axisHandler; }
 	//
 	virtual const TInputDevicesList& GetInputDevicesList() const override { return devices; }
 	//
@@ -316,15 +404,19 @@ protected:
 	//
 	LcKeysHandler keysHandler;
 	//
-	LcAxisHandler axisHandler;
+	LcActionHandler actionHandler;
 	//
 	LcMouseMoveHandler mouseMoveHandler;
 	//
 	LcMouseButtonHandler mouseButtonHandler;
 	//
+	LcAxisHandler axisHandler;
+	//
 	IInputDevice* activeDevice;
 	//
 	TInputDevicesList devices;
+	//
+	struct LcAppConfig* cfg;
 
 };
 

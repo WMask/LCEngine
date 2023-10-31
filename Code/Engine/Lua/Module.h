@@ -72,7 +72,7 @@ LCLUA_API void AddLuaModuleApplication(const LcAppContext& context, IScriptSyste
 *		fontWeight = "Normal",
 *		fontSize = 20
 *	}
-* - void AddTextComponent([optional IWidget* widget,] string text, LcTextBlockSettings settings)
+* - void AddTextComponent([optional IWidget* widget,] string textKey, LcTextBlockSettings settings)
 *
 * - void AddButtonComponent([optional ISprite* sprite,] string texPath, LcVector2 idlePos, LcVector2 overPos, LcVector2 pressedPos)
 *

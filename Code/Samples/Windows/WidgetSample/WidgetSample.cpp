@@ -11,6 +11,7 @@
 #include "World/SpriteInterface.h"
 #include "World/WorldInterface.h"
 #include "GUI/WidgetInterface.h"
+#include "Core/LCLocalization.h"
 #include "Core/LCUtils.h"
 
 
@@ -22,6 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     {
         auto onInitHandler = [](const LcAppContext& context)
         {
+            context.text->AddCulture("../../Assets/loc.txt");
             auto& widgetHelper = context.world->GetWidgetHelper();
 
             LcTextBlockSettings settings;
@@ -32,19 +34,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             IWidget* parent = nullptr;
             if (parent = context.world->AddWidget(500, 400, LcLayers::Z2, 200, 200))
             {
-                widgetHelper.AddTintComponent(LcColor3(0.0f, 0.8f, 0.0f));
+                widgetHelper.AddTintComponent(LcColor3{ 0.0f, 0.8f, 0.0f });
                 widgetHelper.SetTag(1);
             }
 
             if (auto child = context.world->AddWidget(500, 340, LcLayers::Z1, 180, 60))
             {
-                widgetHelper.AddTintComponent(LcColor3(0.9f, 0.9f, 0.9f));
+                widgetHelper.AddTintComponent(LcColor3{ 0.9f, 0.9f, 0.9f });
                 parent->AddChild(child);
             }
 
             if (auto child = context.world->AddWidget(500, 340, 200, 50))
             {
-                widgetHelper.AddTextComponent(L"Label Text", settings);
+                widgetHelper.AddTextComponent("label_text", settings);
                 parent->AddChild(child);
             }
 
@@ -61,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             {
                 settings.fontSize = 22;
                 settings.fontWeight = LcFontWeight::Bold;
-                widgetHelper.AddTextComponent(L"SUBMIT", settings);
+                widgetHelper.AddTextComponent("submit_text", settings);
                 widgetHelper.AddClickHandlerComponent([]() { DebugMsg("SUBMIT button pressed\n"); });
                 widgetHelper.SetTag(2);
                 parent->AddChild(child);

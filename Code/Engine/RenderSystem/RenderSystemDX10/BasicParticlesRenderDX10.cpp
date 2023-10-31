@@ -234,7 +234,7 @@ void LcBasicParticlesRenderDX10::Render(const IVisual* visual, const LcAppContex
 
 	// update transform
 	LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
-	LcVector3 worldScale(worldScale2D.x, worldScale2D.y, 1.0f);
+	LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 
 	LcMatrix4 trans = TransformMatrix(spritePos, worldScale2D, 0.0f, false);

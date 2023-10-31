@@ -1,7 +1,48 @@
 {
-    "WinHeight": 720,
-    "WinWidth": 1280,
-    "bAllowFullscreen": false,
-    "bNoDelay": false,
-    "bVSync": true
+    "Application": {
+        "WinHeight": 720,
+        "WinWidth": 1280
+    },
+    "Engine": {
+        "bAllowFullscreen": false,
+        "bNoDelay": false,
+        "bVSync": true
+    },
+    "Input": [
+        {
+            "AxisId": -1,
+            "JoyKey": 143,
+            "Key": 37,
+            "MouseBtn": -1,
+            "Name": "Left"
+        },
+        {
+            "AxisId": -1,
+            "JoyKey": 141,
+            "Key": 39,
+            "MouseBtn": -1,
+            "Name": "Right"
+        },
+        {
+            "AxisId": -1,
+            "JoyKey": 140,
+            "Key": 38,
+            "MouseBtn": -1,
+            "Name": "Up"
+        },
+        {
+            "AxisId": -1,
+            "JoyKey": 131,
+            "Key": 13,
+            "MouseBtn": 0,
+            "Name": "Click"
+        },
+        {
+            "AxisId": -1,
+            "JoyKey": 132,
+            "Key": 81,
+            "MouseBtn": -1,
+            "Name": "Quit"
+        }
+    ]
 }

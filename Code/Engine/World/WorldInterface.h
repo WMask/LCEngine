@@ -50,6 +50,7 @@ public:
 	//
 	struct ScalePair
 	{
+		ScalePair(LcSize inResolution, LcVector2 inScale) : resolution(inResolution), scale(inScale) {}
 		LcSize resolution;
 		LcVector2 scale;
 		inline bool operator<(const ScalePair& s) const { return resolution.y < s.resolution.y; }

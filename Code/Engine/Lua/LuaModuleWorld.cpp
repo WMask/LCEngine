@@ -395,30 +395,30 @@ static int AddTextComponent(lua_State* luaState)
 {
 	IWidget* widget = nullptr;
 	LcTextBlockSettings settings;
-	std::string textUtf8;
+	std::string textKey;
 	int top = lua_gettop(luaState);
 
 	if (lua_isuserdata(luaState, top - 2))
 	{
 		widget = static_cast<IWidget*>(lua_touserdata(luaState, top - 2));
-		textUtf8 = lua_tolstring(luaState, top - 1, 0);
+		textKey = lua_tolstring(luaState, top - 1, 0);
 		settings = GetTextBlockSettings(luaState, top - 0);
 	}
 	else
 	{
-		textUtf8 = lua_tolstring(luaState, top - 1, 0);
+		textKey = lua_tolstring(luaState, top - 1, 0);
 		settings = GetTextBlockSettings(luaState, top - 0);
 	}
 
 	if (widget)
 	{
 		auto app = GetApp(luaState);
-		widget->AddTextComponent(app->GetContext(), FromUtf8(textUtf8), settings);
+		widget->AddTextComponent(app->GetContext(), textKey, settings);
 	}
 	else
 	{
 		auto world = GetWorld(luaState);
-		world->GetWidgetHelper().AddTextComponent(FromUtf8(textUtf8), settings);
+		world->GetWidgetHelper().AddTextComponent(textKey, settings);
 	}
 
 	return 0;

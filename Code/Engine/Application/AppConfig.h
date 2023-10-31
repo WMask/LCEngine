@@ -11,27 +11,42 @@
 #include "Module.h"
 #include "Core/LCTypes.h"
 
+#pragma warning(disable : 4251)
 
-typedef std::map<std::string, LcAny> CONFIG_ITEMS;
 
-struct APPLICATION_API LCAppConfig
+struct LcActionBinding
 {
-    LCAppConfig();
+    std::string Name;
+    //
+    int Key;
+    //
+    int JoyKey;
+    //
+    int MouseBtn;
+    //
+    int AxisId;
+};
+
+struct APPLICATION_API LcAppConfig
+{
+    LcAppConfig();
 
     // [Application]
     unsigned int WinWidth;
     unsigned int WinHeight;
-    // [Render]
+    // [Engine]
     bool bVSync;
     bool bAllowFullscreen;
     bool bNoDelay;
+    // [Input]
+    std::deque<LcActionBinding> Actions;
 };
 
 
 /**
 * Loads Application config from file */
-APPLICATION_API bool LoadConfig(LCAppConfig& outConfig, const char* fileName = "config.txt", char delim = '\n');
+APPLICATION_API bool LoadConfig(LcAppConfig& outConfig, const char* fileName = "config.txt", char delim = '\n');
 
 /**
 * Loads Application config from file */
-APPLICATION_API void SaveConfig(const LCAppConfig& config, const char* fileName = "config.txt");
+APPLICATION_API void SaveConfig(const LcAppConfig& config, const char* fileName = "config.txt");

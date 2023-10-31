@@ -26,20 +26,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 struct LcWin32Handles
 {
     LcKeysHandler keysHandler;
+    LcActionHandler actionHandler;
     LcMouseMoveHandler mouseMoveHandler;
     LcMouseButtonHandler mouseButtonHandler;
     LcAppContext& appContext;
     IApplication& app;
+    LcAppConfig& cfg;
 };
 
 
-LcWindowsApplication::LcWindowsApplication() : world(::GetWorld(context)), inputSystem(GetDefaultInputSystem())
+LcWindowsApplication::LcWindowsApplication()
+    : world(::GetWorld(context))
+    , inputSystem(GetDefaultInputSystem())
+    , localization(std::make_shared<LcLocalizationManager>())
 {
     hInstance = nullptr;
     hWnd = nullptr;
     cmds.clear();
     cmdsCount = 0;
-    windowSize = LcSize(800, 600);
+    windowSize = LcSize{ 800, 600 };
     winMode = LcWinMode::Windowed;
     quit = false;
     vSync = true;
@@ -119,6 +124,7 @@ void LcWindowsApplication::Run()
     context.input = inputSystem.get();
     context.gui = guiManager.get();
     context.physics = physWorld.get();
+    context.text = localization.get();
 
     // get window size
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -165,11 +171,14 @@ void LcWindowsApplication::Run()
     // set handles
     LcWin32Handles handles {
         inputSystem->GetKeysHandler(),
+        inputSystem->GetActionHandler(),
         inputSystem->GetMouseMoveHandler(),
         inputSystem->GetMouseButtonHandler(),
-        context, *this
+        context, *this, cfg
     };
     SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
+
+    if (context.text) context.text->Init(&context);
 
     // set initial world size
     if (renderSystem) renderSystem->Subscribe(context);
@@ -310,7 +319,7 @@ LcAppStats LcWindowsApplication::GetAppStats() const noexcept
 
 void LcWindowsApplication::SetWindowSize(int width, int height)
 {
-    auto newSize = LcSize(width, height);
+    auto newSize = LcSize{ width, height };
     if (windowSize == newSize) return;
 
     windowSize = newSize;
@@ -332,7 +341,7 @@ void LcWindowsApplication::SetWindowMode(LcWinMode mode)
     }
 }
 
-LcMouseBtn MapMouseKeys(WPARAM wParam)
+int MapMouseKeys(WPARAM wParam)
 {
     switch (wParam)
     {
@@ -341,6 +350,26 @@ LcMouseBtn MapMouseKeys(WPARAM wParam)
     }
 
     return LcMouseBtn::Left;
+}
+
+std::deque<LcActionBinding> GetWinActions(LcActionType type, int id, LcAppConfig& cfg)
+{
+    std::deque<LcActionBinding> actions;
+
+    for (auto& action : cfg.Actions)
+    {
+        switch (type)
+        {
+        case LcActionType::Key:
+            if (id == action.Key) actions.push_back(action);
+            break;
+        case LcActionType::Mouse:
+            if (id == action.MouseBtn) actions.push_back(action);
+            break;
+        }
+    }
+
+    return actions;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -382,6 +411,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (activeDevice) activeDevice->GetState()[(int)wParam] = true;
             if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Down, handles->appContext);
             if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Down, handles->appContext);
+            if (handles && handles->actionHandler)
+            {
+                auto actions = GetWinActions(LcActionType::Key, (int)wParam, handles->cfg);
+                for (auto& action : actions)
+                {
+                    handles->actionHandler(LcKeyAction(action.Name, (int)wParam, LcKeyState::Down), handles->appContext);
+                }
+            }
         }
         break;
     case WM_KEYUP:
@@ -390,6 +427,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (activeDevice) activeDevice->GetState()[(int)wParam] = false;
             if (handles && handles->keysHandler) handles->keysHandler((int)wParam, LcKeyState::Up, handles->appContext);
             if (guiManager) guiManager->OnKeys((int)wParam, LcKeyState::Up, handles->appContext);
+            if (handles && handles->actionHandler)
+            {
+                auto actions = GetWinActions(LcActionType::Key, (int)wParam, handles->cfg);
+                for (auto& action : actions)
+                {
+                    handles->actionHandler(LcKeyAction(action.Name, (int)wParam, LcKeyState::Up), handles->appContext);
+                }
+            }
         }
         break;
     case WM_MOUSEMOVE:
@@ -398,10 +443,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_LBUTTONDOWN:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Down, (float)x, (float)y, handles->appContext);
         if (guiManager) guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Down, x, y, handles->appContext);
+        if (handles && handles->actionHandler)
+        {
+            auto actions = GetWinActions(LcActionType::Mouse, LcMouseBtn::Left, handles->cfg);
+            for (auto& action : actions)
+            {
+                handles->actionHandler(LcMouseAction(action.Name, LcMouseBtn::Left, LcKeyState::Down, (float)x, (float)y), handles->appContext);
+            }
+        }
         break;
     case WM_LBUTTONUP:
         if (handles && handles->mouseButtonHandler) handles->mouseButtonHandler(MapMouseKeys(wParam), LcKeyState::Up, (float)x, (float)y, handles->appContext);
         if (guiManager) guiManager->OnMouseButton(LcMouseBtn::Left, LcKeyState::Up, x, y, handles->appContext);
+        if (handles && handles->actionHandler)
+        {
+            auto actions = GetWinActions(LcActionType::Mouse, LcMouseBtn::Left, handles->cfg);
+            for (auto& action : actions)
+            {
+                handles->actionHandler(LcMouseAction(action.Name, LcMouseBtn::Left, LcKeyState::Up, (float)x, (float)y), handles->appContext);
+            }
+        }
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

@@ -50,7 +50,7 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 	subResData.pSysMem = &matData;
 
 	// create constant buffers
-	matData.mat = OrthoMatrix(LcSize(width, height), 1.0f, -1.0f);
+	matData.mat = OrthoMatrix(LcSize{ width, height }, 1.0f, -1.0f);
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, projMatrixBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcConstantBuffersDX10::Init(): Cannot create constant buffer");
@@ -79,10 +79,10 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 	}
 
 	subResData.pSysMem = &uvData;
-	uvData.uv[1] = To4(LcVector2(1.0, 0.0));
-	uvData.uv[2] = To4(LcVector2(1.0, 1.0));
-	uvData.uv[0] = To4(LcVector2(0.0, 0.0));
-	uvData.uv[3] = To4(LcVector2(0.0, 1.0));
+	uvData.uv[1] = To4(LcVector2{ 1.0, 0.0 });
+	uvData.uv[2] = To4(LcVector2{ 1.0, 1.0 });
+	uvData.uv[0] = To4(LcVector2{ 0.0, 0.0 });
+	uvData.uv[3] = To4(LcVector2{ 0.0, 1.0 });
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, customUvBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcConstantBuffersDX10::Init(): Cannot create constant buffer");
@@ -90,7 +90,7 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 
 	cbDesc.ByteWidth = sizeof(VS_FRAME_ANIM2D_BUFFER);
 	subResData.pSysMem = &anim2dData;
-	anim2dData.animData = LcVector4(1.0, 1.0, 0.0, 0.0);
+	anim2dData.animData = LcVector4{ 1.0, 1.0, 0.0, 0.0 };
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, frameAnimBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcConstantBuffersDX10::Init(): Cannot create constant buffer");
@@ -98,7 +98,7 @@ void LcConstantBuffersDX10::Init(ID3D10Device1* d3dDevice, LcVector3 cameraPos, 
 
 	cbDesc.ByteWidth = sizeof(VS_SETTINGS_BUFFER);
 	subResData.pSysMem = &settingsData;
-	settingsData.worldTint = LcVector4(1.0, 1.0, 1.0, 1.0);
+	settingsData.worldTint = LcVector4{ 1.0, 1.0, 1.0, 1.0 };
 	if (FAILED(d3dDevice->CreateBuffer(&cbDesc, &subResData, settingsBuffer.GetAddressOf())))
 	{
 		throw std::exception("LcConstantBuffersDX10::Init(): Cannot create constant buffer");

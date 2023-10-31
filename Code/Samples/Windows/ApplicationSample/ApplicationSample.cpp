@@ -22,11 +22,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     try
     {
-        LcLocalization loc;
-        loc.Load("../../Assets/loc.txt");
-
-        auto onInitHandler = [&loc](const LcAppContext& context)
+        auto onInitHandler = [](const LcAppContext& context)
         {
+            context.text->AddCulture("../../Assets/loc.txt");
+            context.text->AddCulture("../../Assets/loc_ru.txt");
+
             auto app = context.app;
             context.world->GetWorldScale().GetScaleList().clear();
             context.world->GetWorldScale().GetScaleList().insert({ {1920, 1080}, {1.4f, 1.4f} });
@@ -37,7 +37,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto& spriteHelper = context.world->GetSpriteHelper();
             if (context.world->AddSprite(200, 200, 300, 300))
             {
-                spriteHelper.AddTintComponent(LcColor3(0.7f, 0.7f, 0.7f));
+                spriteHelper.AddTintComponent(LcColor3{ 0.7f, 0.7f, 0.7f });
                 spriteHelper.SetTag(1);
             }
 
@@ -46,7 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 spriteHelper.AddTextureComponent("../../Assets/particles.png");
 
                 LcBasicParticleSettings settings;
-                settings.frameSize = LcSizef(32.0f, 32.0f);
+                settings.frameSize = LcSizef{ 32.0f, 32.0f };
                 settings.numFrames = 4;
                 settings.lifetime = LcPI * 4.0f;
                 settings.fadeInRate = 0.2f;
@@ -54,19 +54,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 settings.speed = 0.2f;
                 settings.movementRadius = 20.0f;
 
-                spriteHelper.AddParticlesComponent(100, settings);
+                spriteHelper.AddParticlesComponent(300, settings);
             }
 
             if (context.world->AddSprite(550, 200, LcLayers::Z1, 300, 300))
             {
                 spriteHelper.AddTextureComponent("../../Assets/tree.png");
-                spriteHelper.AddColorsComponent(LcColor3(0, 1, 0), LcColor3(0, 1, 0), LcColor3(1, 0, 0), LcColor3(1, 0, 0));
+                spriteHelper.AddColorsComponent(LcColor3{ 0, 1, 0 }, LcColor3{ 0, 1, 0 }, LcColor3{ 1, 0, 0 }, LcColor3{ 1, 0, 0 });
             }
 
             if (context.world->AddSprite(460, 315, 100, 100))
             {
                 spriteHelper.AddTextureComponent("../../Assets/anim.png");
-                spriteHelper.AddAnimationComponent(LcSizef(128, 128), 10, 12);
+                spriteHelper.AddAnimationComponent(LcSizef{ 128, 128 }, 10, 12);
             }
 
             LcTextBlockSettings settings;
@@ -79,14 +79,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             if (context.world->AddWidget(45, 16, 80, 32))
             {
                 settings.textAlign = LcTextAlignment::Left;
-                widgetHelper.AddTextComponent(L"FPS: 0", settings);
+                widgetHelper.AddTextComponent("fps_text", settings);
                 widgetHelper.SetTag(2);
-            }
-
-            if (context.world->AddWidget(182, 550, 94, 32))
-            {
-                settings.textAlign = LcTextAlignment::Center;
-                widgetHelper.AddTextComponent(loc.Get("btn_fullscreen"), settings);
             }
 
             if (context.world->AddWidget(242, 552, 32, 32))
@@ -97,25 +91,32 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 widgetHelper.AddCheckHandlerComponent(onToggleMode);
             }
 
+            if (context.world->AddWidget(165, 547, 110, 32))
+            {
+                settings.textAlign = LcTextAlignment::Right;
+                widgetHelper.AddTextComponent("btn_fullscreen", settings);
+            }
+
             settings.fontSize = 22;
             settings.textColor = LcDefaults::Black4;
+            settings.textAlign = LcTextAlignment::Center;
 
             if (context.world->AddWidget(200, 500, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1920, 1080); });
-                widgetHelper.AddTextComponent(loc.Get("btn_1080"), settings);
+                widgetHelper.AddTextComponent("btn_1080", settings);
             }
 
             if (context.world->AddWidget(200, 450, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1600, 900); });
-                widgetHelper.AddTextComponent(loc.Get("btn_900"), settings);
+                widgetHelper.AddTextComponent("btn_900", settings);
             }
 
             if (context.world->AddWidget(200, 400, 124, 40))
             {
                 widgetHelper.AddClickHandlerComponent([app]() { app->SetWindowSize(1280, 720); });
-                widgetHelper.AddTextComponent(loc.Get("btn_720"), settings);
+                widgetHelper.AddTextComponent("btn_720", settings);
             }
         };
 
@@ -125,21 +126,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
             if (auto widget = context.world->GetObjectByTag<IWidget>(2))
             {
-                widget->GetTextComponent()->SetText(L"FPS: " + ToStringW(int(1.0f / deltaSeconds)));
+                auto fpsText = L"FPS: " + ToStringW(int(1.0f / deltaSeconds));
+                context.text->Set("fps_text", fpsText.c_str());
             }
 
             auto sprite = context.world->GetObjectByTag<ISprite>(1);
             auto value = sin(double(GetTickCount64()) / 1000.0);
             auto tint = float(abs(value));
-            sprite->GetTintComponent()->SetColor(LcColor4(1.0f - tint, tint, 0.0f, 1.0f));
+            sprite->GetTintComponent()->SetColor(LcColor4{ 1.0f - tint, tint, 0.0f, 1.0f });
         };
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
             if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
+            if (key == 'L' && keyEvent == LcKeyState::Down)
+            {
+                context.text->SetCulture((context.text->GetCulture() == "en") ? "ru" : "en");
+            }
         };
 
-        LCAppConfig cfg;
+        LcAppConfig cfg;
         LoadConfig(cfg, "../../Assets/config.txt");
 
         auto app = GetApp();

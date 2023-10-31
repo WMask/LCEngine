@@ -210,7 +210,7 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
     {
         LcTextureDataDX10 newTexData;
         newTexData.texture = *texture;
-        newTexData.texSize = LcSize(width, height);
+        newTexData.texSize = LcSize{ (int)width, (int)height };
 
         if (outTexSize) *outTexSize = newTexData.texSize;
 
