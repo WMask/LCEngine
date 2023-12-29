@@ -27,6 +27,13 @@ namespace LcDefaults
 	extern CORE_API DirectX::XMVECTOR ZeroXVec4;
 }
 
+#elif __APPLE__
+
+struct LcMatrix4
+{
+    float m[16];
+};
+
 #endif
 
 typedef struct { int x; int y; } LcPoint, LcSize;

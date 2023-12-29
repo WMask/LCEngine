@@ -9,10 +9,18 @@
 #include <memory>
 
 
+#ifdef _WINDOWS
+
 #ifndef WORLD_EXPORTS
 #define WORLD_API __declspec (dllimport)
 #else
 #define WORLD_API __declspec (dllexport)
+#endif
+
+#elif __APPLE__
+
+#define WORLD_API
+
 #endif
 
 

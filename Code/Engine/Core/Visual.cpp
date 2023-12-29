@@ -4,11 +4,12 @@
 * (c) Denis Romakhov
 */
 
-#pragma once
-
+#ifdef _WINDOWS
 #include "pch.h"
+#endif
 #include "Visual.h"
 #include "World/WorldInterface.h"
+#include "Core/LCException.h"
 #include "Core/LCUtils.h"
 
 
@@ -59,9 +60,9 @@ public:
 
 public: // IVisualTintComponent interface implementation
 	//
-	void SetColor(LcColor4 inTint) { data[0] = data[1] = data[2] = data[3] = inTint; }
+	virtual void SetColor(LcColor4 inTint) override { data[0] = data[1] = data[2] = data[3] = inTint; }
 	//
-	const void* GetData() const { return data; }
+	virtual const void* GetData() const override { return data; }
 
 
 public: // IVisualComponent interface implementation
@@ -98,7 +99,7 @@ public:
 
 public: // IVisualColorsComponent interface implementation
 	//
-	const void* GetData() const { return &leftTop; }
+	virtual const void* GetData() const override { return &leftTop; }
 
 
 public: // IVisualComponent interface implementation
@@ -224,7 +225,7 @@ void IVisualBase::Update(float deltaSeconds, const LcAppContext& context)
 
 void IVisualBase::AddComponent(TVComponentPtr comp, const LcAppContext& context)
 {
-	if (!comp) throw std::exception("IVisualBase::AddComponent(): Invalid component");
+	if (!comp) throw LcException("IVisualBase::AddComponent(): Invalid component");
 
 	comp->SetOwner(this);
 	components.push_back(comp);

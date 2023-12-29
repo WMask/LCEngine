@@ -4,11 +4,15 @@
 * (c) Denis Romakhov
 */
 
+#ifdef _WINDOWS
 #include "pch.h"
+#endif
 #include "LCUtils.h"
 #include "LCException.h"
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <cctype>
@@ -73,6 +77,7 @@ void WriteTextFile(const char* filePath, const std::string& text)
 
 std::string ToUtf8(const std::wstring& str)
 {
+#ifdef _WINDOWS
 	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(), NULL, 0, NULL, NULL);
 	if (requiredSize <= 0) throw std::exception("ToUtf8(): Convert error");
 
@@ -81,10 +86,14 @@ std::string ToUtf8(const std::wstring& str)
 	if (result != requiredSize) throw std::exception("ToUtf8(): Cannot convert");
 
 	return mbChars;
+#elif __APPLE__
+    return std::string();
+#endif
 }
 
 std::wstring FromUtf8(const std::string& str)
 {
+#ifdef _WINDOWS
 	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.length(), NULL, 0);
 	if (requiredSize <= 0) throw std::exception("FromUtf8(): Convert error");
 
@@ -93,6 +102,9 @@ std::wstring FromUtf8(const std::string& str)
 	if (result != requiredSize) throw std::exception("FromUtf8(): Cannot convert");
 
 	return wideChars;
+#elif __APPLE__
+    return std::wstring();
+#endif
 }
 
 std::string ToLower(const char* str)
@@ -184,6 +196,21 @@ void DebugMsgW(const wchar_t* fmt, ...)
 void ShowMessageModal(const char* message, const char* title)
 {
 	MessageBoxA(NULL, message, title, MB_OK | MB_SERVICE_NOTIFICATION);
+}
+
+#elif __APPLE__
+
+#include <stdio.h>
+#include <iostream>
+
+void DebugMsg(const char* fmt, ...)
+{
+    va_list argp;
+    va_start(argp, fmt);
+    char dbg_out[4096];
+    vsnprintf(dbg_out, 4096, fmt, argp);
+    va_end(argp);
+    std::cout << dbg_out << std::endl;
 }
 
 #else

@@ -44,7 +44,11 @@ public:
 
 
 public:// std::exception interface implementation
-	virtual char const* what() const override { return message.c_str(); }
+#ifdef _WINDOWS
+    virtual char const* what() const override { return message.c_str(); }
+#elif __APPLE__
+    virtual const char* what() const _NOEXCEPT override { return message.c_str(); }
+#endif
 
 
 protected:

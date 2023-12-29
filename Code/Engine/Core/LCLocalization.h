@@ -85,7 +85,7 @@ public:
 
 public:
 	//
-	virtual void Init(const struct LcAppContext* inContext) { context = inContext; }
+	virtual void Init(const struct LcAppContext* inContext) override { context = inContext; }
 	//
 	virtual void AddCulture(const char* filePath) override;
 	//

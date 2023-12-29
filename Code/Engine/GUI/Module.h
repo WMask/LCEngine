@@ -9,10 +9,18 @@
 #include <memory>
 
 
+#ifdef _WINDOWS
+
 #ifndef GUI_EXPORTS
 #define GUI_API __declspec (dllimport)
 #else
 #define GUI_API __declspec (dllexport)
+#endif
+
+#elif __APPLE__
+
+#define GUI_API 
+
 #endif
 
 

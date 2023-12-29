@@ -1,0 +1,327 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		919181102AF21B810065F14D /* LCApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 9191810F2AF21B810065F14D /* LCApplication.h */; };
+		919181122AF21B810065F14D /* LCApplication.mm in Sources */ = {isa = PBXBuildFile; fileRef = 919181112AF21B810065F14D /* LCApplication.mm */; };
+		919181192AF21BBC0065F14D /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 919181182AF21BBC0065F14D /* AppConfig.cpp */; };
+		9191811D2AF21BD60065F14D /* AppConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 9191811A2AF21BD60065F14D /* AppConfig.h */; };
+		9191811E2AF21BD60065F14D /* Module.h in Headers */ = {isa = PBXBuildFile; fileRef = 9191811B2AF21BD60065F14D /* Module.h */; };
+		9191811F2AF21BD60065F14D /* ApplicationInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9191811C2AF21BD60065F14D /* ApplicationInterface.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9191810C2AF21B810065F14D /* libLCApplication.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libLCApplication.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9191810F2AF21B810065F14D /* LCApplication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LCApplication.h; sourceTree = "<group>"; };
+		919181112AF21B810065F14D /* LCApplication.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LCApplication.mm; sourceTree = "<group>"; };
+		919181182AF21BBC0065F14D /* AppConfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AppConfig.cpp; path = ../../../Code/Engine/Application/AppConfig.cpp; sourceTree = "<group>"; };
+		9191811A2AF21BD60065F14D /* AppConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../../Code/Engine/Application/AppConfig.h; sourceTree = "<group>"; };
+		9191811B2AF21BD60065F14D /* Module.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Module.h; path = ../../../Code/Engine/Application/Module.h; sourceTree = "<group>"; };
+		9191811C2AF21BD60065F14D /* ApplicationInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ApplicationInterface.h; path = ../../../Code/Engine/Application/ApplicationInterface.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9191810A2AF21B810065F14D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		919181032AF21B810065F14D = {
+			isa = PBXGroup;
+			children = (
+				9191811A2AF21BD60065F14D /* AppConfig.h */,
+				9191811C2AF21BD60065F14D /* ApplicationInterface.h */,
+				9191811B2AF21BD60065F14D /* Module.h */,
+				919181182AF21BBC0065F14D /* AppConfig.cpp */,
+				9191810E2AF21B810065F14D /* LCApplication */,
+				9191810D2AF21B810065F14D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9191810D2AF21B810065F14D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9191810C2AF21B810065F14D /* libLCApplication.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9191810E2AF21B810065F14D /* LCApplication */ = {
+			isa = PBXGroup;
+			children = (
+				9191810F2AF21B810065F14D /* LCApplication.h */,
+				919181112AF21B810065F14D /* LCApplication.mm */,
+			);
+			path = LCApplication;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		919181082AF21B810065F14D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9191811D2AF21BD60065F14D /* AppConfig.h in Headers */,
+				9191811E2AF21BD60065F14D /* Module.h in Headers */,
+				9191811F2AF21BD60065F14D /* ApplicationInterface.h in Headers */,
+				919181102AF21B810065F14D /* LCApplication.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		9191810B2AF21B810065F14D /* LCApplication */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 919181152AF21B810065F14D /* Build configuration list for PBXNativeTarget "LCApplication" */;
+			buildPhases = (
+				919181082AF21B810065F14D /* Headers */,
+				919181092AF21B810065F14D /* Sources */,
+				9191810A2AF21B810065F14D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LCApplication;
+			productName = LCApplication;
+			productReference = 9191810C2AF21B810065F14D /* libLCApplication.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		919181042AF21B810065F14D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					9191810B2AF21B810065F14D = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 919181072AF21B810065F14D /* Build configuration list for PBXProject "LCApplication" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 919181032AF21B810065F14D;
+			productRefGroup = 9191810D2AF21B810065F14D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9191810B2AF21B810065F14D /* LCApplication */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		919181092AF21B810065F14D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				919181192AF21BBC0065F14D /* AppConfig.cpp in Sources */,
+				919181122AF21B810065F14D /* LCApplication.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		919181132AF21B810065F14D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /tmp/LCEngine;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../Code/Engine,
+					../../../Code/Engine/Json/include,
+				);
+				INSTALL_PATH = .;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		919181142AF21B810065F14D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /tmp/LCEngine;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = .;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		919181162AF21B810065F14D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /tmp/LCEngine;
+				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					../../../Code/Engine,
+					../../../Code/Engine/Json/include,
+					../../../Engine,
+				);
+				INSTALL_PATH = .;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+			};
+			name = Debug;
+		};
+		919181172AF21B810065F14D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /tmp/LCEngine;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = .;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		919181072AF21B810065F14D /* Build configuration list for PBXProject "LCApplication" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				919181132AF21B810065F14D /* Debug */,
+				919181142AF21B810065F14D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		919181152AF21B810065F14D /* Build configuration list for PBXNativeTarget "LCApplication" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				919181162AF21B810065F14D /* Debug */,
+				919181172AF21B810065F14D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 919181042AF21B810065F14D /* Project object */;
+}

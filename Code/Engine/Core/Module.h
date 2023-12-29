@@ -9,10 +9,18 @@
 #include <memory>
 
 
+#ifdef _WINDOWS
+
 #ifndef CORE_EXPORTS
 #define CORE_API __declspec (dllimport)
 #else
 #define CORE_API __declspec (dllexport)
+#endif
+
+#else
+
+#define CORE_API __attribute__((visibility("default")))
+
 #endif
 
 

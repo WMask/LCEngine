@@ -1,0 +1,386 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9187240F2AF120EE00BD886E /* LCCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187240E2AF120EE00BD886E /* LCCore.h */; };
+		918724112AF120EE00BD886E /* LCCore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 918724102AF120EE00BD886E /* LCCore.mm */; };
+		9187241D2AF1212700BD886E /* LCLocalization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 918724172AF1212700BD886E /* LCLocalization.cpp */; };
+		9187241E2AF1212700BD886E /* LCTypesEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 918724182AF1212700BD886E /* LCTypesEx.cpp */; };
+		9187241F2AF1212700BD886E /* Visual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 918724192AF1212700BD886E /* Visual.cpp */; };
+		918724202AF1212700BD886E /* InputSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9187241A2AF1212700BD886E /* InputSystem.cpp */; };
+		918724212AF1212700BD886E /* LCTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9187241B2AF1212700BD886E /* LCTypes.cpp */; };
+		918724222AF1212700BD886E /* LCUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9187241C2AF1212700BD886E /* LCUtils.cpp */; };
+		9187242F2AF1214300BD886E /* LCUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724232AF1214200BD886E /* LCUtils.h */; };
+		918724302AF1214300BD886E /* ScriptSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724242AF1214200BD886E /* ScriptSystem.h */; };
+		918724312AF1214300BD886E /* LCTypesEx.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724252AF1214200BD886E /* LCTypesEx.h */; };
+		918724322AF1214300BD886E /* Physics.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724262AF1214200BD886E /* Physics.h */; };
+		918724332AF1214300BD886E /* LCException.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724272AF1214200BD886E /* LCException.h */; };
+		918724342AF1214300BD886E /* LCDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724282AF1214200BD886E /* LCDelegate.h */; };
+		918724352AF1214300BD886E /* LCCreator.h in Headers */ = {isa = PBXBuildFile; fileRef = 918724292AF1214200BD886E /* LCCreator.h */; };
+		918724362AF1214300BD886E /* LCLocalization.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187242A2AF1214200BD886E /* LCLocalization.h */; };
+		918724372AF1214300BD886E /* Visual.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187242B2AF1214300BD886E /* Visual.h */; };
+		918724382AF1214300BD886E /* Module.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187242C2AF1214300BD886E /* Module.h */; };
+		918724392AF1214300BD886E /* InputSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187242D2AF1214300BD886E /* InputSystem.h */; };
+		9187243A2AF1214300BD886E /* LCTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187242E2AF1214300BD886E /* LCTypes.h */; };
+		9187243C2AF1214F00BD886E /* Audio.h in Headers */ = {isa = PBXBuildFile; fileRef = 9187243B2AF1214F00BD886E /* Audio.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9187240B2AF120EE00BD886E /* libLCCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libLCCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9187240E2AF120EE00BD886E /* LCCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LCCore.h; sourceTree = "<group>"; };
+		918724102AF120EE00BD886E /* LCCore.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LCCore.mm; sourceTree = "<group>"; };
+		918724172AF1212700BD886E /* LCLocalization.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LCLocalization.cpp; path = ../../../Code/Engine/Core/LCLocalization.cpp; sourceTree = "<group>"; };
+		918724182AF1212700BD886E /* LCTypesEx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LCTypesEx.cpp; path = ../../../Code/Engine/Core/LCTypesEx.cpp; sourceTree = "<group>"; };
+		918724192AF1212700BD886E /* Visual.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Visual.cpp; path = ../../../Code/Engine/Core/Visual.cpp; sourceTree = "<group>"; };
+		9187241A2AF1212700BD886E /* InputSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = InputSystem.cpp; path = ../../../Code/Engine/Core/InputSystem.cpp; sourceTree = "<group>"; };
+		9187241B2AF1212700BD886E /* LCTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LCTypes.cpp; path = ../../../Code/Engine/Core/LCTypes.cpp; sourceTree = "<group>"; };
+		9187241C2AF1212700BD886E /* LCUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LCUtils.cpp; path = ../../../Code/Engine/Core/LCUtils.cpp; sourceTree = "<group>"; };
+		918724232AF1214200BD886E /* LCUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCUtils.h; path = ../../../Code/Engine/Core/LCUtils.h; sourceTree = "<group>"; };
+		918724242AF1214200BD886E /* ScriptSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScriptSystem.h; path = ../../../Code/Engine/Core/ScriptSystem.h; sourceTree = "<group>"; };
+		918724252AF1214200BD886E /* LCTypesEx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCTypesEx.h; path = ../../../Code/Engine/Core/LCTypesEx.h; sourceTree = "<group>"; };
+		918724262AF1214200BD886E /* Physics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Physics.h; path = ../../../Code/Engine/Core/Physics.h; sourceTree = "<group>"; };
+		918724272AF1214200BD886E /* LCException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCException.h; path = ../../../Code/Engine/Core/LCException.h; sourceTree = "<group>"; };
+		918724282AF1214200BD886E /* LCDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCDelegate.h; path = ../../../Code/Engine/Core/LCDelegate.h; sourceTree = "<group>"; };
+		918724292AF1214200BD886E /* LCCreator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCCreator.h; path = ../../../Code/Engine/Core/LCCreator.h; sourceTree = "<group>"; };
+		9187242A2AF1214200BD886E /* LCLocalization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCLocalization.h; path = ../../../Code/Engine/Core/LCLocalization.h; sourceTree = "<group>"; };
+		9187242B2AF1214300BD886E /* Visual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Visual.h; path = ../../../Code/Engine/Core/Visual.h; sourceTree = "<group>"; };
+		9187242C2AF1214300BD886E /* Module.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Module.h; path = ../../../Code/Engine/Core/Module.h; sourceTree = "<group>"; };
+		9187242D2AF1214300BD886E /* InputSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = InputSystem.h; path = ../../../Code/Engine/Core/InputSystem.h; sourceTree = "<group>"; };
+		9187242E2AF1214300BD886E /* LCTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LCTypes.h; path = ../../../Code/Engine/Core/LCTypes.h; sourceTree = "<group>"; };
+		9187243B2AF1214F00BD886E /* Audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Audio.h; path = ../../../Code/Engine/Core/Audio.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		918724092AF120EE00BD886E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		918724022AF120EE00BD886E = {
+			isa = PBXGroup;
+			children = (
+				9187243B2AF1214F00BD886E /* Audio.h */,
+				9187242D2AF1214300BD886E /* InputSystem.h */,
+				918724292AF1214200BD886E /* LCCreator.h */,
+				918724282AF1214200BD886E /* LCDelegate.h */,
+				918724272AF1214200BD886E /* LCException.h */,
+				9187242A2AF1214200BD886E /* LCLocalization.h */,
+				9187242E2AF1214300BD886E /* LCTypes.h */,
+				918724252AF1214200BD886E /* LCTypesEx.h */,
+				918724232AF1214200BD886E /* LCUtils.h */,
+				9187242C2AF1214300BD886E /* Module.h */,
+				918724262AF1214200BD886E /* Physics.h */,
+				918724242AF1214200BD886E /* ScriptSystem.h */,
+				9187242B2AF1214300BD886E /* Visual.h */,
+				9187241A2AF1212700BD886E /* InputSystem.cpp */,
+				918724172AF1212700BD886E /* LCLocalization.cpp */,
+				9187241B2AF1212700BD886E /* LCTypes.cpp */,
+				918724182AF1212700BD886E /* LCTypesEx.cpp */,
+				9187241C2AF1212700BD886E /* LCUtils.cpp */,
+				918724192AF1212700BD886E /* Visual.cpp */,
+				9187240D2AF120EE00BD886E /* LCCore */,
+				9187240C2AF120EE00BD886E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9187240C2AF120EE00BD886E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9187240B2AF120EE00BD886E /* libLCCore.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9187240D2AF120EE00BD886E /* LCCore */ = {
+			isa = PBXGroup;
+			children = (
+				9187240E2AF120EE00BD886E /* LCCore.h */,
+				918724102AF120EE00BD886E /* LCCore.mm */,
+			);
+			path = LCCore;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		918724072AF120EE00BD886E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9187243C2AF1214F00BD886E /* Audio.h in Headers */,
+				9187242F2AF1214300BD886E /* LCUtils.h in Headers */,
+				918724302AF1214300BD886E /* ScriptSystem.h in Headers */,
+				918724312AF1214300BD886E /* LCTypesEx.h in Headers */,
+				918724322AF1214300BD886E /* Physics.h in Headers */,
+				918724332AF1214300BD886E /* LCException.h in Headers */,
+				918724342AF1214300BD886E /* LCDelegate.h in Headers */,
+				918724352AF1214300BD886E /* LCCreator.h in Headers */,
+				918724362AF1214300BD886E /* LCLocalization.h in Headers */,
+				918724372AF1214300BD886E /* Visual.h in Headers */,
+				918724382AF1214300BD886E /* Module.h in Headers */,
+				918724392AF1214300BD886E /* InputSystem.h in Headers */,
+				9187243A2AF1214300BD886E /* LCTypes.h in Headers */,
+				9187240F2AF120EE00BD886E /* LCCore.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		9187240A2AF120EE00BD886E /* LCCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 918724142AF120EE00BD886E /* Build configuration list for PBXNativeTarget "LCCore" */;
+			buildPhases = (
+				918724072AF120EE00BD886E /* Headers */,
+				918724082AF120EE00BD886E /* Sources */,
+				918724092AF120EE00BD886E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LCCore;
+			productName = LCCore;
+			productReference = 9187240B2AF120EE00BD886E /* libLCCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		918724032AF120EE00BD886E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					9187240A2AF120EE00BD886E = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 918724062AF120EE00BD886E /* Build configuration list for PBXProject "LCCore" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 918724022AF120EE00BD886E;
+			productRefGroup = 9187240C2AF120EE00BD886E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9187240A2AF120EE00BD886E /* LCCore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		918724082AF120EE00BD886E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9187241D2AF1212700BD886E /* LCLocalization.cpp in Sources */,
+				9187241E2AF1212700BD886E /* LCTypesEx.cpp in Sources */,
+				9187241F2AF1212700BD886E /* Visual.cpp in Sources */,
+				918724202AF1212700BD886E /* InputSystem.cpp in Sources */,
+				918724212AF1212700BD886E /* LCTypes.cpp in Sources */,
+				918724222AF1212700BD886E /* LCUtils.cpp in Sources */,
+				918724112AF120EE00BD886E /* LCCore.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		918724122AF120EE00BD886E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /tmp/LCEngine;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = .;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		918724132AF120EE00BD886E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /tmp/LCEngine;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = .;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		918724152AF120EE00BD886E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DSTROOT = /tmp/LCEngine;
+				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					../../../Code/Engine/Json/include,
+					../../../Code/Engine,
+					../../../Engine,
+				);
+				INSTALL_PATH = .;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+			};
+			name = Debug;
+		};
+		918724162AF120EE00BD886E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DSTROOT = /tmp/LCEngine;
+				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					../../../Code/Engine/Json/include,
+					../../../Code/Engine,
+					../../../Engine,
+				);
+				INSTALL_PATH = .;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		918724062AF120EE00BD886E /* Build configuration list for PBXProject "LCCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				918724122AF120EE00BD886E /* Debug */,
+				918724132AF120EE00BD886E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		918724142AF120EE00BD886E /* Build configuration list for PBXNativeTarget "LCCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				918724152AF120EE00BD886E /* Debug */,
+				918724162AF120EE00BD886E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 918724032AF120EE00BD886E /* Project object */;
+}

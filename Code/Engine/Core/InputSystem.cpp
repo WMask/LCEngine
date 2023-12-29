@@ -4,9 +4,12 @@
 * (c) Denis Romakhov
 */
 
+#ifdef _WINDOWS
 #include "pch.h"
+#endif
 #include "Module.h"
 #include "Core/InputSystem.h"
+#include "Core/LCException.h"
 #include "Application/ApplicationInterface.h"
 
 
@@ -87,7 +90,7 @@ KEYS::KEYS()
 
 unsigned char& KEYS::operator[](int index)
 {
-    if (index < 0 || index >= LcKeysCount) throw std::exception("KEYS::operator[]: Invalid index");
+    if (index < 0 || index >= LcKeysCount) throw LcException("KEYS::operator[]: Invalid index");
 
     return keys[index];
 }
