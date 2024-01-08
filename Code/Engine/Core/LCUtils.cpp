@@ -4,9 +4,7 @@
 * (c) Denis Romakhov
 */
 
-#ifdef _WINDOWS
 #include "pch.h"
-#endif
 #include "LCUtils.h"
 #include "LCException.h"
 

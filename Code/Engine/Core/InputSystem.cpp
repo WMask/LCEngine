@@ -4,9 +4,7 @@
 * (c) Denis Romakhov
 */
 
-#ifdef _WINDOWS
 #include "pch.h"
-#endif
 #include "Module.h"
 #include "Core/InputSystem.h"
 #include "Core/LCException.h"
