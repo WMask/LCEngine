@@ -77,8 +77,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
         };
 
+        LcAppConfig cfg;
+        LoadConfig(cfg, "../../Assets/Config.txt");
+
         auto app = GetApp();
-        LoadConfig(app->GetConfig(), "../../Assets/Config.txt");
+        app->SetConfig(cfg);
         app->SetRenderSystem(GetRenderSystem());
         app->SetPhysicsWorld(GetPhysicsWorld());
         app->SetInitHandler(onInitHandler);

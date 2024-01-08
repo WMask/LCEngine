@@ -87,7 +87,7 @@ public:
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(int width, int height) = 0;
+	virtual void SetWindowSize(unsigned int width, unsigned int height) = 0;
 	/**
 	* Set window mode */
 	virtual void SetWindowMode(LcWinMode mode) = 0;
@@ -110,6 +110,9 @@ public:
 	/**
 	* Set update handler */
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept = 0;
+	/**
+	* Set application config */
+	virtual void SetConfig(const LcAppConfig& cfg) noexcept = 0;
 	/**
 	* Run application main loop */
 	virtual void Run() = 0;

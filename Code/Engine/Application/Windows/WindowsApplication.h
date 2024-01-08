@@ -49,19 +49,21 @@ public: // IApplication interface implementation
 	//
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept override { guiManager = gui; }
 	//
-	virtual void SetWindowSize(int width, int height) override;
+	virtual void SetWindowSize(unsigned int width, unsigned int height) override;
 	//
 	virtual void SetWindowMode(LcWinMode mode) override;
 	//
-	virtual void SetVSync(bool inVSync) noexcept override { vSync = inVSync; }
+	virtual void SetVSync(bool inVSync) noexcept override { cfg.bVSync = inVSync; }
 	//
-	virtual void SetAllowFullscreen(bool inAllowFullscreen) noexcept override { allowFullscreen = inAllowFullscreen; }
+	virtual void SetAllowFullscreen(bool inAllowFullscreen) noexcept override { cfg.bAllowFullscreen = inAllowFullscreen; }
 	//
-	virtual void SetNoDelay(bool inNoDelay) noexcept override { noDelay = inNoDelay; }
+	virtual void SetNoDelay(bool inNoDelay) noexcept override { cfg.bNoDelay = inNoDelay; }
 	//
 	virtual void SetInitHandler(LcInitHandler handler) noexcept override { initHandler = handler; }
 	//
 	virtual void SetUpdateHandler(LcUpdateHandler handler) noexcept override { updateHandler = handler; }
+	//
+	virtual void SetConfig(const LcAppConfig& inCfg) noexcept override { cfg = inCfg; }
 	//
 	virtual void Run() override;
 	//
@@ -69,11 +71,11 @@ public: // IApplication interface implementation
 	//
 	virtual void RequestQuit() noexcept override { quit = true; }
 	//
-	virtual int GetWindowWidth() const override { return windowSize.x; }
+	virtual int GetWindowWidth() const override { return cfg.WinWidth; }
 	//
-	virtual int GetWindowHeight() const override { return windowSize.y; }
+	virtual int GetWindowHeight() const override { return cfg.WinHeight; }
 	//
-	virtual bool GetVSync() const noexcept override { return vSync; }
+	virtual bool GetVSync() const noexcept override { return cfg.bVSync; }
 	//
 	virtual LcAppConfig& GetConfig() noexcept override { return cfg; }
 	//
@@ -102,14 +104,6 @@ protected:
 	int cmdsCount;
 	//
 	bool quit;
-	//
-	bool vSync;
-	//
-	bool allowFullscreen;
-	//
-	bool noDelay;
-	//
-	LcSize windowSize;
 	//
 	LcWinMode winMode;
 	//

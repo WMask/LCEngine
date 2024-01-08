@@ -36,7 +36,15 @@ struct LcMatrix4
 
 #endif
 
-typedef struct { int x; int y; } LcPoint, LcSize;
+struct LcSize
+{
+	LcSize() : x(0), y(0) {}
+	LcSize(unsigned int inX, unsigned int inY) : x(inX), y(inY) {}
+	LcSize(int inX, int inY) : x((unsigned int)inX), y((unsigned int)inY) {}
+	unsigned int x;
+	unsigned int y;
+};
+typedef struct { int x; int y; } LcPoint;
 typedef struct { float x; float y; } LcVector2, LcSizef;
 struct LcVector3 { float x; float y; float z; };
 struct LcVector4 { float x; float y; float z; float w; };
@@ -111,7 +119,7 @@ namespace LcDefaults
 /** Convert */
 
 inline      LcSizef		ToF(const LcSize& size) { return LcSizef{ (float)size.x, (float)size.y }; }
-inline      LcSize		ToI(const LcSizef& size) { return LcSize{ (int)size.x, (int)size.y }; }
+inline      LcSize		ToI(const LcSizef& size) { return LcSize{ (unsigned int)size.x, (unsigned int)size.y }; }
 inline      LcVector2	To2(const LcVector3& v) { return LcVector2{ v.x, v.y }; }
 inline      LcVector3	To3(const LcVector2& v) { return LcVector3{ v.x, v.y, 0.0f }; }
 inline	    LcColor4	To4(const LcColor3& v) { return LcColor4{ v.r, v.g, v.b, 1.0f }; }

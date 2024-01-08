@@ -44,12 +44,8 @@ LcWindowsApplication::LcWindowsApplication()
     hWnd = nullptr;
     cmds.clear();
     cmdsCount = 0;
-    windowSize = LcSize{ 800, 600 };
     winMode = LcWinMode::Windowed;
     quit = false;
-    vSync = true;
-    allowFullscreen = false;
-    noDelay = false;
     prevTime.QuadPart = 0;
     frequency.QuadPart = 0;
 }
@@ -127,11 +123,11 @@ void LcWindowsApplication::Run()
     context.text = localization.get();
 
     // get window size
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    BOOL windowedStyle = (windowSize.y < screenHeight) ? TRUE : FALSE;
+    unsigned int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    BOOL windowedStyle = (cfg.WinHeight < screenHeight) ? TRUE : FALSE;
     int style = windowedStyle ? WS_LC_WINDOW_MENU : WS_LC_WINDOW;
 
-    RECT clientRect{ 0, 0, windowSize.x, windowSize.y };
+    RECT clientRect{ 0, 0, (LONG)cfg.WinWidth, (LONG)cfg.WinHeight };
     AdjustWindowRect(&clientRect, style, FALSE);
     int winWidth = clientRect.right - clientRect.left;
     int winHeight = clientRect.bottom - clientRect.top;
@@ -183,14 +179,14 @@ void LcWindowsApplication::Run()
     // set initial world size
     if (renderSystem) renderSystem->Subscribe(context);
 
-    world->UpdateWorldScale(windowSize);
+    world->UpdateWorldScale(LcSize{ cfg.WinWidth, cfg.WinHeight });
 
     // init subsystems
     if (renderSystem)
     {
         if (!shadersPath.empty()) renderSystem->LoadShaders(shadersPath.c_str());
 
-        renderSystem->Create(hWnd, winMode, vSync, allowFullscreen, context);
+        renderSystem->Create(hWnd, winMode, cfg.bVSync, cfg.bAllowFullscreen, context);
     }
     if (audioSystem) audioSystem->Init(context);
     if (scriptSystem) scriptSystem->Init(context);
@@ -220,7 +216,7 @@ void LcWindowsApplication::Run()
         }
         else
         {
-            if (!noDelay)
+            if (!cfg.bNoDelay)
             {
                 timeBeginPeriod(1);
                 Sleep(1);
@@ -317,12 +313,14 @@ LcAppStats LcWindowsApplication::GetAppStats() const noexcept
     };
 }
 
-void LcWindowsApplication::SetWindowSize(int width, int height)
+void LcWindowsApplication::SetWindowSize(unsigned int width, unsigned int height)
 {
+    auto oldSize = LcSize{ cfg.WinWidth, cfg.WinHeight };
     auto newSize = LcSize{ width, height };
-    if (windowSize == newSize) return;
+    if (oldSize == newSize) return;
 
-    windowSize = newSize;
+    cfg.WinWidth = width;
+    cfg.WinHeight = height;
 
     if (renderSystem && renderSystem->CanRender())
     {

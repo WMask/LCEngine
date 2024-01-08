@@ -136,26 +136,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             sprite->GetTintComponent()->SetColor(LcColor4{ 1.0f - tint, tint, 0.0f, 1.0f });
         };
 
-        auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
+        auto onActionHandler = [](const LcAction& action, const LcAppContext& context)
         {
-            if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
-            if (key == 'L' && keyEvent == LcKeyState::Down)
+            if (action.Pressed("Quit")) context.app->RequestQuit();
+            if (action.Pressed("Up"))
             {
                 context.text->SetCulture((context.text->GetCulture() == "en") ? "ru" : "en");
             }
         };
 
         LcAppConfig cfg;
-        LoadConfig(cfg, "../../Assets/config.txt");
+        LoadConfig(cfg, "../../Assets/Config.txt");
 
         auto app = GetApp();
-        app->SetVSync(true);
+        app->SetConfig(cfg);
         app->SetRenderSystem(GetRenderSystem());
         app->SetGuiManager(GetGuiManager());
         app->SetInitHandler(onInitHandler);
         app->SetUpdateHandler(onUpdateHandler);
-        app->GetInputSystem()->SetKeysHandler(onKeysHandler);
-        app->SetWindowSize(cfg.WinWidth, cfg.WinHeight);
+        app->GetInputSystem()->SetActionHandler(onActionHandler);
         app->Init(hInstance);
         app->Run();
     }
