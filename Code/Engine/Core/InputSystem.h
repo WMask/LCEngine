@@ -9,6 +9,7 @@
 #include "Module.h"
 #include "Core/LCTypes.h"
 
+#include <mutex>
 #include <functional>
 
 #ifdef _WINDOWS
@@ -206,11 +207,14 @@ public:
 	* Get input state */
 	virtual const KEYS& GetState() const = 0;
 	/**
+	* Get device type */
+	virtual LcInputDeviceType GetType() const = 0;
+	/**
 	* Get input state */
 	virtual KEYS& GetState() = 0;
 	/**
-	* Get joystick type */
-	virtual LcInputDeviceType GetType() const = 0;
+	* Get mutex */
+	virtual std::mutex& GetMutex() = 0;
 
 };
 
@@ -304,7 +308,7 @@ public:
 
 
 /**
-* Default input device */
+* Default input device with keys */
 class CORE_API LcDefaultInputDevice : public IInputDevice
 {
 public:
@@ -331,17 +335,22 @@ public:
 	//
 	virtual const KEYS& GetState() const override { return keys; }
 	//
+	virtual LcInputDeviceType GetType() const override { return LcInputDeviceType::Keyboard; }
+	//
 	virtual KEYS& GetState() override { return keys; }
 	//
-	virtual LcInputDeviceType GetType() const override { return LcInputDeviceType::Keyboard; }
+	virtual std::mutex& GetMutex() override { return mutex; }
 
 
 protected:
+	//
 	KEYS keys;
 	//
-	const struct LcAppConfig* cfg;
-	//
 	std::wstring name;
+	//
+	std::mutex mutex;
+	//
+	const struct LcAppConfig* cfg;
 	//
 	bool active;
 
@@ -365,7 +374,7 @@ public: // IInputSystem interface implementation
 	//
 	virtual void Shutdown() override {}
 	//
-	virtual void Update(float deltaSeconds, const LcAppContext& context) override {}
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
 	//
 	virtual void SetActiveDevice(const std::wstring& deviceNamePart) override;
 	//

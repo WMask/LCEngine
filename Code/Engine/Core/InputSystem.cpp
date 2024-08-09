@@ -24,6 +24,10 @@ void LcDefaultInputSystem::Init(const LcAppContext& context)
     activeDevice = devices[0].get();
 }
 
+void LcDefaultInputSystem::Update(float deltaSeconds, const LcAppContext& context)
+{
+}
+
 void LcDefaultInputSystem::SetActiveDevice(const std::wstring& deviceNamePart)
 {
     for (auto& device : devices)
