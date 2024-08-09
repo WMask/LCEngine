@@ -37,15 +37,15 @@ public: // IApplication interface implementation
 	//
 	virtual void Init(void* handle) noexcept override;
 	//
-	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept override { renderSystem = render; }
+	virtual void SetRenderSystem(TRenderSystemPtr render) noexcept override { renderSystem = std::move(render); }
 	//
-	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept override { scriptSystem = scripts; }
+	virtual void SetScriptSystem(TScriptSystemPtr scripts) noexcept override { scriptSystem = std::move(scripts); }
 	//
-	virtual void SetAudioSystem(TAudioSystemPtr audio) noexcept override { audioSystem = audio; }
+	virtual void SetAudioSystem(TAudioSystemPtr audio) noexcept override { audioSystem = std::move(audio); }
 	//
-	virtual void SetInputSystem(TInputSystemPtr input) noexcept override { if (input) inputSystem = input; }
+	virtual void SetInputSystem(TInputSystemPtr input) noexcept override { if (input) inputSystem = std::move(input); }
 	//
-	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept override { physWorld = inPhysWorld; }
+	virtual void SetPhysicsWorld(TPhysicsWorldPtr inPhysWorld) noexcept override { physWorld = std::move(inPhysWorld); }
 	//
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept override { guiManager = gui; }
 	//
@@ -85,9 +85,7 @@ public: // IApplication interface implementation
 	//
 	virtual LcAppStats GetAppStats() const noexcept;
 	//
-	virtual class IInputSystem* GetInputSystem() noexcept override { return inputSystem.get(); }
-	//
-	virtual TInputSystemPtr GetInputSystemPtr() noexcept override { return inputSystem; }
+	virtual IInputSystem* GetInputSystem() noexcept override { return inputSystem.get(); }
 
 
 protected:

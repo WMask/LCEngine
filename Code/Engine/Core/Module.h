@@ -24,8 +24,7 @@
 #endif
 
 
-typedef std::shared_ptr<class IScriptSystem> TScriptSystemPtr;
-typedef std::shared_ptr<class IAudioSystem> TAudioSystemPtr;
-typedef std::shared_ptr<class IInputSystem> TInputSystemPtr;
-typedef std::shared_ptr<class IPhysicsWorld> TPhysicsWorldPtr;
-
+typedef std::unique_ptr<class IScriptSystem> TScriptSystemPtr;
+typedef std::unique_ptr<class IAudioSystem> TAudioSystemPtr;
+typedef std::unique_ptr<class IInputSystem> TInputSystemPtr;
+typedef std::unique_ptr<class IPhysicsWorld> TPhysicsWorldPtr;

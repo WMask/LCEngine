@@ -22,6 +22,7 @@ inline LcVector2 ToLC(const b2Vec2& v, bool scale = true)
 {
     return LcVector2{ v.x * (scale ? BOX2D_SCALE : 1.0f), v.y * (scale ? BOX2D_SCALE : 1.0f) };
 }
+
 inline b2Vec2 FromLC(const LcVector2& v, bool scale = true)
 {
     return b2Vec2(v.x / (scale ? BOX2D_SCALE : 1.0f), v.y / (scale ? BOX2D_SCALE : 1.0f));
@@ -252,8 +253,7 @@ IPhysicsBody* LcBox2DWorld::GetBodyByTag(ObjectTag tag) const
     return (it != dynamicBodies.GetItems().end()) ? it->get() : nullptr;
 }
 
-
 TPhysicsWorldPtr GetPhysicsWorld()
 {
-    return std::make_shared<LcBox2DWorld>(10.0f);
+    return std::make_unique<LcBox2DWorld>(10.0f);
 }

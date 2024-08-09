@@ -488,8 +488,7 @@ void PushAny(struct lua_State* luaState, const LcAny& any)
 	}
 }
 
-
 TScriptSystemPtr GetScriptSystem()
 {
-	return std::make_shared<LcLuaScriptSystem>();
+	return std::make_unique<LcLuaScriptSystem>();
 }

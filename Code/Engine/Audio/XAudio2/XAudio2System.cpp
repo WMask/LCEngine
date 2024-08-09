@@ -129,5 +129,5 @@ ISound* LcXAudio2System::GetSoundByTag(ObjectTag tag) const
 
 TAudioSystemPtr GetAudioSystem()
 {
-	return std::make_shared<LcXAudio2System>();
+	return std::make_unique<LcXAudio2System>();
 }

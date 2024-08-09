@@ -27,8 +27,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto& spriteHelper = context.world->GetSpriteHelper();
             if (context.world->AddSprite(512, 384, LcLayers::Z1, 1024, 768))
             {
-                auto objectHandler = [physWorld](const std::string& layer, const std::string& name,
-                    const std::string& type, const LcTiledProps& props, LcVector2 pos, LcSizef size)
+                auto objectHandler = [physWorld](
+                    const std::string& layer, const std::string& name, const std::string& type,
+                    const LcTiledProps& props, LcVector2 pos, LcSizef size)
                 {
                     if (layer == LcTiles::Layers::Collision)
                     {

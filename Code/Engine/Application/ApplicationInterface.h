@@ -146,8 +146,5 @@ public:
 	/**
 	* Get Input system pointer */
 	virtual class IInputSystem* GetInputSystem() noexcept = 0;
-	/**
-	* Get Input system pointer */
-	virtual TInputSystemPtr GetInputSystemPtr() noexcept = 0;
 
 };
