@@ -17,6 +17,13 @@
 /** vector of unsigned chars */
 typedef std::vector<unsigned char> LcBytes;
 
+/** Key state: Up, Down */
+enum class LcKeyState
+{
+	Up,
+	Down
+};
+
 /** Render system type */
 enum class LcRenderSystemType
 {

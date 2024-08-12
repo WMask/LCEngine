@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Module.h"
-#include "Core/LCTypes.h"
+#include "Core/LCTypesEx.h"
 
 #include <mutex>
 #include <functional>
@@ -20,49 +20,48 @@
 #pragma warning(disable : 4251)
 
 
-constexpr int LcKeysCount = 150;
-constexpr int LcJoysticksMaxCount = 4;
-constexpr int LcJoystickKeysOffset = 130;
+static const int LcKeysCount = 150;
+static const int LcJoysticksMaxCount = 4;
+static const int LcJoystickKeysOffset = 130;
+static const int LcMouseKeysCount = 3;
 constexpr int LcJoystickKeysCount = (LcKeysCount - LcJoystickKeysOffset);
 
 
 /** Input device type */
-enum class LcInputDeviceType : int {
+enum class LcInputDeviceType : uint8_t
+{
 	Keyboard,
+	Mouse,
 	Joystick1,
 	Joystick2,
 	Joystick3,
 	Joystick4
 };
 
+static constexpr uint8_t FirstJoystickId = static_cast<uint8_t>(LcInputDeviceType::Joystick1);
 
 /** Keys struct */
 struct CORE_API KEYS
 {
 	KEYS();
 	//
-	unsigned char* Get() { return keys; }
+	uint8_t* Get() { return keys; }
 	//
-	const unsigned char* Get() const { return keys; }
+	const uint8_t* Get() const { return keys; }
+	// throws
+	uint8_t& at(int index);
 	//
-	unsigned char& operator[](int index);
+	uint8_t& operator[](int index) noexcept { return keys[index]; }
 	//
-	unsigned char keys[LcKeysCount];
-};
-
-/** Key state: Up, Down */
-enum class LcKeyState
-{
-	Up,
-	Down
+	uint8_t keys[LcKeysCount];
 };
 
 /** Mouse buttons */
 namespace LcMouseBtn
 {
-	constexpr int Left = 0;
-	constexpr int Right = 1;
-	constexpr int Middle = 2;
+	static const int Left   = 0;
+	static const int Right  = 1;
+	static const int Middle = 2;
 }
 
 /** Keyboard keys */
@@ -70,14 +69,14 @@ namespace LcKeys
 {
 #ifdef _WINDOWS
 
-	constexpr int Escape = VK_ESCAPE;
-	constexpr int Space = VK_SPACE;
-	constexpr int Return = VK_RETURN;
-	constexpr int Enter = VK_RETURN;
-	constexpr int Up = VK_UP;
-	constexpr int Right = VK_RIGHT;
-	constexpr int Down = VK_DOWN;
-	constexpr int Left = VK_LEFT;
+	static const int Escape = VK_ESCAPE;
+	static const int Space  = VK_SPACE;
+	static const int Return = VK_RETURN;
+	static const int Enter  = VK_RETURN;
+	static const int Up     = VK_UP;
+	static const int Right  = VK_RIGHT;
+	static const int Down   = VK_DOWN;
+	static const int Left   = VK_LEFT;
 
 #endif
 }
@@ -85,30 +84,52 @@ namespace LcKeys
 /** Joystick keys */
 namespace LcJKeys
 {
-	constexpr int X		= LcJoystickKeysOffset + 0;
-	constexpr int A		= LcJoystickKeysOffset + 1;
-	constexpr int B		= LcJoystickKeysOffset + 2;
-	constexpr int Y		= LcJoystickKeysOffset + 3;
-	constexpr int L1	= LcJoystickKeysOffset + 4;
-	constexpr int R1	= LcJoystickKeysOffset + 5;
-	constexpr int L2	= LcJoystickKeysOffset + 6;
-	constexpr int R2	= LcJoystickKeysOffset + 7;
-	constexpr int Back	= LcJoystickKeysOffset + 8;
-	constexpr int Menu	= LcJoystickKeysOffset + 9;
-	constexpr int Start	= LcJoystickKeysOffset + 9;
-	constexpr int Up	= LcJoystickKeysOffset + 10;
-	constexpr int Right	= LcJoystickKeysOffset + 11;
-	constexpr int Down	= LcJoystickKeysOffset + 12;
-	constexpr int Left	= LcJoystickKeysOffset + 13;
-	constexpr int StartArrows = Up;
-	constexpr int EndArrows = Left;
+	static const int X				= LcJoystickKeysOffset + 0;
+	static const int A				= LcJoystickKeysOffset + 1;
+	static const int B				= LcJoystickKeysOffset + 2;
+	static const int Y				= LcJoystickKeysOffset + 3;
+	static const int L1				= LcJoystickKeysOffset + 4;
+	static const int R1				= LcJoystickKeysOffset + 5;
+	static const int L2				= LcJoystickKeysOffset + 6;
+	static const int R2				= LcJoystickKeysOffset + 7;
+	static const int Back			= LcJoystickKeysOffset + 8;
+	static const int Menu			= LcJoystickKeysOffset + 9;
+	static const int Start			= LcJoystickKeysOffset + 9;
+	static const int Up				= LcJoystickKeysOffset + 10;
+	static const int Right			= LcJoystickKeysOffset + 11;
+	static const int Down			= LcJoystickKeysOffset + 12;
+	static const int Left			= LcJoystickKeysOffset + 13;
+	static const int StartArrows	= Up;
+	static const int EndArrows		= Left;
 }
 
 /** Joystick axis */
 namespace LcJAxis
 {
-	constexpr int LStick = 0;
-	constexpr int RStick = 1;
+	static const int LStick = 0;
+	static const int RStick = 1;
+}
+
+/** Joystick keys */
+namespace LcMouseKeys
+{
+	static const int X           = LcJoystickKeysOffset + 0;
+	static const int A           = LcJoystickKeysOffset + 1;
+	static const int B           = LcJoystickKeysOffset + 2;
+	static const int Y           = LcJoystickKeysOffset + 3;
+	static const int L1          = LcJoystickKeysOffset + 4;
+	static const int R1          = LcJoystickKeysOffset + 5;
+	static const int L2          = LcJoystickKeysOffset + 6;
+	static const int R2          = LcJoystickKeysOffset + 7;
+	static const int Back        = LcJoystickKeysOffset + 8;
+	static const int Menu        = LcJoystickKeysOffset + 9;
+	static const int Start       = LcJoystickKeysOffset + 9;
+	static const int Up          = LcJoystickKeysOffset + 10;
+	static const int Right       = LcJoystickKeysOffset + 11;
+	static const int Down        = LcJoystickKeysOffset + 12;
+	static const int Left        = LcJoystickKeysOffset + 13;
+	static const int StartArrows = Up;
+	static const int EndArrows   = Left;
 }
 
 
@@ -145,7 +166,7 @@ struct LcKeyAction : public LcAction
 	LcKeyAction(const std::string& inName, int inKey, LcKeyState inState)
 		: LcAction(inName, LcActionType::Key, inState)
 		, key(inKey) {}
-	// LcKeys + LcJKeys
+	// LcKeys or LcJKeys
 	int key;
 };
 
@@ -185,6 +206,10 @@ struct LcAxisAction : public LcAction
 class IInputDevice
 {
 public:
+	static const std::wstring MouseAndKeyboard;
+
+
+public:
 	/**
 	* Virtual destructor */
 	virtual ~IInputDevice() {}
@@ -195,23 +220,38 @@ public:
 	* Set as inactive */
 	virtual void Deactivate() = 0;
 	/**
+	* Update device */
+	virtual void Update(float deltaSeconds, const LcAppContext& context) = 0;
+	/**
 	* Get action state */
 	virtual bool Pressed(const std::string& actionName) const = 0;
 	/**
 	* Get active state */
-	virtual bool IsActive() const = 0;
+	virtual bool IsActive() const noexcept = 0;
 	/**
 	* Get joystick name */
 	virtual std::wstring GetName() const = 0;
 	/**
 	* Get input state */
-	virtual const KEYS& GetState() const = 0;
-	/**
-	* Get device type */
-	virtual LcInputDeviceType GetType() const = 0;
+	virtual KEYS& GetState() noexcept = 0;
 	/**
 	* Get input state */
-	virtual KEYS& GetState() = 0;
+	virtual const KEYS& GetState() const noexcept = 0;
+	/**
+	* Get previous input state */
+	virtual const KEYS& GetPrevState() const noexcept = 0;
+	/**
+	* Get device type */
+	virtual LcInputDeviceType GetType() const noexcept = 0;
+	/**
+	* Get pointer position */
+	virtual LcVector2 GetPointerPos() const noexcept { return LcVector2{}; }
+	/**
+	* Get previous pointer position */
+	virtual LcVector2 GetPrevPointerPos() const noexcept { return LcVector2{}; }
+	/**
+	* Get pointer position */
+	virtual void SetPointerPos(LcVector2 pos) noexcept {}
 	/**
 	* Get mutex */
 	virtual std::mutex& GetMutex() = 0;
@@ -220,7 +260,7 @@ public:
 
 
 /** Input devices list */
-typedef std::deque<std::shared_ptr<IInputDevice>> TInputDevicesList;
+typedef std::deque<std::unique_ptr<IInputDevice>> TInputDevicesList;
 
 /** Keyboard events handler */
 typedef std::function<void(int, LcKeyState, const LcAppContext&)> LcKeysHandler;
@@ -293,58 +333,130 @@ public:
 	virtual LcAxisHandler& GetAxisHandler() noexcept = 0;
 	/**
 	* Get input devices list */
-	virtual const TInputDevicesList& GetInputDevicesList() const = 0;
+	virtual const TInputDevicesList& GetInputDevicesList() const noexcept = 0;
 	/**
 	* Get input devices list */
-	virtual TInputDevicesList& GetInputDevicesList() = 0;
+	virtual TInputDevicesList& GetInputDevicesList() noexcept = 0;
 	/**
 	* Get active input device */
-	virtual const IInputDevice* GetActiveInputDevice() const = 0;
+	virtual const IInputDevice* GetActiveInputDevice() const noexcept = 0;
 	/**
 	* Get active input device */
-	virtual IInputDevice* GetActiveInputDevice() = 0;
+	virtual IInputDevice* GetActiveInputDevice() noexcept = 0;
 
 };
 
 
 /**
 * Default input device with keys */
-class CORE_API LcDefaultInputDevice : public IInputDevice
+class CORE_API LcKeyboardInputDevice : public IInputDevice
 {
 public:
 	static const std::wstring Name;
 
 
 public:
-	LcDefaultInputDevice(const struct LcAppConfig* inCfg) : cfg(inCfg), name(Name), active(true) {}
+	LcKeyboardInputDevice(const struct LcAppConfig* inCfg) : cfg(inCfg), name(Name), active(true) {}
 
 
 public:
 	//
-	virtual ~LcDefaultInputDevice() {}
+	virtual ~LcKeyboardInputDevice() {}
 	//
 	virtual void Activate() override { active = true; }
 	//
 	virtual void Deactivate() override { active = false; }
 	//
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
 	virtual bool Pressed(const std::string& actionName) const override;
 	//
-	virtual bool IsActive() const override { return active; }
+	virtual bool IsActive() const noexcept override { return active; }
 	//
 	virtual std::wstring GetName() const override { return name; }
 	//
-	virtual const KEYS& GetState() const override { return keys; }
+	virtual KEYS& GetState() noexcept override { return keys; }
 	//
-	virtual LcInputDeviceType GetType() const override { return LcInputDeviceType::Keyboard; }
+	virtual const KEYS& GetState() const noexcept override { return keys; }
 	//
-	virtual KEYS& GetState() override { return keys; }
+	virtual const KEYS& GetPrevState() const noexcept override { return prevKeys; }
+	//
+	virtual LcInputDeviceType GetType() const noexcept override { return LcInputDeviceType::Keyboard; }
+	//
+	virtual std::mutex& GetMutex() noexcept override { return mutex; }
+
+
+protected:
+	//
+	KEYS keys;
+	//
+	KEYS prevKeys;
+	//
+	std::wstring name;
+	//
+	std::mutex mutex;
+	//
+	const LcAppConfig* cfg;
+	//
+	bool active;
+
+};
+
+
+/**
+* Default input device with pointer */
+class CORE_API LcMouseInputDevice : public IInputDevice
+{
+public:
+	static const std::wstring Name;
+
+
+public:
+	LcMouseInputDevice(const LcAppConfig* inCfg) : cfg(inCfg), name(Name), mousePos{}, active(true) {}
+
+
+public:
+	//
+	virtual ~LcMouseInputDevice() {}
+	//
+	virtual void Activate() override { active = true; }
+	//
+	virtual void Deactivate() override { active = false; }
+	//
+	virtual void Update(float deltaSeconds, const LcAppContext& context) override;
+	//
+	virtual bool Pressed(const std::string& actionName) const override;
+	//
+	virtual bool IsActive() const noexcept override { return active; }
+	//
+	virtual std::wstring GetName() const override { return name; }
+	//
+	virtual KEYS& GetState() noexcept override { return buttons; }
+	//
+	virtual const KEYS& GetState() const noexcept override { return buttons; }
+	//
+	virtual const KEYS& GetPrevState() const noexcept override { return prevButtons; }
+	//
+	virtual LcInputDeviceType GetType() const noexcept override { return LcInputDeviceType::Mouse; }
+	//
+	virtual LcVector2 GetPointerPos() const noexcept override { return mousePos; }
+	//
+	virtual LcVector2 GetPrevPointerPos() const noexcept override { return mousePos; }
+	//
+	virtual void SetPointerPos(LcVector2 pos) noexcept override { mousePos = pos; }
 	//
 	virtual std::mutex& GetMutex() override { return mutex; }
 
 
 protected:
 	//
-	KEYS keys;
+	KEYS buttons;
+	//
+	KEYS prevButtons;
+	//
+	LcVector2 mousePos;
+	//
+	LcVector2 prevMousePos;
 	//
 	std::wstring name;
 	//
@@ -364,6 +476,13 @@ class CORE_API LcDefaultInputSystem : public IInputSystem
 public:
 	//
 	LcDefaultInputSystem();
+
+
+protected:
+	//
+	LcDefaultInputSystem(const LcDefaultInputSystem&) = delete;
+	//
+	LcDefaultInputSystem& operator=(const LcDefaultInputSystem&) = delete;
 
 
 public: // IInputSystem interface implementation
@@ -400,13 +519,13 @@ public: // IInputSystem interface implementation
 	//
 	virtual LcAxisHandler& GetAxisHandler() noexcept override { return axisHandler; }
 	//
-	virtual const TInputDevicesList& GetInputDevicesList() const override { return devices; }
+	virtual const TInputDevicesList& GetInputDevicesList() const noexcept override { return devices; }
 	//
-	virtual TInputDevicesList& GetInputDevicesList() override { return devices; }
+	virtual TInputDevicesList& GetInputDevicesList() noexcept override { return devices; }
 	//
-	virtual const IInputDevice* GetActiveInputDevice() const override { return activeDevice; }
+	virtual const IInputDevice* GetActiveInputDevice() const noexcept override { return activeDevice; }
 	//
-	virtual IInputDevice* GetActiveInputDevice() override { return activeDevice; }
+	virtual IInputDevice* GetActiveInputDevice() noexcept override { return activeDevice; }
 
 
 protected:

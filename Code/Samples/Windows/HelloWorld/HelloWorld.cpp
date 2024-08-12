@@ -47,7 +47,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
         auto onKeysHandler = [](int key, LcKeyState keyEvent, const LcAppContext& context)
         {
-        if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
+            if (key == 'Q' || key == LcJKeys::Menu) context.app->RequestQuit();
         };
 
         auto app = GetApp();

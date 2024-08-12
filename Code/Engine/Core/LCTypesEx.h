@@ -75,6 +75,7 @@ inline LcColor3 operator*(const LcColor3& c, float f) { return LcColor3{ c.r * f
 inline LcColor4 operator*(const LcColor4& c, float f) { return LcColor4{ c.r * f, c.g * f, c.b * f, c.a * f }; }
 
 inline bool operator==(const LcSize& a, const LcSize& b) { return a.x == b.x && a.y == b.y; }
+inline bool operator==(const LcPoint& a, const LcPoint& b) { return a.x == b.x && a.y == b.y; }
 inline bool operator==(const LcVector2& a, const LcVector2& b) { return a.x == b.x && a.y == b.y; }
 inline bool operator==(const LcVector3& a, const LcVector3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 inline bool operator==(const LcVector4& a, const LcVector4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
@@ -82,6 +83,7 @@ inline bool operator==(const LcColor3& x, const LcColor3& y) { return x.r == y.r
 inline bool operator==(const LcColor4& x, const LcColor4& y) { return x.r == y.r && x.g == y.g && x.b == y.b && x.a == y.a; }
 
 inline bool operator!=(const LcSize& a, const LcSize& b) { return a.x != b.x || a.y != b.y; }
+inline bool operator!=(const LcPoint& a, const LcPoint& b) { return a.x != b.x || a.y != b.y; }
 inline bool operator!=(const LcVector2& a, const LcVector2& b) { return a.x != b.x || a.y != b.y; }
 inline bool operator!=(const LcVector3& a, const LcVector3& b) { return a.x != b.x || a.y != b.y || a.z != b.z; }
 inline bool operator!=(const LcVector4& a, const LcVector4& b) { return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w; }

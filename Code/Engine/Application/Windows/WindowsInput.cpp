@@ -93,7 +93,7 @@ void LcDirectInputSystem::Init(const LcAppContext& context)
     auto onNextDevice = [](LPCDIDEVICEINSTANCEW deviceInstance, LPVOID contextPtr) -> BOOL
     {
         DI_ENUM_CONTEXT* context = reinterpret_cast<DI_ENUM_CONTEXT*>(contextPtr);
-        auto newJoystick = std::make_shared<LcDirectInputJoystick>((WCHAR*)deviceInstance->tszInstanceName, context->id, context->cfg);
+        auto newJoystick = std::make_unique<LcDirectInputJoystick>((WCHAR*)deviceInstance->tszInstanceName, context->id, context->cfg);
         newJoystick->Deactivate();
 
         auto& device = newJoystick->GetDevice();
@@ -137,7 +137,7 @@ void LcDirectInputSystem::Init(const LcAppContext& context)
             return DIENUM_CONTINUE;
         }
 
-        context->devices->push_back(newJoystick);
+        context->devices->push_back(std::move(newJoystick));
         context->id++;
 
         return DIENUM_CONTINUE;
@@ -162,137 +162,137 @@ void LcDirectInputSystem::Update(float deltaSeconds, const LcAppContext& context
 
     for (auto& device : devices)
     {
-        if (device->GetType() != LcInputDeviceType::Keyboard)
+        uint8_t deviceId = static_cast<uint8_t>(device->GetType());
+        if (deviceId < FirstJoystickId) continue;
+
+        auto joystick = static_cast<LcDirectInputJoystick*>(device.get());
+        if (!joystick->IsActive()) continue;
+
+        auto device = joystick->GetDevice();
+        if (FAILED(device->Poll()))
         {
-            auto joystick = static_cast<LcDirectInputJoystick*>(device.get());
-            if (!joystick->IsActive()) continue;
+            device->Acquire();
+            continue;
+        }
 
-            auto device = joystick->GetDevice();
-            if (FAILED(device->Poll()))
+        DIJOYSTATE2 newState{};
+        if (FAILED(device->GetDeviceState(sizeof(DIJOYSTATE2), &newState)))
+        {
+            continue;
+        }
+
+        KEYS prevState, curState;
+        joystick->GetButtonsState(prevState.Get());
+
+        UINT prevArrows = -1, curArrows = newState.rgdwPOV[0];
+        joystick->GetArrowsState(prevArrows);
+
+        // check buttons changes
+        constexpr int keysWithoutArrows = LcJKeys::StartArrows - LcJoystickKeysOffset;
+        for (int key = 0; key < keysWithoutArrows; key++)
+        {
+            BYTE prev = prevState[LcJoystickKeysOffset + key];
+            BYTE cur = (newState.rgbButtons[key] == 0) ? 0 : 1;
+            if (cur != prev)
             {
-                device->Acquire();
-                continue;
+                auto joyKey = LcJoystickKeysOffset + key;
+                auto keyState = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
+
+                if (keysHandler) keysHandler(joyKey, keyState, context);
+
+                if (actionHandler && cfg)
+                {
+                    auto actions = GetActions(LcActionType::Key, joyKey, *cfg);
+                    for (auto& action : actions)
+                    {
+                        actionHandler(LcKeyAction(action.Name, joyKey, keyState), context);
+                    }
+                }
             }
 
-            DIJOYSTATE2 newState{};
-            if (FAILED(device->GetDeviceState(sizeof(DIJOYSTATE2), &newState)))
+            curState[LcJoystickKeysOffset + key] = cur;
+        }
+
+        // check arrows changes
+        if (prevArrows != curArrows)
+        {
+            switch (curArrows)
             {
-                continue;
+                case LeftDirValue: curState[LcJKeys::Left] = 1; break;
+                case RightDirValue: curState[LcJKeys::Right] = 1; break;
+                case UpDirValue: curState[LcJKeys::Up] = 1; break;
+                case DownDirValue: curState[LcJKeys::Down] = 1; break;
+                case LeftUpDirValue: curState[LcJKeys::Left] = curState[LcJKeys::Up] = 1; break;
+                case UpRightDirValue: curState[LcJKeys::Right] = curState[LcJKeys::Up] = 1; break;
+                case DownLeftDirValue: curState[LcJKeys::Left] = curState[LcJKeys::Down] = 1; break;
+                case RightDownDirValue: curState[LcJKeys::Right] = curState[LcJKeys::Down] = 1; break;
             }
 
-            KEYS prevState, curState;
-            joystick->GetButtonsState(prevState.Get());
-
-            UINT prevArrows = -1, curArrows = newState.rgdwPOV[0];
-            joystick->GetArrowsState(prevArrows);
-
-            // check buttons changes
-            constexpr int keysWithoutArrows = LcJKeys::StartArrows - LcJoystickKeysOffset;
-            for (int key = 0; key < keysWithoutArrows; key++)
+            for (int i = LcJKeys::StartArrows; i <= LcJKeys::EndArrows; i++)
             {
-                BYTE prev = prevState[LcJoystickKeysOffset + key];
-                BYTE cur = (newState.rgbButtons[key] == 0) ? 0 : 1;
+                BYTE prev = prevState[i];
+                BYTE cur = curState[i];
                 if (cur != prev)
                 {
-                    auto joyKey = LcJoystickKeysOffset + key;
                     auto keyState = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-
-                    if (keysHandler) keysHandler(joyKey, keyState, context);
+                    if (keysHandler) keysHandler(i, keyState, context);
 
                     if (actionHandler && cfg)
                     {
-                        auto actions = GetActions(LcActionType::Key, joyKey, *cfg);
+                        auto actions = GetActions(LcActionType::Key, i, *cfg);
                         for (auto& action : actions)
                         {
-                            actionHandler(LcKeyAction(action.Name, joyKey, keyState), context);
-                        }
-                    }
-                }
-
-                curState[LcJoystickKeysOffset + key] = cur;
-            }
-
-            // check arrows changes
-            if (prevArrows != curArrows)
-            {
-                switch (curArrows)
-                {
-                    case LeftDirValue: curState[LcJKeys::Left] = 1; break;
-                    case RightDirValue: curState[LcJKeys::Right] = 1; break;
-                    case UpDirValue: curState[LcJKeys::Up] = 1; break;
-                    case DownDirValue: curState[LcJKeys::Down] = 1; break;
-                    case LeftUpDirValue: curState[LcJKeys::Left] = curState[LcJKeys::Up] = 1; break;
-                    case UpRightDirValue: curState[LcJKeys::Right] = curState[LcJKeys::Up] = 1; break;
-                    case DownLeftDirValue: curState[LcJKeys::Left] = curState[LcJKeys::Down] = 1; break;
-                    case RightDownDirValue: curState[LcJKeys::Right] = curState[LcJKeys::Down] = 1; break;
-                }
-
-                for (int i = LcJKeys::StartArrows; i <= LcJKeys::EndArrows; i++)
-                {
-                    BYTE prev = prevState[i];
-                    BYTE cur = curState[i];
-                    if (cur != prev)
-                    {
-                        auto keyState = (cur == 0) ? LcKeyState::Up : LcKeyState::Down;
-                        if (keysHandler) keysHandler(i, keyState, context);
-
-                        if (actionHandler && cfg)
-                        {
-                            auto actions = GetActions(LcActionType::Key, i, *cfg);
-                            for (auto& action : actions)
-                            {
-                                actionHandler(LcKeyAction(action.Name, i, keyState), context);
-                            }
+                            actionHandler(LcKeyAction(action.Name, i, keyState), context);
                         }
                     }
                 }
             }
-            else
-            {
-                for (int i = LcJKeys::StartArrows; i <= LcJKeys::EndArrows; i++)
-                {
-                    curState[i] = prevState[i];
-                }
-            }
-
-            // process axis
-            if (axisHandler)
-            {
-                float X = static_cast<float>(newState.lX) / AxisValue;
-                float Y = static_cast<float>(newState.lY) / -AxisValue;
-                if (abs(X) < 0.05f) X = 0.0f;
-                if (abs(Y) < 0.05f) Y = 0.0f;
-                axisHandler(LcJAxis::LStick, X, Y, context);
-
-                X = static_cast<float>(newState.lZ) / AxisValue;
-                Y = static_cast<float>(newState.lRz) / -AxisValue;
-                if (abs(X) < 0.05f) X = 0.0f;
-                if (abs(Y) < 0.05f) Y = 0.0f;
-                axisHandler(LcJAxis::RStick, X, Y, context);
-
-                auto actionsL = GetActions(LcActionType::Key, LcJAxis::LStick, *cfg);
-                for (auto& action : actionsL)
-                {
-                    actionHandler(LcAxisAction(action.Name, LcJAxis::LStick, X, Y), context);
-                }
-
-                auto actionsR = GetActions(LcActionType::Key, LcJAxis::RStick, *cfg);
-                for (auto& action : actionsR)
-                {
-                    actionHandler(LcAxisAction(action.Name, LcJAxis::RStick, X, Y), context);
-                }
-            }
-
-            joystick->SetButtonsState(curState.Get());
-            joystick->SetArrowsState(curArrows);
         }
+        else
+        {
+            for (int i = LcJKeys::StartArrows; i <= LcJKeys::EndArrows; i++)
+            {
+                curState[i] = prevState[i];
+            }
+        }
+
+        // process axis
+        if (axisHandler)
+        {
+            float X = static_cast<float>(newState.lX) / AxisValue;
+            float Y = static_cast<float>(newState.lY) / -AxisValue;
+            if (abs(X) < 0.05f) X = 0.0f;
+            if (abs(Y) < 0.05f) Y = 0.0f;
+            axisHandler(LcJAxis::LStick, X, Y, context);
+
+            X = static_cast<float>(newState.lZ) / AxisValue;
+            Y = static_cast<float>(newState.lRz) / -AxisValue;
+            if (abs(X) < 0.05f) X = 0.0f;
+            if (abs(Y) < 0.05f) Y = 0.0f;
+            axisHandler(LcJAxis::RStick, X, Y, context);
+
+            auto actionsL = GetActions(LcActionType::Key, LcJAxis::LStick, *cfg);
+            for (auto& action : actionsL)
+            {
+                actionHandler(LcAxisAction(action.Name, LcJAxis::LStick, X, Y), context);
+            }
+
+            auto actionsR = GetActions(LcActionType::Key, LcJAxis::RStick, *cfg);
+            for (auto& action : actionsR)
+            {
+                actionHandler(LcAxisAction(action.Name, LcJAxis::RStick, X, Y), context);
+            }
+        }
+
+        joystick->SetButtonsState(curState.Get());
+        joystick->SetArrowsState(curArrows);
     }
 
     LC_CATCH{ LC_THROW("LcDirectInputSystem::Update()") }
 }
 
 
-LcDirectInputJoystick::LcDirectInputJoystick(const std::wstring& inName, int inDeviceId, const LcAppConfig* inCfg) : LcDefaultInputDevice(inCfg)
+LcDirectInputJoystick::LcDirectInputJoystick(const std::wstring& inName, int inDeviceId, const LcAppConfig* inCfg) : LcKeyboardInputDevice(inCfg)
 {
     name = inName;
     deviceId = inDeviceId;
@@ -311,19 +311,19 @@ void LcDirectInputJoystick::GetButtonsState(BYTE* inKeys) const
 
 void LcDirectInputJoystick::Activate()
 {
-    LcDefaultInputDevice::Activate();
+    LcKeyboardInputDevice::Activate();
 
     if (device) device->Acquire();
 }
 
 void LcDirectInputJoystick::Deactivate()
 {
-    LcDefaultInputDevice::Deactivate();
+    LcKeyboardInputDevice::Deactivate();
 
     if (device) device->Unacquire();
 }
 
-LcInputDeviceType LcDirectInputJoystick::GetType() const
+LcInputDeviceType LcDirectInputJoystick::GetType() const noexcept
 {
     return static_cast<LcInputDeviceType>((int)LcInputDeviceType::Joystick1 + deviceId);
 }

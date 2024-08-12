@@ -48,7 +48,7 @@ typedef ComPtr<IDirectInputDevice8> TDevicePtr;
 
 /**
 * DirectInput joystick */
-class LcDirectInputJoystick : public LcDefaultInputDevice
+class LcDirectInputJoystick : public LcKeyboardInputDevice
 {
 public:
 	LcDirectInputJoystick(const std::wstring& inName, int inDeviceId, const LcAppConfig* inCfg);
@@ -72,7 +72,7 @@ public:
 	//
 	virtual void Deactivate() override;
 	//
-	virtual LcInputDeviceType GetType() const override;
+	virtual LcInputDeviceType GetType() const noexcept override;
 
 
 protected:
