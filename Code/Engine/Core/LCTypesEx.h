@@ -9,32 +9,18 @@
 #include "LCTypes.h"
 
 #include <algorithm>
-
-#ifdef _WINDOWS
-# include <directxmath.h>
-#endif
+#include "glm/glm.hpp"
 
 
 /** Geometry */
-
-#ifdef _WINDOWS
-
-typedef DirectX::XMMATRIX	LcMatrix4;
+using LcMatrix4 = glm::mat4x4;
 
 namespace LcDefaults
 {
-	extern CORE_API DirectX::XMVECTOR OneXVec4;
-	extern CORE_API DirectX::XMVECTOR ZeroXVec4;
+	extern CORE_API glm::vec4 OneXVec4;
+	extern CORE_API glm::vec4 ZeroXVec4;
 }
 
-#elif __APPLE__
-
-struct LcMatrix4
-{
-    float m[16];
-};
-
-#endif
 
 struct LcSize
 {
@@ -44,6 +30,7 @@ struct LcSize
 	unsigned int x;
 	unsigned int y;
 };
+
 typedef struct { int x; int y; } LcPoint;
 typedef struct { float x; float y; } LcVector2, LcSizef;
 struct LcVector3 { float x; float y; float z; };

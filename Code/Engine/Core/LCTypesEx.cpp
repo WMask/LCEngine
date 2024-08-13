@@ -5,6 +5,9 @@
 */
 
 #include "LCTypesEx.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_projection.hpp"
+#include "glm/ext/matrix_transform.hpp"
 
 
 LcVector2 LcDefaults::OneVec2 = LcVector2{ 1.0f, 1.0f };
@@ -20,48 +23,48 @@ LcColor4 LcDefaults::Black4 = LcColor4{ 0.0f, 0.0f, 0.0f, 1.0f };
 LcColor3 LcDefaults::Black3 = LcColor3{ 0.0f, 0.0f, 0.0f };
 LcSizef LcDefaults::ZeroSize = LcSizef{ 0.0f, 0.0f };
 
-#ifdef _WINDOWS
-DirectX::XMVECTOR LcDefaults::OneXVec4 = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-DirectX::XMVECTOR LcDefaults::ZeroXVec4 = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-#endif
+glm::vec4 LcDefaults::OneXVec4 = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+glm::vec4 LcDefaults::ZeroXVec4 = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 
 LcRectf ToF(const LcRect& rect)
 {
-#ifdef _WINDOWS
-	return LcRectf{ (float)rect.left, (float)rect.top, (float)rect.right, (float)rect.bottom };
-#else
-	return LcRectf{};
-#endif
+	return LcRectf {
+		static_cast<float>(rect.left),
+		static_cast<float>(rect.top),
+		static_cast<float>(rect.right),
+		static_cast<float>(rect.bottom)
+	};
 }
 
 LcRectf ToF(const LcVector2& leftTop, const LcVector2& rightBottom)
 {
-#ifdef _WINDOWS
-	return LcRectf{ (float)leftTop.x, (float)leftTop.y, (float)rightBottom.x, (float)rightBottom.y };
-#else
-	return LcRectf{};
-#endif
+	return LcRectf{ leftTop.x, leftTop.y, rightBottom.x, rightBottom.y };
 }
 
 LcRect ToI(const LcRectf& rect)
 {
-#ifdef _WINDOWS
-	return LcRect{ (int)rect.left, (int)rect.top, (int)rect.right, (int)rect.bottom };
-#else
-	return LcRect{};
-#endif
+	return LcRect {
+		static_cast<int>(rect.left),
+		static_cast<int>(rect.top),
+		static_cast<int>(rect.right),
+		static_cast<int>(rect.bottom)
+	};
 }
 
 LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane, bool flipY)
 {
-#ifdef _WINDOWS
-	auto matrix = DirectX::XMMatrixOrthographicLH(widthPixels, heightPixels, nearPlane, farPlane);
-	if (flipY) matrix = DirectX::XMMatrixMultiply(matrix, DirectX::XMMatrixScaling(1.0f, -1.0f, 1.0f));
-	return TransposeMatrix(matrix);
-#else
-	return LcMatrix4{};
-#endif
+	auto matrix = glm::orthoLH_ZO(
+		0.0f, widthPixels,
+		flipY ? heightPixels : 0.0f,
+		flipY ? 0.0f : heightPixels,
+		nearPlane, farPlane
+	);
+
+	matrix[3][0] = 0.0f;
+	matrix[3][1] = 0.0f;
+
+	return glm::transpose(matrix);
 }
 
 LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane, bool flipY)
@@ -71,55 +74,35 @@ LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane, bool flipY)
 
 LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to)
 {
-#ifdef _WINDOWS
-	auto matrix = DirectX::XMMatrixLookAtLH(
-		DirectX::XMVectorSet(from.x, from.y, from.z, 0.0f),
-		DirectX::XMVectorSet(to.x, to.y, to.z, 0.0f),
-		DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-	return TransposeMatrix(matrix);
-#else
-	return LcMatrix4{};
-#endif
+	auto matrix = glm::lookAtLH(
+		glm::vec3(from.x, from.y, from.z),
+		glm::vec3(to.x, to.y, to.z),
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	);
+	return glm::transpose(matrix);
 }
 
 LcMatrix4 TranslationMatrix(LcVector3 pos)
 {
-#ifdef _WINDOWS
-	return DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
-#else
-	return LcMatrix4{};
-#endif
+	return glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, pos.z));
 }
 
 LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ, bool flipY)
 {
-#ifdef _WINDOWS
-	auto matrix = DirectX::XMMatrixTransformation(
-		LcDefaults::ZeroXVec4, LcDefaults::ZeroXVec4,
-		DirectX::XMVectorSet(scale.x, flipY ? -scale.y : scale.y, 0.0f, 1.0f),
-		LcDefaults::ZeroXVec4,
-		DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), rotZ),
-		DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f));
-	return TransposeMatrix(matrix);
-#else
-	return LcMatrix4{};
-#endif
+	constexpr static float d2r = 180.0f / LcPI;
+
+	auto matrix = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, pos.z));
+	matrix = glm::rotate(matrix, glm::radians(rotZ * d2r), glm::vec3(0.0, 0.0, 1.0));
+	matrix = glm::scale(matrix, glm::vec3(scale.x, flipY ? -scale.y : scale.y, 1.0f));
+	return glm::transpose(matrix);
 }
 
 LcMatrix4 TransposeMatrix(const LcMatrix4& mat)
 {
-#ifdef _WINDOWS
-	return DirectX::XMMatrixTranspose(mat);
-#else
-	return LcMatrix4{};
-#endif
+	return glm::transpose(mat);
 }
 
 LcMatrix4 IdentityMatrix()
 {
-#ifdef _WINDOWS
-	return DirectX::XMMatrixIdentity();
-#else
-	return LcMatrix4{};
-#endif
+	return glm::identity<glm::mat4x4>();
 }

@@ -242,7 +242,7 @@ void LcTexturedVisual2DRenderDX10::Render(const IVisual* visual, const LcAppCont
 			d3dDevice->UpdateSubresource(flagsBuffer, 0, NULL, &flags, 0, 0);
 
 			// move in front of the sprite
-			trans.r[2].m128_f32[3] = widget->GetPos().z + 0.01f;
+			trans[2][3] = widget->GetPos().z + 0.01f;
 			d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
 
 			// render text texture
