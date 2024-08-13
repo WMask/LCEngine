@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "Module.h"
 #include "GUI/GuiManager.h"
 #include "Core/InputSystem.h"
@@ -47,6 +46,8 @@ std::deque<LcActionBinding> GetActions(LcActionType type, int id, LcAppConfig& c
         case LcActionType::Mouse:
             if (id == action.MouseBtn) actions.push_back(action);
             break;
+        case LcActionType::Axis:
+            break;
         }
     }
 
@@ -87,7 +88,10 @@ void LcDefaultInputSystem::Update(float deltaSeconds, const LcAppContext& contex
         else if (device->GetType() == LcInputDeviceType::Mouse)
         {
             LcVector2 mousePos = device->GetPointerPos();
-            LcPoint mousePosInt{ std::lround(mousePos.x), std::lround(mousePos.y) };
+            LcPoint mousePosInt {
+                static_cast<int>(std::round(mousePos.x) + 0.1f),
+                static_cast<int>(std::round(mousePos.y) + 0.1f)
+            };
 
             for (int button = 0; button < LcMouseKeysCount; button++)
             {

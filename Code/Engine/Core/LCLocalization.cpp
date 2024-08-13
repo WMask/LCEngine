@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "Core/LCLocalization.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
@@ -12,7 +11,7 @@
 #include "Json/include/nlohmann/json.hpp"
 using json = nlohmann::json;
 
-constexpr wchar_t default_value[] = L"default_value";
+static const wchar_t* default_value = L"default_value";
 
 
 void LcLocalization::Load(const char* filePath)

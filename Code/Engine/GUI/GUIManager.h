@@ -8,7 +8,6 @@
 
 #include "Module.h"
 #include "World/Module.h"
-#include "RenderSystem/RenderSystem.h"
 #include "Core/LCTypesEx.h"
 
 

@@ -13,6 +13,8 @@
 *.bin
 *.dll
 *.a
+*.plist
+*.xcuserstate
 .DS_Store
 Code/Engine/Json/*
 Code/Engine/Box2D/*
