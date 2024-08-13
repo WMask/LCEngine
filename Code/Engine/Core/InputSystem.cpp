@@ -5,7 +5,7 @@
 */
 
 #include "Module.h"
-#include "GUI/GuiManager.h"
+#include "GUI/GUIManager.h"
 #include "Core/InputSystem.h"
 #include "Core/LCException.h"
 #include "Application/ApplicationInterface.h"
