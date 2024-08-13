@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "LCTypesEx.h"
 
 

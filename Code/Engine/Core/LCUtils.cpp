@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "LCUtils.h"
 #include "LCException.h"
 
@@ -14,6 +13,13 @@
 #include <sstream>
 #include <string>
 #include <cctype>
+
+#ifdef _WINDOWS
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#endif
 
 
 std::string ReadTextFile(const char* filePath)

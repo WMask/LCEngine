@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "Visual.h"
 #include "World/WorldInterface.h"
 #include "Core/LCException.h"

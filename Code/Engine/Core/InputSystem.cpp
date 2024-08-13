@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "Module.h"
 #include "GUI/GuiManager.h"
 #include "Core/InputSystem.h"

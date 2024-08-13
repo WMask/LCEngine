@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "Core/LCLocalization.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
