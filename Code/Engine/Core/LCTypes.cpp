@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "Core/LCTypes.h"
 
 #include <algorithm>

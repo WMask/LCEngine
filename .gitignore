@@ -16,6 +16,7 @@
 *.plist
 *.xcuserstate
 .DS_Store
+Code/Engine/Core/glm/*
 Code/Engine/Json/*
 Code/Engine/Box2D/*
 Code/Engine/Lua/src/*
