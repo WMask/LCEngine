@@ -57,9 +57,9 @@ public:
 
 LcWorld::LcWorld(const LcAppContext& inContext)
 	: context(inContext)
-	, visualHelper(std::make_unique<LcVisualHelper>(inContext))
-	, spriteHelper(std::make_unique<LcSpriteHelper>(inContext))
-	, widgetHelper(std::make_unique<LcWidgetHelper>(inContext))
+	, visualHelper(std::make_shared<LcVisualHelper>(inContext))
+	, spriteHelper(std::make_shared<LcSpriteHelper>(inContext))
+	, widgetHelper(std::make_shared<LcWidgetHelper>(inContext))
 	, globalTint(LcDefaults::White3)
 	, lastVisual(nullptr)
 {

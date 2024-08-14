@@ -1,6 +1,6 @@
 /**
 * dllmain.cpp
-* 28.01.2023
+* 14.08.2024
 * (c) Denis Romakhov
 */
 
@@ -8,10 +8,10 @@
 #include <windows.h>
 
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved
+)
 {
     switch (ul_reason_for_call)
     {

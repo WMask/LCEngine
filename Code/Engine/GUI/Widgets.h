@@ -47,7 +47,12 @@ class GUI_API LcWidgetButtonComponent : public IWidgetButtonComponent
 {
 public:
     //
-    LcWidgetButtonComponent() : state(EBtnState::Idle) {}
+    LcWidgetButtonComponent()
+        : state(EBtnState::Idle)
+        , idle{}
+        , over{}
+        , pressed{}
+    {}
     //
     LcWidgetButtonComponent(const LcWidgetButtonComponent& button);
     //
@@ -83,7 +88,13 @@ class GUI_API LcWidgetCheckboxComponent : public IWidgetCheckboxComponent
 {
 public:
     //
-    LcWidgetCheckboxComponent() : state(ECheckboxState::Unchecked) {}
+    LcWidgetCheckboxComponent()
+        : state(ECheckboxState::Unchecked)
+        , checked{}
+        , checkedH{}
+        , unchecked{}
+        , uncheckedH{}
+    {}
     //
     LcWidgetCheckboxComponent(const LcWidgetCheckboxComponent& checkbox);
     //

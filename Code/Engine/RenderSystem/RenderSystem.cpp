@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
 #include "World/SpriteInterface.h"
@@ -13,6 +12,7 @@
 #include "World/Camera.h"
 #include "Core/LCUtils.h"
 #include "Core/LCException.h"
+#include <filesystem>
 
 
 void LcRenderSystemBase::LoadShaders(const char* folderPath)

@@ -18,6 +18,7 @@
 *.xcuserstate
 .DS_Store
 Code/Engine/Core/glm/*
+Code/Engine/Vulkan/*
 Code/Engine/Json/*
 Code/Engine/Box2D/*
 Code/Engine/Lua/src/*
@@ -36,6 +37,7 @@ Projects/Windows/Application/x64/*
 Projects/Windows/WindowsApplication/x64/*
 Projects/Windows/RenderSystem/x64/*
 Projects/Windows/RenderSystemDX10/x64/*
+Projects/Windows/RenderSystemVulkan/x64/*
 Projects/Windows/XAudio2/x64/*
 Projects/Windows/Audio/x64/*
 Projects/Windows/Lua/x64/*

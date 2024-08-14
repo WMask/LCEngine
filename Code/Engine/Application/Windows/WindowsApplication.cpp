@@ -143,14 +143,14 @@ void LcWindowsApplication::Run()
     wcex.lpszClassName = LcWindowClassName;
     if (0 == RegisterClassExW(&wcex))
     {
-        throw std::exception("LcWindowsApplication::Run(): Cannot register window class");
+        throw LcException("LcWindowsApplication::Run(): Cannot register window class");
     }
 
     hWnd = CreateWindowW(LcWindowClassName, L"Game Window", style, CW_USEDEFAULT, CW_USEDEFAULT,
         winWidth, winHeight, nullptr, nullptr, hInstance, nullptr);
     if (!hWnd)
     {
-        throw std::exception("LcWindowsApplication::Run(): Cannot create window");
+        throw LcException("LcWindowsApplication::Run(): Cannot create window");
     }
 
     ShowWindow(hWnd, SW_SHOW);

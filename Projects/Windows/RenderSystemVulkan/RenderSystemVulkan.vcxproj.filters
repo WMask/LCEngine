@@ -13,27 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\RenderSystem">
-      <UniqueIdentifier>{ffcddaf2-3e25-4731-bfad-d1c0b656edff}</UniqueIdentifier>
+    <Filter Include="Header Files\RenderSystemVulkan">
+      <UniqueIdentifier>{622f73c7-97c8-4e22-97eb-c9de6f475a41}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\RenderSystem">
-      <UniqueIdentifier>{60a3fa65-29f8-43c6-8c25-9d49aa97cc67}</UniqueIdentifier>
+    <Filter Include="Source Files\RenderSystemVulkan">
+      <UniqueIdentifier>{8c89fda0-24ce-4572-b9c9-10a90290b53f}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystem.h">
-      <Filter>Header Files\RenderSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\Module.h">
-      <Filter>Header Files\RenderSystem</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystem.cpp">
-      <Filter>Source Files\RenderSystem</Filter>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.cpp">
+      <Filter>Source Files\RenderSystemVulkan</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\Module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.h">
+      <Filter>Header Files\RenderSystemVulkan</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

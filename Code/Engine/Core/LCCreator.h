@@ -25,7 +25,7 @@ public:
 	virtual std::shared_ptr<T> Create(const void* userData) { return std::shared_ptr<T>(); }
 	//
 	virtual void Destroy(T& item, Container& items) {}
-	// need static int GetStaticId() from each type
+	// needs static int GetStaticId() from type in LcCreator::Add
 	int curTypeId;
 };
 
