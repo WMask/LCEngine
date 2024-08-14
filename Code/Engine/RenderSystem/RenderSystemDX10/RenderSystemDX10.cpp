@@ -28,9 +28,8 @@ public:
 	//
 	virtual ~LcVisual2DLifetimeStrategyDX10() {}
 	//
-	virtual std::shared_ptr<IVisual> Create(const void* userData) override
+	virtual std::shared_ptr<IVisual> Create() override
 	{
-		auto layerPtr = static_cast<const float*>(userData);
 		std::shared_ptr<IVisual> newVisual;
 
 		switch (curTypeId)
@@ -40,7 +39,7 @@ public:
 		}
 
 		// add layer Z for initial valid sorting in multiset
-		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, *layerPtr });
+		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, layer2D });
 
 		return newVisual;
 	}

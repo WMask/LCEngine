@@ -18,13 +18,15 @@ template<class T, class Container>
 class LcLifetimeStrategy
 {
 public:
-	LcLifetimeStrategy() : curTypeId(-1) {}
+	LcLifetimeStrategy() : curTypeId(-1), layer2D(0.0f) {}
 	//
 	virtual ~LcLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<T> Create(const void* userData) { return std::shared_ptr<T>(); }
+	virtual std::shared_ptr<T> Create() { return std::shared_ptr<T>(); }
 	//
 	virtual void Destroy(T& item, Container& items) {}
+	//
+	float layer2D;
 	// needs static int GetStaticId() from type in LcCreator::Add
 	int curTypeId;
 };
@@ -61,10 +63,11 @@ public:
 	}
 	//
 	template<class T>
-	T* Add(void* userData = nullptr)
+	T* Add(float layer2D = 0.0f)
 	{
 		strategy->curTypeId = T::GetStaticId();
-		TItemPtr newItem = strategy->Create(userData);
+		strategy->layer2D = layer2D;
+		TItemPtr newItem = strategy->Create();
 		items.insert(items.end(), newItem);
 		return static_cast<T*>(newItem.get());
 	}

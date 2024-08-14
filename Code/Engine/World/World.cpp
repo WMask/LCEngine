@@ -21,9 +21,8 @@ public:
 	//
 	virtual ~LcVisualLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<IVisual> Create(const void* userData) override
+	virtual std::shared_ptr<IVisual> Create() override
 	{
-		auto layerPtr = static_cast<const float*>(userData);
 		std::shared_ptr<IVisual> newVisual;
 
 		switch (curTypeId)
@@ -33,7 +32,7 @@ public:
 		}
 
 		// add layer Z for initial valid sorting in multiset
-		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, *layerPtr });
+		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, layer2D });
 
 		return newVisual;
 	}
@@ -68,7 +67,7 @@ LcWorld::LcWorld(const LcAppContext& inContext)
 
 ISprite* LcWorld::AddSprite(float x, float y, LcLayersRange z, float width, float height, float rotZ, bool visible)
 {
-	auto newSprite = items.Add<LcSprite>(z.get());
+	auto newSprite = items.Add<LcSprite>(z);
 	if (newSprite)
 	{
 		newSprite->SetPos(LcVector3{ x, y, z });
@@ -100,7 +99,7 @@ void LcWorld::RemoveSprite(ISprite* sprite)
 
 IWidget* LcWorld::AddWidget(float x, float y, LcLayersRange z, float width, float height, bool visible)
 {
-	auto newWidget = items.Add<LcWidget>(z.get());
+	auto newWidget = items.Add<LcWidget>(z);
 	if (newWidget)
 	{
 		newWidget->SetPos(LcVector3{ x, y, z });
