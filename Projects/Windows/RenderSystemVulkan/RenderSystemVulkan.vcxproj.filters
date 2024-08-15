@@ -27,12 +27,18 @@
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.cpp">
       <Filter>Source Files\RenderSystemVulkan</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.cpp">
+      <Filter>Source Files\RenderSystemVulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\Module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.h">
+      <Filter>Header Files\RenderSystemVulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.h">
       <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
   </ItemGroup>

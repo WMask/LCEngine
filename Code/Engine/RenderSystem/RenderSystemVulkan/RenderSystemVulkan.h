@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.h>
 
 #include "Module.h"
+#include "RenderSystem/RenderSystem.h"
 #include "World/WorldInterface.h"
 
 #pragma warning(disable : 4251)
@@ -24,8 +25,20 @@ class RENDERSYSTEMVULKAN_API IRenderDeviceVulkan
 {
 public:
 	/**
+	* Create shader module */
+	virtual VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code) = 0;
+	/**
 	* Return Vulkan device */
-	virtual void* GetD3D10Device() const = 0;
+	virtual VkDevice GetVulkanDevice() const = 0;
+	/**
+	* Return command buffer */
+	virtual VkCommandBuffer GetCommandBuffer() const = 0;
+	/**
+	* Return render pass */
+	virtual VkRenderPass GetRenderPass() const = 0;
+	/**
+	* Return command pool */
+	virtual VkCommandPool GetCommandPool() const = 0;
 	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
@@ -70,7 +83,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void SetMode(LcWinMode mode) override;
 	//
-	virtual bool CanRender() const override { return imageAvailableSemaphore != nullptr; }
+	virtual bool CanRender() const override { return device != nullptr && imageAvailableSemaphore != nullptr; }
 	//
 	virtual LcRSStats GetStats() const override;
 	//
@@ -84,7 +97,15 @@ protected:// LcRenderSystemBase interface implementation
 
 public:// IRenderDeviceVulkan interface implementation
 	//
-	virtual void* GetD3D10Device() const override { return nullptr; }
+	virtual VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code) override;
+	//
+	virtual VkDevice GetVulkanDevice() const override { return device; }
+	//
+	virtual VkCommandBuffer GetCommandBuffer() const override { return commandBuffer; }
+	//
+	virtual VkRenderPass GetRenderPass() const override { return renderPass; }
+	//
+	virtual VkCommandPool GetCommandPool() const override { return commandPool; }
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
@@ -103,15 +124,11 @@ protected:
 	//
 	void CreateRenderPass();
 	//
-	void CreateGraphicsPipeline();
-	//
 	void CreateFramebuffers();
 	//
 	void CreateCommandPool();
 	//
 	void CreateSyncObjects();
-	//
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 
 protected:
@@ -133,8 +150,6 @@ protected:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	//
 	VkRenderPass renderPass;
-	VkPipelineLayout pipelineLayout;
-	VkPipeline graphicsPipeline;
 	//
 	VkCommandPool commandPool;
 	VkCommandBuffer commandBuffer;
@@ -142,6 +157,8 @@ protected:
 	VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
 	VkFence inFlightFence;
+	//
+	uint32_t currentImageIndex;
 	//
 	TVisual2DRenderList visual2DRenders;
 	//

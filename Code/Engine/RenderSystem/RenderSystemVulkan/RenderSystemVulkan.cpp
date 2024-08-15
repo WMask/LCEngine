@@ -5,13 +5,13 @@
 */
 
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
 #include "Application/ApplicationInterface.h"
 #include "World/World.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCException.h"
 #include <optional>
-#include <shaderc/shaderc.hpp>
 
 #ifdef max
 #undef max
@@ -47,7 +47,6 @@ bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
 VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
-VkShaderModule CreateShaderModule(VkDevice device, const std::vector<uint32_t>& code);
 
 
 class LcVisual2DLifetimeStrategyVulkan : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
@@ -82,7 +81,6 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, physicalDevice(VK_NULL_HANDLE), device(VK_NULL_HANDLE)
 	, graphicsQueue(VK_NULL_HANDLE), presentQueue(VK_NULL_HANDLE)
 	, swapChain(VK_NULL_HANDLE), renderPass(VK_NULL_HANDLE)
-	, pipelineLayout(VK_NULL_HANDLE), graphicsPipeline(VK_NULL_HANDLE)
 	, commandPool(VK_NULL_HANDLE), commandBuffer(VK_NULL_HANDLE)
 	, imageAvailableSemaphore(VK_NULL_HANDLE)
 	, renderFinishedSemaphore(VK_NULL_HANDLE)
@@ -97,6 +95,52 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 LcRenderSystemVulkan::~LcRenderSystemVulkan()
 {
 	Shutdown();
+}
+
+void LcRenderSystemVulkan::Shutdown()
+{
+	auto localInstance = instance;
+	auto localDevice = device;
+	instance = nullptr;
+	device = nullptr;
+
+	if (localDevice)
+	{
+		auto localImageAvailableSemaphore = imageAvailableSemaphore;
+		imageAvailableSemaphore = nullptr;
+
+		if (renderFinishedSemaphore) vkDestroySemaphore(localDevice, renderFinishedSemaphore, nullptr);
+		if (localImageAvailableSemaphore) vkDestroySemaphore(localDevice, localImageAvailableSemaphore, nullptr);
+		if (inFlightFence) vkDestroyFence(localDevice, inFlightFence, nullptr);
+
+		if (commandPool) vkDestroyCommandPool(localDevice, commandPool, nullptr);
+
+		for (auto framebuffer : swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(localDevice, framebuffer, nullptr);
+		}
+
+		// destroy visual renders (shader pipelines)
+		visual2DRenders.clear();
+
+		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
+
+		for (auto imageView : swapChainImageViews)
+		{
+			vkDestroyImageView(localDevice, imageView, nullptr);
+		}
+
+		if (swapChain) vkDestroySwapchainKHR(localDevice, swapChain, nullptr);
+		vkDestroyDevice(localDevice, nullptr);
+	}
+
+	if (localInstance)
+	{
+		if (surface) vkDestroySurfaceKHR(localInstance, surface, nullptr);
+		vkDestroyInstance(localInstance, nullptr);
+	}
+
+	LcRenderSystemBase::Shutdown();
 }
 
 void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool inVSync, bool inAllowFullscreen, const LcAppContext& context)
@@ -115,10 +159,11 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	CreateLogicalDevice();
 	CreateSwapChain(width, height);
 	CreateRenderPass();
-	CreateGraphicsPipeline();
 	CreateFramebuffers();
 	CreateCommandPool();
 	CreateSyncObjects();
+
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderVulkan>(context));
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }
@@ -376,149 +421,6 @@ void LcRenderSystemVulkan::CreateRenderPass()
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::CreateRenderPass()") }
 }
 
-void LcRenderSystemVulkan::CreateGraphicsPipeline()
-{
-	LC_TRY
-
-	auto shaderText = GetShaderCode("ColoredSprite2d.shader");
-	if (shaderText.empty())
-	{
-		throw LcException("Cannot find shader");
-	}
-
-	shaderc::Compiler compiler;
-	shaderc::CompileOptions options;
-
-	// Compile fragment shader
-	auto fragShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
-	auto fragShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
-
-	std::string fragShaderAssemblyCode(fragShaderAssembly.cbegin(), fragShaderAssembly.cend());
-	auto fragShaderAssembled = compiler.AssembleToSpv(fragShaderAssemblyCode);
-
-	options.AddMacroDefinition("COMPILE_VERTEX_SHADER");
-
-	// Compile vertex shader
-	auto vertShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_vertex_shader, "vs.tmp", options);
-	auto vertShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_vertex_shader, "vs.tmp", options);
-
-	std::string vertShaderAssemblyCode(vertShaderAssembly.cbegin(), vertShaderAssembly.cend());
-	auto vertShaderAssembled = compiler.AssembleToSpv(vertShaderAssemblyCode);
-
-	// Create shader modules
-	std::vector<uint32_t> vertShaderCode(vertShaderAssembled.cbegin(), vertShaderAssembled.cend());
-	std::vector<uint32_t> fragShaderCode(fragShaderAssembled.cbegin(), fragShaderAssembled.cend());
-	VkShaderModule vertShaderModule = CreateShaderModule(device, vertShaderCode);
-	VkShaderModule fragShaderModule = CreateShaderModule(device, fragShaderCode);
-
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module = vertShaderModule;
-	vertShaderStageInfo.pName = "main";
-
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module = fragShaderModule;
-	fragShaderStageInfo.pName = "main";
-
-	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-	VkPipelineViewportStateCreateInfo viewportState{};
-	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	viewportState.viewportCount = 1;
-	viewportState.scissorCount = 1;
-
-	VkPipelineRasterizationStateCreateInfo rasterizer{};
-	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	rasterizer.depthClampEnable = VK_FALSE;
-	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-	rasterizer.depthBiasEnable = VK_FALSE;
-
-	VkPipelineMultisampleStateCreateInfo multisampling{};
-	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisampling.sampleShadingEnable = VK_FALSE;
-	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
-
-	VkPipelineColorBlendStateCreateInfo colorBlending{};
-	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	colorBlending.logicOpEnable = VK_FALSE;
-	colorBlending.logicOp = VK_LOGIC_OP_COPY;
-	colorBlending.attachmentCount = 1;
-	colorBlending.pAttachments = &colorBlendAttachment;
-	colorBlending.blendConstants[0] = 0.0f;
-	colorBlending.blendConstants[1] = 0.0f;
-	colorBlending.blendConstants[2] = 0.0f;
-	colorBlending.blendConstants[3] = 0.0f;
-
-	std::vector<VkDynamicState> dynamicStates = {
-		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR
-	};
-
-	VkPipelineDynamicStateCreateInfo dynamicState{};
-	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-	dynamicState.pDynamicStates = dynamicStates.data();
-
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
-
-	VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout);
-	if (result != VK_SUCCESS)
-	{
-		throw LcException("Failed to create pipeline layout");
-	}
-
-	VkGraphicsPipelineCreateInfo pipelineInfo{};
-	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineInfo.stageCount = 2;
-	pipelineInfo.pStages = shaderStages;
-	pipelineInfo.pVertexInputState = &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState = &inputAssembly;
-	pipelineInfo.pViewportState = &viewportState;
-	pipelineInfo.pRasterizationState = &rasterizer;
-	pipelineInfo.pMultisampleState = &multisampling;
-	pipelineInfo.pColorBlendState = &colorBlending;
-	pipelineInfo.pDynamicState = &dynamicState;
-	pipelineInfo.layout = pipelineLayout;
-	pipelineInfo.renderPass = renderPass;
-	pipelineInfo.subpass = 0;
-	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-	result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
-	if (result != VK_SUCCESS)
-	{
-		throw LcException("Failed to create graphics pipeline");
-	}
-
-	vkDestroyShaderModule(device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(device, vertShaderModule, nullptr);
-
-	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::CreateGraphicsPipeline()") }
-}
-
 void LcRenderSystemVulkan::CreateFramebuffers()
 {
 	swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -561,6 +463,7 @@ void LcRenderSystemVulkan::CreateCommandPool()
 		throw LcException("Failed to create command pool");
 	}
 
+	// Allocate command buffer
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = commandPool;
@@ -574,61 +477,6 @@ void LcRenderSystemVulkan::CreateCommandPool()
 	}
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::CreateCommandPool()") }
-}
-
-void LcRenderSystemVulkan::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
-{
-	LC_TRY
-
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-	VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-	if (result != VK_SUCCESS)
-	{
-		throw LcException("Failed to begin recording command buffer");
-	}
-
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChainExtent;
-
-	VkClearValue clearColor = { {{0.0f, 0.0f, 1.0f, 1.0f}} };
-	renderPassInfo.clearValueCount = 1;
-	renderPassInfo.pClearValues = &clearColor;
-
-	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-	VkViewport viewport{};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(swapChainExtent.width);
-	viewport.height = static_cast<float>(swapChainExtent.height);
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-	VkRect2D scissor{};
-	scissor.offset = { 0, 0 };
-	scissor.extent = swapChainExtent;
-	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-	vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
-	vkCmdEndRenderPass(commandBuffer);
-
-	result = vkEndCommandBuffer(commandBuffer);
-	if (result != VK_SUCCESS)
-	{
-		throw LcException("Failed to record command buffer");
-	}
-
-	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::RecordCommandBuffer()") }
 }
 
 void LcRenderSystemVulkan::CreateSyncObjects()
@@ -646,51 +494,6 @@ void LcRenderSystemVulkan::CreateSyncObjects()
 	{
 		throw LcException("Failed to create synchronization objects for a frame");
 	}
-}
-
-void LcRenderSystemVulkan::Shutdown()
-{
-	auto localInstance = instance;
-	auto localDevice = device;
-	instance = nullptr;
-	device = nullptr;
-
-	if (localDevice)
-	{
-		auto localImageAvailableSemaphore = imageAvailableSemaphore;
-		imageAvailableSemaphore = nullptr;
-
-		if (renderFinishedSemaphore) vkDestroySemaphore(localDevice, renderFinishedSemaphore, nullptr);
-		if (localImageAvailableSemaphore) vkDestroySemaphore(localDevice, localImageAvailableSemaphore, nullptr);
-		if (inFlightFence) vkDestroyFence(localDevice, inFlightFence, nullptr);
-
-		if (commandPool) vkDestroyCommandPool(localDevice, commandPool, nullptr);
-
-		for (auto framebuffer : swapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(localDevice, framebuffer, nullptr);
-		}
-
-		if (graphicsPipeline) vkDestroyPipeline(localDevice, graphicsPipeline, nullptr);
-		if (pipelineLayout) vkDestroyPipelineLayout(localDevice, pipelineLayout, nullptr);
-		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
-
-		for (auto imageView : swapChainImageViews)
-		{
-			vkDestroyImageView(localDevice, imageView, nullptr);
-		}
-
-		if (swapChain) vkDestroySwapchainKHR(localDevice, swapChain, nullptr);
-		vkDestroyDevice(localDevice, nullptr);
-	}
-
-	if (localInstance)
-	{
-		if (surface) vkDestroySurfaceKHR(localInstance, surface, nullptr);
-		vkDestroyInstance(localInstance, nullptr);
-	}
-
-	LcRenderSystemBase::Shutdown();
 }
 
 void LcRenderSystemVulkan::Clear(IWorld* world, bool removeRooted)
@@ -743,22 +546,66 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 {
 	LC_TRY
 
-	if (false)
+	if (!CanRender())
 	{
-		throw LcException("Invalid render device");
+		throw LcException("Can't render");
 	}
-
-	LcColor4 color{ 0.0f, 0.0f, 1.0f, 0.0f };
 
 	vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
 	vkResetFences(device, 1, &inFlightFence);
 
-	uint32_t imageIndex;
-	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &currentImageIndex);
 
-	vkResetCommandBuffer(commandBuffer, 0);
-	RecordCommandBuffer(commandBuffer, imageIndex);
+	// Begin command buffer
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
+	VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to begin recording command buffer");
+	}
+
+	VkClearValue clearColor = { {{0.0f, 0.0f, 1.0f, 0.0f}} };
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = swapChainFramebuffers[currentImageIndex];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = swapChainExtent;
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
+
+	// Begin render pass
+	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast<float>(swapChainExtent.width);
+	viewport.height = static_cast<float>(swapChainExtent.height);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = swapChainExtent;
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+	// Render visuals
+	LcRenderSystemBase::Render(context);
+
+	vkCmdEndRenderPass(commandBuffer);
+
+	result = vkEndCommandBuffer(commandBuffer);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to record command buffer");
+	}
+
+	// Submit command buffers
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -767,7 +614,6 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
-
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
@@ -775,14 +621,13 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence);
+	result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to submit draw command buffer");
 	}
 
-	LcRenderSystemBase::Render(context);
-
+	// Present to screen
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
@@ -793,7 +638,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 
-	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pImageIndices = &currentImageIndex;
 
 	vkQueuePresentKHR(presentQueue, &presentInfo);
 
@@ -888,6 +733,24 @@ std::string LcRenderSystemVulkan::GetShaderCode(const std::string& shaderName) c
 {
 	return shaders.at(shaderName);
 }
+
+VkShaderModule LcRenderSystemVulkan::CreateShaderModule(const std::vector<uint32_t>& code)
+{
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size() * sizeof(uint32_t);
+	createInfo.pCode = code.data();
+
+	VkShaderModule shaderModule;
+	VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to create shader module");
+	}
+
+	return shaderModule;
+}
+
 
 std::vector<const char*> GetRequiredExtensions()
 {
@@ -1034,23 +897,6 @@ VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int wi
 
 		return actualExtent;
 	}
-}
-
-VkShaderModule CreateShaderModule(VkDevice device, const std::vector<uint32_t>& code)
-{
-	VkShaderModuleCreateInfo createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size() * sizeof(uint32_t);
-	createInfo.pCode = code.data();
-
-	VkShaderModule shaderModule;
-	VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
-	if (result != VK_SUCCESS)
-	{
-		throw LcException("Failed to create shader module");
-	}
-
-	return shaderModule;
 }
 
 
