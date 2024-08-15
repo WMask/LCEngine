@@ -36,6 +36,8 @@ protected:
 	//
 	VkDevice device;
 	//
+	VkDescriptorSetLayout descriptorSetLayout;
+	//
 	VkPipelineLayout pipelineLayout;
 	//
 	VkPipeline graphicsPipeline;

@@ -43,6 +43,12 @@ public:
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
+	* Get view matrix */
+	virtual LcMatrix4 GetViewMatrix() const = 0;
+	/**
+	* Get projection matrix */
+	virtual LcMatrix4 GetProjMatrix() const = 0;
+	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
 
@@ -109,6 +115,10 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
+	virtual LcMatrix4 GetViewMatrix() const override { return mView; }
+	//
+	virtual LcMatrix4 GetProjMatrix() const override { return mProj; }
+	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
 
@@ -167,6 +177,10 @@ protected:
 	LcSize renderSystemSize;
 	//
 	LcVector3 worldScale;
+	//
+	LcMatrix4 mView;
+	//
+	LcMatrix4 mProj;
 	//
 	bool worldScaleFonts;
 	//

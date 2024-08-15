@@ -52,7 +52,7 @@ LcRect ToI(const LcRectf& rect)
 	};
 }
 
-LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane, bool flipY)
+LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane, bool flipY, bool transpose)
 {
 	auto matrix = glm::orthoLH_ZO(
 		0.0f, widthPixels,
@@ -64,22 +64,22 @@ LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, fl
 	matrix[3][0] = 0.0f;
 	matrix[3][1] = 0.0f;
 
-	return glm::transpose(matrix);
+	return transpose ? glm::transpose(matrix) : matrix;
 }
 
-LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane, bool flipY)
+LcMatrix4 OrthoMatrix(LcSize vp, float nearPlane, float farPlane, bool flipY, bool transpose)
 {
-	return OrthoMatrix((float)vp.x, (float)vp.y, nearPlane, farPlane, flipY);
+	return OrthoMatrix((float)vp.x, (float)vp.y, nearPlane, farPlane, flipY, transpose);
 }
 
-LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to)
+LcMatrix4 LookAtMatrix(LcVector3 from, LcVector3 to, bool transpose)
 {
 	auto matrix = glm::lookAtLH(
 		glm::vec3(from.x, from.y, from.z),
 		glm::vec3(to.x, to.y, to.z),
 		glm::vec3(0.0f, 1.0f, 0.0f)
 	);
-	return glm::transpose(matrix);
+	return transpose ? glm::transpose(matrix) : matrix;
 }
 
 LcMatrix4 TranslationMatrix(LcVector3 pos)
@@ -87,14 +87,15 @@ LcMatrix4 TranslationMatrix(LcVector3 pos)
 	return glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, pos.z));
 }
 
-LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ, bool flipY)
+LcMatrix4 TransformMatrix(LcVector3 pos, LcVector2 scale, float rotZ, bool flipY, bool transpose)
 {
 	constexpr static float d2r = 180.0f / LcPI;
 
 	auto matrix = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, pos.z));
 	matrix = glm::rotate(matrix, glm::radians(rotZ * d2r), glm::vec3(0.0, 0.0, 1.0));
 	matrix = glm::scale(matrix, glm::vec3(scale.x, flipY ? -scale.y : scale.y, 1.0f));
-	return glm::transpose(matrix);
+
+	return transpose ? glm::transpose(matrix) : matrix;
 }
 
 LcMatrix4 TransposeMatrix(const LcMatrix4& mat)

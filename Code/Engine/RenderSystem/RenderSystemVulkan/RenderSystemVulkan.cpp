@@ -154,6 +154,11 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	int width = clientRect.right - clientRect.left;
 	int height = clientRect.bottom - clientRect.top;
 
+	LcVector3 cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
+	LcVector3 cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
+	mView = LookAtMatrix(cameraPos, cameraTarget, false);
+	mProj = OrthoMatrix(LcSize{ width, height }, 1.0f, -1.0f, true, false);
+
 	CreateInstance(hWnd);
 	PickPhysicalDevice();
 	CreateLogicalDevice();
@@ -463,7 +468,6 @@ void LcRenderSystemVulkan::CreateCommandPool()
 		throw LcException("Failed to create command pool");
 	}
 
-	// Allocate command buffer
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = commandPool;
@@ -630,14 +634,12 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	// Present to screen
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
 	VkSwapchainKHR swapChains[] = { swapChain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-
 	presentInfo.pImageIndices = &currentImageIndex;
 
 	vkQueuePresentKHR(presentQueue, &presentInfo);
