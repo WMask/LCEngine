@@ -54,15 +54,16 @@ LcRect ToI(const LcRectf& rect)
 
 LcMatrix4 OrthoMatrix(float widthPixels, float heightPixels, float nearPlane, float farPlane, bool flipY, bool transpose)
 {
-	auto matrix = glm::orthoLH_ZO(
+	auto matrix = glm::orthoLH(
 		0.0f, widthPixels,
-		flipY ? heightPixels : 0.0f,
-		flipY ? 0.0f : heightPixels,
+		0.0f, heightPixels,
 		nearPlane, farPlane
 	);
 
 	matrix[3][0] = 0.0f;
 	matrix[3][1] = 0.0f;
+
+	if (flipY) matrix = glm::scale(matrix, glm::vec3(1.0f, -1.0f, 1.0f));
 
 	return transpose ? glm::transpose(matrix) : matrix;
 }

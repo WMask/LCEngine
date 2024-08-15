@@ -45,7 +45,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	shaderc::Compiler compiler;
 	shaderc::CompileOptions options;
 
-	// Compile fragment shader
+	// Compile shaders
 	auto fragShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
 	auto fragShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
 
@@ -54,7 +54,6 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 
 	options.AddMacroDefinition("COMPILE_VERTEX_SHADER");
 
-	// Compile vertex shader
 	auto vertShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_vertex_shader, "vs.tmp", options);
 	auto vertShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_vertex_shader, "vs.tmp", options);
 
@@ -81,6 +80,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+	// Create states
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount = 0;
@@ -88,7 +88,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	VkPipelineViewportStateCreateInfo viewportState{};
@@ -103,7 +103,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
 	VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -136,6 +136,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
+	// Create uniform layout
 	VkDescriptorSetLayoutBinding uboLayoutBinding{};
 	uboLayoutBinding.binding = 0;
 	uboLayoutBinding.descriptorCount = 1;
@@ -172,6 +173,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 		throw LcException("Failed to create pipeline layout");
 	}
 
+	// Create pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineInfo.stageCount = 2;
