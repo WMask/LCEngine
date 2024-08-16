@@ -10,14 +10,14 @@
 #include <shaderc/shaderc.hpp>
 
 
-static const char* coloredSpriteShaderName = "ColoredSprite2d.shader";
+static const char* coloredSpriteShaderName = "ColoredSprite2d.glsl";
 
 struct VULKANCOLOREDSPRITEDATA
 {
 	LcMatrix4 mModel;
 	LcMatrix4 mView;
 	LcMatrix4 mProj;
-	LcVector4 colors[4];
+	LcColor4 colors[4];
 };
 
 
@@ -249,7 +249,7 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 	}
 	else
 	{
-		static LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
+		static const LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
 		memcpy(uniform.colors, defaultColors, sizeof(uniform.colors));
 	}
 

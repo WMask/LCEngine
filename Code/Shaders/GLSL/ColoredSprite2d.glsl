@@ -1,6 +1,7 @@
 #version 450
 
 #ifdef COMPILE_VERTEX_SHADER
+/* VERTEX SHADER */
 
 layout(push_constant) uniform PER_OBJECT
 {
@@ -26,7 +27,8 @@ void main()
     fragColor = obj.colors[gl_VertexIndex].rgb;
 }
 
-#else /* FRAGMENT SHADER */
+#else
+/* FRAGMENT SHADER */
 
 layout(location = 0) in vec3 fragColor;
 
