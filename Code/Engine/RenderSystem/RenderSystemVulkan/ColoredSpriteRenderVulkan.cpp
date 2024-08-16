@@ -215,6 +215,14 @@ LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 
 void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContext& context)
 {
+	auto render = static_cast<LcRenderSystemVulkan*>(context.render);
+	auto commandBuffer = render ? render->GetCommandBuffer() : nullptr;
+	if (!commandBuffer)
+	{
+		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid command buffer");
+	}
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 }
 
 void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppContext& context)
@@ -255,7 +263,6 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 	uniform.mProj = render->GetProjMatrix();
 
 	// draw sprite
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VULKANCOLOREDSPRITEDATA), &uniform);
 	vkCmdDraw(commandBuffer, 4, 2, 0, 0);
 
