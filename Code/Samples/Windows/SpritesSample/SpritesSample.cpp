@@ -23,7 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         {
             auto& spriteHelper = context.world->GetSpriteHelper();
 
-            if (context.world->AddSprite(200, 550, 250, 250))
+            if (context.world->AddSprite(200, 500, 200, 200))
             {
                 spriteHelper.AddColorsComponent(LcColor3{ 1, 0, 0 }, LcColor3{ 1, 0, 1 }, LcColor3{ 0, 0, 0 }, LcColor3{ 0, 1, 0 });
                 spriteHelper.SetTag(1);

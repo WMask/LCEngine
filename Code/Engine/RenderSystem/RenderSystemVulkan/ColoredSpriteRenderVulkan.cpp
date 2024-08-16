@@ -250,7 +250,7 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 	LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
-	uniform.mModel = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ(), true, false);
+	uniform.mModel = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ(), false, false);
 	uniform.mView = render->GetViewMatrix();
 	uniform.mProj = render->GetProjMatrix();
 

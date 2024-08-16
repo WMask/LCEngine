@@ -9,6 +9,9 @@
 #include "LCTypes.h"
 
 #include <algorithm>
+
+// Left-handed for Vulkan, Metal, DirectX
+#define GLM_FORCE_LEFT_HANDED
 #include "glm/glm.hpp"
 
 

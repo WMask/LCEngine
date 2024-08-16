@@ -157,7 +157,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	LcVector3 cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
 	LcVector3 cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
 	mView = LookAtMatrix(cameraPos, cameraTarget, false);
-	mProj = OrthoMatrix(LcSize{ width, height }, 1.0f, -1.0f, true, false);
+	mProj = OrthoMatrix(LcSize{ width, height }, -1.0f, 1.0f, false, false);
 
 	CreateInstance(hWnd);
 	PickPhysicalDevice();
@@ -589,7 +589,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	viewport.y = 0.0f;
 	viewport.width = static_cast<float>(swapChainExtent.width);
 	viewport.height = static_cast<float>(swapChainExtent.height);
-	viewport.minDepth = 0.0f;
+	viewport.minDepth = -1.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 

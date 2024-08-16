@@ -244,7 +244,7 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 	{
 		LC_TRY
 
-			worldScale = LcVector3{ newScale.x, newScale.y, 1.0f };
+		worldScale = LcVector3{ newScale.x, newScale.y, 1.0f };
 
 		if (contextPtr->world->GetWorldScale().GetScaleFonts())
 		{
