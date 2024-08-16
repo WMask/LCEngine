@@ -176,6 +176,7 @@ float RandHelper()
 
 #include <windows.h>
 #include <stdio.h>
+#include <iostream>
 
 void DebugMsg(const char* fmt, ...)
 {
@@ -185,6 +186,7 @@ void DebugMsg(const char* fmt, ...)
 	vsprintf_s(dbg_out, fmt, argp);
 	va_end(argp);
 	OutputDebugStringA(dbg_out);
+	std::cout << dbg_out;
 }
 
 void DebugMsgW(const wchar_t* fmt, ...)
@@ -195,6 +197,7 @@ void DebugMsgW(const wchar_t* fmt, ...)
 	vswprintf_s(dbg_out, fmt, argp);
 	va_end(argp);
 	OutputDebugStringW(dbg_out);
+	std::cout << dbg_out;
 }
 
 void ShowMessageModal(const char* message, const char* title)
