@@ -24,6 +24,22 @@
 #include "Core/libpng/Include/png.h"
 static const int MAX_PNG_SIZE = 4096;
 
+struct FileRAII
+{
+	FileRAII(const char* filePath) : file(nullptr)
+	{
+#ifdef _WINDOWS
+		fopen_s(&file, filePath, "rb");
+#else
+		file = fopen(filePath, "rb");
+#endif
+	}
+	~FileRAII() { if (file) fclose(file); }
+	operator bool() const { return file != nullptr; }
+	operator FILE* () const { return file; }
+	FILE* file;
+};
+
 
 std::string ReadTextFile(const char* filePath)
 {
@@ -84,22 +100,6 @@ void WriteTextFile(const char* filePath, const std::string& text)
 
 void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBPP, int* outRowBytes, void* outData)
 {
-	struct FileRAII
-	{
-		FileRAII(const char* filePath) : file(nullptr)
-		{
-#ifdef _WINDOWS
-			fopen_s(&file, filePath, "rb");
-#else
-			file = fopen(filePath, "rb");
-#endif
-		}
-		~FileRAII() { if (file) fclose(file); }
-		operator bool () const { return file != nullptr; }
-		operator FILE* () const { return file; }
-		FILE* file;
-	};
-
 	struct PngRAII
 	{
 		PngRAII(png_structp& in_png_ptr, png_infop& in_info_ptr, png_infop& in_end_info)
@@ -156,9 +156,10 @@ void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBP
 	png_set_sig_bytes(png_ptr, sig_bytes);
 	png_read_info(png_ptr, info_ptr);
 
-	auto width = static_cast<int>(png_get_image_width(png_ptr, info_ptr));
-	auto height = static_cast<int>(png_get_image_height(png_ptr, info_ptr));
-	if (width <= 0 || height <= 0 || width > MAX_PNG_SIZE || height > MAX_PNG_SIZE)
+	int width = static_cast<int>(png_get_image_width(png_ptr, info_ptr));
+	int height = static_cast<int>(png_get_image_height(png_ptr, info_ptr));
+	if (!InRange(width, 0, MAX_PNG_SIZE) ||
+		!InRange(height, 0, MAX_PNG_SIZE))
 	{
 		throw LcException("Invalid image size");
 	}
@@ -212,10 +213,7 @@ void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBP
 				// Convert to 4 bytes
 				for (int j = 0; j < width; j++)
 				{
-					const png_byte* pixel = &row_pixels[j * 3];
-					rows[j * 4 + 0] = pixel[0];
-					rows[j * 4 + 1] = pixel[1];
-					rows[j * 4 + 2] = pixel[2];
+					memcpy(&rows[j * 4], &row_pixels[j * 3], 3);
 					rows[j * 4 + 3] = 255;
 				}
 			}

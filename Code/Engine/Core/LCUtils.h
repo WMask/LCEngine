@@ -10,6 +10,23 @@
 
 
 /**
+* Check bounds */
+template <typename T>
+inline bool InRange(T value, T minValue, T maxValue)
+{
+	return (value >= minValue && value < maxValue);
+}
+
+/**
+* Check bounds (compile time) */
+template <typename T>
+constexpr bool InRangeC(T value, T minValue, T maxValue)
+{
+	return (value >= minValue && value < maxValue);
+}
+
+
+/**
 * Read text file */
 CORE_API std::string ReadTextFile(const char* filePath);
 /**
