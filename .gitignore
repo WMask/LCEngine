@@ -18,6 +18,8 @@
 *.xcuserstate
 .DS_Store
 Code/Engine/Core/glm/*
+Code/Engine/Core/libpng/*
+Code/Engine/Core/zlib/*
 Code/Engine/Vulkan/*
 Code/Engine/Json/*
 Code/Engine/Box2D/*

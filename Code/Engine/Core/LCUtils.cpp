@@ -21,6 +21,9 @@
 
 #endif
 
+#include "Core/libpng/Include/png.h"
+static const int MAX_PNG_SIZE = 4096;
+
 
 std::string ReadTextFile(const char* filePath)
 {
@@ -77,6 +80,124 @@ void WriteTextFile(const char* filePath, const std::string& text)
 	stream.write(text.c_str(), text.length());
 
 	LC_CATCH{ LC_THROW_EX("WriteTextFile('", filePath, "')"); }
+}
+
+void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBPP, int* outRowBytes, void* outData)
+{
+	struct FileRAII
+	{
+		FileRAII(const char* filePath) : file(nullptr)
+		{
+#ifdef _WINDOWS
+			fopen_s(&file, filePath, "rb");
+#else
+			file = fopen(filePath, "rb");
+#endif
+		}
+		~FileRAII() { if (file) fclose(file); }
+		operator bool () const { return file != nullptr; }
+		operator FILE* () const { return file; }
+		FILE* file;
+	};
+
+	struct PngRAII
+	{
+		PngRAII(png_structp& in_png_ptr, png_infop& in_info_ptr, png_infop& in_end_info)
+			: png_ptr(in_png_ptr)
+			, info_ptr(in_info_ptr)
+			, end_info(in_end_info)
+		{}
+		~PngRAII() { png_destroy_read_struct(&png_ptr, &info_ptr, &end_info); }
+		png_structp& png_ptr;
+		png_infop& info_ptr;
+		png_infop& end_info;
+	};
+
+	LC_TRY
+
+	FileRAII fp(filePath);
+	if (!fp)
+	{
+		throw LcException("Failed to read file");
+	}
+
+	const int sig_bytes = 8;
+	png_byte png_header[sig_bytes];
+	fread(png_header, 1, sig_bytes, fp);
+	bool is_png = !png_sig_cmp(png_header, 0, sig_bytes);
+	if (!is_png)
+	{
+		throw LcException("Invalid png header");
+	}
+
+	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+	if (!png_ptr)
+	{
+		throw LcException("Failed to create read struct");
+	}
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (!info_ptr)
+	{
+		png_destroy_read_struct(&png_ptr, 0, 0);
+		throw LcException("Failed to create info struct");
+	}
+
+	png_infop end_info = png_create_info_struct(png_ptr);
+	if (!end_info)
+	{
+		png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+		throw LcException("Failed to create end struct");
+	}
+
+	PngRAII png(png_ptr, info_ptr, end_info);
+
+	png_init_io(png_ptr, fp);
+	png_set_sig_bytes(png_ptr, sig_bytes);
+	png_read_info(png_ptr, info_ptr);
+
+	auto width = png_get_image_width(png_ptr, info_ptr);
+	auto height = png_get_image_height(png_ptr, info_ptr);
+	if (width <= 0 || height <= 0 || width > MAX_PNG_SIZE || height > MAX_PNG_SIZE)
+	{
+		throw LcException("Invalid image size");
+	}
+
+	auto row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+	if (row_bytes == 0)
+	{
+		throw LcException("Invalid row bytes");
+	}
+
+	auto color_type = png_get_color_type(png_ptr, info_ptr);
+	if (color_type != PNG_COLOR_TYPE_RGB &&
+		color_type != PNG_COLOR_TYPE_RGBA)
+	{
+		throw LcException("Invalid color type");
+	}
+
+	auto bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+	if (bit_depth != 8)
+	{
+		throw LcException("Invalid bit depth");
+	}
+
+	int iheight = static_cast<int>(height);
+	if (outHeight) *outHeight = iheight;
+	if (outWidth) *outWidth = static_cast<int>(width);
+	if (outRowBytes) *outRowBytes = static_cast<int>(row_bytes);
+	if (outBPP) *outBPP = (color_type == PNG_COLOR_TYPE_RGB) ? 3 : 4;
+	if (outData)
+	{
+		png_byte* rows = static_cast<png_byte*>(outData); 
+		for (int i = 0; i < iheight; i++)
+		{
+			png_read_row(png_ptr, rows, NULL);
+			rows += row_bytes;
+		}
+	}
+
+	LC_CATCH{ LC_THROW_EX("ReadPngFile('", filePath, "')"); }
 }
 
 std::string ToUtf8(const std::wstring& str)
