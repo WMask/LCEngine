@@ -22,7 +22,7 @@ CORE_API void WriteTextFile(const char* filePath, const std::string& text);
 
 /**
 * Read png file
-* BPP - bytes per pixel
+* BPP - bytes per pixel (always 4)
 * RowBytes - bytes per row
 */
 CORE_API void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBPP, int *outRowBytes, void* outData = nullptr);

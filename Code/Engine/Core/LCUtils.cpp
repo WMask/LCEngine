@@ -156,8 +156,8 @@ void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBP
 	png_set_sig_bytes(png_ptr, sig_bytes);
 	png_read_info(png_ptr, info_ptr);
 
-	auto width = png_get_image_width(png_ptr, info_ptr);
-	auto height = png_get_image_height(png_ptr, info_ptr);
+	auto width = static_cast<int>(png_get_image_width(png_ptr, info_ptr));
+	auto height = static_cast<int>(png_get_image_height(png_ptr, info_ptr));
 	if (width <= 0 || height <= 0 || width > MAX_PNG_SIZE || height > MAX_PNG_SIZE)
 	{
 		throw LcException("Invalid image size");
@@ -182,18 +182,45 @@ void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBP
 		throw LcException("Invalid bit depth");
 	}
 
-	int iheight = static_cast<int>(height);
-	if (outHeight) *outHeight = iheight;
-	if (outWidth) *outWidth = static_cast<int>(width);
-	if (outRowBytes) *outRowBytes = static_cast<int>(row_bytes);
-	if (outBPP) *outBPP = (color_type == PNG_COLOR_TYPE_RGB) ? 3 : 4;
+	if (outHeight) *outHeight = height;
+	if (outWidth) *outWidth = width;
+	if (outRowBytes) *outRowBytes = static_cast<int>(width * 4);
+	if (outBPP) *outBPP = 4; // Always 4 bytes per pixel
 	if (outData)
 	{
-		png_byte* rows = static_cast<png_byte*>(outData); 
-		for (int i = 0; i < iheight; i++)
+		std::unique_ptr<png_byte[]> tmp_row;
+		if (color_type == PNG_COLOR_TYPE_RGB)
 		{
-			png_read_row(png_ptr, rows, NULL);
-			rows += row_bytes;
+			// Need temp row for BPP == 3
+			tmp_row.reset(new png_byte[row_bytes]);
+		}
+
+		png_byte* rows = reinterpret_cast<png_byte*>(outData);
+		for (int i = 0; i < height; i++)
+		{
+			if (color_type == PNG_COLOR_TYPE_RGBA)
+			{
+				// Read 4 bytes per pixel
+				png_read_row(png_ptr, rows, 0);
+			}
+			else
+			{
+				// Read 3 bytes per pixel
+				png_byte* row_pixels = tmp_row.get();
+				png_read_row(png_ptr, row_pixels, 0);
+
+				// Convert to 4 bytes
+				for (int j = 0; j < width; j++)
+				{
+					const png_byte* pixel = &row_pixels[j * 3];
+					rows[j * 4 + 0] = pixel[0];
+					rows[j * 4 + 1] = pixel[1];
+					rows[j * 4 + 2] = pixel[2];
+					rows[j * 4 + 3] = 255;
+				}
+			}
+
+			rows += width * 4;
 		}
 	}
 

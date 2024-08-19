@@ -8,7 +8,6 @@
 
 #include <d3d10_1.h>
 #include <d2d1.h>
-#include <wincodec.h>
 #include <wrl.h>
 #include <string>
 #include <map>
@@ -60,7 +59,5 @@ protected:
 	};
 	//
 	std::map<std::string, LcTextureDataDX10> texturesCache;
-	//
-	ComPtr<IWICImagingFactory2> factory;
 
 };
