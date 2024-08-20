@@ -216,7 +216,7 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 		throw std::exception("LcColoredSpriteRenderVulkan::Render(): Invalid render params");
 	}
 
-	VULKANCOLOREDSPRITEDATA uniform;
+	VULKANCOLOREDSPRITEDATA pushConst{};
 
 	// update components
 	auto colors = sprite->GetColorsComponent();
@@ -224,12 +224,12 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 	if (colors || tint)
 	{
 		auto colorsData = colors ? colors->GetData() : tint->GetData();
-		memcpy(uniform.colors, colorsData, sizeof(uniform.colors));
+		memcpy(pushConst.colors, colorsData, sizeof(pushConst.colors));
 	}
 	else
 	{
 		static const LcColor4 defaultColors[] = { LcDefaults::White4, LcDefaults::White4, LcDefaults::White4, LcDefaults::White4 };
-		memcpy(uniform.colors, defaultColors, sizeof(uniform.colors));
+		memcpy(pushConst.colors, defaultColors, sizeof(pushConst.colors));
 	}
 
 	// update transform
@@ -237,10 +237,10 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 	LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
-	uniform.mModel = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ(), false, false);
+	pushConst.mModel = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ(), false, false);
 
 	// draw sprite
-	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VULKANCOLOREDSPRITEDATA), &uniform);
+	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VULKANCOLOREDSPRITEDATA), &pushConst);
 	vkCmdDraw(commandBuffer, 4, 2, 0, 0);
 
 	LC_CATCH{ LC_THROW("LcColoredSpriteRenderVulkan::Render()") }
