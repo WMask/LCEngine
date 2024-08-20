@@ -22,6 +22,7 @@ struct LcUniformBufferObject
 {
 	alignas(16) LcMatrix4 mView;
 	alignas(16) LcMatrix4 mProj;
+	LcColor3 globalTint;
 };
 
 
@@ -44,6 +45,8 @@ public:
 	void SetOrtho(float widthPixels, float heightPixels, float nearPlane = -1.0f, float farPlane = 1.0f);
 	//
 	void SetOrtho(int widthPixels, int heightPixels) { SetOrtho(static_cast<float>(widthPixels), static_cast<float>(heightPixels)); }
+	//
+	void SetGlobalTint(LcColor3 tint);
 	//
 	const VkDescriptorSet* GetCurrentDescriptorSet() const;
 	//

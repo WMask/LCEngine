@@ -20,6 +20,7 @@ LcUniformsVulkan::LcUniformsVulkan(IRenderDeviceVulkan& inRender)
 {
 	buffer.mView = IdentityMatrix();
 	buffer.mProj = IdentityMatrix();
+	buffer.globalTint = LcDefaults::White3;
 }
 
 void LcUniformsVulkan::Destroy(VkDevice device)
@@ -155,6 +156,17 @@ void LcUniformsVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool 
 void LcUniformsVulkan::SetOrtho(float widthPixels, float heightPixels, float nearPlane, float farPlane)
 {
 	buffer.mProj = OrthoMatrix(widthPixels, heightPixels, nearPlane, farPlane, false, false);
+
+	auto imageIndex = render.GetCurrentImage();
+	if (imageIndex < uniformBuffersMapped.size())
+	{
+		memcpy(uniformBuffersMapped[imageIndex], &buffer, sizeof(LcUniformBufferObject));
+	}
+}
+
+void LcUniformsVulkan::SetGlobalTint(LcColor3 tint)
+{
+	buffer.globalTint = tint;
 
 	auto imageIndex = render.GetCurrentImage();
 	if (imageIndex < uniformBuffersMapped.size())

@@ -525,11 +525,12 @@ void LcRenderSystemVulkan::Subscribe(const LcAppContext& context)
 			}
 		}
 
-		LC_CATCH{ LC_THROW("LcRenderSystemDX10::worldScaleUpdated()") }
+		LC_CATCH{ LC_THROW("LcRenderSystemVulkan::worldScaleUpdated()") }
 	});
 
 	context.world->onTintChanged.AddListener([this](LcColor3 globalTint)
 	{
+		uniforms.SetGlobalTint(globalTint);
 	});
 }
 
@@ -652,7 +653,7 @@ void LcRenderSystemVulkan::RequestResize(int width, int height)
 	/*DXGI_MODE_DESC displayModeDesc{};
 	if (!LcFindDisplayMode(width, height, &displayModeDesc))
 	{
-		throw std::exception("LcRenderSystemDX10::RequestResize(): Cannot find display mode");
+		throw std::exception("LcRenderSystemVulkan::RequestResize(): Cannot find display mode");
 	}
 
 	swapChain->ResizeTarget(&displayModeDesc);*/
