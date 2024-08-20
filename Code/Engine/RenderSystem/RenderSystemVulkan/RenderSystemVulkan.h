@@ -11,6 +11,7 @@
 
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
+#include "RenderSystem/RenderSystemVulkan/UniformsVulkan.h"
 #include "World/WorldInterface.h"
 
 #pragma warning(disable : 4251)
@@ -31,6 +32,9 @@ public:
 	* Return Vulkan device */
 	virtual VkDevice GetVulkanDevice() const = 0;
 	/**
+	* Return Physical device */
+	virtual VkPhysicalDevice GetPhysicalDevice() const = 0;
+	/**
 	* Return command buffer */
 	virtual VkCommandBuffer GetCommandBuffer() const = 0;
 	/**
@@ -43,11 +47,14 @@ public:
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
-	* Get view matrix */
-	virtual LcMatrix4 GetViewMatrix() const = 0;
+	* Get uniforms */
+	virtual const LcUniformsVulkan& GetUniforms() const = 0;
 	/**
-	* Get projection matrix */
-	virtual LcMatrix4 GetProjMatrix() const = 0;
+	* Get uniforms */
+	virtual LcUniformsVulkan& GetUniforms() = 0;
+	/**
+	* Get current image */
+	virtual uint32_t GetCurrentImage() const = 0;
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
@@ -107,6 +114,8 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual VkDevice GetVulkanDevice() const override { return device; }
 	//
+	virtual VkPhysicalDevice GetPhysicalDevice() const override { return physicalDevice; }
+	//
 	virtual VkCommandBuffer GetCommandBuffer() const override { return commandBuffer; }
 	//
 	virtual VkRenderPass GetRenderPass() const override { return renderPass; }
@@ -115,9 +124,11 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
-	virtual LcMatrix4 GetViewMatrix() const override { return mView; }
+	virtual const LcUniformsVulkan& GetUniforms() const override { return uniforms; }
 	//
-	virtual LcMatrix4 GetProjMatrix() const override { return mProj; }
+	virtual LcUniformsVulkan& GetUniforms() override { return uniforms; }
+	//
+	virtual uint32_t GetCurrentImage() const override { return currentImageIndex; }
 	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
@@ -176,11 +187,7 @@ protected:
 	//
 	LcSize renderSystemSize;
 	//
-	LcVector3 worldScale;
-	//
-	LcMatrix4 mView;
-	//
-	LcMatrix4 mProj;
+	LcUniformsVulkan uniforms;
 	//
 	bool worldScaleFonts;
 	//

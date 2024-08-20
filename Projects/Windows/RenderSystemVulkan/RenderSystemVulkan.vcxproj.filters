@@ -19,6 +19,9 @@
     <Filter Include="Source Files\RenderSystemVulkan">
       <UniqueIdentifier>{8c89fda0-24ce-4572-b9c9-10a90290b53f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{b2854018-12ef-43c7-96fe-d8e56e1b6ecd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -29,6 +32,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.cpp">
       <Filter>Source Files\RenderSystemVulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UniformsVulkan.cpp">
+      <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,5 +47,13 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.h">
       <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UniformsVulkan.h">
+      <Filter>Source Files\RenderSystemVulkan</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Code\Shaders\GLSL\ColoredSprite2d.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

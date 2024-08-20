@@ -147,8 +147,6 @@ protected:
 	//
 	LcSize renderSystemSize;
 	//
-	LcVector3 worldScale;
-	//
 	bool worldScaleFonts;
 	//
 	bool prevSetupRequested;

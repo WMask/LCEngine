@@ -15,15 +15,12 @@ static const char* coloredSpriteShaderName = "ColoredSprite2d.glsl";
 struct VULKANCOLOREDSPRITEDATA
 {
 	LcMatrix4 mModel;
-	LcMatrix4 mView;
-	LcMatrix4 mProj;
 	LcColor4 colors[4];
 };
 
 
 LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& context)
 	: device(VK_NULL_HANDLE)
-	, descriptorSetLayout(VK_NULL_HANDLE)
 	, pipelineLayout(VK_NULL_HANDLE)
 	, graphicsPipeline(VK_NULL_HANDLE)
 {
@@ -33,7 +30,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	device = render ? render->GetVulkanDevice() : nullptr;
 	if (!device)
 	{
-		throw LcException("Invalid render params");
+		throw LcException("Invalid device");
 	}
 
 	auto shaderText = render->GetShaderCode(coloredSpriteShaderName);
@@ -131,49 +128,30 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 		VK_DYNAMIC_STATE_SCISSOR
 	};
 
+	// Create pipeline
 	VkPipelineDynamicStateCreateInfo dynamicState{};
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
-	// Create uniform layout
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.pImmutableSamplers = nullptr;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
-
-	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout);
-	if (result != VK_SUCCESS)
-	{
-		throw LcException("Failed to create descriptor set layout");
-	}
-
-	VkPushConstantRange pushConstantRange = {};
+	VkPushConstantRange pushConstantRange{};
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(VULKANCOLOREDSPRITEDATA);
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &render->GetUniforms().GetDescriptorSetLayout();
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-	result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout);
+	VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create pipeline layout");
 	}
 
-	// Create pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineInfo.stageCount = 2;
@@ -208,7 +186,6 @@ LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 	{
 		if (graphicsPipeline) vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		if (pipelineLayout) vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-		if (descriptorSetLayout) vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 		device = nullptr;
 	}
 }
@@ -217,12 +194,14 @@ void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContex
 {
 	auto render = static_cast<LcRenderSystemVulkan*>(context.render);
 	auto commandBuffer = render ? render->GetCommandBuffer() : nullptr;
-	if (!commandBuffer)
+	auto descriptorSet = render ? render->GetUniforms().GetCurrentDescriptorSet() : nullptr;
+	if (!commandBuffer || !descriptorSet)
 	{
-		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid command buffer");
+		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid render params");
 	}
 
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, descriptorSet, 0, nullptr);
 }
 
 void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppContext& context)
@@ -259,8 +238,6 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 	LcVector3 spritePos = sprite->GetPos() * worldScale;
 	LcVector2 spriteSize = sprite->GetSize() * worldScale2D;
 	uniform.mModel = TransformMatrix(spritePos, spriteSize, sprite->GetRotZ(), false, false);
-	uniform.mView = render->GetViewMatrix();
-	uniform.mProj = render->GetProjMatrix();
 
 	// draw sprite
 	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VULKANCOLOREDSPRITEDATA), &uniform);

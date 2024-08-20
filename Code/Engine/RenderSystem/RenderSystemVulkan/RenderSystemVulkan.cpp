@@ -88,7 +88,7 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, swapChainImageFormat(VkFormat::VK_FORMAT_UNDEFINED)
 	, prevSetupRequested(false)
 	, worldScaleFonts(false)
-	, worldScale(LcDefaults::OneVec3)
+	, uniforms(*this)
 {
 }
 
@@ -109,21 +109,10 @@ void LcRenderSystemVulkan::Shutdown()
 		auto localImageAvailableSemaphore = imageAvailableSemaphore;
 		imageAvailableSemaphore = nullptr;
 
-		if (renderFinishedSemaphore) vkDestroySemaphore(localDevice, renderFinishedSemaphore, nullptr);
-		if (localImageAvailableSemaphore) vkDestroySemaphore(localDevice, localImageAvailableSemaphore, nullptr);
-		if (inFlightFence) vkDestroyFence(localDevice, inFlightFence, nullptr);
-
-		if (commandPool) vkDestroyCommandPool(localDevice, commandPool, nullptr);
-
 		for (auto framebuffer : swapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(localDevice, framebuffer, nullptr);
 		}
-
-		// destroy visual renders (shader pipelines)
-		visual2DRenders.clear();
-
-		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
 
 		for (auto imageView : swapChainImageViews)
 		{
@@ -131,6 +120,19 @@ void LcRenderSystemVulkan::Shutdown()
 		}
 
 		if (swapChain) vkDestroySwapchainKHR(localDevice, swapChain, nullptr);
+
+		// destroy visual renders (shader pipelines)
+		visual2DRenders.clear();
+
+		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
+
+		uniforms.Destroy(localDevice);
+
+		if (renderFinishedSemaphore) vkDestroySemaphore(localDevice, renderFinishedSemaphore, nullptr);
+		if (localImageAvailableSemaphore) vkDestroySemaphore(localDevice, localImageAvailableSemaphore, nullptr);
+		if (inFlightFence) vkDestroyFence(localDevice, inFlightFence, nullptr);
+
+		if (commandPool) vkDestroyCommandPool(localDevice, commandPool, nullptr);
 		vkDestroyDevice(localDevice, nullptr);
 	}
 
@@ -154,11 +156,6 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	int width = clientRect.right - clientRect.left;
 	int height = clientRect.bottom - clientRect.top;
 
-	LcVector3 cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
-	LcVector3 cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
-	mView = LookAtMatrix(cameraPos, cameraTarget, false);
-	mProj = OrthoMatrix(LcSize{ width, height }, -1.0f, 1.0f, false, false);
-
 	CreateInstance(hWnd);
 	PickPhysicalDevice();
 	CreateLogicalDevice();
@@ -167,6 +164,10 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	CreateFramebuffers();
 	CreateCommandPool();
 	CreateSyncObjects();
+
+	uniforms.Create(MAX_FRAMES_IN_FLIGHT);
+	uniforms.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
+	uniforms.SetOrtho(width, height);
 
 	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderVulkan>(context));
 
@@ -511,8 +512,6 @@ void LcRenderSystemVulkan::Subscribe(const LcAppContext& context)
 	context.world->GetWorldScale().onScaleChanged.AddListener([this, contextPtr](LcVector2 newScale)
 	{
 		LC_TRY
-
-		worldScale = LcVector3{ newScale.x, newScale.y, 1.0f };
 
 		if (contextPtr->world->GetWorldScale().GetScaleFonts())
 		{

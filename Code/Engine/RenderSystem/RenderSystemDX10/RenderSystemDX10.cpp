@@ -52,7 +52,6 @@ LcRenderSystemDX10::LcRenderSystemDX10()
 	: tiledRender(nullptr)
 	, textureRender(nullptr)
 	, renderSystemSize{ 0, 0 }
-	, worldScale{ 1.0f, 1.0f, 1.0f }
 	, worldScaleFonts(false)
 	, prevSetupRequested(false)
 {
@@ -243,8 +242,6 @@ void LcRenderSystemDX10::Subscribe(const LcAppContext& context)
 	context.world->GetWorldScale().onScaleChanged.AddListener([this, contextPtr](LcVector2 newScale)
 	{
 		LC_TRY
-
-		worldScale = LcVector3{ newScale.x, newScale.y, 1.0f };
 
 		if (contextPtr->world->GetWorldScale().GetScaleFonts())
 		{

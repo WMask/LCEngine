@@ -3,11 +3,15 @@
 #ifdef COMPILE_VERTEX_SHADER
 /* VERTEX SHADER */
 
+layout(binding = 0) uniform UniformBufferObject {
+    mat4 mView;
+    mat4 mProj;
+
+} ubo;
+
 layout(push_constant) uniform PER_OBJECT
 {
     mat4 mModel;
-    mat4 mView;
-    mat4 mProj;
     vec4 colors[4];
 
 } obj;
@@ -23,7 +27,7 @@ vec2 positions[4] = vec2[](
 
 void main()
 {
-    gl_Position = obj.mProj * obj.mView * obj.mModel * vec4(positions[gl_VertexIndex], 0.0, 1.0);
+    gl_Position = ubo.mProj * ubo.mView * obj.mModel * vec4(positions[gl_VertexIndex], 0.0, 1.0);
     fragColor = obj.colors[gl_VertexIndex].rgb;
 }
 
