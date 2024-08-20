@@ -5,6 +5,7 @@
 */
 
 #include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "World/SpriteInterface.h"
 #include "Core/LCException.h"
 #include <shaderc/shaderc.hpp>
@@ -19,21 +20,20 @@ struct VULKANCOLOREDSPRITEDATA
 };
 
 
-LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& context)
-	: device(VK_NULL_HANDLE)
+LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(IRenderDeviceVulkan& inRender, const LcAppContext& context)
+	: render(inRender)
 	, pipelineLayout(VK_NULL_HANDLE)
 	, graphicsPipeline(VK_NULL_HANDLE)
 {
 	LC_TRY
 
-	auto render = static_cast<LcRenderSystemVulkan*>(context.render);
-	device = render ? render->GetVulkanDevice() : nullptr;
+	auto device = render.GetVulkanDevice();
 	if (!device)
 	{
 		throw LcException("Invalid device");
 	}
 
-	auto shaderText = render->GetShaderCode(coloredSpriteShaderName);
+	auto shaderText = render.GetShaderCode(coloredSpriteShaderName);
 	if (shaderText.empty())
 	{
 		throw LcException("Cannot find shader");
@@ -60,8 +60,8 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	// Create shader modules
 	std::vector<uint32_t> vertShaderCode(vertShaderAssembled.cbegin(), vertShaderAssembled.cend());
 	std::vector<uint32_t> fragShaderCode(fragShaderAssembled.cbegin(), fragShaderAssembled.cend());
-	VkShaderModule vertShaderModule = render->CreateShaderModule(vertShaderCode);
-	VkShaderModule fragShaderModule = render->CreateShaderModule(fragShaderCode);
+	VkShaderModule vertShaderModule = render.CreateShaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = render.CreateShaderModule(fragShaderCode);
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -142,7 +142,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = &render->GetUniforms().GetDescriptorSetLayout();
+	pipelineLayoutInfo.pSetLayouts = &render.GetUniforms().GetDescriptorSetLayout();
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -164,7 +164,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.pDynamicState = &dynamicState;
 	pipelineInfo.layout = pipelineLayout;
-	pipelineInfo.renderPass = render->GetRenderPass();
+	pipelineInfo.renderPass = render.GetRenderPass();
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -182,6 +182,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(const LcAppContext& con
 
 LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 {
+	auto device = render.GetVulkanDevice();
 	if (device)
 	{
 		if (graphicsPipeline) vkDestroyPipeline(device, graphicsPipeline, nullptr);
@@ -192,9 +193,8 @@ LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 
 void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContext& context)
 {
-	auto render = static_cast<LcRenderSystemVulkan*>(context.render);
-	auto commandBuffer = render ? render->GetCommandBuffer() : nullptr;
-	auto descriptorSet = render ? render->GetUniforms().GetCurrentDescriptorSet() : nullptr;
+	auto commandBuffer = render.GetCommandBuffer();
+	auto descriptorSet = render.GetUniforms().GetCurrentDescriptorSet();
 	if (!commandBuffer || !descriptorSet)
 	{
 		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid render params");
@@ -208,8 +208,8 @@ void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppConte
 {
 	LC_TRY
 
-	auto render = static_cast<LcRenderSystemVulkan*>(context.render);
-	auto commandBuffer = render ? render->GetCommandBuffer() : nullptr;
+	auto device = render.GetVulkanDevice();
+	auto commandBuffer = render.GetCommandBuffer();
 	auto sprite = (visual->GetTypeId() == LcCreatables::Sprite) ? static_cast<const ISprite*>(visual) : nullptr;
 	if (!device || !commandBuffer || !sprite)
 	{

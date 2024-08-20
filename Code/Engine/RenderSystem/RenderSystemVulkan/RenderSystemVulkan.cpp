@@ -17,7 +17,6 @@
 #undef max
 #endif
 
-
 static const int MAX_FRAMES_IN_FLIGHT = 2;
 
 static const std::vector<const char*> DeviceExtensions = {
@@ -169,7 +168,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	uniforms.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
 	uniforms.SetOrtho(width, height);
 
-	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderVulkan>(context));
+	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderVulkan>(*this, context));
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }

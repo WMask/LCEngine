@@ -7,7 +7,8 @@
 #pragma once
 
 #include "Core/LCTypes.h"
-#include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
+#include "RenderSystem/RenderSystem.h"
+#include <vulkan/vulkan.h>
 
 
 /**
@@ -17,7 +18,7 @@ class LcColoredSpriteRenderVulkan : public IVisual2DRender
 public:
 	/**
 	* Constructor */
-	LcColoredSpriteRenderVulkan(const LcAppContext& context);
+	LcColoredSpriteRenderVulkan(class IRenderDeviceVulkan& inRender, const LcAppContext& context);
 	/**
 	* Destructor */
 	~LcColoredSpriteRenderVulkan();
@@ -34,7 +35,7 @@ public:// IVisual2DRender interface implementation
 
 protected:
 	//
-	VkDevice device;
+	IRenderDeviceVulkan& render;
 	//
 	VkPipelineLayout pipelineLayout;
 	//

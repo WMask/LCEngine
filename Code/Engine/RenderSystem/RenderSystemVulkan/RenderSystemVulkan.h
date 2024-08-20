@@ -22,7 +22,7 @@ typedef std::deque<std::shared_ptr<IVisual2DRender>> TVisual2DRenderList;
 
 /**
 * Render device */
-class RENDERSYSTEMVULKAN_API IRenderDeviceVulkan
+class IRenderDeviceVulkan
 {
 public:
 	/**
