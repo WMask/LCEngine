@@ -541,8 +541,7 @@ void LcRenderSystemVulkan::Update(float deltaSeconds, const LcAppContext& contex
 
 void LcRenderSystemVulkan::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
 {
-	auto viewMatrix = LookAtMatrix(newPos, newTarget);
-	//d3dDevice->UpdateSubresource(constBuffers.viewMatrixBuffer.Get(), 0, NULL, &viewMatrix, 0, 0);
+	uniforms.LookAt(newPos, newTarget);
 }
 
 void LcRenderSystemVulkan::Render(const LcAppContext& context)
