@@ -9,13 +9,34 @@
 #include "World/SpriteInterface.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
-
 #include <set>
-#include <cmath>
 
 
-LcTextureLoaderVulkan::LcTextureLoaderVulkan(IRenderDeviceVulkan& inRender) : render(inRender)
+VkDevice LcTextureLoaderVulkan::deviceInstance = VK_NULL_HANDLE;
+
+LcTextureLoaderVulkan::LcTextureDataVulkan::LcTextureDataVulkan()
+    : textureImage(VK_NULL_HANDLE)
+    , textureImageMemory(VK_NULL_HANDLE)
+    , textureImageView(VK_NULL_HANDLE)
+    , texSize{}
 {
+}
+
+LcTextureLoaderVulkan::LcTextureDataVulkan::~LcTextureDataVulkan()
+{
+    auto device = LcTextureLoaderVulkan::deviceInstance;
+    if (device)
+    {
+        if (textureImageView) vkDestroyImageView(device, textureImageView, nullptr);
+        if (textureImage) vkDestroyImage(device, textureImage, nullptr);
+        if (textureImageMemory) vkFreeMemory(device, textureImageMemory, nullptr);
+    }
+}
+
+LcTextureLoaderVulkan::LcTextureLoaderVulkan(IRenderDeviceVulkan& inRender)
+    : render(inRender)
+{
+    deviceInstance = render.GetVulkanDevice();
 }
 
 LcTextureLoaderVulkan::~LcTextureLoaderVulkan()

@@ -80,14 +80,20 @@ protected:
 	//
 	struct LcTextureDataVulkan
 	{
-		VkImage textureImage = VK_NULL_HANDLE;
+		LcTextureDataVulkan();
 		//
-		VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
+		~LcTextureDataVulkan();
 		//
-		VkImageView textureImageView = VK_NULL_HANDLE;
+		VkImage textureImage;
 		//
-		LcSize texSize = LcSize();
+		VkDeviceMemory textureImageMemory;
+		//
+		VkImageView textureImageView;
+		//
+		LcSize texSize;
 	};
+	//
+	static VkDevice deviceInstance;
 	//
 	class IRenderDeviceVulkan& render;
 	//
