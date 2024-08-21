@@ -6,46 +6,16 @@
 
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/UtilsVulkan.h"
 #include "Application/ApplicationInterface.h"
 #include "World/World.h"
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCException.h"
-#include <optional>
 
 #ifdef max
 #undef max
 #endif
-
-static const int MAX_FRAMES_IN_FLIGHT = 2;
-
-static const std::vector<const char*> DeviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-struct QueueFamilyIndices
-{
-	std::optional<uint32_t> graphicsFamily;
-	std::optional<uint32_t> presentFamily;
-
-	bool isComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
-};
-
-struct SwapChainSupportDetails
-{
-	VkSurfaceCapabilitiesKHR capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR> presentModes;
-};
-
-std::vector<const char*> GetRequiredExtensions();
-bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
-QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
-bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
-VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
 
 
 class LcVisual2DLifetimeStrategyVulkan : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
@@ -81,9 +51,8 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, graphicsQueue(VK_NULL_HANDLE), presentQueue(VK_NULL_HANDLE)
 	, swapChain(VK_NULL_HANDLE), renderPass(VK_NULL_HANDLE)
 	, commandPool(VK_NULL_HANDLE), commandBuffer(VK_NULL_HANDLE)
-	, imageAvailableSemaphore(VK_NULL_HANDLE)
-	, renderFinishedSemaphore(VK_NULL_HANDLE)
-	, inFlightFence(VK_NULL_HANDLE), swapChainExtent{}
+	, imageAvailableSemaphore(VK_NULL_HANDLE), renderFinishedSemaphore(VK_NULL_HANDLE)
+	, inFlightFence(VK_NULL_HANDLE), textureSampler(VK_NULL_HANDLE), swapChainExtent{}
 	, swapChainImageFormat(VkFormat::VK_FORMAT_UNDEFINED)
 	, prevSetupRequested(false)
 	, worldScaleFonts(false)
@@ -120,12 +89,18 @@ void LcRenderSystemVulkan::Shutdown()
 
 		if (swapChain) vkDestroySwapchainKHR(localDevice, swapChain, nullptr);
 
+		// destroy texture images
+		texLoader.reset();
+
 		// destroy visual renders (shader pipelines)
 		visual2DRenders.clear();
 
-		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
-
+		// destroy uniform descriptor pool and layout
 		uniforms.Destroy(localDevice);
+
+		vkDestroySampler(localDevice, textureSampler, nullptr);
+
+		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
 
 		if (renderFinishedSemaphore) vkDestroySemaphore(localDevice, renderFinishedSemaphore, nullptr);
 		if (localImageAvailableSemaphore) vkDestroySemaphore(localDevice, localImageAvailableSemaphore, nullptr);
@@ -155,6 +130,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	int width = clientRect.right - clientRect.left;
 	int height = clientRect.bottom - clientRect.top;
 
+	// init Vulkan
 	CreateInstance(hWnd);
 	PickPhysicalDevice();
 	CreateLogicalDevice();
@@ -162,13 +138,19 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	CreateRenderPass();
 	CreateFramebuffers();
 	CreateCommandPool();
+	CreateTextureSampler();
 	CreateSyncObjects();
 
+	// set uniforms
 	uniforms.Create(MAX_FRAMES_IN_FLIGHT);
 	uniforms.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
 	uniforms.SetOrtho(width, height);
 
-	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderVulkan>(*this, context));
+	// init managers
+	texLoader.reset(new LcTextureLoaderVulkan(*this));
+
+	// add visual renders
+	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }
@@ -483,6 +465,33 @@ void LcRenderSystemVulkan::CreateCommandPool()
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::CreateCommandPool()") }
 }
 
+void LcRenderSystemVulkan::CreateTextureSampler()
+{
+	VkPhysicalDeviceProperties properties{};
+	vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+
+	VkSamplerCreateInfo samplerInfo{};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.anisotropyEnable = VK_TRUE;
+	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = VK_FALSE;
+	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+	VkResult result = vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create texture sampler");
+	}
+}
+
 void LcRenderSystemVulkan::CreateSyncObjects()
 {
 	VkSemaphoreCreateInfo semaphoreInfo{};
@@ -558,7 +567,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 
 	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &currentImageIndex);
 
-	// Begin command buffer
+	// begin command buffer
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -579,7 +588,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;
 
-	// Begin render pass
+	// begin render pass
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	VkViewport viewport{};
@@ -596,7 +605,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	scissor.extent = swapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	// Render visuals
+	// render visuals
 	LcRenderSystemBase::Render(context);
 
 	vkCmdEndRenderPass(commandBuffer);
@@ -607,7 +616,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 		throw LcException("Failed to record command buffer");
 	}
 
-	// Submit command buffers
+	// submit command buffers
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -629,7 +638,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 		throw LcException("Failed to submit draw command buffer");
 	}
 
-	// Present to screen
+	// present to screen
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	presentInfo.waitSemaphoreCount = 1;
@@ -749,154 +758,6 @@ VkShaderModule LcRenderSystemVulkan::CreateShaderModule(const std::vector<uint32
 	}
 
 	return shaderModule;
-}
-
-
-std::vector<const char*> GetRequiredExtensions()
-{
-	std::vector<const char*> extensions = {
-		VK_KHR_SURFACE_EXTENSION_NAME,
-		VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-	};
-	return extensions;
-}
-
-bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
-{
-	uint32_t extensionCount;
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-	std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
-
-	for (const auto& extension : availableExtensions)
-	{
-		requiredExtensions.erase(extension.extensionName);
-	}
-
-	return requiredExtensions.empty();
-}
-
-QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
-{
-	QueueFamilyIndices indices;
-
-	uint32_t queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-	int i = 0;
-	for (const auto& queueFamily : queueFamilies)
-	{
-		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-		{
-			indices.graphicsFamily = i;
-		}
-
-		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-
-		if (presentSupport) indices.presentFamily = i;
-
-		if (indices.isComplete())
-		{
-			break;
-		}
-
-		i++;
-	}
-
-	return indices;
-}
-
-SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
-{
-	SwapChainSupportDetails details;
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
-
-	uint32_t formatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-	if (formatCount != 0)
-	{
-		details.formats.resize(formatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
-	}
-
-	uint32_t presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-	if (presentModeCount != 0)
-	{
-		details.presentModes.resize(presentModeCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
-	}
-
-	return details;
-}
-
-bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
-{
-	QueueFamilyIndices indices = FindQueueFamilies(device, surface);
-
-	bool extensionsSupported = CheckDeviceExtensionSupport(device);
-
-	bool swapChainAdequate = false;
-	if (extensionsSupported)
-	{
-		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device, surface);
-		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-	}
-
-	return indices.isComplete() && extensionsSupported && swapChainAdequate;
-}
-
-VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
-{
-	for (const auto& availableFormat : availableFormats)
-	{
-		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-		{
-			return availableFormat;
-		}
-	}
-
-	return availableFormats[0];
-}
-
-VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
-{
-	for (const auto& availablePresentMode : availablePresentModes)
-	{
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-		{
-			return availablePresentMode;
-		}
-	}
-
-	return VK_PRESENT_MODE_FIFO_KHR;
-}
-
-VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height)
-{
-	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-	{
-		return capabilities.currentExtent;
-	}
-	else
-	{
-		VkExtent2D actualExtent = {
-			static_cast<uint32_t>(width),
-			static_cast<uint32_t>(height)
-		};
-
-		actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-		actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-		return actualExtent;
-	}
 }
 
 

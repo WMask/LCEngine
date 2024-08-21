@@ -17,7 +17,7 @@
 #pragma warning(disable : 4251)
 #pragma warning(disable : 5046)
 
-typedef std::deque<std::shared_ptr<IVisual2DRender>> TVisual2DRenderList;
+typedef std::deque<std::unique_ptr<IVisual2DRender>> TVisual2DRenderList;
 
 
 /**
@@ -44,6 +44,9 @@ public:
 	* Return command pool */
 	virtual VkCommandPool GetCommandPool() const = 0;
 	/**
+	* Return graphics queue */
+	virtual VkQueue GetGraphicsQueue() const = 0;
+	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
@@ -69,7 +72,12 @@ class RENDERSYSTEMVULKAN_API LcRenderSystemVulkan
 	, public IRenderDeviceVulkan
 {
 public:
+	//
 	LcRenderSystemVulkan();
+	//
+	LcRenderSystemVulkan(const LcRenderSystemVulkan&) = delete;
+	//
+	LcRenderSystemVulkan& operator=(const LcRenderSystemVulkan&) = delete;
 
 
 public:// IRenderSystem interface implementation
@@ -100,7 +108,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual LcRSStats GetStats() const override;
 	//
-	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::DX10; }
+	virtual LcRenderSystemType GetType() const override { return LcRenderSystemType::Vulkan; }
 
 
 protected:// LcRenderSystemBase interface implementation
@@ -121,6 +129,8 @@ public:// IRenderDeviceVulkan interface implementation
 	virtual VkRenderPass GetRenderPass() const override { return renderPass; }
 	//
 	virtual VkCommandPool GetCommandPool() const override { return commandPool; }
+	//
+	virtual VkQueue GetGraphicsQueue() const override { return graphicsQueue; }
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
@@ -149,6 +159,8 @@ protected:
 	//
 	void CreateCommandPool();
 	//
+	void CreateTextureSampler();
+	//
 	void CreateSyncObjects();
 
 
@@ -171,6 +183,7 @@ protected:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	//
 	VkRenderPass renderPass;
+	VkSampler textureSampler;
 	//
 	VkCommandPool commandPool;
 	VkCommandBuffer commandBuffer;
@@ -178,10 +191,15 @@ protected:
 	VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
 	VkFence inFlightFence;
+
+
+protected:
 	//
-	uint32_t currentImageIndex;
+	std::unique_ptr<class LcTextureLoaderVulkan> texLoader;
 	//
 	TVisual2DRenderList visual2DRenders;
+	//
+	uint32_t currentImageIndex;
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//

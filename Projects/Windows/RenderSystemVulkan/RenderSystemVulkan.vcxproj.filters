@@ -34,7 +34,10 @@
       <Filter>Source Files\RenderSystemVulkan</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UniformsVulkan.cpp">
-      <Filter>Header Files\RenderSystemVulkan</Filter>
+      <Filter>Source Files\RenderSystemVulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UtilsVulkan.cpp">
+      <Filter>Source Files\RenderSystemVulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +51,10 @@
       <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UniformsVulkan.h">
-      <Filter>Source Files\RenderSystemVulkan</Filter>
+      <Filter>Header Files\RenderSystemVulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UtilsVulkan.h">
+      <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
