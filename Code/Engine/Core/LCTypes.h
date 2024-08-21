@@ -30,7 +30,10 @@ enum class LcRenderSystemType
 	Null,
 	DX7,
 	DX9,
-	DX10
+	DX10,
+	DX11,
+	DX12,
+	Vulkan
 };
 
 /** Window mode */

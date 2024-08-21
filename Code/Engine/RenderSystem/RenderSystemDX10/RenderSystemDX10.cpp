@@ -167,13 +167,13 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 
 	d3dDevice->RSSetState(rasterizerState.Get());
 
-	// add sprite renders
-	visual2DRenders.push_back(std::make_shared<LcColoredSpriteRenderDX10>(context));
-	visual2DRenders.push_back(std::make_shared<LcTexturedVisual2DRenderDX10>(context));
+	// add visual renders
+	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderDX10>(context));
+	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderDX10>(context));
 	textureRender = static_cast<IVisual2DRender*>(visual2DRenders.back().get());
-	visual2DRenders.push_back(std::make_shared<LcAnimatedSpriteRenderDX10>(context));
-	visual2DRenders.push_back(std::make_shared<LcTiledVisual2DRenderDX10>(context));
-	visual2DRenders.push_back(std::make_shared<LcBasicParticlesRenderDX10>(context));
+	visual2DRenders.push_back(std::make_unique<LcAnimatedSpriteRenderDX10>(context));
+	visual2DRenders.push_back(std::make_unique<LcTiledVisual2DRenderDX10>(context));
+	visual2DRenders.push_back(std::make_unique<LcBasicParticlesRenderDX10>(context));
 	tiledRender = static_cast<LcTiledVisual2DRenderDX10*>(visual2DRenders.back().get());
 	visual2DRenders.front()->Setup(nullptr, context);
 
@@ -191,7 +191,7 @@ void LcRenderSystemDX10::Create(void* windowHandle, LcWinMode winMode, bool inVS
 
 	// add factory
 	LcWorld& worldRef = static_cast<LcWorld&>(*context.world);
-	worldRef.SetLifetimeStrategy(std::make_shared<LcVisual2DLifetimeStrategyDX10>());
+	worldRef.SetLifetimeStrategy(std::make_unique<LcVisual2DLifetimeStrategyDX10>());
 
 	// init render system
 	LcRenderSystemBase::Create(this, winMode, inVSync, inAllowFullscreen, context);

@@ -7,6 +7,8 @@
 #pragma once
 
 #include "WorldInterface.h"
+#include "SpriteInterface.h"
+#include "GUI/WidgetInterface.h"
 #include "Core/LCCreator.h"
 #include "Core/Visual.h"
 #include "Camera.h"
@@ -27,10 +29,10 @@ class LcWorld : public IWorld
 {
 public:
 	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual, TVisualSet>, TVisualSet> TVisualCreator;
-	typedef std::shared_ptr<LcLifetimeStrategy<class IVisual, TVisualSet>> TVisualLifetime;
-	typedef std::shared_ptr<class LcVisualHelper> TVisualHelperPtr;
-	typedef std::shared_ptr<class LcSpriteHelper> TSpriteHelperPtr;
-	typedef std::shared_ptr<class LcWidgetHelper> TWidgetHelperPtr;
+	typedef std::unique_ptr<LcLifetimeStrategy<class IVisual, TVisualSet>> TVisualLifetime;
+	typedef std::unique_ptr<class LcVisualHelper> TVisualHelperPtr;
+	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
+	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
 
 
 public:
@@ -40,7 +42,7 @@ public:
 	//
 	LcWorld& operator=(const LcWorld&) = delete;
 	//
-	void SetLifetimeStrategy(TVisualLifetime inVisualLifetime) { items.SetLifetimeStrategy(inVisualLifetime); }
+	void SetLifetimeStrategy(TVisualLifetime inVisualLifetime) { items.SetLifetimeStrategy(std::move(inVisualLifetime)); }
 
 
 public: // IWorld interface implementation

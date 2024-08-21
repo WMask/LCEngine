@@ -136,7 +136,7 @@ public:
 LcBox2DWorld::LcBox2DWorld(const LcBox2DConfig& inConfig) : config(inConfig)
 {
     box2DWorld = std::make_unique<b2World>(FromLC(config.gravity, false));
-    dynamicBodies.SetLifetimeStrategy(std::make_shared<LcBodyLifetimeStrategy>());
+    dynamicBodies.SetLifetimeStrategy(std::make_unique<LcBodyLifetimeStrategy>());
 }
 
 LcBox2DWorld::LcBox2DWorld(float gravity) : LcBox2DWorld(LcBox2DConfig(gravity))

@@ -22,7 +22,7 @@ using namespace Microsoft::WRL;
 #pragma warning(disable : 5046)
 
 
-typedef std::deque<std::shared_ptr<IVisual2DRender>> TVisual2DRenderList;
+typedef std::deque<std::unique_ptr<IVisual2DRender>> TVisual2DRenderList;
 
 /**
 * Render device */
@@ -59,6 +59,10 @@ class RENDERSYSTEMDX10_API LcRenderSystemDX10
 {
 public:
 	LcRenderSystemDX10();
+	//
+	LcRenderSystemDX10(const LcRenderSystemDX10&) = delete;
+	//
+	LcRenderSystemDX10& operator=(const LcRenderSystemDX10&) = delete;
 	//
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 	//

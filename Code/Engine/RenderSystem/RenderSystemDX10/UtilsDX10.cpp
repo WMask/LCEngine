@@ -118,7 +118,7 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
     int width, height, bpp, rowBytes;
     ReadPngFile(texPath, &width, &height, &bpp, &rowBytes);
     data.resize(rowBytes * height);
-    ReadPngFile(texPath, &width, &height, &bpp, &rowBytes, data.data());
+    ReadPngFile(texPath, 0, 0, 0, 0, data.data());
     const BYTE* texPixelsPtr = data.data();
 
     // create texture

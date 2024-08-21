@@ -40,7 +40,7 @@ template<
 class LcCreator
 {
 public:
-	typedef std::shared_ptr<Strategy> TStrategyPtr;
+	typedef std::unique_ptr<Strategy> TStrategyPtr;
 	//
 	typedef std::shared_ptr<I> TItemPtr;
 	//
@@ -59,7 +59,7 @@ public:
 	//
 	void SetLifetimeStrategy(TStrategyPtr inStrategy)
 	{
-		if (inStrategy) strategy = inStrategy;
+		if (inStrategy) strategy = std::move(inStrategy);
 	}
 	//
 	template<class T>
