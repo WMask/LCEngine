@@ -69,15 +69,11 @@ public:
 * Vulkan render system */
 class RENDERSYSTEMVULKAN_API LcRenderSystemVulkan
 	: public LcRenderSystemBase
+	, public LcUncopyable
 	, public IRenderDeviceVulkan
 {
 public:
-	//
 	LcRenderSystemVulkan();
-	//
-	LcRenderSystemVulkan(const LcRenderSystemVulkan&) = delete;
-	//
-	LcRenderSystemVulkan& operator=(const LcRenderSystemVulkan&) = delete;
 
 
 public:// IRenderSystem interface implementation

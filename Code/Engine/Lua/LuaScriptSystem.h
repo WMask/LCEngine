@@ -50,7 +50,9 @@ LCLUA_API void PushAny(struct lua_State* luaState, const LcAny& any);
 
 /**
 * Lua script system */
-class LCLUA_API LcLuaScriptSystem : public IScriptSystem
+class LCLUA_API LcLuaScriptSystem
+	: public IScriptSystem
+	, public LcUncopyable
 {
 public:
 	//
@@ -90,13 +92,8 @@ public: // IScriptSystem interface implementation
 	virtual const char* GetHandlerName(LcScriptHandler type) const override;
 
 
-public:
-	LcLuaScriptSystem(const LcLuaScriptSystem&) = delete;
-	//
-	LcLuaScriptSystem& operator=(const LcLuaScriptSystem&) = delete;
-
-
 protected:
+	//
 	struct lua_State* luaState;
 	//
 	bool openBaseDefaultLibs;

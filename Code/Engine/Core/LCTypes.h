@@ -45,6 +45,19 @@ constexpr float LcPI = 3.14159265f;
 typedef int ObjectTag;
 
 
+/** Uncopyable class */
+class LcUncopyable
+{
+public:
+	LcUncopyable() {}
+
+protected:
+	LcUncopyable(const LcUncopyable&) = delete;
+	//
+	LcUncopyable& operator=(const LcUncopyable&) = delete;
+};
+
+
 /** Object tag interface */
 class IObjectTag
 {

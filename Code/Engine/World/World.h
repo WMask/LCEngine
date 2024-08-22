@@ -25,7 +25,9 @@ inline bool operator < (const std::shared_ptr<IVisual>& a, const std::shared_ptr
 
 /**
 * Game world manager. Contains default sprite implementation */
-class LcWorld : public IWorld
+class LcWorld
+	: public IWorld
+	, public LcUncopyable
 {
 public:
 	typedef LcCreator<class IVisual, LcLifetimeStrategy<class IVisual, TVisualSet>, TVisualSet> TVisualCreator;
@@ -37,10 +39,6 @@ public:
 
 public:
 	LcWorld(const LcAppContext& context);
-	//
-	LcWorld(const LcWorld&) = delete;
-	//
-	LcWorld& operator=(const LcWorld&) = delete;
 	//
 	void SetLifetimeStrategy(TVisualLifetime inVisualLifetime) { items.SetLifetimeStrategy(std::move(inVisualLifetime)); }
 

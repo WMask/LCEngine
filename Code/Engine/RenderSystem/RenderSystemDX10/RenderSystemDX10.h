@@ -55,14 +55,11 @@ public:
 * DirectX 10 render system */
 class RENDERSYSTEMDX10_API LcRenderSystemDX10
 	: public LcRenderSystemBase
+	, public LcUncopyable
 	, public IRenderDeviceDX10
 {
 public:
 	LcRenderSystemDX10();
-	//
-	LcRenderSystemDX10(const LcRenderSystemDX10&) = delete;
-	//
-	LcRenderSystemDX10& operator=(const LcRenderSystemDX10&) = delete;
 	//
 	class LcTextureLoaderDX10* GetTextureLoader() { return texLoader.get(); }
 	//

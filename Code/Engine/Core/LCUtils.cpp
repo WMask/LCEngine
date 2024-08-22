@@ -24,7 +24,7 @@
 #include "Core/libpng/Include/png.h"
 static const int MAX_PNG_SIZE = 4096;
 
-struct FileRAII
+struct FileRAII : public LcUncopyable
 {
 	FileRAII(const char* filePath) : file(nullptr)
 	{

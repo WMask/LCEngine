@@ -43,15 +43,11 @@ struct LcAppStats
 
 /**
 * Application interface */
-class IApplication
+class IApplication : public LcUncopyable
 {
 public:
 	//
 	IApplication() {}
-	//
-	IApplication(const IApplication&) = delete;
-	//
-	IApplication& operator=(const IApplication&) = delete;
 
 
 public:

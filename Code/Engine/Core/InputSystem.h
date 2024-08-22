@@ -471,18 +471,12 @@ protected:
 
 /**
 * Default Input system */
-class CORE_API LcDefaultInputSystem : public IInputSystem
+class CORE_API LcDefaultInputSystem
+	: public IInputSystem
+	, public LcUncopyable
 {
 public:
-	//
 	LcDefaultInputSystem();
-
-
-protected:
-	//
-	LcDefaultInputSystem(const LcDefaultInputSystem&) = delete;
-	//
-	LcDefaultInputSystem& operator=(const LcDefaultInputSystem&) = delete;
 
 
 public: // IInputSystem interface implementation
