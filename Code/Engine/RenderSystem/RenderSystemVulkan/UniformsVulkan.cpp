@@ -73,21 +73,21 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 		vkMapMemory(render.GetVulkanDevice(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
 	}
 
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.pImmutableSamplers = nullptr;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
 	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.binding = 0;
 	samplerLayoutBinding.descriptorCount = 1;
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+	VkDescriptorSetLayoutBinding uboLayoutBinding{};
+	uboLayoutBinding.binding = 1;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.pImmutableSamplers = nullptr;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { samplerLayoutBinding, uboLayoutBinding };
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -100,10 +100,13 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 		throw LcException("Failed to create descriptor set layout");
 	}
 
+	std::vector<VkDescriptorSetLayout> layouts(frames, descriptorSetLayout);
+
 	std::array<VkDescriptorPoolSize, 2> poolSizes{};
-	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_SAMPLER;
 	poolSizes[0].descriptorCount = frames;
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[1].descriptorCount = frames;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
@@ -117,8 +120,6 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 	{
 		throw LcException("Failed to create descriptor pool");
 	}
-
-	std::vector<VkDescriptorSetLayout> layouts(frames, descriptorSetLayout);
 
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -145,22 +146,21 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = descriptorSets[i];
 		descriptorWrites[0].dstBinding = 0;
 		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
 		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
+		descriptorWrites[0].pImageInfo = &samplerInfo;
 
 		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[1].dstSet = descriptorSets[i];
 		descriptorWrites[1].dstBinding = 1;
 		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &samplerInfo;
+		descriptorWrites[1].pBufferInfo = &bufferInfo;
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

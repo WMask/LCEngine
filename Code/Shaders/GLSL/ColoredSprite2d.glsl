@@ -3,7 +3,7 @@
 #ifdef COMPILE_VERTEX_SHADER
 /* VERTEX SHADER */
 
-layout(binding = 0) uniform UniformBufferObject {
+layout(binding = 1) uniform UniformBufferObject {
     mat4 mView;
     mat4 mProj;
     vec3 globalTint;
@@ -37,7 +37,7 @@ void main()
 #else
 /* FRAGMENT SHADER */
 
-layout(binding = 1) uniform sampler2D texSampler;
+layout(binding = 0) uniform sampler2D texSampler;
 
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 globalTint;
