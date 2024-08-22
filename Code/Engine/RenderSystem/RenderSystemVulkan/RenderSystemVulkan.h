@@ -47,6 +47,9 @@ public:
 	* Return graphics queue */
 	virtual VkQueue GetGraphicsQueue() const = 0;
 	/**
+	* Return default texture sampler */
+	virtual VkSampler GetTextureSampler() const = 0;
+	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
@@ -127,6 +130,8 @@ public:// IRenderDeviceVulkan interface implementation
 	virtual VkCommandPool GetCommandPool() const override { return commandPool; }
 	//
 	virtual VkQueue GetGraphicsQueue() const override { return graphicsQueue; }
+	//
+	virtual VkSampler GetTextureSampler() const override { return textureSampler; }
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//

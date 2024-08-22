@@ -11,7 +11,7 @@
 #include <shaderc/shaderc.hpp>
 
 
-static const char* coloredSpriteShaderName = "ColoredSprite2d.glsl";
+static const char* ColoredSpriteShaderName = "ColoredSprite2d.glsl";
 
 struct VULKANCOLOREDSPRITEDATA
 {
@@ -33,7 +33,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(IRenderDeviceVulkan& in
 		throw LcException("Invalid device");
 	}
 
-	auto shaderText = render.GetShaderCode(coloredSpriteShaderName);
+	auto shaderText = render.GetShaderCode(ColoredSpriteShaderName);
 	if (shaderText.empty())
 	{
 		throw LcException("Cannot find shader");

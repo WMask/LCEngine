@@ -15,10 +15,10 @@
 VkDevice LcTextureLoaderVulkan::deviceInstance = VK_NULL_HANDLE;
 
 LcTextureLoaderVulkan::LcTextureDataVulkan::LcTextureDataVulkan()
-    : textureImage(VK_NULL_HANDLE)
-    , textureImageMemory(VK_NULL_HANDLE)
-    , textureImageView(VK_NULL_HANDLE)
-    , texSize{}
+    : image(VK_NULL_HANDLE)
+    , imageMemory(VK_NULL_HANDLE)
+    , imageView(VK_NULL_HANDLE)
+    , size{}
 {
 }
 
@@ -27,9 +27,9 @@ LcTextureLoaderVulkan::LcTextureDataVulkan::~LcTextureDataVulkan()
     auto device = LcTextureLoaderVulkan::deviceInstance;
     if (device)
     {
-        if (textureImageView) vkDestroyImageView(device, textureImageView, nullptr);
-        if (textureImage) vkDestroyImage(device, textureImage, nullptr);
-        if (textureImageMemory) vkFreeMemory(device, textureImageMemory, nullptr);
+        if (imageView) vkDestroyImageView(device, imageView, nullptr);
+        if (image) vkDestroyImage(device, image, nullptr);
+        if (imageMemory) vkFreeMemory(device, imageMemory, nullptr);
     }
 }
 
@@ -44,7 +44,7 @@ LcTextureLoaderVulkan::~LcTextureLoaderVulkan()
     ClearCache(nullptr);
 }
 
-bool LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcSize* outTexSize)
+bool LcTextureLoaderVulkan::LoadTexture(const char* texPath, VkImage* outImage, VkDeviceMemory* outImageMemory, VkImageView* outImageView, LcSize* outTexSize)
 {
     LC_TRY
 
@@ -52,7 +52,10 @@ bool LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcSize* outTexSize)
     auto entry = texturesCache.find(texPath);
     if (entry != texturesCache.end())
     {
-        if (outTexSize) *outTexSize = entry->second.texSize;
+        if (outImage) *outImage = entry->second.image;
+        if (outImageMemory) *outImageMemory = entry->second.imageMemory;
+        if (outImageView) *outImageView = entry->second.imageView;
+        if (outTexSize) *outTexSize = entry->second.size;
         return true;
     }
 

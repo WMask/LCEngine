@@ -56,7 +56,7 @@ public:
 	//
 	~LcTextureLoaderVulkan();
 	//
-	bool LoadTexture(const char* texPath, LcSize* outTexSize);
+	bool LoadTexture(const char* texPath, VkImage* outImage, VkDeviceMemory* outImageMemory, VkImageView* outImageView, LcSize* outTexSize);
 	//
 	void RemoveTextures() { texturesCache.clear(); }
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
@@ -84,13 +84,13 @@ protected:
 		//
 		~LcTextureDataVulkan();
 		//
-		VkImage textureImage;
+		VkImage image;
 		//
-		VkDeviceMemory textureImageMemory;
+		VkDeviceMemory imageMemory;
 		//
-		VkImageView textureImageView;
+		VkImageView imageView;
 		//
-		LcSize texSize;
+		LcSize size;
 	};
 	//
 	static VkDevice deviceInstance;
