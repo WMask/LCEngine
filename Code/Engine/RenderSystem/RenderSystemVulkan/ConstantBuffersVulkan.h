@@ -1,11 +1,12 @@
 /**
-* UniformsVulkan.h
+* ConstantBuffersVulkan.h
 * 20.08.2024
 * (c) Denis Romakhov
 */
 
 #pragma once
 
+#include <array>
 #include <deque>
 #include <vulkan/vulkan.h>
 
@@ -15,6 +16,20 @@
 
 #pragma warning(disable : 4251)
 #pragma warning(disable : 5046)
+
+
+/** Uniform descriptor layout types */
+enum class LcDSLayoutType : int
+{
+	ColoredSprite,
+	AnimatedSprite,
+	TexturedVisual,
+	TiledVisual,
+	Max
+};
+
+static const int LcDSLayoutTypeSize = static_cast<int>(LcDSLayoutType::Max);
+
 
 /**
 * Uniform buffer */
@@ -28,11 +43,11 @@ struct LcUniformBufferObject
 
 /**
 * Vulkan uniforms */
-class LcUniformsVulkan
+class LcConstantBuffersVulkan
 {
 public:
 	//
-	LcUniformsVulkan(class IRenderDeviceVulkan& inRender);
+	LcConstantBuffersVulkan(class IRenderDeviceVulkan& inRender);
 	//
 	void Create(unsigned int framesInFlight);
 	//
@@ -48,9 +63,9 @@ public:
 	//
 	void SetGlobalTint(LcColor3 tint);
 	//
-	const VkDescriptorSet* GetCurrentDescriptorSet() const;
+	const VkDescriptorSet* GetDescriptorSetFor(LcDSLayoutType type) const;
 	//
-	inline const VkDescriptorSetLayout& GetDescriptorSetLayout() const { return descriptorSetLayout; }
+	inline const VkDescriptorSetLayout* GetLayoutFor(LcDSLayoutType type) const { return &descriptorLayouts[static_cast<int>(type)].layout; }
 	//
 	inline const LcMatrix4& GetViewMatrix() const { return buffer.mView; }
 	//
@@ -59,6 +74,10 @@ public:
 
 protected:
 	//
+	void CreateForColoredSprite(const VkDescriptorSetLayoutBinding& uboLayoutBinding);
+	//
+	void CreateForTexturedVisual(const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding);
+	//
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	//
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -66,15 +85,23 @@ protected:
 
 protected:
 	//
+	struct LcDescriptorLayout
+	{
+		VkDescriptorSetLayout layout;
+		//
+		VkDescriptorPool pool;
+		//
+		std::vector<VkDescriptorSet> sets;
+	};
+
+
+protected:
+	//
 	class IRenderDeviceVulkan& render;
 	//
+	std::array<LcDescriptorLayout, LcDSLayoutTypeSize> descriptorLayouts;
+	//
 	LcUniformBufferObject buffer;
-	//
-	VkDescriptorSetLayout descriptorSetLayout;
-
-	VkDescriptorPool descriptorPool;
-	//
-	std::vector<VkDescriptorSet> descriptorSets;
 	//
 	std::vector<VkBuffer> uniformBuffers;
 	//

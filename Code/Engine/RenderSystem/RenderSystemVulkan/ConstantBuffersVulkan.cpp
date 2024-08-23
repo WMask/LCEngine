@@ -1,10 +1,10 @@
 /**
-* UniformsVulkan.cpp
+* ConstantBuffersVulkan.cpp
 * 20.08.2024
 * (c) Denis Romakhov
 */
 
-#include "RenderSystem/RenderSystemVulkan/UniformsVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/ConstantBuffersVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "World/World.h"
 #include "World/Camera.h"
@@ -13,10 +13,8 @@
 #include <array>
 
 
-LcUniformsVulkan::LcUniformsVulkan(IRenderDeviceVulkan& inRender)
+LcConstantBuffersVulkan::LcConstantBuffersVulkan(IRenderDeviceVulkan& inRender)
 	: render(inRender)
-	, descriptorSetLayout(VK_NULL_HANDLE)
-	, descriptorPool(VK_NULL_HANDLE)
 	, frames(0)
 {
 	buffer.mView = IdentityMatrix();
@@ -24,7 +22,7 @@ LcUniformsVulkan::LcUniformsVulkan(IRenderDeviceVulkan& inRender)
 	buffer.globalTint = LcDefaults::White3;
 }
 
-void LcUniformsVulkan::Destroy(VkDevice device)
+void LcConstantBuffersVulkan::Destroy(VkDevice device)
 {
 	size_t sz = std::min<size_t>(frames, uniformBuffers.size());
 
@@ -37,20 +35,14 @@ void LcUniformsVulkan::Destroy(VkDevice device)
 	uniformBuffers.clear();
 	uniformBuffersMemory.clear();
 
-	if (descriptorPool)
+	for (int i = 0; i < LcDSLayoutTypeSize; i++)
 	{
-		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-		descriptorPool = VK_NULL_HANDLE;
-	}
-
-	if (descriptorSetLayout)
-	{
-		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-		descriptorSetLayout = VK_NULL_HANDLE;
+		vkDestroyDescriptorPool(device, descriptorLayouts[i].pool, nullptr);
+		vkDestroyDescriptorSetLayout(device, descriptorLayouts[i].layout, nullptr);
 	}
 }
 
-void LcUniformsVulkan::Create(unsigned int framesInFlight)
+void LcConstantBuffersVulkan::Create(unsigned int framesInFlight)
 {
 	auto device = render.GetVulkanDevice();
 
@@ -73,6 +65,13 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 		vkMapMemory(render.GetVulkanDevice(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
 	}
 
+	VkDescriptorSetLayoutBinding uboLayoutBinding{};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.pImmutableSamplers = nullptr;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
 	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
 	samplerLayoutBinding.binding = 0;
 	samplerLayoutBinding.descriptorCount = 1;
@@ -80,33 +79,112 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 1;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.pImmutableSamplers = nullptr;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	CreateForColoredSprite(uboLayoutBinding);
+	CreateForTexturedVisual(uboLayoutBinding, samplerLayoutBinding);
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { samplerLayoutBinding, uboLayoutBinding };
+	LC_CATCH{ LC_THROW("LcConstantBuffersVulkan::Create()") }
+}
+
+void LcConstantBuffersVulkan::CreateForColoredSprite(const VkDescriptorSetLayoutBinding& uboLayoutBinding)
+{
+	auto device = render.GetVulkanDevice();
+
+	LC_TRY
+
+	LcDescriptorLayout& layout = descriptorLayouts[static_cast<int>(LcDSLayoutType::ColoredSprite)];
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+
+	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to create descriptor set layout");
+	}
+
+	std::vector<VkDescriptorSetLayout> layouts(frames, layout.layout);
+
+	VkDescriptorPoolSize poolSize;
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = frames;
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = frames;
+
+	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to create descriptor pool");
+	}
+
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = layout.pool;
+	allocInfo.descriptorSetCount = frames;
+	allocInfo.pSetLayouts = layouts.data();
+
+	layout.sets.resize(frames);
+	result = vkAllocateDescriptorSets(device, &allocInfo, layout.sets.data());
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to allocate descriptor sets");
+	}
+
+	for (size_t i = 0; i < frames; i++)
+	{
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = uniformBuffers[i];
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(LcUniformBufferObject);
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = layout.sets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+
+		vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+	}
+
+	LC_CATCH{ LC_THROW("LcConstantBuffersVulkan::CreateForColoredSprite()") }
+}
+
+void LcConstantBuffersVulkan::CreateForTexturedVisual(const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding)
+{
+	auto device = render.GetVulkanDevice();
+
+	LC_TRY
+
+	LcDescriptorLayout& layout = descriptorLayouts[static_cast<int>(LcDSLayoutType::TexturedVisual)];
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 	layoutInfo.pBindings = bindings.data();
 
-	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout);
+	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create descriptor set layout");
 	}
 
-	std::vector<VkDescriptorSetLayout> layouts(frames, descriptorSetLayout);
+	std::vector<VkDescriptorSetLayout> layouts(frames, layout.layout);
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes{};
 
-	poolSizes[0].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = frames;
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
 	poolSizes[1].descriptorCount = frames;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
@@ -115,7 +193,7 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = frames;
 
-	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
+	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create descriptor pool");
@@ -123,12 +201,12 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = descriptorPool;
+	allocInfo.descriptorPool = layout.pool;
 	allocInfo.descriptorSetCount = frames;
 	allocInfo.pSetLayouts = layouts.data();
 
-	descriptorSets.resize(frames);
-	result = vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data());
+	layout.sets.resize(frames);
+	result = vkAllocateDescriptorSets(device, &allocInfo, layout.sets.data());
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to allocate descriptor sets");
@@ -147,28 +225,28 @@ void LcUniformsVulkan::Create(unsigned int framesInFlight)
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSets[i];
+		descriptorWrites[0].dstSet = layout.sets[i];
 		descriptorWrites[0].dstBinding = 0;
 		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pImageInfo = &samplerInfo;
+		descriptorWrites[0].pBufferInfo = &bufferInfo;
 
 		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = descriptorSets[i];
+		descriptorWrites[1].dstSet = layout.sets[i];
 		descriptorWrites[1].dstBinding = 1;
 		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pBufferInfo = &bufferInfo;
+		descriptorWrites[1].pImageInfo = &samplerInfo;
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
-	LC_CATCH{ LC_THROW("LcUniformsVulkan::Create()") }
+	LC_CATCH{ LC_THROW("LcConstantBuffersVulkan::CreateForTexturedVisual()") }
 }
 
-void LcUniformsVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms)
+void LcConstantBuffersVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms)
 {
 	buffer.mView = LookAtMatrix(cameraPos, cameraTarget, false);
 
@@ -179,7 +257,7 @@ void LcUniformsVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool 
 	}
 }
 
-void LcUniformsVulkan::SetOrtho(float widthPixels, float heightPixels, float nearPlane, float farPlane)
+void LcConstantBuffersVulkan::SetOrtho(float widthPixels, float heightPixels, float nearPlane, float farPlane)
 {
 	buffer.mProj = OrthoMatrix(widthPixels, heightPixels, nearPlane, farPlane, false, false);
 
@@ -190,7 +268,7 @@ void LcUniformsVulkan::SetOrtho(float widthPixels, float heightPixels, float nea
 	}
 }
 
-void LcUniformsVulkan::SetGlobalTint(LcColor3 tint)
+void LcConstantBuffersVulkan::SetGlobalTint(LcColor3 tint)
 {
 	buffer.globalTint = tint;
 
@@ -201,13 +279,14 @@ void LcUniformsVulkan::SetGlobalTint(LcColor3 tint)
 	}
 }
 
-const VkDescriptorSet* LcUniformsVulkan::GetCurrentDescriptorSet() const
+const VkDescriptorSet* LcConstantBuffersVulkan::GetDescriptorSetFor(LcDSLayoutType type) const
 {
 	auto imageIndex = render.GetCurrentImage();
-	return (imageIndex < descriptorSets.size()) ? &descriptorSets[imageIndex] : nullptr;
+	auto& layout = descriptorLayouts[static_cast<int>(type)];
+	return (imageIndex < layout.sets.size()) ? &layout.sets[imageIndex] : nullptr;
 }
 
-void LcUniformsVulkan::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+void LcConstantBuffersVulkan::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 {
 	auto device = render.GetVulkanDevice();
 
@@ -241,10 +320,10 @@ void LcUniformsVulkan::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 	vkBindBufferMemory(device, buffer, bufferMemory, 0);
 
-	LC_CATCH{ LC_THROW("LcUniformsVulkan::CreateBuffer()") }
+	LC_CATCH{ LC_THROW("LcConstantBuffersVulkan::CreateBuffer()") }
 }
 
-uint32_t LcUniformsVulkan::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t LcConstantBuffersVulkan::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(render.GetPhysicalDevice(), &memProperties);

@@ -11,7 +11,7 @@
 
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
-#include "RenderSystem/RenderSystemVulkan/UniformsVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/ConstantBuffersVulkan.h"
 #include "World/WorldInterface.h"
 
 #pragma warning(disable : 4251)
@@ -28,6 +28,9 @@ public:
 	/**
 	* Create shader module */
 	virtual VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code) = 0;
+	/**
+	* Fill pipeline defaults */
+	virtual void FillPipelineDefaults(VkGraphicsPipelineCreateInfo& pipeline) = 0;
 	/**
 	* Return Vulkan device */
 	virtual VkDevice GetVulkanDevice() const = 0;
@@ -54,10 +57,10 @@ public:
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
 	* Get uniforms */
-	virtual const LcUniformsVulkan& GetUniforms() const = 0;
+	virtual const LcConstantBuffersVulkan& GetUniforms() const = 0;
 	/**
 	* Get uniforms */
-	virtual LcUniformsVulkan& GetUniforms() = 0;
+	virtual LcConstantBuffersVulkan& GetUniforms() = 0;
 	/**
 	* Get current image */
 	virtual uint32_t GetCurrentImage() const = 0;
@@ -119,6 +122,8 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code) override;
 	//
+	virtual void FillPipelineDefaults(VkGraphicsPipelineCreateInfo& pipeline) override;
+	//
 	virtual VkDevice GetVulkanDevice() const override { return device; }
 	//
 	virtual VkPhysicalDevice GetPhysicalDevice() const override { return physicalDevice; }
@@ -135,9 +140,9 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
-	virtual const LcUniformsVulkan& GetUniforms() const override { return uniforms; }
+	virtual const LcConstantBuffersVulkan& GetUniforms() const override { return uniforms; }
 	//
-	virtual LcUniformsVulkan& GetUniforms() override { return uniforms; }
+	virtual LcConstantBuffersVulkan& GetUniforms() override { return uniforms; }
 	//
 	virtual uint32_t GetCurrentImage() const override { return currentImageIndex; }
 	//
@@ -173,8 +178,13 @@ protected:
 	VkPhysicalDevice physicalDevice;
 	VkDevice device;
 	//
+	VkRenderPass renderPass;
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
+	//
+	VkCommandPool commandPool;
+	VkCommandBuffer commandBuffer;
+	VkSampler textureSampler;
 	//
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
@@ -182,12 +192,6 @@ protected:
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
-	//
-	VkRenderPass renderPass;
-	VkSampler textureSampler;
-	//
-	VkCommandPool commandPool;
-	VkCommandBuffer commandBuffer;
 	//
 	VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
@@ -206,7 +210,7 @@ protected:
 	//
 	LcSize renderSystemSize;
 	//
-	LcUniformsVulkan uniforms;
+	LcConstantBuffersVulkan uniforms;
 	//
 	bool worldScaleFonts;
 	//
