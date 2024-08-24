@@ -12,6 +12,7 @@
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
 #include "RenderSystem/RenderSystemVulkan/ConstantBuffersVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/UtilsVulkan.h"
 #include "World/WorldInterface.h"
 
 #pragma warning(disable : 4251)
@@ -52,6 +53,9 @@ public:
 	/**
 	* Return default texture sampler */
 	virtual VkSampler GetTextureSampler() const = 0;
+	/**
+	* Return texture loder */
+	virtual LcTextureLoaderVulkan& GetTextureLoader() = 0;
 	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
@@ -138,11 +142,13 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual VkSampler GetTextureSampler() const override { return textureSampler; }
 	//
+	virtual LcTextureLoaderVulkan& GetTextureLoader() override { return texLoader; }
+	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
-	virtual const LcConstantBuffersVulkan& GetUniforms() const override { return uniforms; }
+	virtual const LcConstantBuffersVulkan& GetUniforms() const override { return constBuffers; }
 	//
-	virtual LcConstantBuffersVulkan& GetUniforms() override { return uniforms; }
+	virtual LcConstantBuffersVulkan& GetUniforms() override { return constBuffers; }
 	//
 	virtual uint32_t GetCurrentImage() const override { return currentImageIndex; }
 	//
@@ -200,8 +206,6 @@ protected:
 
 protected:
 	//
-	std::unique_ptr<class LcTextureLoaderVulkan> texLoader;
-	//
 	TVisual2DRenderList visual2DRenders;
 	//
 	uint32_t currentImageIndex;
@@ -210,7 +214,9 @@ protected:
 	//
 	LcSize renderSystemSize;
 	//
-	LcConstantBuffersVulkan uniforms;
+	LcConstantBuffersVulkan constBuffers;
+	//
+	LcTextureLoaderVulkan texLoader;
 	//
 	bool worldScaleFonts;
 	//

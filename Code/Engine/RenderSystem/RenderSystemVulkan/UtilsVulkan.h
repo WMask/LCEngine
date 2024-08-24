@@ -17,7 +17,11 @@
 #include "Core/LCTypesEx.h"
 
 
-static const int MAX_FRAMES_IN_FLIGHT = 2;
+static const int MAX_FRAMES_IN_FLIGHT   = 2;
+static const unsigned int HAS_COLOR     = 0;
+static const unsigned int HAS_CUSTOM_UV = 1;
+static const unsigned int HAS_TEXTURE   = 2;
+static const unsigned int HAS_ANIMATION = 3;
 
 static const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
@@ -36,6 +40,24 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
+struct LcTextureVulkan
+{
+	LcTextureVulkan()
+		: image(VK_NULL_HANDLE)
+		, imageMemory(VK_NULL_HANDLE)
+		, imageView(VK_NULL_HANDLE)
+		, size{}
+	{
+	}
+	VkImage image;
+	//
+	VkDeviceMemory imageMemory;
+	//
+	VkImageView imageView;
+	//
+	LcSize size;
+};
+
 std::vector<const char*> GetRequiredExtensions();
 bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
@@ -44,6 +66,9 @@ bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
 VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
+uint32_t FindMemoryType(VkPhysicalDevice device, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage,
+	VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
 
 /**
@@ -56,7 +81,7 @@ public:
 	//
 	~LcTextureLoaderVulkan();
 	//
-	bool LoadTexture(const char* texPath, VkImage* outImage, VkDeviceMemory* outImageMemory, VkImageView* outImageView, LcSize* outTexSize);
+	void LoadTexture(const char* texPath, LcTextureVulkan& outTexture);
 	//
 	void RemoveTextures() { texturesCache.clear(); }
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
@@ -72,25 +97,18 @@ protected:
 	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 	//
 	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-    //
-    void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	//
+	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	//
+	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+		VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
 
 protected:
 	//
-	struct LcTextureDataVulkan
+	struct LcTextureDataVulkan : public LcTextureVulkan
 	{
-		LcTextureDataVulkan();
-		//
 		~LcTextureDataVulkan();
-		//
-		VkImage image;
-		//
-		VkDeviceMemory imageMemory;
-		//
-		VkImageView imageView;
-		//
-		LcSize size;
 	};
 	//
 	static VkDevice deviceInstance;

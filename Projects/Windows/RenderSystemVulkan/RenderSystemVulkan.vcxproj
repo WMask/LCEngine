@@ -154,6 +154,7 @@
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ConstantBuffersVulkan.cpp" />
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\TexturedVisual2DRenderVulkan.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UtilsVulkan.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
@@ -162,6 +163,7 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ConstantBuffersVulkan.h" />
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\TexturedVisual2DRenderVulkan.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\UtilsVulkan.h" />
   </ItemGroup>
   <ItemGroup>

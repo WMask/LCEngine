@@ -126,7 +126,6 @@ LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 	{
 		if (graphicsPipeline) vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		if (pipelineLayout) vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-		device = nullptr;
 	}
 }
 

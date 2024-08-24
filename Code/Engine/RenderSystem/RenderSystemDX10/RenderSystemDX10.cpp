@@ -424,7 +424,21 @@ void LcRenderSystemDX10::Render(const IVisual* visual, const LcAppContext& conte
 
 std::string LcRenderSystemDX10::GetShaderCode(const std::string& shaderName) const
 {
-	return shaders.at(shaderName);
+	std::string shaderCode;
+
+	LC_TRY
+
+	auto shaderCodeIt = shaders.find(shaderName);
+	if (shaderCodeIt == shaders.end())
+	{
+		throw LcException("Failed to find shader code");
+	}
+
+	shaderCode = shaderCodeIt->second;
+
+	LC_CATCH{ LC_THROW_EX("LcRenderSystemDX10::GetShaderCode('", shaderName.c_str(), "')") }
+
+	return shaderCode;
 }
 
 TRenderSystemPtr GetRenderSystem()

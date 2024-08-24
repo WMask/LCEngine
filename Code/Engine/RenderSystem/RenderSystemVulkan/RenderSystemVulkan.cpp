@@ -6,7 +6,7 @@
 
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
-#include "RenderSystem/RenderSystemVulkan/UtilsVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/TexturedVisual2DRenderVulkan.h"
 #include "Application/ApplicationInterface.h"
 #include "World/World.h"
 #include "World/Camera.h"
@@ -56,7 +56,8 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, swapChainImageFormat(VkFormat::VK_FORMAT_UNDEFINED)
 	, prevSetupRequested(false)
 	, worldScaleFonts(false)
-	, uniforms(*this)
+	, constBuffers(*this)
+	, texLoader(*this)
 {
 }
 
@@ -90,13 +91,13 @@ void LcRenderSystemVulkan::Shutdown()
 		if (swapChain) vkDestroySwapchainKHR(localDevice, swapChain, nullptr);
 
 		// destroy texture images
-		texLoader.reset();
+		texLoader.RemoveTextures();
 
 		// destroy visual renders (shader pipelines)
 		visual2DRenders.clear();
 
 		// destroy uniform descriptor pool and layout
-		uniforms.Destroy(localDevice);
+		constBuffers.Destroy(localDevice);
 
 		vkDestroySampler(localDevice, textureSampler, nullptr);
 
@@ -142,15 +143,13 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	CreateSyncObjects();
 
 	// set uniforms
-	uniforms.Create(MAX_FRAMES_IN_FLIGHT);
-	uniforms.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
-	uniforms.SetOrtho(width, height);
-
-	// init managers
-	texLoader.reset(new LcTextureLoaderVulkan(*this));
+	constBuffers.Create(MAX_FRAMES_IN_FLIGHT);
+	constBuffers.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
+	constBuffers.SetOrtho(width, height);
 
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
+	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderVulkan>(*this, context));
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }
@@ -539,7 +538,7 @@ void LcRenderSystemVulkan::Subscribe(const LcAppContext& context)
 
 	context.world->onTintChanged.AddListener([this](LcColor3 globalTint)
 	{
-		uniforms.SetGlobalTint(globalTint);
+		constBuffers.SetGlobalTint(globalTint);
 	});
 }
 
@@ -550,7 +549,7 @@ void LcRenderSystemVulkan::Update(float deltaSeconds, const LcAppContext& contex
 
 void LcRenderSystemVulkan::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
 {
-	uniforms.LookAt(newPos, newTarget);
+	constBuffers.LookAt(newPos, newTarget);
 }
 
 void LcRenderSystemVulkan::Render(const LcAppContext& context)
@@ -717,7 +716,10 @@ void LcRenderSystemVulkan::Render(const IVisual* visual, const LcAppContext& con
 {
 	LC_TRY
 
-	if (!visual) throw std::exception("LcRenderSystemVulkan::Render(): Invalid visual");
+	if (!visual)
+	{
+		throw LcException("LcRenderSystemVulkan::Render(): Invalid visual");
+	}
 
 	for (auto& render : visual2DRenders)
 	{
@@ -740,7 +742,21 @@ void LcRenderSystemVulkan::Render(const IVisual* visual, const LcAppContext& con
 
 std::string LcRenderSystemVulkan::GetShaderCode(const std::string& shaderName) const
 {
-	return shaders.at(shaderName);
+	std::string shaderCode;
+
+	LC_TRY
+
+	auto shaderCodeIt = shaders.find(shaderName);
+	if (shaderCodeIt == shaders.end())
+	{
+		throw LcException("Failed to find shader code");
+	}
+
+	shaderCode = shaderCodeIt->second;
+
+	LC_CATCH{ LC_THROW_EX("LcRenderSystemVulkan::GetShaderCode('", shaderName.c_str(), "')") }
+
+	return shaderCode;
 }
 
 VkShaderModule LcRenderSystemVulkan::CreateShaderModule(const std::vector<uint32_t>& code)

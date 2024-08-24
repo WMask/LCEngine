@@ -63,6 +63,8 @@ public:
 	//
 	void SetGlobalTint(LcColor3 tint);
 	//
+	void SetTextureFor(LcDSLayoutType type, VkImageView imageView);
+	//
 	const VkDescriptorSet* GetDescriptorSetFor(LcDSLayoutType type) const;
 	//
 	inline const VkDescriptorSetLayout* GetLayoutFor(LcDSLayoutType type) const { return &descriptorLayouts[static_cast<int>(type)].layout; }
@@ -76,11 +78,10 @@ protected:
 	//
 	void CreateForColoredSprite(const VkDescriptorSetLayoutBinding& uboLayoutBinding);
 	//
-	void CreateForTexturedVisual(const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding);
-	//
-	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	//
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	void CreateForTexturedVisual(
+		const VkDescriptorSetLayoutBinding& uboLayoutBinding,
+		const VkDescriptorSetLayoutBinding& samplerLayoutBinding,
+		const VkDescriptorSetLayoutBinding& textureLayoutBinding);
 
 
 protected:
