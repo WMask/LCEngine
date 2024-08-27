@@ -47,9 +47,9 @@ class LcConstantBuffersVulkan
 {
 public:
 	//
-	LcConstantBuffersVulkan(class IRenderDeviceVulkan& inRender);
+	LcConstantBuffersVulkan(class IRenderDeviceVulkan& render);
 	//
-	void Create(unsigned int framesInFlight);
+	void Create();
 	//
 	void Destroy(VkDevice device);
 	//
@@ -109,7 +109,5 @@ protected:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	//
 	std::vector<void*> uniformBuffersMapped;
-	//
-	unsigned int frames;
 
 };

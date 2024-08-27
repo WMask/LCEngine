@@ -16,7 +16,6 @@
 
 LcConstantBuffersVulkan::LcConstantBuffersVulkan(IRenderDeviceVulkan& inRender)
 	: render(inRender)
-	, frames(0)
 {
 	buffer.mView = IdentityMatrix();
 	buffer.mProj = IdentityMatrix();
@@ -25,7 +24,7 @@ LcConstantBuffersVulkan::LcConstantBuffersVulkan(IRenderDeviceVulkan& inRender)
 
 void LcConstantBuffersVulkan::Destroy(VkDevice device)
 {
-	size_t sz = std::min<size_t>(frames, uniformBuffers.size());
+	size_t sz = std::min<size_t>(MAX_FRAMES_IN_FLIGHT, uniformBuffers.size());
 
 	for (size_t i = 0; i < sz; i++)
 	{
@@ -43,7 +42,7 @@ void LcConstantBuffersVulkan::Destroy(VkDevice device)
 	}
 }
 
-void LcConstantBuffersVulkan::Create(unsigned int framesInFlight)
+void LcConstantBuffersVulkan::Create()
 {
 	auto device = render.GetVulkanDevice();
 
@@ -51,12 +50,11 @@ void LcConstantBuffersVulkan::Create(unsigned int framesInFlight)
 
 	VkDeviceSize bufferSize = sizeof(LcUniformBufferObject);
 
-	frames = framesInFlight;
-	uniformBuffers.resize(frames);
-	uniformBuffersMemory.resize(frames);
-	uniformBuffersMapped.resize(frames);
+	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
-	for (unsigned int i = 0; i < frames; i++)
+	for (unsigned int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		CreateBuffer(device, render.GetPhysicalDevice(), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -112,17 +110,17 @@ void LcConstantBuffersVulkan::CreateForColoredSprite(const VkDescriptorSetLayout
 		throw LcException("Failed to create descriptor set layout");
 	}
 
-	std::vector<VkDescriptorSetLayout> layouts(frames, layout.layout);
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, layout.layout);
 
 	VkDescriptorPoolSize poolSize;
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = frames;
+	poolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = 1;
 	poolInfo.pPoolSizes = &poolSize;
-	poolInfo.maxSets = frames;
+	poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
 
 	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool);
 	if (result != VK_SUCCESS)
@@ -133,17 +131,17 @@ void LcConstantBuffersVulkan::CreateForColoredSprite(const VkDescriptorSetLayout
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = layout.pool;
-	allocInfo.descriptorSetCount = frames;
+	allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
 	allocInfo.pSetLayouts = layouts.data();
 
-	layout.sets.resize(frames);
+	layout.sets.resize(MAX_FRAMES_IN_FLIGHT);
 	result = vkAllocateDescriptorSets(device, &allocInfo, layout.sets.data());
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to allocate descriptor sets");
 	}
 
-	for (size_t i = 0; i < frames; i++)
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		VkDescriptorBufferInfo bufferInfo{};
 		bufferInfo.buffer = uniformBuffers[i];
@@ -171,6 +169,7 @@ void LcConstantBuffersVulkan::CreateForTexturedVisual(
 	const VkDescriptorSetLayoutBinding& textureLayoutBinding)
 {
 	auto device = render.GetVulkanDevice();
+	uint32_t framesCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 	LC_TRY
 
@@ -189,22 +188,22 @@ void LcConstantBuffersVulkan::CreateForTexturedVisual(
 		throw LcException("Failed to create descriptor set layout");
 	}
 
-	std::vector<VkDescriptorSetLayout> layouts(frames, layout.layout);
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, layout.layout);
 
 	std::array<VkDescriptorPoolSize, 3> poolSizes{};
 
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount = frames;
+	poolSizes[0].descriptorCount = framesCount;
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-	poolSizes[1].descriptorCount = frames;
+	poolSizes[1].descriptorCount = framesCount;
 	poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-	poolSizes[2].descriptorCount = frames;
+	poolSizes[2].descriptorCount = framesCount;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = frames;
+	poolInfo.maxSets = framesCount;
 
 	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool);
 	if (result != VK_SUCCESS)
@@ -215,17 +214,17 @@ void LcConstantBuffersVulkan::CreateForTexturedVisual(
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = layout.pool;
-	allocInfo.descriptorSetCount = frames;
+	allocInfo.descriptorSetCount = framesCount;
 	allocInfo.pSetLayouts = layouts.data();
 
-	layout.sets.resize(frames);
+	layout.sets.resize(MAX_FRAMES_IN_FLIGHT);
 	result = vkAllocateDescriptorSets(device, &allocInfo, layout.sets.data());
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to allocate descriptor sets");
 	}
 
-	for (size_t i = 0; i < frames; i++)
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		VkDescriptorBufferInfo bufferInfo{};
 		bufferInfo.buffer = uniformBuffers[i];
@@ -233,6 +232,7 @@ void LcConstantBuffersVulkan::CreateForTexturedVisual(
 		bufferInfo.range = sizeof(LcUniformBufferObject);
 
 		VkDescriptorImageInfo samplerInfo{};
+		samplerInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		samplerInfo.sampler = render.GetTextureSampler();
 
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
@@ -261,10 +261,10 @@ void LcConstantBuffersVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget
 {
 	buffer.mView = LookAtMatrix(cameraPos, cameraTarget, false);
 
-	auto imageIndex = render.GetCurrentImage();
-	if (imageIndex < uniformBuffersMapped.size() && updateUniforms)
+	auto currentFrame = render.GetCurrentFrame();
+	if (currentFrame < uniformBuffersMapped.size() && updateUniforms)
 	{
-		memcpy(uniformBuffersMapped[imageIndex], &buffer, sizeof(LcUniformBufferObject));
+		memcpy(uniformBuffersMapped[currentFrame], &buffer, sizeof(LcUniformBufferObject));
 	}
 }
 
@@ -272,10 +272,10 @@ void LcConstantBuffersVulkan::SetOrtho(float widthPixels, float heightPixels, fl
 {
 	buffer.mProj = OrthoMatrix(widthPixels, heightPixels, nearPlane, farPlane, false, false);
 
-	auto imageIndex = render.GetCurrentImage();
-	if (imageIndex < uniformBuffersMapped.size())
+	auto currentFrame = render.GetCurrentFrame();
+	if (currentFrame < uniformBuffersMapped.size())
 	{
-		memcpy(uniformBuffersMapped[imageIndex], &buffer, sizeof(LcUniformBufferObject));
+		memcpy(uniformBuffersMapped[currentFrame], &buffer, sizeof(LcUniformBufferObject));
 	}
 }
 
@@ -283,49 +283,46 @@ void LcConstantBuffersVulkan::SetGlobalTint(LcColor3 tint)
 {
 	buffer.globalTint = tint;
 
-	auto imageIndex = render.GetCurrentImage();
-	if (imageIndex < uniformBuffersMapped.size())
+	auto currentFrame = render.GetCurrentFrame();
+	if (currentFrame < uniformBuffersMapped.size())
 	{
-		memcpy(uniformBuffersMapped[imageIndex], &buffer, sizeof(LcUniformBufferObject));
+		memcpy(uniformBuffersMapped[currentFrame], &buffer, sizeof(LcUniformBufferObject));
 	}
 }
 
 void LcConstantBuffersVulkan::SetTextureFor(LcDSLayoutType type, VkImageView imageView)
 {
 	auto device = render.GetVulkanDevice();
+	auto currentFrame = render.GetCurrentFrame();
 	LcDescriptorLayout& layout = descriptorLayouts[static_cast<int>(type)];
 
-	auto imageIndex = render.GetCurrentImage();
-	if (imageIndex < frames)
+	switch (type)
 	{
-		switch (type)
+	case LcDSLayoutType::TexturedVisual:
 		{
-		case LcDSLayoutType::TexturedVisual:
-			{
-				VkDescriptorImageInfo imageInfo{};
-				imageInfo.imageView = imageView;
-				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageView = imageView;
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-				VkWriteDescriptorSet descriptorWrite{};
-				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptorWrite.dstSet = layout.sets[imageIndex];
-				descriptorWrite.dstBinding = 2;
-				descriptorWrite.descriptorCount = 1;
-				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-				descriptorWrite.pImageInfo = &imageInfo;
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = layout.sets[currentFrame];
+			descriptorWrite.dstBinding = 2;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			descriptorWrite.pImageInfo = &imageInfo;
 
-				vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
-			}
-			return;
+			vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 		}
-
-		throw LcException("LcConstantBuffersVulkan::SetTextureFor(): Invalid layout type");
+		return;
 	}
+
+	throw LcException("LcConstantBuffersVulkan::SetTextureFor(): Invalid layout type");
 }
 
 const VkDescriptorSet* LcConstantBuffersVulkan::GetDescriptorSetFor(LcDSLayoutType type) const
 {
-	auto imageIndex = render.GetCurrentImage();
+	auto currentFrame = render.GetCurrentFrame();
 	auto& layout = descriptorLayouts[static_cast<int>(type)];
-	return (imageIndex < layout.sets.size()) ? &layout.sets[imageIndex] : nullptr;
+	return (currentFrame < layout.sets.size()) ? &layout.sets[currentFrame] : nullptr;
 }

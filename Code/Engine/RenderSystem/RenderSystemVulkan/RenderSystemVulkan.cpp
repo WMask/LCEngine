@@ -50,10 +50,9 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, physicalDevice(VK_NULL_HANDLE), device(VK_NULL_HANDLE)
 	, graphicsQueue(VK_NULL_HANDLE), presentQueue(VK_NULL_HANDLE)
 	, swapChain(VK_NULL_HANDLE), renderPass(VK_NULL_HANDLE)
-	, commandPool(VK_NULL_HANDLE), commandBuffer(VK_NULL_HANDLE)
-	, imageAvailableSemaphore(VK_NULL_HANDLE), renderFinishedSemaphore(VK_NULL_HANDLE)
-	, inFlightFence(VK_NULL_HANDLE), textureSampler(VK_NULL_HANDLE), swapChainExtent{}
-	, swapChainImageFormat(VkFormat::VK_FORMAT_UNDEFINED)
+	, commandPool(VK_NULL_HANDLE), textureSampler(VK_NULL_HANDLE)
+	, swapChainExtent{}, swapChainImageFormat(VkFormat::VK_FORMAT_UNDEFINED)
+	, isInitialized(false), currentFrame(0)
 	, prevSetupRequested(false)
 	, worldScaleFonts(false)
 	, constBuffers(*this)
@@ -68,27 +67,21 @@ LcRenderSystemVulkan::~LcRenderSystemVulkan()
 
 void LcRenderSystemVulkan::Shutdown()
 {
-	auto localInstance = instance;
-	auto localDevice = device;
-	instance = nullptr;
-	device = nullptr;
-
-	if (localDevice)
+	if (isInitialized)
 	{
-		auto localImageAvailableSemaphore = imageAvailableSemaphore;
-		imageAvailableSemaphore = nullptr;
+		isInitialized = false;
 
 		for (auto framebuffer : swapChainFramebuffers)
 		{
-			vkDestroyFramebuffer(localDevice, framebuffer, nullptr);
+			vkDestroyFramebuffer(device, framebuffer, nullptr);
 		}
 
 		for (auto imageView : swapChainImageViews)
 		{
-			vkDestroyImageView(localDevice, imageView, nullptr);
+			vkDestroyImageView(device, imageView, nullptr);
 		}
 
-		if (swapChain) vkDestroySwapchainKHR(localDevice, swapChain, nullptr);
+		if (swapChain) vkDestroySwapchainKHR(device, swapChain, nullptr);
 
 		// destroy texture images
 		texLoader.RemoveTextures();
@@ -97,24 +90,24 @@ void LcRenderSystemVulkan::Shutdown()
 		visual2DRenders.clear();
 
 		// destroy uniform descriptor pool and layout
-		constBuffers.Destroy(localDevice);
+		constBuffers.Destroy(device);
 
-		vkDestroySampler(localDevice, textureSampler, nullptr);
+		vkDestroySampler(device, textureSampler, nullptr);
 
-		if (renderPass) vkDestroyRenderPass(localDevice, renderPass, nullptr);
+		if (renderPass) vkDestroyRenderPass(device, renderPass, nullptr);
 
-		if (renderFinishedSemaphore) vkDestroySemaphore(localDevice, renderFinishedSemaphore, nullptr);
-		if (localImageAvailableSemaphore) vkDestroySemaphore(localDevice, localImageAvailableSemaphore, nullptr);
-		if (inFlightFence) vkDestroyFence(localDevice, inFlightFence, nullptr);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(device, inFlightFences[i], nullptr);
+		}
 
-		if (commandPool) vkDestroyCommandPool(localDevice, commandPool, nullptr);
-		vkDestroyDevice(localDevice, nullptr);
-	}
+		if (commandPool) vkDestroyCommandPool(device, commandPool, nullptr);
+		vkDestroyDevice(device, nullptr);
 
-	if (localInstance)
-	{
-		if (surface) vkDestroySurfaceKHR(localInstance, surface, nullptr);
-		vkDestroyInstance(localInstance, nullptr);
+		if (surface) vkDestroySurfaceKHR(instance, surface, nullptr);
+		vkDestroyInstance(instance, nullptr);
 	}
 
 	LcRenderSystemBase::Shutdown();
@@ -143,13 +136,15 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	CreateSyncObjects();
 
 	// set uniforms
-	constBuffers.Create(MAX_FRAMES_IN_FLIGHT);
+	constBuffers.Create();
 	constBuffers.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
 	constBuffers.SetOrtho(width, height);
 
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
 	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderVulkan>(*this, context));
+
+	isInitialized = true;
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }
@@ -281,7 +276,7 @@ void LcRenderSystemVulkan::CreateSwapChain(int width, int height)
 	VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
 	VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, width, height);
 
-	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 0;
 	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 	{
 		imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -449,13 +444,15 @@ void LcRenderSystemVulkan::CreateCommandPool()
 		throw LcException("Failed to create command pool");
 	}
 
+	commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = commandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-	result = vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+	result = vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data());
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to allocate command buffers");
@@ -493,6 +490,10 @@ void LcRenderSystemVulkan::CreateTextureSampler()
 
 void LcRenderSystemVulkan::CreateSyncObjects()
 {
+	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -500,11 +501,14 @@ void LcRenderSystemVulkan::CreateSyncObjects()
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
-		vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS ||
-		vkCreateFence(device, &fenceInfo, nullptr, &inFlightFence) != VK_SUCCESS)
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		throw LcException("Failed to create synchronization objects for a frame");
+		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
+		{
+			throw LcException("Failed to create synchronization objects for a frame");
+		}
 	}
 }
 
@@ -554,34 +558,35 @@ void LcRenderSystemVulkan::UpdateCamera(float deltaSeconds, LcVector3 newPos, Lc
 
 void LcRenderSystemVulkan::Render(const LcAppContext& context)
 {
+	if (!CanRender()) return;
+
 	LC_TRY
 
-	if (!CanRender())
-	{
-		throw LcException("Can't render");
-	}
+	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-	vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(device, 1, &inFlightFence);
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &currentImageIndex);
+	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 	// begin command buffer
+	auto commandBuffer = commandBuffers[currentFrame];
+	vkResetCommandBuffer(commandBuffer, 0);
+
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
 	VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to begin recording command buffer");
 	}
 
-	VkClearValue clearColor = { {{0.0f, 0.0f, 1.0f, 0.0f}} };
+	VkClearValue clearColor = { {{0.0f, 0.0f, 1.0f, 1.0f}} };
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[currentImageIndex];
+	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = swapChainExtent;
 	renderPassInfo.clearValueCount = 1;
@@ -606,6 +611,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 
 	// render visuals
 	LcRenderSystemBase::Render(context);
+	prevSetupRequested = true;
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -619,20 +625,19 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
+	submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence);
-	if (result != VK_SUCCESS)
+	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
 	{
 		throw LcException("Failed to submit draw command buffer");
 	}
@@ -646,9 +651,15 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	VkSwapchainKHR swapChains[] = { swapChain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-	presentInfo.pImageIndices = &currentImageIndex;
+	presentInfo.pImageIndices = &imageIndex;
 
-	vkQueuePresentKHR(presentQueue, &presentInfo);
+	result = vkQueuePresentKHR(presentQueue, &presentInfo);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to present swap chain image");
+	}
+
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Render()") }
 }

@@ -66,8 +66,8 @@ public:
 	* Get uniforms */
 	virtual LcConstantBuffersVulkan& GetUniforms() = 0;
 	/**
-	* Get current image */
-	virtual uint32_t GetCurrentImage() const = 0;
+	* Get current frame */
+	virtual uint32_t GetCurrentFrame() const = 0;
 	/**
 	* Get shader code */
 	virtual std::string GetShaderCode(const std::string& shaderName) const = 0;
@@ -110,7 +110,7 @@ public:// IRenderSystem interface implementation
 	//
 	virtual void SetMode(LcWinMode mode) override;
 	//
-	virtual bool CanRender() const override { return device != nullptr && imageAvailableSemaphore != nullptr; }
+	virtual bool CanRender() const override { return isInitialized; }
 	//
 	virtual LcRSStats GetStats() const override;
 	//
@@ -132,7 +132,7 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual VkPhysicalDevice GetPhysicalDevice() const override { return physicalDevice; }
 	//
-	virtual VkCommandBuffer GetCommandBuffer() const override { return commandBuffer; }
+	virtual VkCommandBuffer GetCommandBuffer() const override { return commandBuffers[currentFrame]; }
 	//
 	virtual VkRenderPass GetRenderPass() const override { return renderPass; }
 	//
@@ -150,7 +150,7 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual LcConstantBuffersVulkan& GetUniforms() override { return constBuffers; }
 	//
-	virtual uint32_t GetCurrentImage() const override { return currentImageIndex; }
+	virtual uint32_t GetCurrentFrame() const override { return currentFrame; }
 	//
 	virtual std::string GetShaderCode(const std::string& shaderName) const override;
 
@@ -187,10 +187,10 @@ protected:
 	VkRenderPass renderPass;
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
+	VkSampler textureSampler;
 	//
 	VkCommandPool commandPool;
-	VkCommandBuffer commandBuffer;
-	VkSampler textureSampler;
+	std::vector<VkCommandBuffer> commandBuffers;
 	//
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
@@ -199,24 +199,26 @@ protected:
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	//
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
-	VkFence inFlightFence;
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
 
 
 protected:
 	//
 	TVisual2DRenderList visual2DRenders;
 	//
-	uint32_t currentImageIndex;
-	//
-	TVFeaturesList prevSpriteFeatures;
-	//
-	LcSize renderSystemSize;
-	//
 	LcConstantBuffersVulkan constBuffers;
 	//
 	LcTextureLoaderVulkan texLoader;
+	//
+	TVFeaturesList prevSpriteFeatures;
+	//
+	uint32_t currentFrame;
+	//
+	LcSize renderSystemSize;
+	//
+	bool isInitialized;
 	//
 	bool worldScaleFonts;
 	//
