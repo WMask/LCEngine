@@ -169,7 +169,7 @@ void LcConstantBuffersVulkan::CreateForTexturedVisual(
 	const VkDescriptorSetLayoutBinding& textureLayoutBinding)
 {
 	auto device = render.GetVulkanDevice();
-	uint32_t framesCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	const uint32_t framesCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 	LC_TRY
 
@@ -217,7 +217,7 @@ void LcConstantBuffersVulkan::CreateForTexturedVisual(
 	allocInfo.descriptorSetCount = framesCount;
 	allocInfo.pSetLayouts = layouts.data();
 
-	layout.sets.resize(MAX_FRAMES_IN_FLIGHT);
+	layout.sets.resize(framesCount);
 	result = vkAllocateDescriptorSets(device, &allocInfo, layout.sets.data());
 	if (result != VK_SUCCESS)
 	{
