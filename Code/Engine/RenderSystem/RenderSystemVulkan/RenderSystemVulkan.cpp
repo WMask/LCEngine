@@ -12,10 +12,7 @@
 #include "World/Camera.h"
 #include "GUI/GuiManager.h"
 #include "Core/LCException.h"
-
-#ifdef max
-#undef max
-#endif
+#include "Core/LCUtils.h"
 
 
 class LcVisual2DLifetimeStrategyVulkan : public LcLifetimeStrategy<IVisual, IWorld::TVisualSet>
@@ -55,7 +52,7 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, isInitialized(false), currentFrame(0)
 	, prevSetupRequested(false)
 	, worldScaleFonts(false)
-	, constBuffers(*this)
+	, descriptorSets(*this)
 	, texLoader(*this)
 {
 }
@@ -90,7 +87,7 @@ void LcRenderSystemVulkan::Shutdown()
 		visual2DRenders.clear();
 
 		// destroy uniform descriptor pool and layout
-		constBuffers.Destroy(device);
+		descriptorSets.Destroy(device);
 
 		vkDestroySampler(device, textureSampler, nullptr);
 
@@ -135,16 +132,19 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	CreateTextureSampler();
 	CreateSyncObjects();
 
-	// set uniforms
-	constBuffers.Create();
-	constBuffers.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
-	constBuffers.SetOrtho(width, height);
+	// create descriptor sets
+	descriptorSets.Create();
+	descriptorSets.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
+	descriptorSets.SetOrtho(width, height);
 
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
 	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderVulkan>(*this, context));
 
 	isInitialized = true;
+
+	LcTextureVulkan texture{};
+	texLoader.LoadTexture("../../Assets/tileset.png", texture);
 
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }
@@ -542,7 +542,7 @@ void LcRenderSystemVulkan::Subscribe(const LcAppContext& context)
 
 	context.world->onTintChanged.AddListener([this](LcColor3 globalTint)
 	{
-		constBuffers.SetGlobalTint(globalTint);
+		descriptorSets.SetGlobalTint(globalTint);
 	});
 }
 
@@ -553,7 +553,7 @@ void LcRenderSystemVulkan::Update(float deltaSeconds, const LcAppContext& contex
 
 void LcRenderSystemVulkan::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
 {
-	constBuffers.LookAt(newPos, newTarget);
+	descriptorSets.LookAt(newPos, newTarget);
 }
 
 void LcRenderSystemVulkan::Render(const LcAppContext& context)
@@ -566,6 +566,11 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	if (!texLoader.IsUpdated(texLoaderCounters[currentFrame]))
+	{
+		descriptorSets.UpdateTexturesForFrame(currentFrame);
+	}
 
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -611,7 +616,6 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 
 	// render visuals
 	LcRenderSystemBase::Render(context);
-	prevSetupRequested = true;
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -631,15 +635,16 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+	submitInfo.pCommandBuffers = &commandBuffer;
 
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
+	result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]);
+	if (result != VK_SUCCESS)
 	{
-		throw LcException("Failed to submit draw command buffer");
+		DebugMsg("Failed to submit draw command buffer\n");
 	}
 
 	// present to screen
@@ -656,7 +661,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	result = vkQueuePresentKHR(presentQueue, &presentInfo);
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to present swap chain image");
+		DebugMsg("Failed to present swap chain image\n");
 	}
 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

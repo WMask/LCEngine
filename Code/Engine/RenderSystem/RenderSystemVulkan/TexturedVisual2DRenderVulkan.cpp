@@ -87,10 +87,15 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 	pushConstantRange.size = sizeof(VULKANTEXTUREDVISUALDATA);
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+	std::array<VkDescriptorSetLayout, 2> layouts = {
+		*render.GetDescriptorSets().GetLayoutForFrame(render.GetCurrentFrame(), LcDSLayoutType::TexturedVisual),
+		*render.GetDescriptorSets().GetLayoutForFrame(render.GetCurrentFrame(), LcDSLayoutType::Textures)
+	};
+
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = render.GetUniforms().GetLayoutFor(LcDSLayoutType::TexturedVisual);
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+	pipelineLayoutInfo.pSetLayouts = layouts.data();
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -120,7 +125,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 	vkDestroyShaderModule(device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-	LC_CATCH{ LC_THROW("LcColoredSpriteRenderVulkan()") }
+	LC_CATCH{ LC_THROW("LcTexturedVisual2DRenderVulkan()") }
 }
 
 LcTexturedVisual2DRenderVulkan::~LcTexturedVisual2DRenderVulkan()
@@ -136,14 +141,24 @@ LcTexturedVisual2DRenderVulkan::~LcTexturedVisual2DRenderVulkan()
 void LcTexturedVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppContext& context)
 {
 	auto commandBuffer = render.GetCommandBuffer();
-	auto descriptorSet = render.GetUniforms().GetDescriptorSetFor(LcDSLayoutType::TexturedVisual);
-	if (!commandBuffer || !descriptorSet)
+	auto descriptorSets = render.GetDescriptorSets().GetSetsForFrame(render.GetCurrentFrame(), LcDSLayoutType::TexturedVisual);
+	if (!commandBuffer || !visual || (descriptorSets.size() == 0))
 	{
-		throw std::exception("LcTexturedVisual2DRenderVulkan::Setup(): Invalid render params");
+		throw LcException("LcTexturedVisual2DRenderVulkan::Setup(): Invalid render params");
 	}
 
+	// bind descriptors to set 0
+	const uint32_t setOffset = 0;
+	const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
+	const VkDescriptorSet* setPtr = descriptorSets.data();
+
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, descriptorSet, 0, nullptr);
+
+	// bind per type descriptors (LcDSLayoutType::TexturedVisual)
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+		setOffset, setCount, setPtr,
+		0, nullptr
+	);
 }
 
 void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppContext& context)
@@ -156,7 +171,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 	auto widget = (visual->GetTypeId() == LcCreatables::Widget) ? static_cast<const IWidget*>(visual) : nullptr;
 	if (!device || !commandBuffer || (!sprite && !widget))
 	{
-		throw std::exception("LcColoredSpriteRenderVulkan::Render(): Invalid render params");
+		throw LcException("Invalid render params");
 	}
 
 	if (sprite)
@@ -188,7 +203,24 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		{
 			LcTextureVulkan texture{};
 			render.GetTextureLoader().LoadTexture(texComp->GetTexturePath().c_str(), texture);
-			render.GetUniforms().SetTextureFor(LcDSLayoutType::TexturedVisual, texture.imageView);
+
+			VkDescriptorSet& textureSet = texture.sets.at(render.GetCurrentFrame());
+			if (!textureSet)
+			{
+				throw LcException("Invalid descriptor set for texture: '", texComp->GetTexturePath().c_str(), "'");
+			}
+
+			// bind texture descriptor to set 1
+			const uint32_t setOffset = 1;
+			const uint32_t setCount = 1;
+			const VkDescriptorSet* setPtr = &textureSet;
+
+			// bind per object descriptors
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+				setOffset, setCount, setPtr,
+				0, nullptr
+			);
+
 			pushConst.options[HAS_TEXTURE] = 1;
 		}
 

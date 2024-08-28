@@ -89,6 +89,9 @@ public: // IApplication interface implementation
 
 
 protected:
+	//
+	void Shutdown();
+	//
 	void OnUpdate();
 
 

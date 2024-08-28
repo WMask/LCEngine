@@ -86,7 +86,7 @@ LcColoredSpriteRenderVulkan::LcColoredSpriteRenderVulkan(IRenderDeviceVulkan& in
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = render.GetUniforms().GetLayoutFor(LcDSLayoutType::ColoredSprite);
+	pipelineLayoutInfo.pSetLayouts = render.GetDescriptorSets().GetLayoutForFrame(render.GetCurrentFrame(), LcDSLayoutType::ColoredSprite);
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -132,14 +132,22 @@ LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContext& context)
 {
 	auto commandBuffer = render.GetCommandBuffer();
-	auto descriptorSet = render.GetUniforms().GetDescriptorSetFor(LcDSLayoutType::ColoredSprite);
-	if (!commandBuffer || !descriptorSet)
+	auto descriptorSets = render.GetDescriptorSets().GetSetsForFrame(render.GetCurrentFrame(), LcDSLayoutType::ColoredSprite);
+	if (!commandBuffer || (descriptorSets.size() == 0))
 	{
 		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid render params");
 	}
 
+	const uint32_t dscOffset = 0;
+	const uint32_t dscCount = static_cast<uint32_t>(descriptorSets.size());
+
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, descriptorSet, 0, nullptr);
+
+	// bind per type descriptors (LcDSLayoutType::ColoredSprite)
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+		dscOffset, dscCount, descriptorSets.data(),
+		0, nullptr
+	);
 }
 
 void LcColoredSpriteRenderVulkan::Render(const IVisual* visual, const LcAppContext& context)

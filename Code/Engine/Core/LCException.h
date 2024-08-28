@@ -33,6 +33,13 @@ public:
 		message += curLocation;
 	}
 	//
+	LcException(const char* preMsg, const char* msg, const char* postMsg)
+	{
+		message += preMsg;
+		message += msg;
+		message += postMsg;
+	}
+	//
 	LcException(const std::exception& prevEx, const char* preMsg, const char* msg, const char* postMsg)
 	{
 		message = prevEx.what();

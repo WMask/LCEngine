@@ -13,6 +13,9 @@
 #include <memory>
 #include <deque>
 
+#ifdef max
+#undef max
+#endif
 
 /** vector of unsigned chars */
 typedef std::vector<unsigned char> LcBytes;
@@ -131,6 +134,26 @@ struct LcAny
 	bool		bValue;
 	int			iValue;
 	LcAnyType   type;
+};
+
+/** Counts object updates */
+struct LcUpdateCounter
+{
+	inline void UpdateCounter()
+	{
+		if (updateCounter == std::numeric_limits<uint32_t>::max())
+			updateCounter = 0;
+		else
+			updateCounter++;
+	}
+	//
+	inline bool IsUpdated(uint32_t& inOutOldValue)
+	{
+		if (inOutOldValue != updateCounter) { inOutOldValue = updateCounter; return false; }
+		return true;
+	}
+	//
+	uint32_t updateCounter = 0;
 };
 
 

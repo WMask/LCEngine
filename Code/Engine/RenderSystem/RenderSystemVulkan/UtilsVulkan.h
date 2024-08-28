@@ -7,9 +7,10 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include <string>
-#include <map>
 #include <optional>
+#include <string>
+#include <array>
+#include <map>
 
 #include "World/WorldInterface.h"
 #include "World/SpriteInterface.h"
@@ -17,11 +18,15 @@
 #include "Core/LCTypesEx.h"
 
 
-static const int MAX_FRAMES_IN_FLIGHT   = 2;
-static const unsigned int HAS_COLOR     = 0;
-static const unsigned int HAS_CUSTOM_UV = 1;
-static const unsigned int HAS_TEXTURE   = 2;
-static const unsigned int HAS_ANIMATION = 3;
+static const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+static const uint32_t HAS_COLOR            = 0;
+static const uint32_t HAS_CUSTOM_UV        = 1;
+static const uint32_t HAS_TEXTURE          = 2;
+static const uint32_t HAS_ANIMATION        = 3;
+static const uint32_t UBO_BINDING_ID       = 0;
+static const uint32_t SAMPLER_BINDING_ID   = 1;
+static const uint32_t TEXTURES_BINDING_ID  = 0;
+
 
 static const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
@@ -46,7 +51,7 @@ struct LcTextureVulkan
 		: image(VK_NULL_HANDLE)
 		, imageMemory(VK_NULL_HANDLE)
 		, imageView(VK_NULL_HANDLE)
-		, size{}
+		, size{}, sets{}
 	{
 	}
 	VkImage image;
@@ -56,7 +61,10 @@ struct LcTextureVulkan
 	VkImageView imageView;
 	//
 	LcSize size;
+	//
+	std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> sets;
 };
+
 
 std::vector<const char*> GetRequiredExtensions();
 bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
@@ -73,8 +81,17 @@ void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize
 
 /**
 * Texture loader */
-class LcTextureLoaderVulkan
+class LcTextureLoaderVulkan : public LcUpdateCounter
 {
+public:
+	//
+	struct LcTextureDataVulkan : public LcTextureVulkan
+	{
+		~LcTextureDataVulkan();
+	};
+	using TTexturesMap = std::map<std::string, LcTextureDataVulkan>;
+
+
 public:
 	//
 	LcTextureLoaderVulkan(class IRenderDeviceVulkan& inRender);
@@ -87,7 +104,11 @@ public:
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
 	void ClearCache(IWorld* world);
 	//
-	inline int GetNumTextures() const { return (int)texturesCache.size(); }
+	inline TTexturesMap& GetTexturesCache() { return texturesCache; }
+	//
+	inline const TTexturesMap& GetTexturesCache() const { return texturesCache; }
+	//
+	inline uint32_t GetNumTextures() const { return static_cast<uint32_t>(texturesCache.size()); }
 
 
 protected:
@@ -106,15 +127,10 @@ protected:
 
 protected:
 	//
-	struct LcTextureDataVulkan : public LcTextureVulkan
-	{
-		~LcTextureDataVulkan();
-	};
-	//
 	static VkDevice deviceInstance;
 	//
 	class IRenderDeviceVulkan& render;
 	//
-	std::map<std::string, LcTextureDataVulkan> texturesCache;
+	TTexturesMap texturesCache;
 
 };

@@ -50,6 +50,7 @@ void LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcTextureVulkan& ou
 		outTexture.imageMemory = entry->second.imageMemory;
 		outTexture.imageView = entry->second.imageView;
 		outTexture.size = entry->second.size;
+		outTexture.sets = entry->second.sets;
 		return;
 	}
 
@@ -115,12 +116,16 @@ void LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcTextureVulkan& ou
 	outTexture.imageView = newTexData.imageView;
 	outTexture.size = newTexData.size;
 
+	UpdateCounter();
+
 	LC_CATCH{ LC_THROW_EX("LcTextureLoaderVulkan::LoadTexture('", texPath, "')"); }
 }
 
 void LcTextureLoaderVulkan::ClearCache(IWorld* world)
 {
-    LC_TRY
+	LC_TRY
+
+	auto prevSize = texturesCache.size();
 
 	if (world)
 	{
@@ -151,6 +156,11 @@ void LcTextureLoaderVulkan::ClearCache(IWorld* world)
 	else
 	{
 		texturesCache.clear();
+	}
+
+	if (texturesCache.size() != prevSize)
+	{
+		UpdateCounter();
 	}
 
     LC_CATCH{ LC_THROW("LcTextureLoaderVulkan::ClearCache()") }
@@ -475,7 +485,7 @@ uint32_t FindMemoryType(VkPhysicalDevice device, uint32_t typeFilter, VkMemoryPr
 }
 
 void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage,
-    VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 {
 	LC_TRY
 

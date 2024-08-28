@@ -11,7 +11,7 @@
 
 #include "Module.h"
 #include "RenderSystem/RenderSystem.h"
-#include "RenderSystem/RenderSystemVulkan/ConstantBuffersVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/DescriptorSetsVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/UtilsVulkan.h"
 #include "World/WorldInterface.h"
 
@@ -60,11 +60,11 @@ public:
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
-	* Get uniforms */
-	virtual const LcConstantBuffersVulkan& GetUniforms() const = 0;
+	* Get descriptor sets */
+	virtual const LcDescriptorSetsVulkan& GetDescriptorSets() const = 0;
 	/**
-	* Get uniforms */
-	virtual LcConstantBuffersVulkan& GetUniforms() = 0;
+	* Get descriptor sets */
+	virtual LcDescriptorSetsVulkan& GetDescriptorSets() = 0;
 	/**
 	* Get current frame */
 	virtual uint32_t GetCurrentFrame() const = 0;
@@ -146,9 +146,9 @@ public:// IRenderDeviceVulkan interface implementation
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//
-	virtual const LcConstantBuffersVulkan& GetUniforms() const override { return constBuffers; }
+	virtual const LcDescriptorSetsVulkan& GetDescriptorSets() const override { return descriptorSets; }
 	//
-	virtual LcConstantBuffersVulkan& GetUniforms() override { return constBuffers; }
+	virtual LcDescriptorSetsVulkan& GetDescriptorSets() override { return descriptorSets; }
 	//
 	virtual uint32_t GetCurrentFrame() const override { return currentFrame; }
 	//
@@ -206,11 +206,15 @@ protected:
 
 protected:
 	//
+	using LcTextureLoaderCounters = std::array<uint32_t, MAX_FRAMES_IN_FLIGHT>;
+	//
 	TVisual2DRenderList visual2DRenders;
 	//
-	LcConstantBuffersVulkan constBuffers;
+	LcDescriptorSetsVulkan descriptorSets;
 	//
 	LcTextureLoaderVulkan texLoader;
+	//
+	LcTextureLoaderCounters texLoaderCounters;
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//
