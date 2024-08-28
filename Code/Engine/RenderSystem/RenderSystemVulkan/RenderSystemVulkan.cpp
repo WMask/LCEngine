@@ -143,9 +143,6 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 
 	isInitialized = true;
 
-	LcTextureVulkan texture{};
-	texLoader.LoadTexture("../../Assets/tileset.png", texture);
-
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Create()") }
 }
 

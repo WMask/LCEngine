@@ -118,7 +118,7 @@ void LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcTextureVulkan& ou
 
 	UpdateCounter();
 
-	LC_CATCH{ LC_THROW_EX("LcTextureLoaderVulkan::LoadTexture('", texPath, "')"); }
+	LC_CATCH{ LC_THROW("LcTextureLoaderVulkan::LoadTexture()"); }
 }
 
 void LcTextureLoaderVulkan::ClearCache(IWorld* world)

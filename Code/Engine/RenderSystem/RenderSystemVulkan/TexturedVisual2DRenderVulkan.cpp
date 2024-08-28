@@ -10,6 +10,7 @@
 #include "World/SpriteInterface.h"
 #include "GUI/WidgetInterface.h"
 #include "Core/LCException.h"
+#include "Core/LCUtils.h"
 #include <shaderc/shaderc.hpp>
 
 
@@ -20,7 +21,7 @@ struct VULKANTEXTUREDVISUALDATA
 	LcMatrix4 mModel;
 	LcColor4 colors[4];
 	LcVector2 uvs[4];
-	uint8_t options[4];
+	float options[4];
 };
 
 
@@ -49,6 +50,10 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 	// Compile shaders
 	auto fragShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
 	auto fragShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
+	if (fragShaderAssembly.GetCompilationStatus() != shaderc_compilation_status_success)
+	{
+		throw LcException(fragShaderAssembly.GetErrorMessage().c_str());
+	}
 
 	std::string fragShaderAssemblyCode(fragShaderAssembly.cbegin(), fragShaderAssembly.cend());
 	auto fragShaderAssembled = compiler.AssembleToSpv(fragShaderAssemblyCode);
@@ -57,6 +62,10 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 
 	auto vertShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_vertex_shader, "vs.tmp", options);
 	auto vertShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_vertex_shader, "vs.tmp", options);
+	if (vertShaderAssembly.GetCompilationStatus() != shaderc_compilation_status_success)
+	{
+		throw LcException(vertShaderAssembly.GetErrorMessage().c_str());
+	}
 
 	std::string vertShaderAssemblyCode(vertShaderAssembly.cbegin(), vertShaderAssembly.cend());
 	auto vertShaderAssembled = compiler.AssembleToSpv(vertShaderAssemblyCode);
@@ -185,7 +194,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		{
 			auto colorsData = colors ? colors->GetData() : tint->GetData();
 			memcpy(pushConst.colors, colorsData, sizeof(pushConst.colors));
-			pushConst.options[HAS_COLOR] = 1;
+			pushConst.options[HAS_COLOR] = 1.0f;
 		}
 		else
 		{
@@ -196,7 +205,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		if (auto customUV = sprite->GetCustomUVComponent())
 		{
 			memcpy(pushConst.uvs, customUV->GetData(), sizeof(pushConst.uvs));
-			pushConst.options[HAS_CUSTOM_UV] = 1;
+			pushConst.options[HAS_CUSTOM_UV] = 1.0f;
 		}
 
 		if (auto texComp = sprite->GetTextureComponent())
@@ -207,7 +216,8 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 			VkDescriptorSet& textureSet = texture.sets.at(render.GetCurrentFrame());
 			if (!textureSet)
 			{
-				throw LcException("Invalid descriptor set for texture: '", texComp->GetTexturePath().c_str(), "'");
+				DebugMsg("Descriptor set not ready yet for texture: '%s'\n", texComp->GetTexturePath().c_str());
+				return;
 			}
 
 			// bind texture descriptor to set 1
@@ -221,7 +231,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 				0, nullptr
 			);
 
-			pushConst.options[HAS_TEXTURE] = 1;
+			pushConst.options[HAS_TEXTURE] = 1.0f;
 		}
 
 		// update transform
