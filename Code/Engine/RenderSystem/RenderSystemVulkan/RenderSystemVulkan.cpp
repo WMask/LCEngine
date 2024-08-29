@@ -115,6 +115,12 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 {
 	LC_TRY
 
+	auto world = context.world;
+	if (!world || !windowHandle)
+	{
+		throw LcException("Invalid parameters");
+	}
+
 	HWND hWnd = (HWND)windowHandle;
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
@@ -137,6 +143,34 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	descriptorSets.Create();
 	descriptorSets.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
 	descriptorSets.SetOrtho(width, height);
+
+	// add texture update listener
+	descriptorSets.onTextureUpdated.AddListener(
+		[world](const char* path, int frame, VkDescriptorSet texSet)
+	{
+		const auto& visuals = world->GetVisuals();
+		for (const auto& visual : visuals)
+		{
+			if (visual->GetTypeId() == LcCreatables::Sprite)
+			{
+				auto sprite = static_cast<LcSpriteVulkan*>(visual.get());
+				auto texComp = sprite->GetTextureComponent();
+				if (texComp && texComp->GetTexturePath() == path)
+				{
+					sprite->spriteSet[frame] = texSet;
+				}
+			}
+			else if (visual->GetTypeId() == LcCreatables::Widget)
+			{
+				auto widget = static_cast<LcWidgetVulkan*>(visual.get());
+				auto texComp = widget->GetTextureComponent();
+				if (texComp && texComp->GetTexturePath() == path)
+				{
+					widget->spriteSet[frame] = texSet;
+				}
+			}
+		}
+	});
 
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));

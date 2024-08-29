@@ -13,6 +13,7 @@
 #include "GUI/Widgets.h"
 #include "World/Sprites.h"
 #include "Core/LCTypesEx.h"
+#include "RenderSystem/RenderSystemVulkan/UtilsVulkan.h"
 
 
 /**
@@ -20,9 +21,9 @@
 class LcSpriteVulkan : public LcSprite
 {
 public:
-	LcSpriteVulkan() : spriteTex(nullptr) {}
+	LcSpriteVulkan() : spriteSet{} {}
 	//
-	VkDescriptorSet spriteTex;
+	std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> spriteSet;
 
 
 public: // IVisualBase interface implementation
@@ -37,9 +38,9 @@ public: // IVisualBase interface implementation
 class LcWidgetVulkan : public LcWidget
 {
 public:
-	LcWidgetVulkan() : spriteTex(nullptr) {}
+	LcWidgetVulkan() : spriteSet{} {}
 	//
-	VkDescriptorSet spriteTex;
+	std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> spriteSet;
 
 
 public: // IVisualBase interface implementation

@@ -49,6 +49,9 @@ class LcDescriptorSetsVulkan
 public:
 	using TDescriptors = std::vector<VkDescriptorSet>;
 	using TDescriptorsConstPtr = const TDescriptors*;
+	using TTextureUpdatedDelegate = LcDelegate<const char* /* path */, int /* frame */, VkDescriptorSet /* texture image */>;
+	//
+	TTextureUpdatedDelegate onTextureUpdated;
 
 
 public:

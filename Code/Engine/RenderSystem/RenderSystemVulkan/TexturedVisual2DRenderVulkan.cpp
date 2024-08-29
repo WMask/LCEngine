@@ -6,6 +6,7 @@
 
 #include "RenderSystem/RenderSystemVulkan/TexturedVisual2DRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/VisualsVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/UtilsVulkan.h"
 #include "World/SpriteInterface.h"
 #include "GUI/WidgetInterface.h"
@@ -161,11 +162,10 @@ void LcTexturedVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppCon
 	// bind descriptors to set 0
 	const uint32_t setOffset = 0;
 	const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
-	const VkDescriptorSet* setPtr = descriptorSets.data();
 
 	// bind per type descriptors (LcDSLayoutType::TexturedVisual)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		setOffset, setCount, setPtr,
+		setOffset, setCount, descriptorSets.data(),
 		0, nullptr
 	);
 }
@@ -210,10 +210,8 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 
 		if (auto texComp = sprite->GetTextureComponent())
 		{
-			LcTextureVulkan texture{};
-			render.GetTextureLoader().LoadTexture(texComp->GetTexturePath().c_str(), texture);
-
-			VkDescriptorSet& textureSet = texture.sets.at(render.GetCurrentFrame());
+			const LcSpriteVulkan* spriteVulkan = static_cast<const LcSpriteVulkan*>(sprite);
+			const VkDescriptorSet& textureSet = spriteVulkan->spriteSet[render.GetCurrentFrame()];
 			if (!textureSet)
 			{
 				DebugMsg("Descriptor set not ready yet for texture: '%s'\n", texComp->GetTexturePath().c_str());
@@ -223,11 +221,10 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 			// bind texture descriptor to set 1
 			const uint32_t setOffset = 1;
 			const uint32_t setCount = 1;
-			const VkDescriptorSet* setPtr = &textureSet;
 
 			// bind per object descriptors
 			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-				setOffset, setCount, setPtr,
+				setOffset, setCount, &textureSet,
 				0, nullptr
 			);
 
@@ -279,10 +276,8 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 
 		if (auto texComp = widget->GetTextureComponent())
 		{
-			LcTextureVulkan texture{};
-			render.GetTextureLoader().LoadTexture(texComp->GetTexturePath().c_str(), texture);
-
-			VkDescriptorSet& textureSet = texture.sets.at(render.GetCurrentFrame());
+			const LcWidgetVulkan* widgetVulkan = static_cast<const LcWidgetVulkan*>(widget);
+			const VkDescriptorSet& textureSet = widgetVulkan->spriteSet[render.GetCurrentFrame()];
 			if (!textureSet)
 			{
 				DebugMsg("Descriptor set not ready yet for texture: '%s'\n", texComp->GetTexturePath().c_str());
@@ -292,11 +287,10 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 			// bind texture descriptor to set 1
 			const uint32_t setOffset = 1;
 			const uint32_t setCount = 1;
-			const VkDescriptorSet* setPtr = &textureSet;
 
 			// bind per object descriptors
 			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-				setOffset, setCount, setPtr,
+				setOffset, setCount, &textureSet,
 				0, nullptr
 			);
 

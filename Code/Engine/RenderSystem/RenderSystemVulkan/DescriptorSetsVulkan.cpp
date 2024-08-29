@@ -167,6 +167,8 @@ void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
 
 		textureIt.second.sets[frame] = currentSet;
 
+		onTextureUpdated.Broadcast(textureIt.first.c_str(), frame, currentSet);
+
 		textureId++;
 	}
 
