@@ -7,6 +7,7 @@
 #pragma once
 
 #include <windows.h>
+#include <chrono>
 
 #include "Module.h"
 #include "Application/ApplicationInterface.h"
@@ -93,24 +94,29 @@ protected:
 	void Shutdown();
 	//
 	void OnUpdate();
+	//
+	using LcClock = std::chrono::high_resolution_clock;
+	//
+	using LcTimePoint = std::chrono::high_resolution_clock::time_point;
 
 
 protected:
+	//
 	HINSTANCE hInstance;
 	//
 	HWND hWnd;
 	//
+	LcWinMode winMode;
+	//
 	std::wstring cmds;
+	//
+	LcTimePoint startTime;
+	//
+	LcTimePoint prevTime;
 	//
 	int cmdsCount;
 	//
 	bool quit;
-	//
-	LcWinMode winMode;
-	//
-	LARGE_INTEGER prevTime;
-	//
-	LARGE_INTEGER frequency;
 	//
 	std::string shadersPath;
 	//

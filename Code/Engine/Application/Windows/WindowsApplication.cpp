@@ -47,8 +47,6 @@ LcWindowsApplication::LcWindowsApplication()
 	cmdsCount = 0;
 	winMode = LcWinMode::Windowed;
 	quit = false;
-	prevTime.QuadPart = 0;
-	frequency.QuadPart = 0;
 }
 
 LcWindowsApplication::~LcWindowsApplication()
@@ -169,6 +167,8 @@ void LcWindowsApplication::Run()
 	SYSTEMTIME time;
 	GetSystemTime(&time);
 	srand(time.wMilliseconds);
+	startTime = LcClock::now();
+	prevTime = LcClock::now();
 
 	inputSystem->Init(context);
 
@@ -211,9 +211,6 @@ void LcWindowsApplication::Run()
 	}
 
 	// run game loop
-	QueryPerformanceFrequency(&frequency);
-	QueryPerformanceCounter(&prevTime);
-
 	MSG msg;
 	while (!quit)
 	{
@@ -260,21 +257,21 @@ void LcWindowsApplication::OnUpdate()
 {
 	LC_TRY
 
-	if (!world) throw std::exception("LcWindowsApplication::Run(): Invalid world");
-
-	LARGE_INTEGER curTime, deltaTime;
-	QueryPerformanceCounter(&curTime);
-	deltaTime.QuadPart = (curTime.QuadPart - prevTime.QuadPart);
-
-	if (curTime.QuadPart != prevTime.QuadPart)
+	if (!world)
 	{
-		prevTime.QuadPart = curTime.QuadPart;
+		throw LcException("LcWindowsApplication::Run(): Invalid world");
+	}
 
-		double deltaSeconds = static_cast<double>(deltaTime.QuadPart) / 10000000.0;
-		float deltaFloat = static_cast<float>(deltaSeconds);
+	LcTimePoint curTime = LcClock::now();
+	if (curTime != prevTime)
+	{
+		std::chrono::duration<float> deltaDuration = curTime - prevTime;
+		std::chrono::duration<float> gameDuration = curTime - startTime;
 
-		double timeSeconds = static_cast<double>(curTime.QuadPart) / 10000000.0;
-		context.gameTime = static_cast<float>(timeSeconds);
+		prevTime = curTime;
+
+		context.gameTime = gameDuration.count();
+		float deltaFloat = deltaDuration.count();
 
 		if (inputSystem)
 		{
