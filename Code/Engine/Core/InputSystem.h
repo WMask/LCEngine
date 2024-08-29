@@ -250,7 +250,7 @@ public:
 	* Get previous pointer position */
 	virtual LcVector2 GetPrevPointerPos() const noexcept { return LcVector2{}; }
 	/**
-	* Get pointer position */
+	* Set pointer position */
 	virtual void SetPointerPos(LcVector2 pos) noexcept {}
 	/**
 	* Get mutex */
@@ -441,7 +441,7 @@ public:
 	//
 	virtual LcVector2 GetPointerPos() const noexcept override { return mousePos; }
 	//
-	virtual LcVector2 GetPrevPointerPos() const noexcept override { return mousePos; }
+	virtual LcVector2 GetPrevPointerPos() const noexcept override { return prevMousePos; }
 	//
 	virtual void SetPointerPos(LcVector2 pos) noexcept override { mousePos = pos; }
 	//
