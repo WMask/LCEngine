@@ -7,6 +7,7 @@
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/TexturedVisual2DRenderVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/VisualsVulkan.h"
 #include "Application/ApplicationInterface.h"
 #include "World/World.h"
 #include "World/Camera.h"
@@ -26,11 +27,11 @@ public:
 	{
 		std::shared_ptr<IVisual> newVisual;
 
-		/*switch (curTypeId)
+		switch (curTypeId)
 		{
-		case LcCreatables::Sprite: newVisual = std::make_shared<LcSpriteDX10>(); break;
-		case LcCreatables::Widget: newVisual = std::make_shared<LcWidgetDX10>(); break;
-		}*/
+		case LcCreatables::Sprite: newVisual = std::make_shared<LcSpriteVulkan>(); break;
+		case LcCreatables::Widget: newVisual = std::make_shared<LcWidgetVulkan>(); break;
+		}
 
 		// add layer Z for initial valid sorting in multiset
 		newVisual->SetPos(LcVector3{ 0.0f, 0.0f, layer2D });
@@ -140,6 +141,10 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
 	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderVulkan>(*this, context));
+
+	// add factory
+	LcWorld& worldRef = static_cast<LcWorld&>(*context.world);
+	worldRef.SetLifetimeStrategy(std::make_unique<LcVisual2DLifetimeStrategyVulkan>());
 
 	isInitialized = true;
 

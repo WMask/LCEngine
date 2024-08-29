@@ -20,7 +20,7 @@ struct VULKANTEXTUREDVISUALDATA
 {
 	LcMatrix4 mModel;
 	LcColor4 colors[4];
-	LcVector2 uvs[4];
+	LcVector4 uvs[4];
 	float options[4];
 };
 
@@ -156,12 +156,12 @@ void LcTexturedVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppCon
 		throw LcException("LcTexturedVisual2DRenderVulkan::Setup(): Invalid render params");
 	}
 
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
 	// bind descriptors to set 0
 	const uint32_t setOffset = 0;
 	const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
 	const VkDescriptorSet* setPtr = descriptorSets.data();
-
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
 	// bind per type descriptors (LcDSLayoutType::TexturedVisual)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
@@ -247,8 +247,8 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 	}
 	else
 	if (widget)
-	{/*
-		VS_FLAGS_BUFFER flags{};
+	{
+		VULKANTEXTUREDVISUALDATA pushConst{};
 
 		// update components
 		auto colors = widget->GetColorsComponent();
@@ -256,71 +256,63 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		if (colors || tint)
 		{
 			auto colorsData = colors ? colors->GetData() : tint->GetData();
-			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, colorsData, 0, 0);
-			flags.bHasColor = TRUE;
+			memcpy(pushConst.colors, colorsData, sizeof(pushConst.colors));
+			pushConst.options[HAS_COLOR] = 1.0f;
 		}
 		else
 		{
 			static LcColor4 defaultColors[] = { LcDefaults::Invisible, LcDefaults::Invisible, LcDefaults::Invisible, LcDefaults::Invisible };
-			d3dDevice->UpdateSubresource(colorsBuffer, 0, NULL, defaultColors, 0, 0);
+			memcpy(pushConst.colors, defaultColors, sizeof(pushConst.colors));
 		}
 
 		if (auto customUV = widget->GetButtonComponent())
 		{
-			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
-			flags.bHasCustomUV = TRUE;
+			memcpy(pushConst.uvs, customUV->GetData(), sizeof(pushConst.uvs));
+			pushConst.options[HAS_CUSTOM_UV] = 1.0f;
 		}
 		else
 		if (auto customUV = widget->GetCheckboxComponent())
 		{
-			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, customUV->GetData(), 0, 0);
-			flags.bHasCustomUV = TRUE;
+			memcpy(pushConst.uvs, customUV->GetData(), sizeof(pushConst.uvs));
+			pushConst.options[HAS_CUSTOM_UV] = 1.0f;
 		}
 
-		auto widgetDX10 = static_cast<const LcWidgetDX10*>(widget);
-		if (widget->HasComponent(LcComponents::Texture))
+		if (auto texComp = widget->GetTextureComponent())
 		{
-			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)&widgetDX10->spriteTextureSV);
-			flags.bHasTexture = TRUE;
-		}
-		else
-		{
-			ID3D10ShaderResourceView* nullSRV[1] = { nullptr };
-			d3dDevice->PSSetShaderResources(0, 1, nullSRV);
-		}
+			LcTextureVulkan texture{};
+			render.GetTextureLoader().LoadTexture(texComp->GetTexturePath().c_str(), texture);
 
-		d3dDevice->UpdateSubresource(flagsBuffer, 0, NULL, &flags, 0, 0);
+			VkDescriptorSet& textureSet = texture.sets.at(render.GetCurrentFrame());
+			if (!textureSet)
+			{
+				DebugMsg("Descriptor set not ready yet for texture: '%s'\n", texComp->GetTexturePath().c_str());
+				return;
+			}
+
+			// bind texture descriptor to set 1
+			const uint32_t setOffset = 1;
+			const uint32_t setCount = 1;
+			const VkDescriptorSet* setPtr = &textureSet;
+
+			// bind per object descriptors
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+				setOffset, setCount, setPtr,
+				0, nullptr
+			);
+
+			pushConst.options[HAS_TEXTURE] = 1.0f;
+		}
 
 		// update transform
 		LcVector2 worldScale2D(context.world->GetWorldScale().GetScale());
 		LcVector3 worldScale{ worldScale2D.x, worldScale2D.y, 1.0f };
 		LcVector3 widgetPos = widget->GetPos() * worldScale;
 		LcVector2 widgetSize = widget->GetSize() * worldScale2D;
-		LcMatrix4 trans = TransformMatrix(widgetPos, widgetSize);
-		d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
+		pushConst.mModel = TransformMatrix(widgetPos, widgetSize, 0.0f, false, false);
 
-		// render sprite
-		d3dDevice->Draw(4, 0);
-
-		if (widgetDX10->textTextureSV)
-		{
-			// set text texture
-			d3dDevice->PSSetShaderResources(0, 1, (ID3D10ShaderResourceView**)widgetDX10->textTextureSV.GetAddressOf());
-			flags.bHasTexture = TRUE;
-
-			static LcVector4 defaultUVs[] = { To4(LcVector2{ 0.0, 0.0 }), To4(LcVector2{ 1.0, 0.0 }), To4(LcVector2{ 1.0, 1.0 }), To4(LcVector2{ 0.0, 1.0 }) };
-			d3dDevice->UpdateSubresource(uvsBuffer, 0, NULL, defaultUVs, 0, 0);
-			flags.bHasCustomUV = TRUE;
-
-			d3dDevice->UpdateSubresource(flagsBuffer, 0, NULL, &flags, 0, 0);
-
-			// move in front of the sprite
-			trans[2][3] = widget->GetPos().z + 0.01f;
-			d3dDevice->UpdateSubresource(transBuffer, 0, NULL, &trans, 0, 0);
-
-			// render text texture
-			d3dDevice->Draw(4, 0);
-		}*/
+		// draw sprite
+		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VULKANTEXTUREDVISUALDATA), &pushConst);
+		vkCmdDraw(commandBuffer, 4, 2, 0, 0);
 	}
 
 	LC_CATCH{ LC_THROW("LcTexturedVisual2DRenderVulkan::Render()") }

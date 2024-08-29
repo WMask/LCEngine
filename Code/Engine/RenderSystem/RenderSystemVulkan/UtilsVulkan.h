@@ -97,7 +97,7 @@ public:
 	LcTextureLoaderVulkan(class IRenderDeviceVulkan& inRender);
 	//
 	~LcTextureLoaderVulkan();
-	//
+	/** Loads texture or get cached texture */
 	void LoadTexture(const char* texPath, LcTextureVulkan& outTexture);
 	//
 	void RemoveTextures() { texturesCache.clear(); }

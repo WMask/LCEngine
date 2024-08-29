@@ -18,7 +18,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject{
 layout(push_constant) uniform PER_OBJECT{
 	mat4 mModel;
 	vec4 colors[4];
-	vec2 uvs[4];
+	vec4 uvs[4];
 	float options[4];
 
 } obj;
@@ -54,7 +54,7 @@ void main()
 		fragColor = vec4(1.0, 1.0, 1.0, 1.0);
 
 	if (obj.options[HAS_CUSTOM_UV] > 0.5)
-		fragTexCoord = obj.uvs[gl_VertexIndex];
+		fragTexCoord = obj.uvs[gl_VertexIndex].xy;
 	else
 		fragTexCoord = uvs[gl_VertexIndex];
 }

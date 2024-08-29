@@ -138,10 +138,10 @@ void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContex
 		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid render params");
 	}
 
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
 	const uint32_t dscOffset = 0;
 	const uint32_t dscCount = static_cast<uint32_t>(descriptorSets.size());
-
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
 	// bind per type descriptors (LcDSLayoutType::ColoredSprite)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
