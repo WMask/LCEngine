@@ -151,21 +151,17 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 		const auto& visuals = world->GetVisuals();
 		for (const auto& visual : visuals)
 		{
-			if (visual->GetTypeId() == LcCreatables::Sprite)
+			auto texComp = visual->GetTextureComponent();
+			if (texComp && texComp->GetTexturePath() == path)
 			{
-				auto sprite = static_cast<LcSpriteVulkan*>(visual.get());
-				auto texComp = sprite->GetTextureComponent();
-				if (texComp && texComp->GetTexturePath() == path)
+				if (visual->GetTypeId() == LcCreatables::Sprite)
 				{
+					auto sprite = static_cast<LcSpriteVulkan*>(visual.get());
 					sprite->spriteSet[frame] = texSet;
 				}
-			}
-			else if (visual->GetTypeId() == LcCreatables::Widget)
-			{
-				auto widget = static_cast<LcWidgetVulkan*>(visual.get());
-				auto texComp = widget->GetTextureComponent();
-				if (texComp && texComp->GetTexturePath() == path)
+				else if (visual->GetTypeId() == LcCreatables::Widget)
 				{
+					auto widget = static_cast<LcWidgetVulkan*>(visual.get());
 					widget->spriteSet[frame] = texSet;
 				}
 			}
