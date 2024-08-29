@@ -110,8 +110,6 @@ void LcWindowsApplication::Shutdown()
 
 void LcWindowsApplication::Run()
 {
-	static LcWin32Handles* currentHandles = nullptr;
-
 	LC_TRY
 
 	if (!hInstance) throw std::exception("LcWindowsApplication::Run(): Invalid platform handle");
@@ -173,14 +171,13 @@ void LcWindowsApplication::Run()
 	inputSystem->Init(context);
 
 	// set handles
-	static LcWin32Handles handles {
+	LcWin32Handles handles {
 		inputSystem->GetKeysHandler(),
 		inputSystem->GetActionHandler(),
 		inputSystem->GetMouseMoveHandler(),
 		inputSystem->GetMouseButtonHandler(),
 		context, *this, cfg, true
 	};
-	currentHandles = &handles;
 	SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&handles));
 
 	if (context.text) context.text->Init(&context);
@@ -235,11 +232,10 @@ void LcWindowsApplication::Run()
 	}
 
 	// set NULL to skip crash in WndProc
-	currentHandles->isValid = false;
+	SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
 
 	LC_CATCH {
-		auto msg = ex.what();
-		currentHandles->isValid = false;
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
 		Shutdown();
 		LC_THROW("LcWindowsApplication::Run()")
 	}
