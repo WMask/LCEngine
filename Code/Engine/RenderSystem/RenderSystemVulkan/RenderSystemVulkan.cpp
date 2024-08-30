@@ -7,6 +7,7 @@
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/TexturedVisual2DRenderVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/AnimatedSpriteRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/TiledVisual2DRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/VisualsVulkan.h"
 #include "Application/ApplicationInterface.h"
@@ -174,6 +175,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
 	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderVulkan>(*this, context));
+	visual2DRenders.push_back(std::make_unique<LcAnimatedSpriteRenderVulkan>(*this, context));
 	visual2DRenders.push_back(std::make_unique<LcTiledVisual2DRenderVulkan>(*this, context));
 
 	// add factory
@@ -882,7 +884,13 @@ void LcRenderSystemVulkan::FillPipelineDefaults(VkGraphicsPipelineCreateInfo& pi
 		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachment.blendEnable = VK_FALSE;
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_SUBTRACT;
+		colorBlendAttachment.blendEnable = VK_TRUE;
 
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		colorBlending.logicOpEnable = VK_FALSE;

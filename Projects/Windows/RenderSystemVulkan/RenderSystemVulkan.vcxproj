@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\AnimatedSpriteRenderVulkan.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.cpp" />
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\DescriptorSetsVulkan.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\AnimatedSpriteRenderVulkan.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\ColoredSpriteRenderVulkan.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\Module.h" />
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\RenderSystemVulkan.h" />

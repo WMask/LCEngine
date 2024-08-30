@@ -48,6 +48,9 @@
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\TiledVisual2DRenderVulkan.cpp">
       <Filter>Source Files\RenderSystemVulkan</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\AnimatedSpriteRenderVulkan.cpp">
+      <Filter>Source Files\RenderSystemVulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\Module.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\TiledVisual2DRenderVulkan.h">
+      <Filter>Header Files\RenderSystemVulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\AnimatedSpriteRenderVulkan.h">
       <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
   </ItemGroup>

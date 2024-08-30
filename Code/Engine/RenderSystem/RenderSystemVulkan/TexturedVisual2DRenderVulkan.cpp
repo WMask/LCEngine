@@ -15,7 +15,7 @@
 #include <shaderc/shaderc.hpp>
 
 
-static const char* TexturedSpriteShaderName = "TexturedVisual2d.glsl";
+static const char* TexturedVisualShaderName = "TexturedVisual2d.glsl";
 
 struct VULKANTEXTUREDVISUALDATA
 {
@@ -39,7 +39,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(IRenderDeviceVulk
 		throw LcException("Invalid device");
 	}
 
-	auto shaderText = render.GetShaderCode(TexturedSpriteShaderName);
+	auto shaderText = render.GetShaderCode(TexturedVisualShaderName);
 	if (shaderText.empty())
 	{
 		throw LcException("Cannot find shader");

@@ -95,6 +95,8 @@ protected:
 	//
 	void CreateForTexturedVisual(uint32_t frame, const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding);
 	//
+	void CreateForAnimatedSprite(uint32_t frame, const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding);
+	//
 	void CreateForTiledVisual(uint32_t frame, const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding);
 
 
