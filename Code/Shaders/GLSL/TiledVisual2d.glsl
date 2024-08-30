@@ -19,13 +19,13 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoord;
 
 layout(location = 0) out vec2 fragTexCoord;
-layout(location = 1) out vec3 globalTint;
+layout(location = 1) out vec3 fragGlobalTint;
 
 void main()
 {
 	gl_Position = ubo.mProj * ubo.mView * obj.mModel * vec4(position, 1.0);
 	fragTexCoord = texCoord;
-	globalTint = ubo.globalTint;
+	fragGlobalTint = ubo.globalTint;
 }
 
 #else
@@ -34,14 +34,14 @@ void main()
 layout(set = 0, binding = 1) uniform sampler texSampler;
 layout(set = 1, binding = 0) uniform texture2D texInstance;
 
-layout(location = 0) in vec2 fragTexCoord;
+layout(location = 0) in vec2 texCoord;
 layout(location = 1) in vec3 globalTint;
 
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	vec4 texColor = texture(sampler2D(texInstance, texSampler), fragTexCoord);
+	vec4 texColor = texture(sampler2D(texInstance, texSampler), texCoord);
 	vec4 tint = vec4(globalTint, 1.0);
 	outColor = texColor * tint;
 }

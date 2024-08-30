@@ -23,10 +23,10 @@ layout(push_constant) uniform PER_OBJECT{
 
 } obj;
 
-layout(location = 0) out vec2 fragTexCoord;
-layout(location = 1) out vec4 fragColor;
-layout(location = 2) out vec3 globalTint;
-layout(location = 3) out float hasTexture;
+layout(location = 0) out vec2  fragTexCoord;
+layout(location = 1) out vec4  fragColor;
+layout(location = 2) out vec3  fragGlobalTint;
+layout(location = 3) out float fragHasTexture;
 
 vec2 positions[4] = vec2[](
 	vec2(-0.5, -0.5),
@@ -45,8 +45,8 @@ vec2 uvs[4] = vec2[](
 void main()
 {
 	gl_Position = ubo.mProj * ubo.mView * obj.mModel * vec4(positions[gl_VertexIndex], 0.0, 1.0);
-	globalTint = ubo.globalTint;
-	hasTexture = obj.options[HAS_TEXTURE];
+	fragGlobalTint = ubo.globalTint;
+	fragHasTexture = obj.options[HAS_TEXTURE];
 
 	if (obj.options[HAS_COLOR] > 0.5)
 		fragColor = obj.colors[gl_VertexIndex];
@@ -65,28 +65,28 @@ void main()
 layout(set = 0, binding = 1) uniform sampler texSampler;
 layout(set = 1, binding = 0) uniform texture2D texInstance;
 
-layout(location = 0) in vec2 fragTexCoord;
-layout(location = 1) in vec4 fragColor;
-layout(location = 2) in vec3 globalTint;
+layout(location = 0) in vec2  texCoord;
+layout(location = 1) in vec4  color;
+layout(location = 2) in vec3  globalTint;
 layout(location = 3) in float hasTexture;
 
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	vec4 texColor = texture(sampler2D(texInstance, texSampler), fragTexCoord);
+	vec4 texColor = texture(sampler2D(texInstance, texSampler), texCoord);
 	vec4 tint = vec4(globalTint, 1.0);
 
 	if (hasTexture > 0.5)
 	{
-		if (fragColor.a == 0.0)
+		if (color.a == 0.0)
 			outColor = texColor * tint;
 		else
-			outColor = texColor * fragColor * tint;
+			outColor = texColor * color * tint;
 	}
 	else
 	{
-		outColor = fragColor * tint;
+		outColor = color * tint;
 	}
 }
 
