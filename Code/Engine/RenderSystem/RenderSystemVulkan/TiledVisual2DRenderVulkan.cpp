@@ -276,8 +276,8 @@ void LcTiledVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppContex
 	auto device = render.GetVulkanDevice();
 	auto physicalDevice = render.GetPhysicalDevice();
 	auto commandBuffer = render.GetCommandBuffer();
-	auto descriptorSets = render.GetDescriptorSets().GetSetsForFrame(render.GetCurrentFrame(), LcDSLayoutType::TiledVisual);
-	if (!visual || !device || !physicalDevice || !commandBuffer || (descriptorSets.size() == 0))
+	auto& descriptorSet = render.GetDescriptorSets().GetDescriptorSet(render.GetCurrentFrame(), LcDSLayoutType::TiledVisual);
+	if (!visual || !device || !physicalDevice || !commandBuffer || !descriptorSet)
 	{
 		throw LcException("Invalid render device");
 	}
@@ -335,11 +335,11 @@ void LcTiledVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppContex
 
 	// bind descriptors to set 0
 	const uint32_t setOffset = 0;
-	const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
+	const uint32_t setCount = 1;
 
 	// bind per type descriptors (LcDSLayoutType::TiledVisual)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		setOffset, setCount, descriptorSets.data(),
+		setOffset, setCount, &descriptorSet,
 		0, nullptr
 	);
 

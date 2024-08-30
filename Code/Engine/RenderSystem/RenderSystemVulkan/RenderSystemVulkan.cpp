@@ -129,6 +129,10 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	int width = clientRect.right - clientRect.left;
 	int height = clientRect.bottom - clientRect.top;
 
+	cameraManager.SetView({ width / 2.0f, height / 2.0f, 0.0f });
+	cameraManager.SetProj({ width, height });
+	context.world->GetCamera().Set(cameraManager.pos);
+
 	// init Vulkan
 	CreateInstance(hWnd);
 	PickPhysicalDevice();
@@ -574,7 +578,7 @@ void LcRenderSystemVulkan::Subscribe(const LcAppContext& context)
 
 	context.world->onTintChanged.AddListener([this](LcColor3 globalTint)
 	{
-		descriptorSets.SetGlobalTint(globalTint);
+		descriptorSets.SetGlobalTint(currentFrame, globalTint);
 	});
 }
 
@@ -585,7 +589,7 @@ void LcRenderSystemVulkan::Update(float deltaSeconds, const LcAppContext& contex
 
 void LcRenderSystemVulkan::UpdateCamera(float deltaSeconds, LcVector3 newPos, LcVector3 newTarget)
 {
-	descriptorSets.LookAt(newPos, newTarget);
+	cameraManager.SetView(newPos, newTarget);
 }
 
 void LcRenderSystemVulkan::Render(const LcAppContext& context)
@@ -599,15 +603,22 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
+	// update textures based on current world state
 	if (!texLoader.IsUpdated(texLoaderCounters[currentFrame]))
 	{
-		descriptorSets.UpdateTexturesForFrame(currentFrame);
+		descriptorSets.UpdateTextures(currentFrame);
 	}
 
-	int width = context.app->GetWindowWidth();
-	int height = context.app->GetWindowHeight();
-	descriptorSets.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
-	descriptorSets.SetOrtho(width, height);
+	// update camera
+	if (!cameraManager.IsViewUpdated(currentFrame))
+	{
+		descriptorSets.LookAt(currentFrame, cameraManager.pos, cameraManager.target);
+	}
+
+	if (!cameraManager.IsProjUpdated(currentFrame))
+	{
+		descriptorSets.SetOrtho(currentFrame, cameraManager.size.x, cameraManager.size.y);
+	}
 
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -769,9 +780,8 @@ void LcRenderSystemVulkan::Resize(int width, int height, const LcAppContext& con
 		context.world->GetCamera().Set(cameraPos, cameraTarget);
 		UpdateCamera(0.1f, cameraPos, cameraTarget);
 
-		// update projection matrix
-		LcMatrix4 proj = OrthoMatrix(LcSize{ width, height }, 1.0f, -1.0f);
-		//d3dDevice->UpdateSubresource(constBuffers.projMatrixBuffer.Get(), 0, NULL, &proj, 0, 0);
+		// update projection
+		cameraManager.SetProj(newViewportSize);
 
 		renderSystemSize = newViewportSize;
 	}

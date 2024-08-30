@@ -151,8 +151,8 @@ LcTexturedVisual2DRenderVulkan::~LcTexturedVisual2DRenderVulkan()
 void LcTexturedVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppContext& context)
 {
 	auto commandBuffer = render.GetCommandBuffer();
-	auto descriptorSets = render.GetDescriptorSets().GetSetsForFrame(render.GetCurrentFrame(), LcDSLayoutType::TexturedVisual);
-	if (!commandBuffer || !visual || (descriptorSets.size() == 0))
+	auto& descriptorSet = render.GetDescriptorSets().GetDescriptorSet(render.GetCurrentFrame(), LcDSLayoutType::TexturedVisual);
+	if (!commandBuffer || !visual || !descriptorSet)
 	{
 		throw LcException("LcTexturedVisual2DRenderVulkan::Setup(): Invalid render params");
 	}
@@ -161,11 +161,11 @@ void LcTexturedVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppCon
 
 	// bind descriptors to set 0
 	const uint32_t setOffset = 0;
-	const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
+	const uint32_t setCount = 1;
 
 	// bind per type descriptors (LcDSLayoutType::TexturedVisual)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		setOffset, setCount, descriptorSets.data(),
+		setOffset, setCount, &descriptorSet,
 		0, nullptr
 	);
 }

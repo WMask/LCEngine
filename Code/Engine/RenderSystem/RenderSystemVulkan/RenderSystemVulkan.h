@@ -211,15 +211,15 @@ protected:
 
 protected:
 	//
-	using LcTextureLoaderCounters = std::array<uint32_t, MAX_FRAMES_IN_FLIGHT>;
-	//
 	TVisual2DRenderList visual2DRenders;
 	//
 	LcDescriptorSetsVulkan descriptorSets;
 	//
 	LcTextureLoaderVulkan texLoader;
 	//
-	LcTextureLoaderCounters texLoaderCounters;
+	LcUpdateCounters texLoaderCounters;
+	//
+	LcCameraManager cameraManager;
 	//
 	TVFeaturesList prevSpriteFeatures;
 	//

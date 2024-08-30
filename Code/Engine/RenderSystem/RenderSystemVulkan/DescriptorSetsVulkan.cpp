@@ -89,7 +89,7 @@ void LcDescriptorSetsVulkan::Create()
 	LC_CATCH{ LC_THROW("LcDescriptorSetsVulkan::Create()") }
 }
 
-void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
+void LcDescriptorSetsVulkan::UpdateTextures(uint32_t frame)
 {
 	auto device = render.GetVulkanDevice();
 	auto& texLoader = render.GetTextureLoader();
@@ -104,7 +104,7 @@ void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
 
 	LcDescriptorLayout& layout = descriptorLayouts.at(static_cast<int>(LcDSLayoutType::Textures));
 
-	VkDescriptorPool& pool = layout.pool[frame];
+	VkDescriptorPool& pool = layout.pool.at(frame);
 	if (pool)
 	{
 		vkDestroyDescriptorPool(device, pool, nullptr);
@@ -482,41 +482,33 @@ void LcDescriptorSetsVulkan::CreateForTiledVisual(uint32_t frame, const VkDescri
 	LC_CATCH{ LC_THROW("LcDescriptorSetsVulkan::CreateForTiledVisual()") }
 }
 
-void LcDescriptorSetsVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms)
+void LcDescriptorSetsVulkan::LookAt(uint32_t frame, LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms)
 {
 	buffer.mView = LookAtMatrix(cameraPos, cameraTarget, false);
 
-	auto currentFrame = render.GetCurrentFrame();
-	if (currentFrame < uniformBuffersMapped.size() && updateUniforms)
+	if (updateUniforms)
 	{
-		memcpy(uniformBuffersMapped[currentFrame], &buffer, sizeof(LcUniformBufferObject));
+		memcpy(uniformBuffersMapped.at(frame), &buffer, sizeof(LcUniformBufferObject));
 	}
 }
 
-void LcDescriptorSetsVulkan::SetOrtho(float widthPixels, float heightPixels, float nearPlane, float farPlane)
+void LcDescriptorSetsVulkan::SetOrtho(uint32_t frame, float widthPixels, float heightPixels, float nearPlane, float farPlane)
 {
 	buffer.mProj = OrthoMatrix(widthPixels, heightPixels, nearPlane, farPlane, false, false);
 
-	auto currentFrame = render.GetCurrentFrame();
-	if (currentFrame < uniformBuffersMapped.size())
-	{
-		memcpy(uniformBuffersMapped[currentFrame], &buffer, sizeof(LcUniformBufferObject));
-	}
+	memcpy(uniformBuffersMapped.at(frame), &buffer, sizeof(LcUniformBufferObject));
 }
 
-void LcDescriptorSetsVulkan::SetGlobalTint(LcColor3 tint)
+void LcDescriptorSetsVulkan::SetGlobalTint(uint32_t frame, LcColor3 tint)
 {
 	buffer.globalTint = tint;
 
-	auto currentFrame = render.GetCurrentFrame();
-	if (currentFrame < uniformBuffersMapped.size())
-	{
-		memcpy(uniformBuffersMapped[currentFrame], &buffer, sizeof(LcUniformBufferObject));
-	}
+	memcpy(uniformBuffersMapped.at(frame), &buffer, sizeof(LcUniformBufferObject));
 }
 
-const LcDescriptorSetsVulkan::TDescriptors& LcDescriptorSetsVulkan::GetSetsForFrame(uint32_t frame, LcDSLayoutType type) const
+const VkDescriptorSet& LcDescriptorSetsVulkan::GetDescriptorSet(uint32_t frame, LcDSLayoutType type) const
 {
 	auto& layout = descriptorLayouts[static_cast<int>(type)];
-	return layout.sets.at(frame);
+
+	return layout.sets.at(frame)[0];
 }

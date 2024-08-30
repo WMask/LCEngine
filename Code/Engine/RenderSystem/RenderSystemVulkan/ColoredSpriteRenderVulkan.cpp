@@ -132,8 +132,8 @@ LcColoredSpriteRenderVulkan::~LcColoredSpriteRenderVulkan()
 void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContext& context)
 {
 	auto commandBuffer = render.GetCommandBuffer();
-	auto descriptorSets = render.GetDescriptorSets().GetSetsForFrame(render.GetCurrentFrame(), LcDSLayoutType::ColoredSprite);
-	if (!commandBuffer || (descriptorSets.size() == 0))
+	auto& descriptorSet = render.GetDescriptorSets().GetDescriptorSet(render.GetCurrentFrame(), LcDSLayoutType::ColoredSprite);
+	if (!commandBuffer || !descriptorSet)
 	{
 		throw std::exception("LcColoredSpriteRenderVulkan::Setup(): Invalid render params");
 	}
@@ -141,11 +141,11 @@ void LcColoredSpriteRenderVulkan::Setup(const IVisual* visual, const LcAppContex
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
 	const uint32_t dscOffset = 0;
-	const uint32_t dscCount = static_cast<uint32_t>(descriptorSets.size());
+	const uint32_t dscCount = 1;
 
 	// bind per type descriptors (LcDSLayoutType::ColoredSprite)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		dscOffset, dscCount, descriptorSets.data(),
+		dscOffset, dscCount, &descriptorSet,
 		0, nullptr
 	);
 }

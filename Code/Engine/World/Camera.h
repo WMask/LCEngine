@@ -25,6 +25,12 @@ public:
 		target = newTarget;
 	}
 	/**
+	* Set camera */
+	inline void Set(LcVector3 newPos)
+	{
+		Set(newPos, { newPos.x, newPos.y, 1.0f });
+	}
+	/**
 	* Move camera */
 	inline void Move(LcVector3 newPosOffset, LcVector3 newTargetOffset)
 	{

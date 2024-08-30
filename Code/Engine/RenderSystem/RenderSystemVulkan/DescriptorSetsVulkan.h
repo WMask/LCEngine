@@ -62,19 +62,21 @@ public:
 	//
 	void Destroy(VkDevice device);
 	//
-	void LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms = true);
+	void LookAt(uint32_t frame, LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms = true);
 	//
-	void LookAt(LcVector3 cameraPos, bool updateUniforms = true) { LookAt(cameraPos, { cameraPos.x, cameraPos.y, 1.0f }, updateUniforms); }
+	void LookAt(uint32_t frame, LcVector3 cameraPos, bool updateUniforms = true) { LookAt(frame, cameraPos, { cameraPos.x, cameraPos.y, 1.0f }, updateUniforms); }
 	//
-	void SetOrtho(float widthPixels, float heightPixels, float nearPlane = 1.0f, float farPlane = -1.0f);
+	void SetOrtho(uint32_t frame, float widthPixels, float heightPixels, float nearPlane = 1.0f, float farPlane = -1.0f);
 	//
-	void SetOrtho(int widthPixels, int heightPixels) { SetOrtho(static_cast<float>(widthPixels), static_cast<float>(heightPixels)); }
+	void SetOrtho(uint32_t frame, int widthPixels, int heightPixels) { SetOrtho(frame, static_cast<float>(widthPixels), static_cast<float>(heightPixels)); }
 	//
-	void SetGlobalTint(LcColor3 tint);
+	void SetOrtho(uint32_t frame, unsigned int widthPixels, unsigned int heightPixels) { SetOrtho(frame, static_cast<float>(widthPixels), static_cast<float>(heightPixels)); }
 	//
-	void UpdateTexturesForFrame(uint32_t frame);
+	void SetGlobalTint(uint32_t frame, LcColor3 tint);
 	//
-	const TDescriptors& GetSetsForFrame(uint32_t frame, LcDSLayoutType type) const;
+	void UpdateTextures(uint32_t frame);
+	//
+	const VkDescriptorSet& GetDescriptorSet(uint32_t frame, LcDSLayoutType type) const;
 	//
 	inline const VkDescriptorSetLayout* GetLayout(LcDSLayoutType type) const { return &descriptorLayouts[static_cast<int>(type)].layout; }
 	//

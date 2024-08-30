@@ -31,6 +31,8 @@ static const float    VK_TRUE_F            = 1.0f;
 
 static const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
+using LcUpdateCounters = std::array<uint32_t, MAX_FRAMES_IN_FLIGHT>;
+
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> graphicsFamily;
@@ -134,4 +136,45 @@ protected:
 	//
 	TTexturesMap texturesCache;
 
+};
+
+/**
+* Camera manager */
+struct LcCameraManager : public LcUpdateCounter
+{
+	inline void SetView(LcVector3 newPos, LcVector3 newTarget)
+	{
+		pos = newPos;
+		target = newTarget;
+		viewCounter.UpdateCounter();
+	}
+	//
+	inline void SetView(LcVector3 newPos)
+	{
+		SetView(newPos, { newPos.x, newPos.y, 1.0f });
+	}
+	//
+	inline void SetProj(LcSize newSize)
+	{
+		size = newSize;
+		projCounter.UpdateCounter();
+	}
+	//
+	inline bool IsViewUpdated(uint32_t currentFrame)
+	{
+		return viewCounter.IsUpdated(viewCounters[currentFrame]);
+	}
+	//
+	inline bool IsProjUpdated(uint32_t currentFrame)
+	{
+		return projCounter.IsUpdated(projCounters[currentFrame]);
+	}
+	//
+	LcUpdateCounter viewCounter;
+	LcUpdateCounter projCounter;
+	LcUpdateCounters viewCounters;
+	LcUpdateCounters projCounters;
+	LcVector3 pos;
+	LcVector3 target;
+	LcSize size;
 };
