@@ -258,12 +258,12 @@ std::vector<VULKANTILEDVERTEX> GenerateTiles(const LcTiledSpriteComponent& tiled
 
 	for (const auto& tile : tiledComp.GetTilesData())
 	{
-		tiles.push_back(VULKANTILEDVERTEX{ LcVector3{ tile.pos[0].x, tile.pos[0].y, 0.0f }, tile.uv[0] });
-		tiles.push_back(VULKANTILEDVERTEX{ LcVector3{ tile.pos[2].x, tile.pos[2].y, 0.0f }, tile.uv[2] });
-		tiles.push_back(VULKANTILEDVERTEX{ LcVector3{ tile.pos[1].x, tile.pos[1].y, 0.0f }, tile.uv[1] });
-		tiles.push_back(VULKANTILEDVERTEX{ LcVector3{ tile.pos[0].x, tile.pos[0].y, 0.0f }, tile.uv[0] });
-		tiles.push_back(VULKANTILEDVERTEX{ LcVector3{ tile.pos[1].x, tile.pos[1].y, 0.0f }, tile.uv[1] });
-		tiles.push_back(VULKANTILEDVERTEX{ LcVector3{ tile.pos[3].x, tile.pos[3].y, 0.0f }, tile.uv[3] });
+		tiles.push_back(VULKANTILEDVERTEX{ tile.pos[0], tile.uv[0] });
+		tiles.push_back(VULKANTILEDVERTEX{ tile.pos[2], tile.uv[2] });
+		tiles.push_back(VULKANTILEDVERTEX{ tile.pos[1], tile.uv[1] });
+		tiles.push_back(VULKANTILEDVERTEX{ tile.pos[0], tile.uv[0] });
+		tiles.push_back(VULKANTILEDVERTEX{ tile.pos[1], tile.uv[1] });
+		tiles.push_back(VULKANTILEDVERTEX{ tile.pos[3], tile.uv[3] });
 	}
 
 	return tiles;

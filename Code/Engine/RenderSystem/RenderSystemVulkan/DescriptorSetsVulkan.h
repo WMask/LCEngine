@@ -66,7 +66,7 @@ public:
 	//
 	void LookAt(LcVector3 cameraPos, bool updateUniforms = true) { LookAt(cameraPos, { cameraPos.x, cameraPos.y, 1.0f }, updateUniforms); }
 	//
-	void SetOrtho(float widthPixels, float heightPixels, float nearPlane = -1.0f, float farPlane = 1.0f);
+	void SetOrtho(float widthPixels, float heightPixels, float nearPlane = 1.0f, float farPlane = -1.0f);
 	//
 	void SetOrtho(int widthPixels, int heightPixels) { SetOrtho(static_cast<float>(widthPixels), static_cast<float>(heightPixels)); }
 	//
