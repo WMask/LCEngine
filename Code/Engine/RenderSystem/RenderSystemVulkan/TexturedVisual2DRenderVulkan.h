@@ -17,7 +17,7 @@ class LcTexturedVisual2DRenderVulkan : public IVisual2DRender
 public:
 	/**
 	* Constructor */
-	LcTexturedVisual2DRenderVulkan(class IRenderDeviceVulkan& inRender, const LcAppContext& context);
+	LcTexturedVisual2DRenderVulkan(IRenderDeviceVulkan& inRender, const LcAppContext& context);
 	/**
 	* Destructor */
 	~LcTexturedVisual2DRenderVulkan();
@@ -34,7 +34,7 @@ public:// IVisual2DRender interface implementation
 
 protected:
 	//
-	class IRenderDeviceVulkan& render;
+	IRenderDeviceVulkan& render;
 	//
 	VkPipelineLayout pipelineLayout;
 	//

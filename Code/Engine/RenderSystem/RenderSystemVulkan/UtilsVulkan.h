@@ -26,6 +26,7 @@ static const uint32_t HAS_ANIMATION        = 3;
 static const uint32_t UBO_BINDING_ID       = 0;
 static const uint32_t SAMPLER_BINDING_ID   = 1;
 static const uint32_t TEXTURES_BINDING_ID  = 0;
+static const float    VK_TRUE_F            = 1.0f;
 
 
 static const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };

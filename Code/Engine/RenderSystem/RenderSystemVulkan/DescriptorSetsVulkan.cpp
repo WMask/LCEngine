@@ -81,6 +81,7 @@ void LcDescriptorSetsVulkan::Create()
 		CreateTextureLayouts(i);
 		CreateForColoredSprite(i, uboLayoutBinding);
 		CreateForTexturedVisual(i, uboLayoutBinding, samplerLayoutBinding);
+		CreateForTiledVisual(i, uboLayoutBinding, samplerLayoutBinding);
 	}
 
 	LC_CATCH{ LC_THROW("LcDescriptorSetsVulkan::Create()") }
@@ -375,6 +376,98 @@ void LcDescriptorSetsVulkan::CreateForTexturedVisual(uint32_t frame, const VkDes
 	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 
 	LC_CATCH{ LC_THROW("LcDescriptorSetsVulkan::CreateForTexturedVisual()") }
+}
+
+void LcDescriptorSetsVulkan::CreateForTiledVisual(uint32_t frame, const VkDescriptorSetLayoutBinding& uboLayoutBinding, const VkDescriptorSetLayoutBinding& samplerLayoutBinding)
+{
+	auto device = render.GetVulkanDevice();
+
+	LC_TRY
+
+	if (frame >= MAX_FRAMES_IN_FLIGHT)
+	{
+		throw LcException("Invalid frame id");
+	}
+
+	LcDescriptorLayout& layout = descriptorLayouts[static_cast<int>(LcDSLayoutType::TiledVisual)];
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	layoutInfo.pBindings = bindings.data();
+
+	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout[frame]);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to create descriptor set layout");
+	}
+
+	std::vector<VkDescriptorSetLayout> layouts(bindings.size(), layout.layout[frame]);
+
+	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = 1;
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+	poolSizes[1].descriptorCount = 1;
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
+	poolInfo.maxSets = 2;
+
+	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to create descriptor pool");
+	}
+
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = layout.pool[frame];
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = layouts.data();
+
+	layout.sets[frame].resize(1);
+	VkDescriptorSet& currentSet = layout.sets[frame][0];
+
+	result = vkAllocateDescriptorSets(device, &allocInfo, &currentSet);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to allocate descriptor sets");
+	}
+
+	VkDescriptorBufferInfo bufferInfo{};
+	bufferInfo.buffer = uniformBuffers[frame];
+	bufferInfo.offset = 0;
+	bufferInfo.range = sizeof(LcUniformBufferObject);
+
+	VkDescriptorImageInfo samplerInfo{};
+	samplerInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	samplerInfo.sampler = render.GetTextureSampler();
+
+	std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[0].dstSet = currentSet;
+	descriptorWrites[0].dstBinding = UBO_BINDING_ID;
+	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[0].descriptorCount = 1;
+	descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[1].dstSet = currentSet;
+	descriptorWrites[1].dstBinding = SAMPLER_BINDING_ID;
+	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+	descriptorWrites[1].descriptorCount = 1;
+	descriptorWrites[1].pImageInfo = &samplerInfo;
+
+	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
+	LC_CATCH{ LC_THROW("LcDescriptorSetsVulkan::CreateForTiledVisual()") }
 }
 
 void LcDescriptorSetsVulkan::LookAt(LcVector3 cameraPos, LcVector3 cameraTarget, bool updateUniforms)

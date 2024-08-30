@@ -26,7 +26,7 @@ struct VULKANTEXTUREDVISUALDATA
 };
 
 
-LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDeviceVulkan& inRender, const LcAppContext& context)
+LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(IRenderDeviceVulkan& inRender, const LcAppContext& context)
 	: render(inRender)
 	, pipelineLayout(VK_NULL_HANDLE)
 	, graphicsPipeline(VK_NULL_HANDLE)
@@ -48,7 +48,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 	shaderc::Compiler compiler;
 	shaderc::CompileOptions options;
 
-	// Compile shaders
+	// compile shaders
 	auto fragShaderCompiled = compiler.PreprocessGlsl(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
 	auto fragShaderAssembly = compiler.CompileGlslToSpvAssembly(shaderText, shaderc_glsl_fragment_shader, "fs.tmp", options);
 	if (fragShaderAssembly.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -71,7 +71,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 	std::string vertShaderAssemblyCode(vertShaderAssembly.cbegin(), vertShaderAssembly.cend());
 	auto vertShaderAssembled = compiler.AssembleToSpv(vertShaderAssemblyCode);
 
-	// Create shader modules
+	// create shader modules
 	std::vector<uint32_t> vertShaderCode(vertShaderAssembled.cbegin(), vertShaderAssembled.cend());
 	std::vector<uint32_t> fragShaderCode(fragShaderAssembled.cbegin(), fragShaderAssembled.cend());
 	VkShaderModule vertShaderModule = render.CreateShaderModule(vertShaderCode);
@@ -91,7 +91,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-	// Create pipeline layout
+	// create pipeline layout
 	VkPushConstantRange pushConstantRange{};
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(VULKANTEXTUREDVISUALDATA);
@@ -115,7 +115,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 		throw LcException("Failed to create pipeline layout");
 	}
 
-	// Create pipeline
+	// create pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 	render.FillPipelineDefaults(pipelineInfo);
 
@@ -131,7 +131,7 @@ LcTexturedVisual2DRenderVulkan::LcTexturedVisual2DRenderVulkan(class IRenderDevi
 		throw LcException("Failed to create graphics pipeline");
 	}
 
-	// Cleanup
+	// cleanup
 	vkDestroyShaderModule(device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
@@ -194,7 +194,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		{
 			auto colorsData = colors ? colors->GetData() : tint->GetData();
 			memcpy(pushConst.colors, colorsData, sizeof(pushConst.colors));
-			pushConst.options[HAS_COLOR] = 1.0f;
+			pushConst.options[HAS_COLOR] = VK_TRUE_F;
 		}
 		else
 		{
@@ -205,7 +205,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		if (auto customUV = sprite->GetCustomUVComponent())
 		{
 			memcpy(pushConst.uvs, customUV->GetData(), sizeof(pushConst.uvs));
-			pushConst.options[HAS_CUSTOM_UV] = 1.0f;
+			pushConst.options[HAS_CUSTOM_UV] = VK_TRUE_F;
 		}
 
 		if (auto texComp = sprite->GetTextureComponent())
@@ -228,7 +228,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 				0, nullptr
 			);
 
-			pushConst.options[HAS_TEXTURE] = 1.0f;
+			pushConst.options[HAS_TEXTURE] = VK_TRUE_F;
 		}
 
 		// update transform
@@ -254,7 +254,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		{
 			auto colorsData = colors ? colors->GetData() : tint->GetData();
 			memcpy(pushConst.colors, colorsData, sizeof(pushConst.colors));
-			pushConst.options[HAS_COLOR] = 1.0f;
+			pushConst.options[HAS_COLOR] = VK_TRUE_F;
 		}
 		else
 		{
@@ -265,13 +265,13 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 		if (auto customUV = widget->GetButtonComponent())
 		{
 			memcpy(pushConst.uvs, customUV->GetData(), sizeof(pushConst.uvs));
-			pushConst.options[HAS_CUSTOM_UV] = 1.0f;
+			pushConst.options[HAS_CUSTOM_UV] = VK_TRUE_F;
 		}
 		else
 		if (auto customUV = widget->GetCheckboxComponent())
 		{
 			memcpy(pushConst.uvs, customUV->GetData(), sizeof(pushConst.uvs));
-			pushConst.options[HAS_CUSTOM_UV] = 1.0f;
+			pushConst.options[HAS_CUSTOM_UV] = VK_TRUE_F;
 		}
 
 		if (auto texComp = widget->GetTextureComponent())
@@ -294,7 +294,7 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 				0, nullptr
 			);
 
-			pushConst.options[HAS_TEXTURE] = 1.0f;
+			pushConst.options[HAS_TEXTURE] = VK_TRUE_F;
 		}
 
 		// update transform

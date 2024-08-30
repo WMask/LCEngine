@@ -7,6 +7,7 @@
 #include "RenderSystem/RenderSystemVulkan/RenderSystemVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/ColoredSpriteRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/TexturedVisual2DRenderVulkan.h"
+#include "RenderSystem/RenderSystemVulkan/TiledVisual2DRenderVulkan.h"
 #include "RenderSystem/RenderSystemVulkan/VisualsVulkan.h"
 #include "Application/ApplicationInterface.h"
 #include "World/World.h"
@@ -171,6 +172,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	// add visual renders
 	visual2DRenders.push_back(std::make_unique<LcColoredSpriteRenderVulkan>(*this, context));
 	visual2DRenders.push_back(std::make_unique<LcTexturedVisual2DRenderVulkan>(*this, context));
+	visual2DRenders.push_back(std::make_unique<LcTiledVisual2DRenderVulkan>(*this, context));
 
 	// add factory
 	LcWorld& worldRef = static_cast<LcWorld&>(*context.world);
@@ -676,7 +678,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]);
 	if (result != VK_SUCCESS)
 	{
-		DebugMsg("Failed to submit draw command buffer\n");
+		DebugMsg("Failed to submit command buffer\n");
 	}
 
 	// present to screen

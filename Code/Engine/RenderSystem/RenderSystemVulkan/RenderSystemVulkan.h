@@ -33,6 +33,9 @@ public:
 	* Fill pipeline defaults */
 	virtual void FillPipelineDefaults(VkGraphicsPipelineCreateInfo& pipeline) = 0;
 	/**
+	* Force sprite render setup. Updates shaders and buffers */
+	virtual void ForceRenderSetup() = 0;
+	/**
 	* Return Vulkan device */
 	virtual VkDevice GetVulkanDevice() const = 0;
 	/**
@@ -127,6 +130,8 @@ public:// IRenderDeviceVulkan interface implementation
 	virtual VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code) override;
 	//
 	virtual void FillPipelineDefaults(VkGraphicsPipelineCreateInfo& pipeline) override;
+	//
+	virtual void ForceRenderSetup() override { prevSetupRequested = true; }
 	//
 	virtual VkDevice GetVulkanDevice() const override { return device; }
 	//

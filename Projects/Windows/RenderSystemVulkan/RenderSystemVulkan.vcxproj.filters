@@ -45,6 +45,9 @@
     <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\VisualsVulkan.cpp">
       <Filter>Source Files\RenderSystemVulkan</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\TiledVisual2DRenderVulkan.cpp">
+      <Filter>Source Files\RenderSystemVulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\Module.h">
@@ -68,12 +71,18 @@
     <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\VisualsVulkan.h">
       <Filter>Header Files\RenderSystemVulkan</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Code\Engine\RenderSystem\RenderSystemVulkan\TiledVisual2DRenderVulkan.h">
+      <Filter>Header Files\RenderSystemVulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Code\Shaders\GLSL\ColoredSprite2d.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="..\..\..\Code\Shaders\GLSL\TexturedVisual2d.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Code\Shaders\GLSL\TiledVisual2d.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>
