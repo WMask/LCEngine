@@ -157,8 +157,8 @@ LcTiledVisual2DRenderVulkan::LcTiledVisual2DRenderVulkan(IRenderDeviceVulkan& in
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	std::array<VkDescriptorSetLayout, 2> layouts = {
-		*render.GetDescriptorSets().GetLayoutForFrame(render.GetCurrentFrame(), LcDSLayoutType::TiledVisual),
-		*render.GetDescriptorSets().GetLayoutForFrame(render.GetCurrentFrame(), LcDSLayoutType::Textures)
+		*render.GetDescriptorSets().GetLayout(LcDSLayoutType::TiledVisual),
+		*render.GetDescriptorSets().GetLayout(LcDSLayoutType::Textures)
 	};
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};

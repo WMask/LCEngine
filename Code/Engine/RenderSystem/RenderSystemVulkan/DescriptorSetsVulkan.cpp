@@ -31,10 +31,11 @@ void LcDescriptorSetsVulkan::Destroy(VkDevice device)
 		vkDestroyBuffer(device, uniformBuffers[i], nullptr);
 		vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
 
+		vkDestroyDescriptorSetLayout(device, descriptorLayouts[i].layout, nullptr);
+
 		for (uint32_t j = 0; j < LcDSLayoutTypeSize; j++)
 		{
 			vkDestroyDescriptorPool(device, descriptorLayouts[j].pool[i], nullptr);
-			vkDestroyDescriptorSetLayout(device, descriptorLayouts[j].layout[i], nullptr);
 		}
 	}
 }
@@ -76,9 +77,10 @@ void LcDescriptorSetsVulkan::Create()
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+	CreateTextureLayout();
+
 	for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		CreateTextureLayouts(i);
 		CreateForColoredSprite(i, uboLayoutBinding);
 		CreateForTexturedVisual(i, uboLayoutBinding, samplerLayoutBinding);
 		CreateForTiledVisual(i, uboLayoutBinding, samplerLayoutBinding);
@@ -130,7 +132,7 @@ void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = pool;
 	allocInfo.descriptorSetCount = texturesCount;
-	allocInfo.pSetLayouts = &layout.layout[frame];
+	allocInfo.pSetLayouts = &layout.layout;
 
 	auto& textureSets = layout.sets.at(frame);
 	textureSets.resize(texturesCount);
@@ -178,16 +180,11 @@ void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
 	LC_CATCH{ LC_THROW("LcDescriptorSetsVulkan::UpdateTexturesForFrame()") }
 }
 
-void LcDescriptorSetsVulkan::CreateTextureLayouts(uint32_t frame)
+void LcDescriptorSetsVulkan::CreateTextureLayout()
 {
 	auto device = render.GetVulkanDevice();
 
 	LC_TRY
-
-	if (frame >= MAX_FRAMES_IN_FLIGHT)
-	{
-		throw LcException("Invalid frame id");
-	}
 
 	LcDescriptorLayout& layout = descriptorLayouts[static_cast<int>(LcDSLayoutType::Textures)];
 
@@ -203,7 +200,7 @@ void LcDescriptorSetsVulkan::CreateTextureLayouts(uint32_t frame)
 	layoutInfo.bindingCount = 1;
 	layoutInfo.pBindings = &textureLayoutBinding;
 
-	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout[frame]);
+	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create descriptor set layout");
@@ -225,15 +222,18 @@ void LcDescriptorSetsVulkan::CreateForColoredSprite(uint32_t frame, const VkDesc
 
 	LcDescriptorLayout& layout = descriptorLayouts[static_cast<int>(LcDSLayoutType::ColoredSprite)];
 
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
-
-	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout[frame]);
-	if (result != VK_SUCCESS)
+	if (!layout.layout)
 	{
-		throw LcException("Failed to create descriptor set layout");
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &uboLayoutBinding;
+
+		VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout);
+		if (result != VK_SUCCESS)
+		{
+			throw LcException("Failed to create descriptor set layout");
+		}
 	}
 
 	VkDescriptorPoolSize poolSize;
@@ -246,7 +246,7 @@ void LcDescriptorSetsVulkan::CreateForColoredSprite(uint32_t frame, const VkDesc
 	poolInfo.pPoolSizes = &poolSize;
 	poolInfo.maxSets = 1;
 
-	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
+	VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create descriptor pool");
@@ -256,7 +256,7 @@ void LcDescriptorSetsVulkan::CreateForColoredSprite(uint32_t frame, const VkDesc
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = layout.pool[frame];
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &layout.layout[frame];
+	allocInfo.pSetLayouts = &layout.layout;
 
 	layout.sets[frame].resize(1);
 	VkDescriptorSet& currentSet = layout.sets[frame][0];
@@ -301,18 +301,21 @@ void LcDescriptorSetsVulkan::CreateForTexturedVisual(uint32_t frame, const VkDes
 
 	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
-
-	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout[frame]);
-	if (result != VK_SUCCESS)
+	if (!layout.layout)
 	{
-		throw LcException("Failed to create descriptor set layout");
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+		layoutInfo.pBindings = bindings.data();
+
+		VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout);
+		if (result != VK_SUCCESS)
+		{
+			throw LcException("Failed to create descriptor set layout");
+		}
 	}
 
-	std::vector<VkDescriptorSetLayout> layouts(bindings.size(), layout.layout[frame]);
+	std::vector<VkDescriptorSetLayout> layouts(bindings.size(), layout.layout);
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes{};
 
@@ -327,7 +330,7 @@ void LcDescriptorSetsVulkan::CreateForTexturedVisual(uint32_t frame, const VkDes
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = 2;
 
-	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
+	VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create descriptor pool");
@@ -393,18 +396,21 @@ void LcDescriptorSetsVulkan::CreateForTiledVisual(uint32_t frame, const VkDescri
 
 	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
-
-	VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout[frame]);
-	if (result != VK_SUCCESS)
+	if (!layout.layout)
 	{
-		throw LcException("Failed to create descriptor set layout");
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+		layoutInfo.pBindings = bindings.data();
+
+		VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout.layout);
+		if (result != VK_SUCCESS)
+		{
+			throw LcException("Failed to create descriptor set layout");
+		}
 	}
 
-	std::vector<VkDescriptorSetLayout> layouts(bindings.size(), layout.layout[frame]);
+	std::vector<VkDescriptorSetLayout> layouts(bindings.size(), layout.layout);
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes{};
 
@@ -419,7 +425,7 @@ void LcDescriptorSetsVulkan::CreateForTiledVisual(uint32_t frame, const VkDescri
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = 2;
 
-	result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
+	VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &layout.pool[frame]);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to create descriptor pool");

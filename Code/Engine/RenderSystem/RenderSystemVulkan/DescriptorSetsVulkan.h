@@ -76,7 +76,7 @@ public:
 	//
 	const TDescriptors& GetSetsForFrame(uint32_t frame, LcDSLayoutType type) const;
 	//
-	inline const VkDescriptorSetLayout* GetLayoutForFrame(uint32_t frame, LcDSLayoutType type) const { return &descriptorLayouts[static_cast<int>(type)].layout.at(frame); }
+	inline const VkDescriptorSetLayout* GetLayout(LcDSLayoutType type) const { return &descriptorLayouts[static_cast<int>(type)].layout; }
 	//
 	inline const LcMatrix4& GetViewMatrix() const { return buffer.mView; }
 	//
@@ -87,7 +87,7 @@ public:
 
 protected:
 	//
-	void CreateTextureLayouts(uint32_t frame);
+	void CreateTextureLayout();
 	//
 	void CreateForColoredSprite(uint32_t frame, const VkDescriptorSetLayoutBinding& uboLayoutBinding);
 	//
@@ -100,7 +100,7 @@ protected:
 	//
 	struct LcDescriptorLayout
 	{
-		std::array<VkDescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layout;
+		VkDescriptorSetLayout layout;
 		//
 		std::array<VkDescriptorPool, MAX_FRAMES_IN_FLIGHT> pool;
 		//

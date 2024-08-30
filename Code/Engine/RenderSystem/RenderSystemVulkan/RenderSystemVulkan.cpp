@@ -609,7 +609,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 	// begin command buffer
-	auto commandBuffer = commandBuffers[currentFrame];
+	auto& commandBuffer = commandBuffers[currentFrame];
 	vkResetCommandBuffer(commandBuffer, 0);
 
 	VkCommandBufferBeginInfo beginInfo{};
@@ -620,7 +620,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 		throw LcException("Failed to begin recording command buffer");
 	}
 
-	VkClearValue clearColor = { {{0.0f, 0.0f, 1.0f, 1.0f}} };
+	static VkClearValue clearColor = { {{0.0f, 0.0f, 1.0f, 1.0f}} };
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -703,6 +703,34 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Render()") }
 }
 
+void LcRenderSystemVulkan::Render(const IVisual* visual, const LcAppContext& context)
+{
+	LC_TRY
+
+	if (!visual)
+	{
+		throw LcException("LcRenderSystemVulkan::Render(): Invalid visual");
+	}
+
+	for (auto& render : visual2DRenders)
+	{
+		if (render->Supports(visual->GetFeaturesList()))
+		{
+			if (prevSpriteFeatures != visual->GetFeaturesList() || prevSetupRequested)
+			{
+				prevSetupRequested = false;
+				prevSpriteFeatures = visual->GetFeaturesList();
+				render->Setup(visual, context);
+			}
+
+			render->Render(visual, context);
+			break;
+		}
+	}
+
+	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Render()") }
+}
+
 void LcRenderSystemVulkan::RequestResize(int width, int height)
 {
 	LC_TRY
@@ -760,34 +788,6 @@ LcRSStats LcRenderSystemVulkan::GetStats() const
 		//tiledRender ? tiledRender->GetNumTiles() : 0,
 		//textRender ? textRender->GetNumFonts() : 0
 	};
-}
-
-void LcRenderSystemVulkan::Render(const IVisual* visual, const LcAppContext& context)
-{
-	LC_TRY
-
-	if (!visual)
-	{
-		throw LcException("LcRenderSystemVulkan::Render(): Invalid visual");
-	}
-
-	for (auto& render : visual2DRenders)
-	{
-		if (render->Supports(visual->GetFeaturesList()))
-		{
-			if (prevSpriteFeatures != visual->GetFeaturesList() || prevSetupRequested)
-			{
-				prevSetupRequested = false;
-				prevSpriteFeatures = visual->GetFeaturesList();
-				render->Setup(visual, context);
-			}
-
-			render->Render(visual, context);
-			break;
-		}
-	}
-
-	LC_CATCH{ LC_THROW("LcRenderSystemVulkan::Render()") }
 }
 
 std::string LcRenderSystemVulkan::GetShaderCode(const std::string& shaderName) const
