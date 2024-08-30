@@ -103,9 +103,13 @@ void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
 	}
 
 	LcDescriptorLayout& layout = descriptorLayouts.at(static_cast<int>(LcDSLayoutType::Textures));
-	VkDescriptorPool& pool = layout.pool[frame];
 
-	if (pool) vkDestroyDescriptorPool(device, pool, nullptr);
+	VkDescriptorPool& pool = layout.pool[frame];
+	if (pool)
+	{
+		vkDestroyDescriptorPool(device, pool, nullptr);
+	}
+
 	if (texturesCount == 0)
 	{
 		pool = nullptr;
@@ -128,11 +132,13 @@ void LcDescriptorSetsVulkan::UpdateTexturesForFrame(uint32_t frame)
 		throw LcException("Failed to create descriptor pool");
 	}
 
+	std::vector<VkDescriptorSetLayout> layouts(texturesCount, layout.layout);
+
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = pool;
 	allocInfo.descriptorSetCount = texturesCount;
-	allocInfo.pSetLayouts = &layout.layout;
+	allocInfo.pSetLayouts = layouts.data();
 
 	auto& textureSets = layout.sets.at(frame);
 	textureSets.resize(texturesCount);

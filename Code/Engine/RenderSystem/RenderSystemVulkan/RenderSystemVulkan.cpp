@@ -142,8 +142,6 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 
 	// create descriptor sets
 	descriptorSets.Create();
-	descriptorSets.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
-	descriptorSets.SetOrtho(width, height);
 
 	// add texture update listener
 	descriptorSets.onTextureUpdated.AddListener(
@@ -605,6 +603,11 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	{
 		descriptorSets.UpdateTexturesForFrame(currentFrame);
 	}
+
+	int width = context.app->GetWindowWidth();
+	int height = context.app->GetWindowHeight();
+	descriptorSets.LookAt({ width / 2.0f, height / 2.0f, 0.0f }, false);
+	descriptorSets.SetOrtho(width, height);
 
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 

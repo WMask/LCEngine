@@ -159,38 +159,15 @@ void LcTexturedVisual2DRenderVulkan::Setup(const IVisual* visual, const LcAppCon
 
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-	if (auto texComp = visual->GetTextureComponent())
-	{
-		const LcSpriteVulkan* spriteVulkan = static_cast<const LcSpriteVulkan*>(visual);
-		const VkDescriptorSet& textureSet = spriteVulkan->spriteSet[render.GetCurrentFrame()];
-		if (!textureSet)
-		{
-			DebugMsg("Descriptor set not ready yet for texture: '%s'\n", texComp->GetTexturePath().c_str());
-			return;
-		}
+	// bind descriptors to set 0
+	const uint32_t setOffset = 0;
+	const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
 
-		std::vector<VkDescriptorSet> setsWithTexture = { descriptorSets[0], textureSet };
-
-		const uint32_t setOffset = 0;
-		const uint32_t setCount = static_cast<uint32_t>(setsWithTexture.size());
-
-		// bind per object descriptors
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-			setOffset, setCount, setsWithTexture.data(),
-			0, nullptr
-		);
-	}
-	else
-	{
-		const uint32_t setOffset = 0;
-		const uint32_t setCount = static_cast<uint32_t>(descriptorSets.size());
-
-		// bind per type descriptors (LcDSLayoutType::TexturedVisual)
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-			setOffset, setCount, descriptorSets.data(),
-			0, nullptr
-		);
-	}
+	// bind per type descriptors (LcDSLayoutType::TexturedVisual)
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+		setOffset, setCount, descriptorSets.data(),
+		0, nullptr
+	);
 }
 
 void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppContext& context)
@@ -233,6 +210,24 @@ void LcTexturedVisual2DRenderVulkan::Render(const IVisual* visual, const LcAppCo
 
 		if (auto texComp = sprite->GetTextureComponent())
 		{
+			const LcSpriteVulkan* spriteVulkan = static_cast<const LcSpriteVulkan*>(visual);
+			const VkDescriptorSet& textureSet = spriteVulkan->spriteSet[render.GetCurrentFrame()];
+			if (!textureSet)
+			{
+				DebugMsg("Descriptor set not ready yet for texture: '%s'\n", texComp->GetTexturePath().c_str());
+				return;
+			}
+
+			// bind texture descriptor to set 1
+			const uint32_t setOffset = 1;
+			const uint32_t setCount = 1;
+
+			// bind per object descriptors
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+				setOffset, setCount, &textureSet,
+				0, nullptr
+			);
+
 			pushConst.options[HAS_TEXTURE] = VK_TRUE_F;
 		}
 
