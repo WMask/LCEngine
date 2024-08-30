@@ -20,6 +20,10 @@
 
 #pragma warning(disable : 4251)
 
+#ifdef IsMinimized
+#undef IsMinimized
+#endif
+
 
 /** Init handler */
 typedef std::function<void(struct LcAppContext&)> LcInitHandler;
@@ -83,7 +87,7 @@ public:
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept = 0;
 	/**
 	* Set window size in pixels */
-	virtual void SetWindowSize(unsigned int width, unsigned int height) = 0;
+	virtual void SetWindowSize(unsigned int width, unsigned int height, bool resizeRenderSystem = true) = 0;
 	/**
 	* Set window mode */
 	virtual void SetWindowMode(LcWinMode mode) = 0;
@@ -120,10 +124,13 @@ public:
 	virtual void RequestQuit() noexcept = 0;
 	/**
 	* Get window width in pixels */
-	virtual int GetWindowWidth() const = 0;
+	virtual int GetWindowWidth() const noexcept = 0;
 	/**
 	* Get window height in pixels */
-	virtual int GetWindowHeight() const = 0;
+	virtual int GetWindowHeight() const noexcept = 0;
+	/**
+	* Get window state */
+	virtual bool IsMinimized() const noexcept = 0;
 	/**
 	* Get vertical synchronization mode */
 	virtual bool GetVSync() const noexcept = 0;

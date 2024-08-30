@@ -131,7 +131,12 @@ void LcWindowsApplication::Run()
 	BOOL windowedStyle = (cfg.WinHeight < screenHeight) ? TRUE : FALSE;
 	int style = windowedStyle ? WS_LC_WINDOW_MENU : WS_LC_WINDOW;
 
-	RECT clientRect{ 0, 0, (LONG)cfg.WinWidth, (LONG)cfg.WinHeight };
+	if (windowSize.IsZero())
+	{
+		windowSize = { cfg.WinWidth, cfg.WinHeight };
+	}
+
+	RECT clientRect{ 0, 0, static_cast<LONG>(windowSize.x), static_cast<LONG>(windowSize.y) };
 	AdjustWindowRect(&clientRect, style, FALSE);
 	int winWidth = clientRect.right - clientRect.left;
 	int winHeight = clientRect.bottom - clientRect.top;
@@ -269,6 +274,8 @@ void LcWindowsApplication::OnUpdate()
 		context.gameTime = gameDuration.count();
 		float deltaFloat = deltaDuration.count();
 
+		if (IsMinimized()) return;
+
 		if (inputSystem)
 		{
 			inputSystem->Update(deltaFloat, context);
@@ -317,16 +324,14 @@ LcAppStats LcWindowsApplication::GetAppStats() const noexcept
 	};
 }
 
-void LcWindowsApplication::SetWindowSize(unsigned int width, unsigned int height)
+void LcWindowsApplication::SetWindowSize(unsigned int width, unsigned int height, bool resizeRenderSystem)
 {
-	auto oldSize = LcSize{ cfg.WinWidth, cfg.WinHeight };
 	auto newSize = LcSize{ width, height };
-	if (oldSize == newSize) return;
+	if (windowSize == newSize) return;
 
-	cfg.WinWidth = width;
-	cfg.WinHeight = height;
+	windowSize = newSize;
 
-	if (renderSystem && renderSystem->CanRender())
+	if (resizeRenderSystem && renderSystem && renderSystem->CanRender())
 	{
 		// actual resize in WM_SIZE message handler
 		renderSystem->RequestResize(width, height);
@@ -362,6 +367,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
+	LcWindowsApplication& app = static_cast<LcWindowsApplication&>(handles->app);
 	IGuiManager* guiManager = handles ? handles->appContext.gui : nullptr;
 	IInputSystem* inputSystem = handles ? handles->appContext.input : nullptr;
 	IInputDevice* activeKeyboard = nullptr;
@@ -399,6 +405,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
 			handles->appContext.render->Resize(width, height, handles->appContext);
+			app.SetWindowSize(width, height, false);
 		}
 		break;
 	case WM_KEYDOWN:

@@ -50,7 +50,7 @@ public: // IApplication interface implementation
 	//
 	virtual void SetGuiManager(TGuiManagerPtr gui) noexcept override { guiManager = gui; }
 	//
-	virtual void SetWindowSize(unsigned int width, unsigned int height) override;
+	virtual void SetWindowSize(unsigned int width, unsigned int height, bool resizeRenderSystem = true) override;
 	//
 	virtual void SetWindowMode(LcWinMode mode) override;
 	//
@@ -72,9 +72,11 @@ public: // IApplication interface implementation
 	//
 	virtual void RequestQuit() noexcept override { quit = true; }
 	//
-	virtual int GetWindowWidth() const override { return cfg.WinWidth; }
+	virtual int GetWindowWidth() const noexcept override { return windowSize.x; }
 	//
-	virtual int GetWindowHeight() const override { return cfg.WinHeight; }
+	virtual int GetWindowHeight() const noexcept override { return windowSize.y; }
+	//
+	virtual bool IsMinimized() const noexcept override { return windowSize.IsZero(); }
 	//
 	virtual bool GetVSync() const noexcept override { return cfg.bVSync; }
 	//
@@ -108,6 +110,8 @@ protected:
 	//
 	LcWinMode winMode;
 	//
+	LcSize windowSize;
+	//
 	std::wstring cmds;
 	//
 	LcTimePoint startTime;
@@ -124,6 +128,7 @@ protected:
 
 
 protected:
+	//
 	TWorldPtr world;
 	//
 	TRenderSystemPtr renderSystem;
@@ -144,6 +149,7 @@ protected:
 
 
 protected:
+	//
 	LcInitHandler initHandler;
 	//
 	LcUpdateHandler updateHandler;

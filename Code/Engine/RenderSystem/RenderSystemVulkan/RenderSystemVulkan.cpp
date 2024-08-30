@@ -134,6 +134,8 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 	cameraManager.SetProj({ width, height });
 	context.world->GetCamera().Set(cameraManager.pos);
 
+	renderSystemSize = LcSize{ width, height };
+
 	// init Vulkan
 	CreateInstance(hWnd);
 	PickPhysicalDevice();
@@ -596,14 +598,18 @@ void LcRenderSystemVulkan::UpdateCamera(float deltaSeconds, LcVector3 newPos, Lc
 
 void LcRenderSystemVulkan::Render(const LcAppContext& context)
 {
-	if (!CanRender()) return;
+	if (!CanRender() || context.app->IsMinimized()) return;
 
 	LC_TRY
 
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	if (result != VK_SUCCESS)
+	{
+		throw LcException("Failed to acquire next image");
+	}
 
 	// update textures based on current world state
 	if (!texLoader.IsUpdated(texLoaderCounters[currentFrame]))
@@ -630,7 +636,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to begin recording command buffer");
@@ -771,19 +777,22 @@ void LcRenderSystemVulkan::Resize(int width, int height, const LcAppContext& con
 
 	if (needResize)
 	{
-		// recreate widget render
-		//textRender->Init(context);
+		if (!newViewportSize.IsZero())
+		{
+			// recreate widget render
+			//textRender->Init(context);
 
-		// update world settings
-		cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
-		cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
+			// update world settings
+			cameraPos = LcVector3{ width / 2.0f, height / 2.0f, 0.0f };
+			cameraTarget = LcVector3{ cameraPos.x, cameraPos.y, 1.0f };
 
-		context.world->UpdateWorldScale(newViewportSize);
-		context.world->GetCamera().Set(cameraPos, cameraTarget);
-		UpdateCamera(0.1f, cameraPos, cameraTarget);
+			context.world->UpdateWorldScale(newViewportSize);
+			context.world->GetCamera().Set(cameraPos, cameraTarget);
+			UpdateCamera(0.1f, cameraPos, cameraTarget);
 
-		// update projection
-		cameraManager.SetProj(newViewportSize);
+			// update projection
+			cameraManager.SetProj(newViewportSize);
+		}
 
 		renderSystemSize = newViewportSize;
 	}

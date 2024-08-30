@@ -30,6 +30,7 @@ struct LcSize
 	LcSize() : x(0), y(0) {}
 	LcSize(unsigned int inX, unsigned int inY) : x(inX), y(inY) {}
 	LcSize(int inX, int inY) : x((unsigned int)inX), y((unsigned int)inY) {}
+	inline bool IsZero() const { return x == 0 && y == 0; }
 	unsigned int x;
 	unsigned int y;
 };
