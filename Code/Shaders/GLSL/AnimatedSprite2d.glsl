@@ -70,7 +70,6 @@ void main()
 	vec4 tint = vec4(globalTint, 1.0);
 
 	outColor = texColor * color * tint;
-	if (outColor.w < 0.5) { discard; }
 }
 
 #endif
