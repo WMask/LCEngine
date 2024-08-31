@@ -602,10 +602,10 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 
 	LC_TRY
 
-	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+	vkWaitForFences(device, 1, &inFlightFences.at(currentFrame), VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores.at(currentFrame), VK_NULL_HANDLE, &imageIndex);
 	if (result != VK_SUCCESS)
 	{
 		throw LcException("Failed to acquire next image");
@@ -631,7 +631,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 	// begin command buffer
-	auto& commandBuffer = commandBuffers[currentFrame];
+	auto& commandBuffer = commandBuffers.at(currentFrame);
 	vkResetCommandBuffer(commandBuffer, 0);
 
 	VkCommandBufferBeginInfo beginInfo{};
@@ -647,7 +647,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+	renderPassInfo.framebuffer = swapChainFramebuffers.at(imageIndex);
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = swapChainExtent;
 	renderPassInfo.clearValueCount = 1;
@@ -693,7 +693,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores.at(currentFrame) };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
