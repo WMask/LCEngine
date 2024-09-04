@@ -16,6 +16,7 @@
 #include "stb_truetype.h"
 
 
+std::string MakeFontName(const std::string& path);
 int FindMaxVertOffset(const stbtt_fontinfo& info, unsigned int bitmapSize, unsigned int lineHeight, unsigned int firstChar, unsigned int charCount);
 
 int main(int argc, const char* argv[])
@@ -109,8 +110,6 @@ int main(int argc, const char* argv[])
     std::vector<LETTER> letters;
     letters.reserve(charCount);
 
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
-
     for (unsigned int i = firstChar; i < firstChar + charCount; ++i)
     {
         int posx;
@@ -167,9 +166,14 @@ int main(int argc, const char* argv[])
         return 5;
     }
 
-    fprintf(jsonFile, "{\n\t\"fontSize\": %d,\n\t\"firstCharCode\": %d,\n\t\"glyphs\": [\n", lineHeight, firstChar);
+    std::string fontName = MakeFontName(argv[1]);
+    std::cout << "Font name: " << fontName << "\n";
 
+    fprintf(jsonFile, "{\n\t\"fontName\": \"%s\",\n\t\"fontSize\": %d,\n\t\"firstCharCode\": %d,\n\t\"glyphs\": [\n", fontName.c_str(), lineHeight, firstChar);
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
     charCount = static_cast<int>(letters.size());
+
     for (size_t i = 0; i < charCount; i++)
     {
         wchar_t cc[3] = { static_cast<wchar_t>(i + firstChar), '\0', '\0' };
@@ -186,6 +190,33 @@ int main(int argc, const char* argv[])
     fclose(jsonFile);
 
     return 0;
+}
+
+std::string MakeFontName(const std::string& fontPath)
+{
+    std::string fontName(fontPath);
+    std::string path(fontPath);
+    size_t spos1 = path.find_last_of('/');
+    size_t spos2 = path.find_last_of('\\');
+    if (spos1 != std::string::npos || spos2 != std::string::npos)
+    {
+        if (spos1 == std::string::npos) spos1 = 0;
+        if (spos2 == std::string::npos) spos2 = 0;
+        size_t spos = std::max(spos1, spos2);
+        fontName = path.substr(spos + 1);
+        size_t dpos = fontName.find('.');
+        if (dpos != std::string::npos)
+        {
+            fontName = fontName.substr(0, dpos);
+        }
+    }
+
+    if (fontName[0] > 96 && fontName[0] < 123)
+    {
+        fontName[0] = std::toupper(fontName[0]);
+    }
+
+    return fontName;
 }
 
 int FindMaxVertOffset(const stbtt_fontinfo& info, unsigned int bitmapSize, unsigned int lineHeight, unsigned int firstChar, unsigned int charCount)
