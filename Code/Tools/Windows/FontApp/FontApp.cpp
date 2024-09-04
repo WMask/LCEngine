@@ -47,7 +47,7 @@ int main(int argc, const char* argv[])
         lineHeight = atoi(argv[3]);
     }
 
-    unsigned int firstChar = 1024;
+    unsigned int firstChar = 32;
     if (argc > 4)
     {
         firstChar = atoi(argv[4]);
@@ -178,9 +178,10 @@ int main(int argc, const char* argv[])
     {
         wchar_t cc[3] = { static_cast<wchar_t>(i + firstChar), '\0', '\0' };
         if (cc[0] == '"') { cc[0] = cc[1] = '\''; }
+        if (cc[0] == '\\') { cc[0] = cc[1] = '\\'; }
         std::string utf8_string = convert.to_bytes(cc);
 
-        fprintf(jsonFile, "\t\t{\n\t\t\t\"glyph\": \"%s\",\n\t\t\t\"pos\": {%.3f, %.3f},\n\t\t\t\"size\": {%.3f, %.3f}\n\t\t}",
+        fprintf(jsonFile, "\t\t{\n\t\t\t\"glyph\": \"%s\",\n\t\t\t\"pos\": {\"x\": %.3f, \"y\": %.3f},\n\t\t\t\"size\": {\"x\": %.3f, \"y\": %.3f}\n\t\t}",
             utf8_string.c_str(), letters[i].x, letters[i].y, letters[i].w, letters[i].h);
         fprintf(jsonFile, (i == (charCount - 1)) ? "\n" : ",\n");
     }
