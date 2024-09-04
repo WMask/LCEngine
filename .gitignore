@@ -18,6 +18,7 @@
 *.xcuserstate
 .DS_Store
 Code/Engine/Core/glm/*
+Code/Engine/Core/stb/*
 Code/Engine/Core/libpng/*
 Code/Engine/Core/zlib/*
 Code/Engine/Vulkan/*
@@ -33,6 +34,7 @@ Code/Samples/Windows/SpritesSample/x64/*
 Code/Samples/Windows/WidgetSample/x64/*
 Code/Samples/Windows/TiledSample/x64/*
 Code/Samples/Windows/LuaSample/x64/*
+Code/Tools/Windows/FontApp/x64/*
 Projects/Windows/Core/x64/*
 Projects/Windows/Box2D/x64/*
 Projects/Windows/Application/x64/*
