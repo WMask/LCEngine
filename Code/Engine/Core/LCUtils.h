@@ -7,6 +7,9 @@
 #pragma once
 
 #include "LCTypes.h"
+#include <filesystem>
+
+using LcPath = std::filesystem::path;
 
 
 /**
@@ -28,13 +31,13 @@ constexpr bool InRangeC(T value, T minValue, T maxValue)
 
 /**
 * Read text file */
-CORE_API std::string ReadTextFile(const char* filePath);
+CORE_API std::string ReadTextFile(const LcPath& filePath);
 /**
 * Read binary file */
-CORE_API LcBytes ReadBinaryFile(const char* filePath);
+CORE_API LcBytes ReadBinaryFile(const LcPath& filePath);
 /**
 * Write text file */
-CORE_API void WriteTextFile(const char* filePath, const std::string& text);
+CORE_API void WriteTextFile(const LcPath& filePath, const std::string& text);
 
 
 /**
@@ -42,7 +45,7 @@ CORE_API void WriteTextFile(const char* filePath, const std::string& text);
 * BPP - bytes per pixel (always 4)
 * RowBytes - bytes per row
 */
-CORE_API void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBPP, int *outRowBytes, void* outData = nullptr);
+CORE_API void ReadPngFile(const LcPath& filePath, int* outWidth, int* outHeight, int* outBPP, int *outRowBytes, void* outData = nullptr);
 
 
 /**

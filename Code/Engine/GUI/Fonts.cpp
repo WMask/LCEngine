@@ -5,7 +5,6 @@
 */
 
 #include "GUI/Fonts.h"
-#include "Core/LCUtils.h"
 #include "Core/LCException.h"
 
 #include <string>
@@ -16,7 +15,7 @@
 using json = nlohmann::json;
 
 
-void LcFont::Load(const char* jsonPath, unsigned int textureId, std::wstring& outFontName)
+void LcFont::Load(const LcPath& jsonPath, unsigned int textureId, std::wstring& outFontName)
 {
 	LC_TRY
 
@@ -76,7 +75,7 @@ bool LcFont::FindGlyph(wchar_t glyphCode, LcGlyph& outGlyph) const
 	return false;
 }
 
-void LcFontManager::AddFont(const char* jsonPath, unsigned int textureId)
+void LcFontManager::AddFont(const LcPath& jsonPath, unsigned int textureId)
 {
 	LC_TRY
 

@@ -41,7 +41,7 @@ struct FileRAII : public LcUncopyable
 };
 
 
-std::string ReadTextFile(const char* filePath)
+std::string ReadTextFile(const LcPath& filePath)
 {
 	using namespace std::filesystem;
 
@@ -49,20 +49,18 @@ std::string ReadTextFile(const char* filePath)
 
 	LC_TRY
 
-	path path;
-	path.assign(filePath);
-	std::ifstream stream(path, std::ios::in | std::ios::binary);
+	std::ifstream stream(filePath, std::ios::in | std::ios::binary);
 
-	const auto sz = file_size(path);
+	const auto sz = file_size(filePath);
 	result = std::string(sz, '\0');
 	stream.read(result.data(), sz);
 
-	LC_CATCH{ LC_THROW_EX("ReadTextFile('", filePath, "')"); }
+	LC_CATCH{ LC_THROW_EX("ReadTextFile('", filePath.string().c_str(), "')"); }
 
 	return result;
 }
 
-LcBytes ReadBinaryFile(const char* filePath)
+LcBytes ReadBinaryFile(const LcPath& filePath)
 {
 	using namespace std::filesystem;
 
@@ -70,35 +68,31 @@ LcBytes ReadBinaryFile(const char* filePath)
 
 	LC_TRY
 
-	path path;
-	path.assign(filePath);
-	std::ifstream stream(path, std::ios::in | std::ios::binary);
+	std::ifstream stream(filePath, std::ios::in | std::ios::binary);
 
-	const auto sz = file_size(path);
+	const auto sz = file_size(filePath);
 	result = LcBytes(sz);
 	stream.read((char*)result.data(), sz);
 
-	LC_CATCH{ LC_THROW_EX("ReadBinaryFile('", filePath, "')"); }
+	LC_CATCH{ LC_THROW_EX("ReadBinaryFile('", filePath.string().c_str(), "')"); }
 
 	return result;
 }
 
-void WriteTextFile(const char* filePath, const std::string& text)
+void WriteTextFile(const LcPath& filePath, const std::string& text)
 {
 	using namespace std::filesystem;
 
 	LC_TRY
 
-	path path;
-	path.assign(filePath);
-	std::ofstream stream(path, std::ios::out);
+	std::ofstream stream(filePath, std::ios::out);
 
 	stream.write(text.c_str(), text.length());
 
-	LC_CATCH{ LC_THROW_EX("WriteTextFile('", filePath, "')"); }
+	LC_CATCH{ LC_THROW_EX("WriteTextFile('", filePath.string().c_str(), "')"); }
 }
 
-void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBPP, int* outRowBytes, void* outData)
+void ReadPngFile(const LcPath& filePath, int* outWidth, int* outHeight, int* outBPP, int* outRowBytes, void* outData)
 {
 	struct PngRAII
 	{
@@ -115,7 +109,7 @@ void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBP
 
 	LC_TRY
 
-	FileRAII fp(filePath);
+	FileRAII fp(filePath.string().c_str());
 	if (!fp)
 	{
 		throw LcException("Failed to read file");
@@ -222,7 +216,7 @@ void ReadPngFile(const char* filePath, int* outWidth, int* outHeight, int* outBP
 		}
 	}
 
-	LC_CATCH{ LC_THROW_EX("ReadPngFile('", filePath, "')"); }
+	LC_CATCH{ LC_THROW_EX("ReadPngFile('", filePath.string().c_str(), "')"); }
 }
 
 std::string ToUtf8(const std::wstring& str)

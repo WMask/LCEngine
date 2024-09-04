@@ -8,6 +8,7 @@
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
+#include "Core/LCUtils.h"
 
 #include <string>
 #include <string_view>
@@ -39,7 +40,7 @@ public:
     //
     LcFont() : fontSize(0) {}
     //
-    void Load(const char* jsonPath, unsigned int textureId, std::wstring& outFontName);
+    void Load(const LcPath& jsonPath, unsigned int textureId, std::wstring& outFontName);
     //
     bool FindGlyph(wchar_t glyphCode, LcGlyph& outGlyph) const;
     //
@@ -69,7 +70,7 @@ public:
     //
     LcFontManager() {}
     //
-    void AddFont(const char* jsonPath, unsigned int textureId);
+    void AddFont(const LcPath& jsonPath, unsigned int textureId);
     //
     bool FindGlyph(const std::wstring_view& fontName, wchar_t glyphCode, LcGlyph& outGlyph) const;
     //
@@ -77,7 +78,7 @@ public:
 
 
 protected:
-    //
+    // key - font name
     std::map<std::wstring, LcFont> fonts;
 
 };
