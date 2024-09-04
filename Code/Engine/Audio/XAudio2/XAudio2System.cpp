@@ -21,7 +21,7 @@ public:
 	//
 	virtual ~LcSoundLifetimeStrategy() {}
 	//
-	virtual std::shared_ptr<ISound> Create(const void* userData) override { return std::make_shared<LcXAudio2Sound>(); }
+	virtual std::shared_ptr<ISound> Create() override { return std::make_shared<LcXAudio2Sound>(); }
 	//
 	virtual void Destroy(ISound& item, IAudioSystem::TSoundsList& items) override {}
 };
@@ -29,7 +29,7 @@ public:
 
 LcXAudio2System::LcXAudio2System() : masteringVoice(nullptr)
 {
-	sounds.SetLifetimeStrategy(std::make_shared<LcSoundLifetimeStrategy>());
+	sounds.SetLifetimeStrategy(std::make_unique<LcSoundLifetimeStrategy>());
 
 	if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
 	{
