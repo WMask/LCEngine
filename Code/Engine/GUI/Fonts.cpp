@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 
 
-void LcFont::Load(const LcPath& jsonPath, unsigned int textureId, std::wstring& outFontName)
+void LcFont::Load(const LcPath& jsonPath, unsigned int textureId)
 {
 	LC_TRY
 
@@ -28,8 +28,8 @@ void LcFont::Load(const LcPath& jsonPath, unsigned int textureId, std::wstring& 
 	json font = json::parse(fullJsonText);
 
 	fontSize = font["fontSize"].get<unsigned int>();
-	std::string utf8Name = font["fontName"].get<std::string>();
-	outFontName = FromUtf8(utf8Name);
+	std::string utf8Name = font["displayName"].get<std::string>();
+	displayName = FromUtf8(utf8Name);
 
 	json glyphsArray = font["glyphs"];
 	if (glyphsArray.is_array())
@@ -75,37 +75,26 @@ bool LcFont::FindGlyph(wchar_t glyphCode, LcGlyph& outGlyph) const
 	return false;
 }
 
-void LcFontManager::AddFont(const LcPath& jsonPath, unsigned int textureId)
+void LcFontManager::AddFont(const LcPath& jsonPath, const std::string_view& fontName, unsigned int textureId)
 {
 	LC_TRY
 
-	auto fullJsonText = ReadTextFile(jsonPath);
-	if (fullJsonText.length() == 0)
-	{
-		throw LcException("Cannot read json");
-	}
-
-	json font = json::parse(fullJsonText);
-
-	std::string utf8Name = font["fontName"].get<std::string>();
-	std::wstring fontName = FromUtf8(utf8Name);
-
-	auto fontIt = fonts.find(fontName);
+	auto fontIt = fonts.find(fontName.data());
 	if (fontIt != fonts.end())
 	{
-		fontIt->second.Load(jsonPath, textureId, fontName);
+		fontIt->second.Load(jsonPath, textureId);
 	}
 	else
 	{
 		LcFont newFont;
-		newFont.Load(jsonPath, textureId, fontName);
-		fonts.insert({ fontName, newFont });
+		newFont.Load(jsonPath, textureId);
+		fonts.insert({ fontName.data(), newFont });
 	}
 
 	LC_CATCH{ LC_THROW("LcFontManager::AddFont()") }
 }
 
-bool LcFontManager::FindGlyph(const std::wstring_view& fontName, wchar_t glyphCode, LcGlyph& outGlyph) const
+bool LcFontManager::FindGlyph(const std::string_view& fontName, wchar_t glyphCode, LcGlyph& outGlyph) const
 {
 	auto fontIt = fonts.find(fontName.data());
 	if (fontIt != fonts.end())
@@ -116,10 +105,8 @@ bool LcFontManager::FindGlyph(const std::wstring_view& fontName, wchar_t glyphCo
 	return false;
 }
 
-bool LcFontManager::FindGlyphs(const std::wstring_view& fontName, const std::wstring_view& text, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const
+bool LcFontManager::FindGlyphs(const std::string_view& fontName, const std::wstring_view& text, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const
 {
-	std::string fontNameUtf8;
-
 	LC_TRY
 
 	auto fontIt = fonts.find(fontName.data());
@@ -135,7 +122,6 @@ bool LcFontManager::FindGlyphs(const std::wstring_view& fontName, const std::wst
 			LcGlyph glyph{};
 			if (!fontIt->second.FindGlyph(*it, glyph))
 			{
-				fontNameUtf8 = ToUtf8(fontName.data());
 				throw LcException("Cannot find glyph");
 			}
 
@@ -148,7 +134,7 @@ bool LcFontManager::FindGlyphs(const std::wstring_view& fontName, const std::wst
 		return outGlyphs.size() == text.length();
 	}
 
-	LC_CATCH{ LC_THROW_EX("LcFontManager::FindGlyphs('", fontNameUtf8.c_str(), "')") }
+	LC_CATCH{ LC_THROW_EX("LcFontManager::FindGlyphs('", fontName.data(), "')") }
 
 	return false;
 }

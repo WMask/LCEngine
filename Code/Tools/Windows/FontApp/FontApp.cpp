@@ -1,5 +1,5 @@
 /**
-* HelloWorld.cpp
+* FontApp.cpp
 * 28.01.2023
 * (c) Denis Romakhov
 * Based on https://github.com/justinmeiners/stb-truetype-example
@@ -169,7 +169,7 @@ int main(int argc, const char* argv[])
     std::string fontName = MakeFontName(argv[1]);
     std::cout << "Font name: " << fontName << "\n";
 
-    fprintf(jsonFile, "{\n\t\"fontName\": \"%s\",\n\t\"fontSize\": %d,\n\t\"firstCharCode\": %d,\n\t\"glyphs\": [\n", fontName.c_str(), lineHeight, firstChar);
+    fprintf(jsonFile, "{\n\t\"displayName\": \"%s\",\n\t\"fontSize\": %d,\n\t\"firstCharCode\": %d,\n\t\"glyphs\": [\n", fontName.c_str(), lineHeight, firstChar);
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
     charCount = static_cast<int>(letters.size());
