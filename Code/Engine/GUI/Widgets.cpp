@@ -4,9 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#pragma once
-
-#include "pch.h"
 #include "GUI/Widgets.h"
 #include "World/WorldInterface.h"
 

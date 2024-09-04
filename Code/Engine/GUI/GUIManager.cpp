@@ -4,7 +4,6 @@
 * (c) Denis Romakhov
 */
 
-#include "pch.h"
 #include "GUI/Widgets.h"
 #include "GUI/GUIManager.h"
 #include "RenderSystem/RenderSystem.h"
