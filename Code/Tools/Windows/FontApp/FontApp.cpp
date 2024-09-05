@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <codecvt>
+#include "Core/LCUtils.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -16,7 +17,7 @@
 #include "stb_truetype.h"
 
 
-std::string MakeFontName(const std::string& path);
+std::string MakeFontName(const std::filesystem::path& path);
 int FindMaxVertOffset(const stbtt_fontinfo& info, unsigned int bitmapSize, unsigned int lineHeight, unsigned int firstChar, unsigned int charCount);
 
 int main(int argc, const char* argv[])
@@ -59,23 +60,8 @@ int main(int argc, const char* argv[])
         charCount = atoi(argv[5]);
     }
 
-    FILE* fontFile = nullptr;
-    fopen_s(&fontFile, argv[1], "rb");
-    if (!fontFile)
-    {
-        std::cout << "\nFailed to open font file.\n";
-        return 2;
-    }
-
-    fseek(fontFile, 0, SEEK_END);
-    auto size = ftell(fontFile);
-    fseek(fontFile, 0, SEEK_SET);
-
-    std::vector<unsigned char> fontBuffer;
-    fontBuffer.resize(size);
-
-    fread(fontBuffer.data(), size, 1, fontFile);
-    fclose(fontFile);
+    std::filesystem::path fontPath(argv[1]);
+    auto fontBuffer = ReadBinaryFile(fontPath);
 
     stbtt_fontinfo info{};
     if (!stbtt_InitFont(&info, fontBuffer.data(), 0))
@@ -158,20 +144,18 @@ int main(int argc, const char* argv[])
     stbi_write_png("1.png", bitmapSize, bitmapSize, 1, bitmap.data(), bitmapSize);
 
     // write letters data to json
-    FILE* jsonFile = nullptr;
-    fopen_s(&jsonFile, "1.json", "w");
+    FileRAII jsonFile("1.json", "w");
     if (!jsonFile)
     {
         std::cout << "\nFailed to write json file.\n";
         return 5;
     }
 
-    std::string fontName = MakeFontName(argv[1]);
+    std::string fontName = MakeFontName(fontPath);
     std::cout << "Font name: " << fontName << "\n";
 
     fprintf(jsonFile, "{\n\t\"displayName\": \"%s\",\n\t\"fontSize\": %d,\n\t\"firstCharCode\": %d,\n\t\"glyphs\": [\n", fontName.c_str(), lineHeight, firstChar);
 
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
     charCount = static_cast<int>(letters.size());
 
     for (size_t i = 0; i < charCount; i++)
@@ -179,7 +163,7 @@ int main(int argc, const char* argv[])
         wchar_t cc[3] = { static_cast<wchar_t>(i + firstChar), '\0', '\0' };
         if (cc[0] == '"') { cc[0] = cc[1] = '\''; }
         if (cc[0] == '\\') { cc[0] = cc[1] = '\\'; }
-        std::string utf8_string = convert.to_bytes(cc);
+        std::string utf8_string = ToUtf8(cc);
 
         fprintf(jsonFile, "\t\t{\n\t\t\t\"glyph\": \"%s\",\n\t\t\t\"pos\": {\"x\": %.3f, \"y\": %.3f},\n\t\t\t\"size\": {\"x\": %.3f, \"y\": %.3f}\n\t\t}",
             utf8_string.c_str(), letters[i].x, letters[i].y, letters[i].w, letters[i].h);
@@ -188,31 +172,14 @@ int main(int argc, const char* argv[])
 
     fprintf(jsonFile, "\t]\n}\n");
 
-    fclose(jsonFile);
-
     return 0;
 }
 
-std::string MakeFontName(const std::string& fontPath)
+std::string MakeFontName(const std::filesystem::path& fontPath)
 {
-    std::string fontName(fontPath);
-    std::string path(fontPath);
-    size_t spos1 = path.find_last_of('/');
-    size_t spos2 = path.find_last_of('\\');
-    if (spos1 != std::string::npos || spos2 != std::string::npos)
-    {
-        if (spos1 == std::string::npos) spos1 = 0;
-        if (spos2 == std::string::npos) spos2 = 0;
-        size_t spos = std::max(spos1, spos2);
-        fontName = path.substr(spos + 1);
-        size_t dpos = fontName.find('.');
-        if (dpos != std::string::npos)
-        {
-            fontName = fontName.substr(0, dpos);
-        }
-    }
+    std::string fontName(fontPath.stem().string());
 
-    if (fontName[0] > 96 && fontName[0] < 123)
+    if (InRange(fontName[0], 'a', 'z'))
     {
         fontName[0] = std::toupper(fontName[0]);
     }

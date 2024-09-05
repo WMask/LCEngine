@@ -140,6 +140,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderSystemVulkan", "Rende
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FontApp", "..\..\Code\Tools\Windows\FontApp\FontApp.vcxproj", "{A48BB3DC-6601-4CF0-8626-E3D2EC196C9C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C331D31E-C620-4930-94AD-9CE863549626} = {C331D31E-C620-4930-94AD-9CE863549626}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
