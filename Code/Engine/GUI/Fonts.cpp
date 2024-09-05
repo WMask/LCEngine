@@ -110,31 +110,93 @@ bool LcFontManager::FindGlyphs(const std::string_view& fontName, const std::wstr
 	LC_TRY
 
 	auto fontIt = fonts.find(fontName.data());
-	if (fontIt != fonts.end())
+	if (fontIt == fonts.end())
 	{
-		outGlyphs.clear();
-		outGlyphs.reserve(text.length());
+		throw LcException("Cannot find font");
+	}
 
-		float width = 0.0f, height = fontIt->second.GetFontSizeF();
+	outGlyphs.clear();
+	outGlyphs.reserve(text.length());
 
-		for (auto it(text.cbegin()); it != text.cend(); ++it)
+	float width = 0.0f, height = fontIt->second.GetFontSizeF();
+
+	for (auto it(text.cbegin()); it != text.cend(); ++it)
+	{
+		LcGlyph glyph{};
+		if (!fontIt->second.FindGlyph(*it, glyph))
 		{
-			LcGlyph glyph{};
-			if (!fontIt->second.FindGlyph(*it, glyph))
-			{
-				throw LcException("Cannot find glyph");
-			}
-
-			width += glyph.size.x;
-			outGlyphs.push_back(glyph);
+			throw LcException("Cannot find glyph");
 		}
 
-		if (outTextSize) *outTextSize = { width, height };
-
-		return outGlyphs.size() == text.length();
+		width += glyph.size.x;
+		outGlyphs.push_back(glyph);
 	}
+
+	if (outTextSize) *outTextSize = { width, height };
+
+	return outGlyphs.size() == text.length();
 
 	LC_CATCH{ LC_THROW_EX("LcFontManager::FindGlyphs('", fontName.data(), "')") }
 
 	return false;
+}
+
+bool LcFontManager::FindGlyphsScaled(const std::string_view& fontName, const std::wstring_view& text, float requiredSize, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const
+{
+	LC_TRY
+
+	auto fontIt = fonts.find(fontName.data());
+	auto font = (fontIt == fonts.end()) ? nullptr : GetBestFontLessThan(fontIt->second.GetDisplayName(), requiredSize);
+	if (!font)
+	{
+		throw LcException("Cannot find font");
+	}
+
+	outGlyphs.clear();
+	outGlyphs.reserve(text.length());
+
+	float width = 0.0f, height = font->GetFontSizeF();
+
+	for (auto it(text.cbegin()); it != text.cend(); ++it)
+	{
+		LcGlyph glyph{};
+		if (!font->FindGlyph(*it, glyph))
+		{
+			throw LcException("Cannot find glyph");
+		}
+
+		width += glyph.size.x;
+		outGlyphs.push_back(glyph);
+	}
+
+	if (outTextSize) *outTextSize = { width, height };
+
+	return outGlyphs.size() == text.length();
+
+	LC_CATCH{ LC_THROW_EX("LcFontManager::FindGlyphsScaled('", fontName.data(), "')") }
+
+	return false;
+}
+
+const LcFont* LcFontManager::GetBestFontLessThan(const std::wstring_view& displayName, float requiredSize) const
+{
+	const LcFont* result = nullptr;
+
+	for (auto& fontIt : fonts)
+	{
+		if (fontIt.second.GetDisplayName() == displayName &&
+			fontIt.second.GetFontSizeF() <= requiredSize)
+		{
+			if (!result)
+			{
+				result = &fontIt.second;
+			}
+			else if (result->GetFontSizeF() < fontIt.second.GetFontSizeF())
+			{
+				result = &fontIt.second;
+			}
+		}
+	}
+
+	return result;
 }
