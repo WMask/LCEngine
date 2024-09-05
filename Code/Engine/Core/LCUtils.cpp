@@ -24,22 +24,20 @@
 #include "Core/libpng/Include/png.h"
 static const int MAX_PNG_SIZE = 4096;
 
-struct FileRAII : public LcUncopyable
-{
-	FileRAII(const char* filePath) : file(nullptr)
-	{
-#ifdef _WINDOWS
-		fopen_s(&file, filePath, "rb");
-#else
-		file = fopen(filePath, "rb");
-#endif
-	}
-	~FileRAII() { if (file) fclose(file); }
-	operator bool() const { return file != nullptr; }
-	operator FILE* () const { return file; }
-	FILE* file;
-};
 
+FileRAII::FileRAII(const std::filesystem::path& filePath, const char* mode) : file(nullptr)
+{
+#ifdef _WINDOWS
+	fopen_s(&file, filePath.string().c_str(), mode);
+#else
+	file = fopen(filePath.string().c_str(), mode);
+#endif
+}
+
+FileRAII::~FileRAII()
+{
+	if (file) fclose(file);
+}
 
 std::string ReadTextFile(const LcPath& filePath)
 {
