@@ -120,7 +120,7 @@ public:
 	LcVisualTextureComponent(const LcVisualTextureComponent& texture) :
 		texture(texture.texture), data(texture.data), texSize(texture.texSize) {}
 	//
-	LcVisualTextureComponent(const std::filesystem::path& inTexture) : texture(inTexture), texSize(LcDefaults::ZeroVec2)
+	LcVisualTextureComponent(const LcPath& inTexture) : texture(inTexture), texSize(LcDefaults::ZeroVec2)
 	{
 	}
 	//
@@ -135,7 +135,7 @@ public: // IVisualComponent interface implementation
 	//
 	virtual LcVector2 GetTextureSize() const override { return texSize; }
 	//
-	virtual std::filesystem::path GetTexturePath() const override { return texture; }
+	virtual LcPath GetTexturePath() const override { return texture; }
 
 
 public: // IVisualComponent interface implementation
@@ -144,9 +144,9 @@ public: // IVisualComponent interface implementation
 
 
 protected:
-	std::filesystem::path texture;	// texture file path
-	LcBytes data;					// texture data
-	LcVector2 texSize;				// texture size in pixels
+	LcPath texture;		// texture file path
+	LcBytes data;		// texture data
+	LcVector2 texSize;	// texture size in pixels
 };
 
 

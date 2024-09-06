@@ -25,7 +25,7 @@
 static const int MAX_PNG_SIZE = 4096;
 
 
-FileRAII::FileRAII(const std::filesystem::path& filePath, const char* mode) : file(nullptr)
+FileRAII::FileRAII(const LcPath& filePath, const char* mode) : file(nullptr)
 {
 #ifdef _WINDOWS
 	fopen_s(&file, filePath.string().c_str(), mode);

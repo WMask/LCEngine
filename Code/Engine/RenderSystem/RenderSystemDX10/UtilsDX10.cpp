@@ -96,7 +96,7 @@ LcTextureLoaderDX10::~LcTextureLoaderDX10()
     ClearCache(nullptr);
 }
 
-bool LcTextureLoaderDX10::LoadTexture(const std::filesystem::path& texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
+bool LcTextureLoaderDX10::LoadTexture(const LcPath& texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
 {
     LC_TRY
 
@@ -169,7 +169,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
 
     if (world)
     {
-        std::set<std::filesystem::path> aliveTexList;
+        std::set<LcPath> aliveTexList;
         auto& visuals = world->GetVisuals();
         for (auto visual : visuals)
         {
@@ -179,7 +179,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
             }
         }
 
-        std::set<std::filesystem::path> eraseTexList;
+        std::set<LcPath> eraseTexList;
         for (auto tex : texturesCache)
         {
             if (aliveTexList.find(tex.first) == aliveTexList.end())

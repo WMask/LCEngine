@@ -17,7 +17,7 @@
 #include "stb_truetype.h"
 
 
-std::string MakeFontName(const std::filesystem::path& path);
+std::string MakeFontName(const LcPath& path);
 int FindMaxVertOffset(const stbtt_fontinfo& info, unsigned int bitmapSize, unsigned int lineHeight, unsigned int firstChar, unsigned int charCount);
 
 int main(int argc, const char* argv[])
@@ -60,7 +60,7 @@ int main(int argc, const char* argv[])
         charCount = atoi(argv[5]);
     }
 
-    std::filesystem::path fontPath(argv[1]);
+    LcPath fontPath(argv[1]);
     auto fontBuffer = ReadBinaryFile(fontPath);
 
     stbtt_fontinfo info{};
@@ -175,7 +175,7 @@ int main(int argc, const char* argv[])
     return 0;
 }
 
-std::string MakeFontName(const std::filesystem::path& fontPath)
+std::string MakeFontName(const LcPath& fontPath)
 {
     std::string fontName(fontPath.stem().string());
 

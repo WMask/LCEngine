@@ -109,7 +109,7 @@ void LcTiledSpriteComponent::Init(const LcAppContext& context)
 		}
 	}
 
-	std::filesystem::path tilesetPath(tiledJsonPath);
+	LcPath tilesetPath(tiledJsonPath);
 	tilesetPath.replace_filename(tilesetFileName);
 	auto tilsetFileText = ReadTextFile(tilesetPath.u8string().c_str());
 	auto tilsetObject = json::parse(tilsetFileText);

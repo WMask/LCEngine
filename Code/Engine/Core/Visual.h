@@ -324,5 +324,5 @@ public:
 	//
 	virtual LcVector2 GetTextureSize() const = 0;
 	//
-	virtual std::filesystem::path GetTexturePath() const = 0;
+	virtual LcPath GetTexturePath() const = 0;
 };

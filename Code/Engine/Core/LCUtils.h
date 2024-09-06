@@ -7,11 +7,8 @@
 #pragma once
 
 #include "LCTypes.h"
-#include <filesystem>
 
 #pragma warning(disable : 4275)
-
-using LcPath = std::filesystem::path;
 
 
 /**
@@ -46,7 +43,7 @@ CORE_API void WriteTextFile(const LcPath& filePath, const std::string& text);
 * RAII file object */
 struct CORE_API FileRAII : public LcUncopyable
 {
-	FileRAII(const std::filesystem::path& filePath, const char* mode = "rb");
+	FileRAII(const LcPath& filePath, const char* mode = "rb");
 	~FileRAII();
 	operator bool() const { return file != nullptr; }
 	operator FILE* () const { return file; }

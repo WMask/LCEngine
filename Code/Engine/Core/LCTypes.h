@@ -8,6 +8,7 @@
 
 #include "Module.h"
 
+#include <filesystem>
 #include <vector>
 #include <string>
 #include <memory>
@@ -17,8 +18,13 @@
 #undef max
 #endif
 
+
 /** vector of unsigned chars */
-typedef std::vector<unsigned char> LcBytes;
+using LcBytes = std::vector<unsigned char>;
+
+/** filesystem path */
+using LcPath = std::filesystem::path;
+
 
 /** Key state: Up, Down */
 enum class LcKeyState
