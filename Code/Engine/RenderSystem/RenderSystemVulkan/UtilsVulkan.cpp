@@ -36,7 +36,7 @@ LcTextureLoaderVulkan::~LcTextureLoaderVulkan()
 	ClearCache(nullptr);
 }
 
-void LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcTextureVulkan& outTexture)
+void LcTextureLoaderVulkan::LoadTexture(const std::filesystem::path& texPath, LcTextureVulkan& outTexture)
 {
 	auto device = render.GetVulkanDevice();
 
@@ -64,7 +64,7 @@ void LcTextureLoaderVulkan::LoadTexture(const char* texPath, LcTextureVulkan& ou
 	VkDeviceSize imageSize = static_cast<VkDeviceSize>(imageData.size());
 
 	// create texture
-	auto newPair = texturesCache.emplace(std::make_pair(std::string(texPath), LcTextureDataVulkan{}));
+	auto newPair = texturesCache.emplace(std::make_pair(texPath, LcTextureDataVulkan{}));
 	LcTextureDataVulkan& newTexData = newPair.first->second;
 	newTexData.size = { width, height };
 
@@ -129,7 +129,7 @@ void LcTextureLoaderVulkan::ClearCache(IWorld* world)
 
 	if (world)
 	{
-		std::set<std::string> aliveTexList;
+		std::set<std::filesystem::path> aliveTexList;
 		auto& visuals = world->GetVisuals();
 		for (auto visual : visuals)
 		{
@@ -139,7 +139,7 @@ void LcTextureLoaderVulkan::ClearCache(IWorld* world)
 			}
 		}
 
-		std::set<std::string> eraseTexList;
+		std::set<std::filesystem::path> eraseTexList;
 		for (auto tex : texturesCache)
 		{
 			if (aliveTexList.find(tex.first) == aliveTexList.end())

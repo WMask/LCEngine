@@ -7,6 +7,7 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <array>
@@ -31,7 +32,7 @@ static const float    VK_TRUE_F            = 1.0f;
 
 static const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
-using LcUpdateCounters = std::array<uint32_t, MAX_FRAMES_IN_FLIGHT>;
+using LcCounterValues = std::array<uint32_t, MAX_FRAMES_IN_FLIGHT>;
 
 struct QueueFamilyIndices
 {
@@ -92,7 +93,7 @@ public:
 	{
 		~LcTextureDataVulkan();
 	};
-	using TTexturesMap = std::map<std::string, LcTextureDataVulkan>;
+	using TTexturesMap = std::map<std::filesystem::path, LcTextureDataVulkan>;
 
 
 public:
@@ -101,7 +102,7 @@ public:
 	//
 	~LcTextureLoaderVulkan();
 	/** Loads texture or get cached texture */
-	void LoadTexture(const char* texPath, LcTextureVulkan& outTexture);
+	void LoadTexture(const std::filesystem::path& texPath, LcTextureVulkan& outTexture);
 	//
 	void RemoveTextures() { texturesCache.clear(); }
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
@@ -172,8 +173,8 @@ struct LcCameraManager : public LcUpdateCounter
 	//
 	LcUpdateCounter viewCounter;
 	LcUpdateCounter projCounter;
-	LcUpdateCounters viewCounters;
-	LcUpdateCounters projCounters;
+	LcCounterValues viewCounters;
+	LcCounterValues projCounters;
 	LcVector3 pos;
 	LcVector3 target;
 	LcSize size;

@@ -152,7 +152,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 
 	// add texture update listener
 	descriptorSets.onTextureUpdated.AddListener(
-		[world](const char* path, int frame, VkDescriptorSet texSet)
+		[world](const std::filesystem::path& path, int frame, VkDescriptorSet texSet)
 	{
 		const auto& visuals = world->GetVisuals();
 		for (const auto& visual : visuals)

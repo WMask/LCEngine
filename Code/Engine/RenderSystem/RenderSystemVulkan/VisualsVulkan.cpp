@@ -23,7 +23,7 @@ void LcSpriteVulkan::AddComponent(TVComponentPtr comp, const LcAppContext& conte
     if (texComp && renderVulkan)
     {
         LcTextureVulkan texture{};
-        renderVulkan->GetTextureLoader().LoadTexture(texComp->GetTexturePath().c_str(), texture);
+        renderVulkan->GetTextureLoader().LoadTexture(texComp->GetTexturePath(), texture);
         texComp->SetTextureSize(ToF(texture.size));
     }
 
@@ -41,7 +41,7 @@ void LcWidgetVulkan::AddComponent(TVComponentPtr comp, const LcAppContext& conte
     if (texComp && renderVulkan)
     {
         LcTextureVulkan texture{};
-        renderVulkan->GetTextureLoader().LoadTexture(texComp->GetTexturePath().c_str(), texture);
+        renderVulkan->GetTextureLoader().LoadTexture(texComp->GetTexturePath(), texture);
         texComp->SetTextureSize(ToF(texture.size));
     }
 

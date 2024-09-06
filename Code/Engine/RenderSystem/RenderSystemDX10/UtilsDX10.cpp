@@ -96,7 +96,7 @@ LcTextureLoaderDX10::~LcTextureLoaderDX10()
     ClearCache(nullptr);
 }
 
-bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
+bool LcTextureLoaderDX10::LoadTexture(const std::filesystem::path& texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize)
 {
     LC_TRY
 
@@ -154,11 +154,11 @@ bool LcTextureLoaderDX10::LoadTexture(const char* texPath, ID3D10Device1* device
             newTexData.view = *view;
         }
 
-        texturesCache.emplace(std::make_pair(std::string(texPath), newTexData));
+        texturesCache.emplace(std::make_pair(texPath, newTexData));
         return true;
     }
 
-    LC_CATCH{ LC_THROW_EX("LcTextureLoaderDX10::LoadTexture('", texPath, "')"); }
+    LC_CATCH{ LC_THROW_EX("LcTextureLoaderDX10::LoadTexture('", texPath.string().c_str(), "')"); }
 
     return false;
 }
@@ -169,7 +169,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
 
     if (world)
     {
-        std::set<std::string> aliveTexList;
+        std::set<std::filesystem::path> aliveTexList;
         auto& visuals = world->GetVisuals();
         for (auto visual : visuals)
         {
@@ -179,7 +179,7 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
             }
         }
 
-        std::set<std::string> eraseTexList;
+        std::set<std::filesystem::path> eraseTexList;
         for (auto tex : texturesCache)
         {
             if (aliveTexList.find(tex.first) == aliveTexList.end())

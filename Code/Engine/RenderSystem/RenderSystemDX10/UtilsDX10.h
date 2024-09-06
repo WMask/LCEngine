@@ -39,7 +39,7 @@ public:
 	//
 	~LcTextureLoaderDX10();
 	//
-	bool LoadTexture(const char* texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize);
+	bool LoadTexture(const std::filesystem::path& texPath, ID3D10Device1* device, ID3D10Texture2D** texture, ID3D10ShaderResourceView1** view, LcSize* outTexSize);
 	//
 	void RemoveTextures() { texturesCache.clear(); }
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
@@ -58,6 +58,6 @@ protected:
 		LcSize texSize = LcSize();
 	};
 	//
-	std::map<std::string, LcTextureDataDX10> texturesCache;
+	std::map<std::filesystem::path, LcTextureDataDX10> texturesCache;
 
 };

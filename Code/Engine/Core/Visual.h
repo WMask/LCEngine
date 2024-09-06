@@ -10,6 +10,7 @@
 #include <deque>
 #include <memory>
 #include <functional>
+#include <filesystem>
 
 #include "Module.h"
 #include "Core/LCTypesEx.h"
@@ -323,5 +324,5 @@ public:
 	//
 	virtual LcVector2 GetTextureSize() const = 0;
 	//
-	virtual std::string GetTexturePath() const = 0;
+	virtual std::filesystem::path GetTexturePath() const = 0;
 };

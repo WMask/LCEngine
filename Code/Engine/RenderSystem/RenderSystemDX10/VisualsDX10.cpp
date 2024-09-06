@@ -38,7 +38,7 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     {
         LcSize texSize;
         bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
-            texComp->GetTexturePath().c_str(), renderDX10->GetD3D10Device(), &texture, &textureSV, &texSize);
+            texComp->GetTexturePath(), renderDX10->GetD3D10Device(), &texture, &textureSV, &texSize);
         if (loaded)
             texComp->SetTextureSize(ToF(texSize));
         else
@@ -84,7 +84,7 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     if (auto texComp = GetTextureComponent())
     {
         LcSize texSize;
-        bool loaded = textureLoader->LoadTexture(texComp->GetTexturePath().c_str(),
+        bool loaded = textureLoader->LoadTexture(texComp->GetTexturePath(),
             renderDX10->GetD3D10Device(), &spriteTexture, &spriteTextureSV, &texSize);
         if (loaded)
             texComp->SetTextureSize(ToF(texSize));
