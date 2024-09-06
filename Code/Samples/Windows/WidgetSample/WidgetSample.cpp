@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             auto& widgetHelper = context.world->GetWidgetHelper();
 
             LcTextBlockSettings settings;
-            settings.fontName = L"Calibri";
+            settings.fontName = "Calibri";
             settings.fontSize = 30;
             settings.textColor = LcDefaults::Black4;
 

@@ -10,6 +10,7 @@
 #include "RenderSystem/RenderSystemDX10/VisualsDX10.h"
 #include "Core/LCLocalization.h"
 #include "Core/LCException.h"
+#include "Core/LCUtils.h"
 
 #include <sstream>
 
@@ -221,7 +222,7 @@ void LcTextRenderDX10::ClearCache(IWorld* world)
             if (textComp)
             {
                 auto& settings = textComp->GetSettings();
-                std::wstring name = MakeFontName(settings.fontName, settings.fontSize, settings.fontWeight);
+                std::wstring name = MakeFontName(FromUtf8(settings.fontName), settings.fontSize, settings.fontWeight);
                 aliveFontList.insert(name);
             }
         }

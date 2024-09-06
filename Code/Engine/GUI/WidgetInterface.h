@@ -37,7 +37,9 @@ struct LcTextBlockSettings
     //
     LcTextAlignment textAlign;
     //
-    std::wstring fontName;
+    LcPath fontFilePath;
+    //
+    std::string fontName;
     //
     LcFontWeight fontWeight;
     //

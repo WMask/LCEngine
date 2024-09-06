@@ -787,7 +787,7 @@ LcTextBlockSettings GetTextBlockSettings(struct lua_State* luaState, int table)
 
 	lua_getfield(luaState, table, "fontName");
 	if (!lua_isstring(luaState, -1)) throw std::exception("AddParticlesComponent(): Invalid table");
-	settings.fontName = FromUtf8(lua_tolstring(luaState, -1, 0));
+	settings.fontName = lua_tolstring(luaState, -1, 0);
 	lua_pop(luaState, 1);
 
 	lua_getfield(luaState, table, "fontWeight");

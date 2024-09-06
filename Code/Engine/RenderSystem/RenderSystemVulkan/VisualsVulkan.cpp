@@ -37,12 +37,26 @@ void LcWidgetVulkan::AddComponent(TVComponentPtr comp, const LcAppContext& conte
     LcWidget::AddComponent(comp, context);
 
     auto renderVulkan = static_cast<LcRenderSystemVulkan*>(context.render);
+    if (!renderVulkan)
+    {
+        throw LcException("Invalid render system");
+    }
+
     auto texComp = GetTextureComponent();
-    if (texComp && renderVulkan)
+    if (texComp)
     {
         LcTextureVulkan texture{};
         renderVulkan->GetTextureLoader().LoadTexture(texComp->GetTexturePath(), texture);
         texComp->SetTextureSize(ToF(texture.size));
+    }
+
+    auto textComp = GetTextComponent();
+    if (textComp)
+    {
+        auto& fontSettings = textComp->GetSettings();
+
+        LcTextureVulkan texture{};
+        renderVulkan->GetFontManager().AddFont(fontSettings.fontFilePath, fontSettings.fontName);
     }
 
     LC_CATCH{ LC_THROW("LcWidgetVulkan::AddComponent()") }

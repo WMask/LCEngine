@@ -60,6 +60,9 @@ public:
 	* Return texture loder */
 	virtual LcTextureLoaderVulkan& GetTextureLoader() = 0;
 	/**
+	* Return font manager */
+	virtual LcFontManagerVulkan& GetFontManager() = 0;
+	/**
 	* Get sprite renders */
 	virtual TVisual2DRenderList& GetVisual2DRenderList() = 0;
 	/**
@@ -148,6 +151,8 @@ public:// IRenderDeviceVulkan interface implementation
 	virtual VkSampler GetTextureSampler() const override { return textureSampler; }
 	//
 	virtual LcTextureLoaderVulkan& GetTextureLoader() override { return texLoader; }
+	//
+	virtual LcFontManagerVulkan& GetFontManager() override { return fontManager; }
 	//
 	virtual TVisual2DRenderList& GetVisual2DRenderList() override { return visual2DRenders; }
 	//

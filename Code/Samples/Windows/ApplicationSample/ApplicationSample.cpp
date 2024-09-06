@@ -70,7 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             }
 
             LcTextBlockSettings settings;
-            settings.fontName = L"Calibri";
+            settings.fontName = "Calibri";
             settings.fontSize = 18;
             settings.textColor = LcDefaults::White4;
 
