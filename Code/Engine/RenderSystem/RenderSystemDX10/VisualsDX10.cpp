@@ -38,11 +38,17 @@ void LcSpriteDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
     {
         LcSize texSize;
         bool loaded = renderDX10->GetTextureLoader()->LoadTexture(
-            texComp->GetTexturePath(), renderDX10->GetD3D10Device(), &texture, &textureSV, &texSize);
+            texComp->GetTexturePath(), renderDX10->GetD3D10Device(),
+            &texture, &textureSV, &texSize
+        );
         if (loaded)
+        {
             texComp->SetTextureSize(ToF(texSize));
+        }
         else
-            throw std::exception("LcSpriteDX10::AddComponent(): Cannot load texture");
+        {
+            throw LcException("Cannot load texture");
+        }
     }
 
     LC_CATCH{ LC_THROW("LcSpriteDX10::AddComponent()") }
@@ -79,27 +85,41 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
 
     auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
     auto textureLoader = renderDX10 ? renderDX10->GetTextureLoader() : nullptr;
-    if (!renderDX10 || !textureLoader) throw std::exception("LcWidgetDX10::AddComponent(): Invalid render system");
+    if (!renderDX10 || !textureLoader)
+    {
+        throw LcException("Invalid render system");
+    }
 
     if (auto texComp = GetTextureComponent())
     {
         LcSize texSize;
         bool loaded = textureLoader->LoadTexture(texComp->GetTexturePath(),
-            renderDX10->GetD3D10Device(), &spriteTexture, &spriteTextureSV, &texSize);
+            renderDX10->GetD3D10Device(), &spriteTexture, &spriteTextureSV, &texSize
+        );
         if (loaded)
+        {
             texComp->SetTextureSize(ToF(texSize));
+        }
         else
-            throw std::exception("LcWidgetDX10::AddComponent(): Cannot load texture");
+        {
+            throw LcException("Cannot load texture");
+        }
     }
 
     auto textComp = GetTextComponent();
     if (textComp)
     {
         auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
-        if (!textRender) throw std::exception("LcWidgetDX10::AddComponent(): Invalid widget render");
+        if (!textRender)
+        {
+            throw LcException("Invalid widget render");
+        }
 
-        font = textRender->AddFont(textComp->GetSettings().fontName, GetFontSize(*textComp, context), textComp->GetSettings().fontWeight);
-        if (!font) throw std::exception("LcWidgetDX10::AddComponent(): Cannot create font");
+        font = textRender->AddFont(FromUtf8(textComp->GetSettings().fontName), GetFontSize(*textComp, context), textComp->GetSettings().fontWeight);
+        if (!font)
+        {
+            throw LcException("Cannot create font");
+        }
 
         RedrawText(textRender, context);
     }
@@ -109,24 +129,37 @@ void LcWidgetDX10::AddComponent(TVComponentPtr comp, const LcAppContext& context
 
 void LcWidgetDX10::RecreateFont(const LcAppContext& context)
 {
+    LC_TRY
+
     auto textComp = GetTextComponent();
-    if (auto textComp = GetTextComponent())
+    if (textComp)
     {
         auto renderDX10 = static_cast<LcRenderSystemDX10*>(context.render);
         auto textRender = renderDX10 ? renderDX10->GetTextRender() : nullptr;
-        if (!textRender) throw std::exception("LcWidgetDX10::RecreateFont(): Invalid widget render");
+        if (!textRender)
+        {
+            throw LcException("Invalid widget render");
+        }
 
-        font = textRender->AddFont(textComp->GetSettings().fontName, GetFontSize(*textComp, context), textComp->GetSettings().fontWeight);
-        if (!font) throw std::exception("LcWidgetDX10::RecreateFont(): Cannot create font");
+        font = textRender->AddFont(FromUtf8(textComp->GetSettings().fontName), GetFontSize(*textComp, context), textComp->GetSettings().fontWeight);
+        if (!font)
+        {
+            throw LcException("Cannot create font");
+        }
 
         RedrawText(textRender, context);
     }
+
+    LC_CATCH{ LC_THROW("LcWidgetDX10::RecreateFont()") }
 }
 
 void LcWidgetDX10::RedrawText(LcTextRenderDX10* textRender, const LcAppContext& context)
 {
     auto textComp = GetTextComponent();
-    if (!textComp || !context.text) throw std::exception("LcWidgetDX10::RedrawText(): Invalid arguments");
+    if (!textComp || !context.text)
+    {
+        throw LcException("LcWidgetDX10::RedrawText(): Invalid arguments");
+    }
 
     textRenderTarget.Reset();
     textTextureSV.Reset();
@@ -139,7 +172,8 @@ void LcWidgetDX10::RedrawText(LcTextRenderDX10* textRender, const LcAppContext& 
     std::wstring text = context.text->Get(textComp->GetTextKey().c_str());
 
     textRender->RenderText(text, rect, textComp->GetSettings().textColor,
-        textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context);
+        textComp->GetSettings().textAlign, font, textRenderTarget.Get(), context
+    );
 
     prevRenderedText = text;
 }
