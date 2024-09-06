@@ -9,6 +9,7 @@
 #include "WorldInterface.h"
 #include "SpriteInterface.h"
 #include "GUI/WidgetInterface.h"
+#include "GUI/Fonts.h"
 #include "Core/LCCreator.h"
 #include "Core/Visual.h"
 #include "Camera.h"
@@ -35,12 +36,15 @@ public:
 	typedef std::unique_ptr<class LcVisualHelper> TVisualHelperPtr;
 	typedef std::unique_ptr<class LcSpriteHelper> TSpriteHelperPtr;
 	typedef std::unique_ptr<class LcWidgetHelper> TWidgetHelperPtr;
+	typedef std::unique_ptr<class LcFontManager> TFontManagerPtr;
 
 
 public:
 	LcWorld(const LcAppContext& context);
 	//
 	void SetLifetimeStrategy(TVisualLifetime inVisualLifetime) { items.SetLifetimeStrategy(std::move(inVisualLifetime)); }
+	//
+	void SetFontManager(TFontManagerPtr inFontManager) { fontManager = std::move(inFontManager); }
 
 
 public: // IWorld interface implementation
@@ -66,6 +70,8 @@ public: // IWorld interface implementation
 	virtual const TVisualSet& GetVisuals() const override { return items.GetItems(); }
 	//
 	virtual TVisualSet& GetVisuals() override { return items.GetItems(); }
+	//
+	virtual const LcFontManager* GetFontManager() const override { return fontManager.get(); }
 	//
 	virtual const LcCamera& GetCamera() const override { return camera; }
 	//
@@ -100,6 +106,8 @@ protected:
 	TSpriteHelperPtr spriteHelper;
 	//
 	TWidgetHelperPtr widgetHelper;
+	//
+	TFontManagerPtr fontManager;
 	//
 	LcWorldScale worldScale;
 	//

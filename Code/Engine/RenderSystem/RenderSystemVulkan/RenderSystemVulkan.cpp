@@ -57,6 +57,7 @@ LcRenderSystemVulkan::LcRenderSystemVulkan()
 	, worldScaleFonts(false)
 	, descriptorSets(*this)
 	, texLoader(*this)
+	, fontManager(texLoader)
 {
 }
 
@@ -152,7 +153,7 @@ void LcRenderSystemVulkan::Create(void* windowHandle, LcWinMode winMode, bool in
 
 	// add texture update listener
 	descriptorSets.onTextureUpdated.AddListener(
-		[world](const std::filesystem::path& path, int frame, VkDescriptorSet texSet)
+		[world](const LcPath& path, int frame, VkDescriptorSet texSet)
 	{
 		const auto& visuals = world->GetVisuals();
 		for (const auto& visual : visuals)
@@ -612,7 +613,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	}
 
 	// update textures based on current world state
-	if (!texLoader.IsUpdated(texLoaderCounters[currentFrame]))
+	if (!texLoader.IsUpdated(texLoader.texCounters[currentFrame]))
 	{
 		descriptorSets.UpdateTextures(currentFrame);
 	}

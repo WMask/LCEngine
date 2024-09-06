@@ -36,7 +36,7 @@ LcTextureLoaderVulkan::~LcTextureLoaderVulkan()
 	ClearCache(nullptr);
 }
 
-void LcTextureLoaderVulkan::LoadTexture(const std::filesystem::path& texPath, LcTextureVulkan& outTexture)
+void LcTextureLoaderVulkan::LoadTexture(const LcPath& texPath, LcTextureVulkan& outTexture)
 {
 	auto device = render.GetVulkanDevice();
 
@@ -55,7 +55,7 @@ void LcTextureLoaderVulkan::LoadTexture(const std::filesystem::path& texPath, Lc
 	}
 
 	// read png
-	std::vector<uint8_t> imageData;
+	LcBytes imageData;
 	int width, height, bpp, rowBytes;
 	ReadPngFile(texPath, &width, &height, &bpp, &rowBytes);
 	imageData.resize(rowBytes * height);
@@ -129,9 +129,9 @@ void LcTextureLoaderVulkan::ClearCache(IWorld* world)
 
 	if (world)
 	{
-		std::set<std::filesystem::path> aliveTexList;
-		auto& visuals = world->GetVisuals();
-		for (auto visual : visuals)
+		std::set<LcPath> aliveTexList;
+		const auto& visuals = world->GetVisuals();
+		for (const auto& visual : visuals)
 		{
 			if (auto texComp = visual->GetTextureComponent())
 			{
@@ -139,7 +139,15 @@ void LcTextureLoaderVulkan::ClearCache(IWorld* world)
 			}
 		}
 
-		std::set<std::filesystem::path> eraseTexList;
+		if (auto fontManagerPtr = world->GetFontManager())
+		{
+			for (const auto& fontPath : *fontManagerPtr->GetFontsList())
+			{
+				aliveTexList.insert(fontPath);
+			}
+		}
+
+		std::set<LcPath> eraseTexList;
 		for (auto tex : texturesCache)
 		{
 			if (aliveTexList.find(tex.first) == aliveTexList.end())
@@ -319,6 +327,41 @@ void LcTextureLoaderVulkan::CreateImage(uint32_t width, uint32_t height, VkForma
 	vkBindImageMemory(device, image, imageMemory, 0);
 
 	LC_CATCH{ LC_THROW("LcTextureLoaderVulkan::CreateImage()") }
+}
+
+void LcFontManagerVulkan::AddFont(const LcPath& jsonPath, const std::string_view& fontName)
+{
+	if (std::find(fontTextures.cbegin(), fontTextures.cend(), jsonPath) != fontTextures.cend())
+	{
+		DebugMsg("LcFontManagerVulkan::AddFont(): Font already added: %s", jsonPath.string().c_str());
+		return;
+	}
+
+	LcPath texPath = jsonPath;
+	texPath.replace_extension("png");
+
+	auto textureId = static_cast<unsigned int>(fontTextures.size());
+	fontTextures.push_back(texPath);
+
+	LcTextureVulkan texture{};
+	texLoader.LoadTexture(texPath, texture);
+
+	fonts.AddFont(jsonPath, fontName, textureId);
+}
+
+bool LcFontManagerVulkan::FindGlyph(const std::string_view& fontName, wchar_t glyphCode, LcGlyph& outGlyph) const
+{
+	return fonts.FindGlyph(fontName, glyphCode, outGlyph);
+}
+
+bool LcFontManagerVulkan::FindGlyphs(const std::string_view& fontName, const std::wstring_view& text, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const
+{
+	return fonts.FindGlyphs(fontName, text, outGlyphs, outTextSize);
+}
+
+bool LcFontManagerVulkan::FindGlyphsScaled(const std::string_view& fontName, const std::wstring_view& text, float requiredSize, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const
+{
+	return fonts.FindGlyphsScaled(fontName, text, requiredSize, outGlyphs, outTextSize);
 }
 
 std::vector<const char*> GetRequiredExtensions()

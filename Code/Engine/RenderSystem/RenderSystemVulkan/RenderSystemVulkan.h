@@ -217,7 +217,7 @@ protected:
 	//
 	LcTextureLoaderVulkan texLoader;
 	//
-	LcCounterValues texLoaderCounters;
+	LcFontManagerVulkan fontManager;
 	//
 	LcCameraManager cameraManager;
 	//

@@ -86,6 +86,8 @@ public:
 	* outTextSize - full string size in pixels
 	*/
 	bool FindGlyphsScaled(const std::string_view& fontName, const std::wstring_view& text, float requiredSize, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const;
+	// Get font file paths
+	virtual const std::vector<LcPath>* GetFontsList() const { return nullptr; }
 
 
 protected:

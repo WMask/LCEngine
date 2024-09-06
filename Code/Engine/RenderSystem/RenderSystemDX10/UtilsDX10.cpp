@@ -10,6 +10,7 @@
 #include "World/SpriteInterface.h"
 #include "Core/LCException.h"
 #include "Core/LCUtils.h"
+#include "GUI/Fonts.h"
 
 #include <set>
 #include <cmath>
@@ -170,12 +171,20 @@ void LcTextureLoaderDX10::ClearCache(IWorld* world)
     if (world)
     {
         std::set<LcPath> aliveTexList;
-        auto& visuals = world->GetVisuals();
-        for (auto visual : visuals)
+        const auto& visuals = world->GetVisuals();
+        for (const auto& visual : visuals)
         {
             if (auto texComp = visual->GetTextureComponent())
             {
                 aliveTexList.insert(texComp->GetTexturePath());
+            }
+        }
+
+        if (auto fontManagerPtr = world->GetFontManager())
+        {
+            for (const auto& fontPath : *fontManagerPtr->GetFontsList())
+            {
+                aliveTexList.insert(fontPath);
             }
         }
 

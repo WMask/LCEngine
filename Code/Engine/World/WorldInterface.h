@@ -134,6 +134,9 @@ public:
 	* Get sprites and widgets */
 	virtual TVisualSet& GetVisuals() = 0;
 	/**
+	* Get font manager */
+	virtual const class LcFontManager* GetFontManager() const = 0;
+	/**
 	* Get camera */
 	virtual const class LcCamera& GetCamera() const = 0;
 	/**

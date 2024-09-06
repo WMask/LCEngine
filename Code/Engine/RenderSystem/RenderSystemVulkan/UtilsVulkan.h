@@ -16,6 +16,7 @@
 #include "World/WorldInterface.h"
 #include "World/SpriteInterface.h"
 #include "GUI/WidgetInterface.h"
+#include "GUI/Fonts.h"
 #include "Core/LCTypesEx.h"
 
 
@@ -93,7 +94,9 @@ public:
 	{
 		~LcTextureDataVulkan();
 	};
-	using TTexturesMap = std::map<std::filesystem::path, LcTextureDataVulkan>;
+	using TTexturesMap = std::map<LcPath, LcTextureDataVulkan>;
+	//
+	LcCounterValues texCounters;
 
 
 public:
@@ -102,7 +105,7 @@ public:
 	//
 	~LcTextureLoaderVulkan();
 	/** Loads texture or get cached texture */
-	void LoadTexture(const std::filesystem::path& texPath, LcTextureVulkan& outTexture);
+	void LoadTexture(const LcPath& texPath, LcTextureVulkan& outTexture);
 	//
 	void RemoveTextures() { texturesCache.clear(); }
 	/** If world is not null - only unused textures removed. If null - all textures removed. */
@@ -138,6 +141,42 @@ protected:
 	TTexturesMap texturesCache;
 
 };
+
+
+/**
+* Vulkan fonts manager */
+class LcFontManagerVulkan
+{
+public:
+	//
+	LcFontManagerVulkan(LcTextureLoaderVulkan& inTexLoader) : texLoader(inTexLoader) {}
+	//
+	void AddFont(const LcPath& jsonPath, const std::string_view& fontName);
+	//
+	bool FindGlyph(const std::string_view& fontName, wchar_t glyphCode, LcGlyph& outGlyph) const;
+	/*
+	* outTextSize - full string size in pixels
+	*/
+	bool FindGlyphs(const std::string_view& fontName, const std::wstring_view& text, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const;
+	/*
+	* requiredSize - requires line height in pixels
+	* outTextSize - full string size in pixels
+	*/
+	bool FindGlyphsScaled(const std::string_view& fontName, const std::wstring_view& text, float requiredSize, std::vector<LcGlyph>& outGlyphs, LcSizef* outTextSize) const;
+	// Get font file paths
+	virtual const std::vector<LcPath>* GetFontsList() const { return &fontTextures; }
+
+
+protected:
+	//
+	LcTextureLoaderVulkan& texLoader;
+	//
+	LcFontManager fonts;
+	//
+	std::vector<LcPath> fontTextures;
+
+};
+
 
 /**
 * Camera manager */
