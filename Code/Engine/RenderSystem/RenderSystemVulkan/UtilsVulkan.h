@@ -33,8 +33,6 @@ static const float    VK_TRUE_F            = 1.0f;
 
 static const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
-using LcCounterValues = std::array<uint32_t, MAX_FRAMES_IN_FLIGHT>;
-
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> graphicsFamily;
@@ -86,7 +84,7 @@ void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize
 
 /**
 * Texture loader */
-class LcTextureLoaderVulkan : public LcUpdateCounter
+class LcTextureLoaderVulkan : public LcUpdateCounter<MAX_FRAMES_IN_FLIGHT>
 {
 public:
 	//
@@ -95,8 +93,6 @@ public:
 		~LcTextureDataVulkan();
 	};
 	using TTexturesMap = std::map<LcPath, LcTextureDataVulkan>;
-	//
-	LcCounterValues texCounters;
 
 
 public:
@@ -180,7 +176,7 @@ protected:
 
 /**
 * Camera manager */
-struct LcCameraManager : public LcUpdateCounter
+struct LcCameraManager : public LcUpdateCounter<MAX_FRAMES_IN_FLIGHT>
 {
 	inline void SetView(LcVector3 newPos, LcVector3 newTarget)
 	{
@@ -202,18 +198,16 @@ struct LcCameraManager : public LcUpdateCounter
 	//
 	inline bool IsViewUpdated(uint32_t currentFrame)
 	{
-		return viewCounter.IsUpdated(viewCounters[currentFrame]);
+		return viewCounter.IsUpdated(currentFrame);
 	}
 	//
 	inline bool IsProjUpdated(uint32_t currentFrame)
 	{
-		return projCounter.IsUpdated(projCounters[currentFrame]);
+		return projCounter.IsUpdated(currentFrame);
 	}
 	//
-	LcUpdateCounter viewCounter;
-	LcUpdateCounter projCounter;
-	LcCounterValues viewCounters;
-	LcCounterValues projCounters;
+	LcUpdateCounter<MAX_FRAMES_IN_FLIGHT> viewCounter;
+	LcUpdateCounter<MAX_FRAMES_IN_FLIGHT> projCounter;
 	LcVector3 pos;
 	LcVector3 target;
 	LcSize size;

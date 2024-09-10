@@ -613,7 +613,7 @@ void LcRenderSystemVulkan::Render(const LcAppContext& context)
 	}
 
 	// update textures based on current world state
-	if (!texLoader.IsUpdated(texLoader.texCounters[currentFrame]))
+	if (!texLoader.IsUpdated(currentFrame))
 	{
 		descriptorSets.UpdateTextures(currentFrame);
 	}

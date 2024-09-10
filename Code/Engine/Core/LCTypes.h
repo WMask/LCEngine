@@ -143,6 +143,7 @@ struct LcAny
 };
 
 /** Counts object updates */
+template <uint32_t N = 1>
 struct LcUpdateCounter
 {
 	inline void UpdateCounter()
@@ -153,13 +154,20 @@ struct LcUpdateCounter
 			updateCounter++;
 	}
 	//
-	inline bool IsUpdated(uint32_t& inOutOldValue)
+	inline bool IsUpdated(unsigned int id = 0)
 	{
-		if (inOutOldValue != updateCounter) { inOutOldValue = updateCounter; return false; }
+		if (prevCounter.at(id) != updateCounter)
+		{
+			prevCounter[id] = updateCounter;
+			return false;
+		}
+
 		return true;
 	}
 	//
 	uint32_t updateCounter = 0;
+	//
+	std::array<uint32_t, N> prevCounter;
 };
 
 
