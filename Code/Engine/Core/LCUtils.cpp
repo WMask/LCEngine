@@ -123,7 +123,9 @@ void DebugMsgW(const wchar_t* fmt, ...)
 	OutputDebugStringW(dbg_out);
 }
 
-#else
+#elif __APPLE__
+
+#elif __linux__
 
 void DebugMsg(const char* fmt, ...) {}
 void DebugMsgW(const wchar_t* fmt, ...) {}
