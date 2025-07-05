@@ -358,7 +358,9 @@ void DebugMsg(const char* fmt, ...)
     std::cout << dbg_out << std::endl;
 }
 
-#else
+#elif __APPLE__
+
+#elif __linux__
 
 void DebugMsg(const char* fmt, ...) {}
 void DebugMsgW(const wchar_t* fmt, ...) {}
